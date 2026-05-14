@@ -32,6 +32,68 @@ _CACHE_DIR.mkdir(parents=True, exist_ok=True)
 _TTL_SEC = 24 * 3600
 _MAX_TOKENS = 3000
 
+# 운영 표준 §7.2.1 — 사진 불량 9종 에러코드.
+# 클라이언트 안내·서버 로그·운영 대시보드 집계의 단일 식별자.
+# 명명 규약: ERR_FACE_<CASE> (전체 거부) / WARN_FACE_<CASE> (경고만, 풀이 정상 산출)
+ERR_FACE_NOT_DETECTED = "ERR_FACE_NOT_DETECTED"   # 얼굴 미감지
+ERR_FACE_MULTIPLE = "ERR_FACE_MULTIPLE"           # 다중 얼굴
+ERR_FACE_NON_HUMAN = "ERR_FACE_NON_HUMAN"         # 사람 아님(반려동물·캐릭터)
+ERR_FACE_BLUR = "ERR_FACE_BLUR"                   # 강한 흐림
+ERR_FACE_PROFILE = "ERR_FACE_PROFILE"             # 강한 측면 (yaw>40°)
+ERR_FACE_BACKLIT = "ERR_FACE_BACKLIT"             # 강한 역광/저조도
+ERR_FACE_OCCLUDED = "ERR_FACE_OCCLUDED"           # 마스크·선글라스 가림
+WARN_FACE_FILTERED = "WARN_FACE_FILTERED"         # 강한 메이크업/필터 (감지 불가, 사후 안내만)
+WARN_FACE_FLAT = "WARN_FACE_FLAT"                 # 평면 사진 (스크린 촬영 의심)
+
+# 한 줄 안내 — 사극풍 어조 일관 (운영 표준 §7.2.1 사용자 안내 열)
+_ERR_HINTS_KO = {
+    ERR_FACE_NOT_DETECTED: "허허, 상이 잘 잡히지 않는구먼. 빛 좋은 곳에서 정면으로 한 번 더 부탁하이.",
+    ERR_FACE_MULTIPLE: "허허, 그대 한 분의 상만 담아 보내시게.",
+    ERR_FACE_NON_HUMAN: "허허, 사람의 상으로만 풀이를 짚네.",
+    ERR_FACE_BLUR: "허허, 결이 흐려 짚지 못하네. 빛 좋은 곳에서 정면으로 다시 담아주시게.",
+    ERR_FACE_PROFILE: "허허, 옆모습은 한 자리만 보이네. 정면 한 장 더 부탁하이.",
+    ERR_FACE_BACKLIT: "허허, 기색은 흐려 짚지 못하네. 빛을 등지지 마시게.",
+    ERR_FACE_OCCLUDED: "허허, 가린 자리는 자네에게 묻네. 가리개를 풀고 한 장 더 부탁하이.",
+}
+
+
+def classify_metric_issue(metrics: dict[str, Any] | None) -> str | None:
+    """메트릭에서 §7.2.1 사진 불량을 분류. 정상이면 None, 불량이면 에러코드 반환.
+
+    클라이언트 가드가 통과한 경우라도 메트릭 자체가 불량이면 백엔드도 거부.
+    분류 우선순위(엄격도 순):
+      1) face_count == 0 → ERR_FACE_NOT_DETECTED
+      2) face_count >= 2 → ERR_FACE_MULTIPLE
+      3) blendshapes 합 0 근접 → ERR_FACE_NON_HUMAN
+      4) head_tilt_deg > 40° → ERR_FACE_PROFILE
+      5) brightness < 0.10 → ERR_FACE_BACKLIT (역광/저조도)
+      6) z_variance < 0.0001 → WARN_FACE_FLAT (경고만, 풀이는 진행)
+    """
+    if not isinstance(metrics, dict) or not metrics:
+        return None
+    fc = metrics.get("face_count")
+    if isinstance(fc, int):
+        if fc == 0:
+            return ERR_FACE_NOT_DETECTED
+        if fc >= 2:
+            return ERR_FACE_MULTIPLE
+    bs = metrics.get("blendshapes")
+    if isinstance(bs, dict):
+        total = sum(v for v in bs.values() if isinstance(v, (int, float)))
+        if total == 0 and any(isinstance(v, (int, float)) for v in bs.values()):
+            # blendshape 키는 있는데 모두 0 → 사람 얼굴이 아닐 가능성
+            return ERR_FACE_NON_HUMAN
+    tilt = metrics.get("head_tilt_deg")
+    if isinstance(tilt, (int, float)) and abs(tilt) > 40:
+        return ERR_FACE_PROFILE
+    br = metrics.get("brightness")
+    if isinstance(br, (int, float)) and br < 0.10:
+        return ERR_FACE_BACKLIT
+    zv = metrics.get("z_variance")
+    if isinstance(zv, (int, float)) and 0 < zv < 0.0001:
+        return WARN_FACE_FLAT
+    return None
+
 
 _FACE_SYSTEM = (
     '당신은 "운학 도사(雲鶴道士)"입니다. 60대 후반에서 70대 초반의 한국 사극 속 인물로, '
@@ -460,6 +522,20 @@ def generate_face_reading(
     if not (image_b64 or "").strip():
         raise ValueError("image_b64 is required")
 
+    # 0.5 §7.2.1 사진 불량 분류 — 전체 거부 코드면 한 줄 안내 후 종료 (억지 풀이 금지)
+    issue = classify_metric_issue(metrics)
+    if issue and issue in _ERR_HINTS_KO:
+        legal = build_legal_footer(is_crisis=False)
+        return {
+            "text": _ERR_HINTS_KO[issue] + legal,
+            "cached": False,
+            "crisis_alert": None,
+            "legal_notice": legal,
+            "error_code": issue,
+        }
+    # 경고만 (WARN_FACE_*) 인 경우는 풀이 정상 진행, 단 응답에 코드 노출
+    warn_code = issue if issue and issue.startswith("WARN_") else None
+
     # 1. 캐시 — 같은 이미지+보조정보+메트릭 24h 재사용
     key = _hash_payload(image_b64, age, gender, question, metrics)
     cached = _load_cache(key)
@@ -475,11 +551,13 @@ def generate_face_reading(
     legal = build_legal_footer(is_crisis=False)
     full_text = (text or "").strip() + legal
 
-    out = {
+    out: dict[str, Any] = {
         "text": full_text,
         "cached": False,
         "crisis_alert": None,
         "legal_notice": legal,
     }
+    if warn_code:
+        out["error_code"] = warn_code  # 풀이는 정상이나 경고 동봉 (WARN_FACE_*)
     _save_cache(key, out)
     return out

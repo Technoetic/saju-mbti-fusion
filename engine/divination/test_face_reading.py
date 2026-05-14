@@ -302,6 +302,97 @@ def test_format_metrics_block_cheo_cheop_classification():
     assert "처첩궁이 넓다" in "\n".join(_format_metrics_block({"cheo_cheop_ratio": 0.30}))
 
 
+# ─────────────────────────── §7.2.1 사진 불량 9종 에러코드 ───────────────────────────
+
+def test_classify_metric_issue_normal_metrics_returns_none():
+    """정상 메트릭은 None 반환 (불량 아님)."""
+    from engine.divination.face_reading import classify_metric_issue
+    assert classify_metric_issue(None) is None
+    assert classify_metric_issue({}) is None
+    assert classify_metric_issue({
+        "three_thirds": [33, 34, 33],
+        "head_tilt_deg": 5,
+        "brightness": 0.5,
+        "z_variance": 0.005,
+        "blendshapes": {"jaw_open": 0.05, "mouth_smile": 0.10, "brow_inner_up": 0.05, "eye_blink": 0.20},
+    }) is None
+
+
+def test_classify_metric_issue_face_count():
+    """face_count 0 / >=2 분류."""
+    from engine.divination.face_reading import (
+        classify_metric_issue, ERR_FACE_NOT_DETECTED, ERR_FACE_MULTIPLE,
+    )
+    assert classify_metric_issue({"face_count": 0}) == ERR_FACE_NOT_DETECTED
+    assert classify_metric_issue({"face_count": 2}) == ERR_FACE_MULTIPLE
+    assert classify_metric_issue({"face_count": 3}) == ERR_FACE_MULTIPLE
+
+
+def test_classify_metric_issue_non_human():
+    """blendshape 키는 있는데 모두 0 → 사람 아님."""
+    from engine.divination.face_reading import classify_metric_issue, ERR_FACE_NON_HUMAN
+    assert classify_metric_issue({
+        "blendshapes": {"jaw_open": 0, "mouth_smile": 0, "brow_inner_up": 0, "eye_blink": 0}
+    }) == ERR_FACE_NON_HUMAN
+
+
+def test_classify_metric_issue_profile_view():
+    """head_tilt_deg 절대값 40° 초과 → 강측면."""
+    from engine.divination.face_reading import classify_metric_issue, ERR_FACE_PROFILE
+    assert classify_metric_issue({"head_tilt_deg": 45}) == ERR_FACE_PROFILE
+    assert classify_metric_issue({"head_tilt_deg": -50}) == ERR_FACE_PROFILE
+    # 경계
+    assert classify_metric_issue({"head_tilt_deg": 40}) != ERR_FACE_PROFILE  # 경계 미포함
+
+
+def test_classify_metric_issue_backlit():
+    """brightness < 0.10 → 강한 역광/저조도."""
+    from engine.divination.face_reading import classify_metric_issue, ERR_FACE_BACKLIT
+    assert classify_metric_issue({"brightness": 0.05}) == ERR_FACE_BACKLIT
+    # 경계 0.10 (미만이라야 잡힘)
+    assert classify_metric_issue({"brightness": 0.10}) != ERR_FACE_BACKLIT
+
+
+def test_classify_metric_issue_flat_photo_warn():
+    """z_variance 매우 작음 → 평면 사진 의심 경고."""
+    from engine.divination.face_reading import classify_metric_issue, WARN_FACE_FLAT
+    assert classify_metric_issue({"z_variance": 0.00005}) == WARN_FACE_FLAT
+    # z_variance 0은 측정 실패라 무시
+    assert classify_metric_issue({"z_variance": 0}) is None
+
+
+def test_generate_face_reading_returns_error_code_on_face_not_detected(monkeypatch, tmp_path):
+    """face_count==0 케이스 — LLM 호출 없이 안내 + error_code 반환."""
+    from engine.divination import face_reading
+    monkeypatch.setattr(face_reading, "_CACHE_DIR", tmp_path)
+    def boom(*a, **k):
+        raise RuntimeError("불량 사진 거부 시 LLM 호출 X")
+    monkeypatch.setattr(face_reading, "_call_vision", boom)
+
+    r = face_reading.generate_face_reading(
+        image_b64="dummy",
+        metrics={"face_count": 0},
+    )
+    assert r["error_code"] == "ERR_FACE_NOT_DETECTED"
+    assert "상이 잘 잡히지 않" in r["text"]
+    assert r["crisis_alert"] is None
+
+
+def test_generate_face_reading_returns_warn_code_on_flat_photo(monkeypatch, tmp_path):
+    """z_variance 낮음 — 풀이는 정상, error_code: WARN_FACE_FLAT 노출."""
+    from engine.divination import face_reading
+    monkeypatch.setattr(face_reading, "_CACHE_DIR", tmp_path)
+    monkeypatch.setattr(face_reading, "_call_vision",
+                        lambda *a, **k: "허허, 그대의 상을 살피니…")
+
+    r = face_reading.generate_face_reading(
+        image_b64="dummy",
+        metrics={"z_variance": 0.00005, "three_thirds": [33, 34, 33]},
+    )
+    assert r.get("error_code") == "WARN_FACE_FLAT"
+    assert "허허" in r["text"]  # 풀이 본문은 정상 산출됨
+
+
 def test_format_metrics_block_wajam_classification():
     """와잠(자녀궁) 3단계."""
     from engine.divination.face_reading import _format_metrics_block

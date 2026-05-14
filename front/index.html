@@ -8364,17 +8364,26 @@ if (document.readyState === 'loading') {
   im.src = dataUrl;
   });
   const result = landmarker.detect(img);
-  if (!result.faceLandmarks || result.faceLandmarks.length === 0) {
+  const faceCount = (result.faceLandmarks || []).length;
+  if (faceCount === 0) {
   console.warn('[face] 얼굴 미감지 — 메트릭 없이 진행');
-  return null;
+  // §7.2.1 표준 에러코드 분류용 face_count: 0 메트릭 반환 (백엔드가 ERR_FACE_NOT_DETECTED 응답)
+  return { face_count: 0 };
+  }
+  if (faceCount >= 2) {
+  console.warn(`[face] 다중 얼굴 ${faceCount}개 감지 — 백엔드가 ERR_FACE_MULTIPLE 반환할 것`);
+  return { face_count: faceCount };
   }
   const lms = result.faceLandmarks[0];
   const bs  = (result.faceBlendshapes && result.faceBlendshapes[0]) || null;
   // 캡처된 이미지 자체의 조도도 메트릭에 기록 (LLM이 기색 풀이에 활용)
   const brightness = measureBrightness(img);
   const m = computeMetrics(lms, bs);
-  if (m && typeof brightness === 'number') {
+  if (m) {
+  m.face_count = 1;
+  if (typeof brightness === 'number') {
   m.brightness = +brightness.toFixed(3);
+  }
   }
   return m;
   } catch (e) {
@@ -8861,12 +8870,28 @@ if (document.readyState === 'loading') {
   </div>`;
   }
 
-  const metricsCard = renderMetricsCard(capturedMetrics);
+  // §7.2.1 에러코드 동봉 — ERR_* 전체 거부 / WARN_* 경고만
+  let errBlock = '';
+  if (data && data.error_code) {
+  const isWarn = data.error_code.startsWith('WARN_');
+  const bg = isWarn ? 'rgba(176,127,40,0.10)' : 'rgba(176,79,79,0.10)';
+  const bd = isWarn ? 'rgba(212,175,55,0.40)' : 'rgba(176,79,79,0.35)';
+  const ic = isWarn ? '⚠' : '✕';
+  errBlock = `<div style="margin-top:16px;padding:10px 14px;background:${bg};border:1px solid ${bd};border-radius:3px;color:#e9d28a;font-size:12px;letter-spacing:1px;font-family:'Nanum Myeongjo',serif">
+  ${ic} <code style="opacity:0.8">${data.error_code}</code>
+  ${isWarn ? '(풀이는 정상이나 신뢰도가 낮을 수 있네)' : '(다시 담아 보시게)'}
+  </div>`;
+  }
+
+  // 거부 케이스(ERR_*)에는 메트릭 카드 노출하지 않음 (얼굴 미감지·다중·비인간 등)
+  const isReject = data && data.error_code && data.error_code.startsWith('ERR_');
+  const metricsCard = isReject ? '' : renderMetricsCard(capturedMetrics);
 
   board.innerHTML = `
   <div class="face-result-card">
   <h2 class="story-title">운 학 도 사 의 얼 굴 풀 이</h2>
   <div class="face-result-text">${escaped}</div>
+  ${errBlock}
   ${metricsCard}
   ${crisisBlock}
   <div class="face-result-meta">
