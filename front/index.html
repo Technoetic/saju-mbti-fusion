@@ -8408,10 +8408,32 @@ if (document.readyState === 'loading') {
   guideTrackingBusy = true;
   try {
   const result = landmarker.detect(video);
-  updateGuideState(result);
+  const brightness = measureBrightness(video);
+  updateGuideState(result, brightness);
   } catch (_) {}
   guideTrackingBusy = false;
   }, 1000);
+  }
+
+  // 명세서 §6.1 — 조도 측정. 비디오 프레임을 64×48로 축소 후 평균 luma 산출.
+  // 가벼운 connection: 매 호출마다 새 canvas 만들지 않고 재사용.
+  const _brightCanvas = document.createElement('canvas');
+  _brightCanvas.width = 64; _brightCanvas.height = 48;
+  function measureBrightness(video) {
+  try {
+  const ctx = _brightCanvas.getContext('2d', { willReadFrequently: true });
+  ctx.drawImage(video, 0, 0, 64, 48);
+  const data = ctx.getImageData(0, 0, 64, 48).data;
+  let sum = 0;
+  const N = data.length / 4;
+  for (let i = 0; i < data.length; i += 4) {
+  // BT.601 luma 근사
+  sum += 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+  }
+  return sum / N / 255; // 0~1 normalized
+  } catch (_) {
+  return null;
+  }
   }
   function stopGuideTracking() {
   if (guideTrackingTimer) clearInterval(guideTrackingTimer);
@@ -8419,12 +8441,28 @@ if (document.readyState === 'loading') {
   guideTrackingBusy = false;
   resetGuideState();
   }
-  function updateGuideState(result) {
+  function updateGuideState(result, brightness) {
   const svg = document.querySelector('#faceCameraArea .face-guide-overlay');
   const hint = document.querySelector('#faceCameraArea .face-guide-hint');
   if (!svg || !hint) return;
   const ellipse = svg.querySelector('ellipse[stroke]');
   if (!ellipse) return;
+
+  // 우선순위 1 — 조도가 너무 낮으면 위치 상관없이 안내
+  if (typeof brightness === 'number' && brightness < 0.18) {
+  ellipse.setAttribute('stroke', '#e9a85a');
+  ellipse.setAttribute('stroke-opacity', '0.85');
+  hint.textContent = '빛이 너무 어둡네 — 밝은 곳으로 옮기시게';
+  return;
+  }
+  // 우선순위 1.5 — 너무 밝아도 부정확 (역광·정면 광원)
+  if (typeof brightness === 'number' && brightness > 0.88) {
+  ellipse.setAttribute('stroke', '#e9a85a');
+  ellipse.setAttribute('stroke-opacity', '0.85');
+  hint.textContent = '빛이 너무 강하네 — 역광을 피해주시게';
+  return;
+  }
+
   if (!result.faceLandmarks || result.faceLandmarks.length === 0) {
   ellipse.setAttribute('stroke', '#d4af37');
   ellipse.setAttribute('stroke-opacity', '0.55');
