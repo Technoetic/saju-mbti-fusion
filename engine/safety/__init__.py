@@ -471,6 +471,17 @@ from engine.safety.postmortem_builder import (
     format_markdown as format_postmortem_markdown,
     to_json as postmortem_to_json,
 )
+from engine.safety.quarterly_review import (
+    QuarterlyReview,
+    IncidentSummary,
+    compute_mttr_minutes,
+    evaluate_grade as evaluate_quarterly_grade,
+    derive_next_quarter_focus,
+    build_executive_summary,
+    build_review as build_quarterly_review,
+    format_markdown as format_quarterly_review_markdown,
+    to_json as quarterly_review_to_json,
+)
 
 __all__ = [
     "detect_crisis",
@@ -844,4 +855,13 @@ __all__ = [
     "build_postmortem_draft",
     "format_postmortem_markdown",
     "postmortem_to_json",
+    "QuarterlyReview",
+    "IncidentSummary",
+    "compute_mttr_minutes",
+    "evaluate_quarterly_grade",
+    "derive_next_quarter_focus",
+    "build_executive_summary",
+    "build_quarterly_review",
+    "format_quarterly_review_markdown",
+    "quarterly_review_to_json",
 ]
