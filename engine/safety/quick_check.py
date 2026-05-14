@@ -50,6 +50,7 @@ def _check_safety_imports() -> dict[str, Any]:
         "engine.safety.backup_manifest",
         "engine.safety.shadow_eval",
         "engine.safety.response_envelope",
+        "engine.safety.output_token_guard",
     ]
     missing: list[str] = []
     for m in required:

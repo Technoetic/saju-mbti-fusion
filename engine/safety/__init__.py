@@ -247,6 +247,21 @@ from engine.safety.response_envelope import (
     normalize_envelope,
     audit_envelopes,
 )
+from engine.safety.output_token_guard import (
+    TokenGuardResult,
+    ISSUE_TOO_SHORT,
+    ISSUE_TOO_LONG,
+    ISSUE_TRUNCATED,
+    ISSUE_LANGUAGE_DRIFT,
+    ISSUE_REPETITION,
+    ISSUE_NONE,
+    MIN_CHARS,
+    MAX_CHARS,
+    KO_LANG_MIN,
+    evaluate_output,
+    should_trigger_fallback,
+    to_fallback_trigger,
+)
 
 __all__ = [
     "detect_crisis",
@@ -434,4 +449,17 @@ __all__ = [
     "is_valid",
     "normalize_envelope",
     "audit_envelopes",
+    "TokenGuardResult",
+    "ISSUE_TOO_SHORT",
+    "ISSUE_TOO_LONG",
+    "ISSUE_TRUNCATED",
+    "ISSUE_LANGUAGE_DRIFT",
+    "ISSUE_REPETITION",
+    "ISSUE_NONE",
+    "MIN_CHARS",
+    "MAX_CHARS",
+    "KO_LANG_MIN",
+    "evaluate_output",
+    "should_trigger_fallback",
+    "to_fallback_trigger",
 ]
