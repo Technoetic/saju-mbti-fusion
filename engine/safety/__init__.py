@@ -134,6 +134,17 @@ from engine.safety.dsr_processor import (
     build_audit_record,
     process_dsr,
 )
+from engine.safety.model_card import (
+    ModelCard,
+    DataCard,
+    MODEL_CARD_SECTIONS,
+    DATA_CARD_SECTIONS,
+    get_face_reading_model_card,
+    get_face_reading_data_card,
+    validate_model_card,
+    validate_data_card,
+    card_to_dict,
+)
 
 __all__ = [
     "detect_crisis",
@@ -226,4 +237,13 @@ __all__ = [
     "execute_dsr",
     "build_audit_record",
     "process_dsr",
+    "ModelCard",
+    "DataCard",
+    "MODEL_CARD_SECTIONS",
+    "DATA_CARD_SECTIONS",
+    "get_face_reading_model_card",
+    "get_face_reading_data_card",
+    "validate_model_card",
+    "validate_data_card",
+    "card_to_dict",
 ]

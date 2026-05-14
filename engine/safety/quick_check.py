@@ -41,6 +41,7 @@ def _check_safety_imports() -> dict[str, Any]:
         "engine.safety.rollback_trigger",
         "engine.safety.rights_information",
         "engine.safety.dsr_processor",
+        "engine.safety.model_card",
     ]
     missing: list[str] = []
     for m in required:
