@@ -393,6 +393,61 @@ def test_generate_face_reading_returns_warn_code_on_flat_photo(monkeypatch, tmp_
     assert "허허" in r["text"]  # 풀이 본문은 정상 산출됨
 
 
+# ─────────────────────────── 신 명세서 §3.2 멀티모달 페이로드 ───────────────────────────
+
+def test_build_openai_user_message_structure():
+    """OpenAI 멀티모달 페이로드 골격 — role=user, content는 text+image_url 배열."""
+    from engine.divination.face_reading import build_openai_user_message
+    msg = build_openai_user_message("user 텍스트", "data:image/jpeg;base64,/9j/abc")
+    assert msg["role"] == "user"
+    assert isinstance(msg["content"], list)
+    assert len(msg["content"]) == 2
+
+    text_part = msg["content"][0]
+    assert text_part["type"] == "text"
+    assert text_part["text"] == "user 텍스트"
+
+    img_part = msg["content"][1]
+    assert img_part["type"] == "image_url"
+    assert "url" in img_part["image_url"]
+    assert img_part["image_url"]["url"].startswith("data:image/")
+
+
+def test_build_openai_user_message_mime_default():
+    """data URL 형식 아닌 raw base64 → image/jpeg로 정규화."""
+    from engine.divination.face_reading import build_openai_user_message
+    msg = build_openai_user_message("t", "raw_base64_no_prefix")
+    url = msg["content"][1]["image_url"]["url"]
+    assert url.startswith("data:image/jpeg;base64,")
+    assert "raw_base64_no_prefix" in url
+
+
+def test_build_openai_user_message_preserves_data_url():
+    """data:image/png;base64,... → 동일하게 보존 (PNG MIME 유지)."""
+    from engine.divination.face_reading import build_openai_user_message
+    msg = build_openai_user_message("t", "data:image/png;base64,iVBORw0KGgo=")
+    url = msg["content"][1]["image_url"]["url"]
+    assert "image/png" in url
+
+
+def test_build_openai_user_message_text_order_first():
+    """신 명세서 §3.2 권고: text가 image_url 앞에 와야 함 (LLM 컨텍스트 우선)."""
+    from engine.divination.face_reading import build_openai_user_message
+    msg = build_openai_user_message("정량 지표", "data:image/jpeg;base64,abc")
+    assert msg["content"][0]["type"] == "text"
+    assert msg["content"][1]["type"] == "image_url"
+
+
+def test_build_openai_user_message_json_serializable():
+    """페이로드는 JSON 직렬화 가능 (HTTP body)."""
+    import json
+    from engine.divination.face_reading import build_openai_user_message
+    msg = build_openai_user_message("t", "data:image/jpeg;base64,abc")
+    s = json.dumps(msg, ensure_ascii=False)
+    assert '"role":"user"' in s.replace(" ", "")
+    assert '"image_url"' in s
+
+
 # ─────────────────────────── §7.2.8 캐시 무효화 트리거 ───────────────────────────
 
 def test_system_prompt_hash_is_8_chars():

@@ -459,10 +459,35 @@ def _bizrouter_enabled() -> bool:
     return bool((os.environ.get("BIZROUTER_API_KEY") or "").strip())
 
 
-def _call_vision(system_prompt: str, user_text: str, image_b64: str) -> str:
-    """비전 LLM 호출 — Bizrouter(Gemini) 우선, Anthropic Claude fallback."""
+def build_openai_user_message(user_text: str, image_b64: str) -> dict[str, Any]:
+    """신 명세서 §3.2 — 멀티모달 사용자 메시지 페이로드 (OpenAI/Bizrouter 호환).
+
+    공식 구조:
+      {
+        "role": "user",
+        "content": [
+          {"type": "text", "text": "<엔진 지표 + 화두>"},
+          {"type": "image_url", "image_url": {"url": "data:image/...;base64,..."}}
+        ]
+      }
+
+    별도 함수로 분리해 페이로드 골격을 회귀 테스트로 보호 (§5.1 단위 테스트).
+    """
     mime, raw_b64 = _normalize_image_b64(image_b64)
     data_url = f"data:{mime};base64,{raw_b64}"
+    return {
+        "role": "user",
+        "content": [
+            {"type": "text", "text": user_text},
+            {"type": "image_url", "image_url": {"url": data_url}},
+        ],
+    }
+
+
+def _call_vision(system_prompt: str, user_text: str, image_b64: str) -> str:
+    """비전 LLM 호출 — Bizrouter(Gemini) 우선, Anthropic Claude fallback."""
+    # raw_b64는 Anthropic fallback에서 직접 사용
+    mime, raw_b64 = _normalize_image_b64(image_b64)
 
     if _bizrouter_enabled():
         client = _bizrouter_client()
@@ -478,13 +503,7 @@ def _call_vision(system_prompt: str, user_text: str, image_b64: str) -> str:
             max_tokens=_MAX_TOKENS,
             messages=[
                 {"role": "system", "content": system_prompt},
-                {
-                    "role": "user",
-                    "content": [
-                        {"type": "text", "text": user_text},
-                        {"type": "image_url", "image_url": {"url": data_url}},
-                    ],
-                },
+                build_openai_user_message(user_text, image_b64),  # type: ignore[list-item]
             ],
         )
         if not resp.choices:
