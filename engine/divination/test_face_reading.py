@@ -683,6 +683,81 @@ def test_face_reading_crisis_footer_in_japanese(monkeypatch, tmp_path):
     assert "[重要]" in r["text"]
 
 
+def test_face_reading_korean_question_no_advisory(monkeypatch, tmp_path):
+    """한국어 화두 → language_advisory None."""
+    from engine.divination import face_reading
+    monkeypatch.setattr(face_reading, "_CACHE_DIR", tmp_path)
+    monkeypatch.setattr(face_reading, "_call_vision",
+                        lambda *a, **k: "허허, 풀이.\n\n이 늙은이의 끝.")
+    r = face_reading.generate_face_reading(
+        image_b64="dummy", question="올해 운이 어떨까요",
+    )
+    assert r["detected_language"] == "ko"
+    assert r["language_advisory"] is None
+
+
+def test_face_reading_english_question_gets_advisory(monkeypatch, tmp_path):
+    """영어 화두 → detected_language='en' + 영어 advisory 문구."""
+    from engine.divination import face_reading
+    monkeypatch.setattr(face_reading, "_CACHE_DIR", tmp_path)
+    monkeypatch.setattr(face_reading, "_call_vision",
+                        lambda *a, **k: "허허, 풀이.\n\n이 늙은이의 끝.")
+    r = face_reading.generate_face_reading(
+        image_b64="dummy", question="What is my fortune this year",
+    )
+    assert r["detected_language"] == "en"
+    assert r["language_advisory"] is not None
+    assert "Korean" in r["language_advisory"]
+
+
+def test_face_reading_japanese_question_advisory(monkeypatch, tmp_path):
+    """일본어 화두 → 일본어 advisory."""
+    from engine.divination import face_reading
+    monkeypatch.setattr(face_reading, "_CACHE_DIR", tmp_path)
+    monkeypatch.setattr(face_reading, "_call_vision",
+                        lambda *a, **k: "허허, 풀이.\n\n이 늙은이의 끝.")
+    r = face_reading.generate_face_reading(
+        image_b64="dummy", question="今年の運勢はどうですか",
+    )
+    assert r["detected_language"] == "ja"
+    assert "韓国語" in r["language_advisory"]
+
+
+def test_face_reading_advisory_in_err_response(monkeypatch, tmp_path):
+    """ERR_FACE_* 거부 응답에도 detected_language/advisory 포함."""
+    from engine.divination import face_reading
+    monkeypatch.setattr(face_reading, "_CACHE_DIR", tmp_path)
+    r = face_reading.generate_face_reading(
+        image_b64="dummy", question="What is my fortune",
+        metrics={"face_count": 0},
+    )
+    assert r.get("error_code") == "ERR_FACE_NOT_DETECTED"
+    assert r["detected_language"] == "en"
+    assert r["language_advisory"] is not None
+
+
+def test_face_reading_advisory_in_crisis_response(monkeypatch, tmp_path):
+    """위기 응답에도 detected_language/advisory 포함."""
+    from engine.divination import face_reading
+    monkeypatch.setattr(face_reading, "_CACHE_DIR", tmp_path)
+    r = face_reading.generate_face_reading(
+        image_b64="dummy", question="I want to die",
+    )
+    assert r["crisis_alert"] is not None
+    assert r["detected_language"] == "en"
+    assert r["language_advisory"] is not None
+
+
+def test_face_reading_no_question_no_advisory(monkeypatch, tmp_path):
+    """question 없으면 advisory None (빈 화두 정책)."""
+    from engine.divination import face_reading
+    monkeypatch.setattr(face_reading, "_CACHE_DIR", tmp_path)
+    monkeypatch.setattr(face_reading, "_call_vision",
+                        lambda *a, **k: "허허, 풀이.\n\n이 늙은이의 끝.")
+    r = face_reading.generate_face_reading(image_b64="dummy")
+    assert r["language_advisory"] is None  # 빈 화두는 advisory 불필요
+
+
 def test_face_reading_default_korean_unchanged(monkeypatch, tmp_path):
     """region 미지정 → 기존처럼 한국어 면책."""
     from engine.divination import face_reading

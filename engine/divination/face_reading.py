@@ -607,6 +607,14 @@ def generate_face_reading(
     # lang 미지정 시 region에서 자동 매핑
     resolved_lang = lang or _region_to_lang(region)
 
+    # §7.2.3 — 화두 언어 감지 + 외국어 시 모국어 안내
+    from engine.safety.language import detect_language, get_language_advisory
+    detected_lang = detect_language(question or "")
+    # 화두가 비어 있으면 advisory 불필요 (사용자가 외국어로 묻지도 않았으니)
+    language_advisory = (
+        get_language_advisory(detected_lang) if (question or "").strip() else None
+    )
+
     # 0. 위기 신호 — 화두 본문 검사
     crisis = detect_crisis(question or "")
     if crisis["crisis_detected"]:
@@ -648,6 +656,9 @@ def generate_face_reading(
                 CRISIS_RESPONSE_KO + "\n\n" + format_hotlines_text(regional_hotlines),
                 crisis_legal,
             ),
+            # §7.2.3 — 화두 언어 감지 + 외국어 안내
+            "detected_language": detected_lang,
+            "language_advisory": language_advisory,
         }
 
     if not (image_b64 or "").strip():
@@ -664,6 +675,8 @@ def generate_face_reading(
             "legal_notice": legal,
             "error_code": issue,
             "a11y": _extract_a11y_metadata(_ERR_HINTS_KO[issue], legal),
+            "detected_language": detected_lang,
+            "language_advisory": language_advisory,
         }
     # 경고만 (WARN_FACE_*) 인 경우는 풀이 정상 진행, 단 응답에 코드 노출
     warn_code = issue if issue and issue.startswith("WARN_") else None
@@ -690,6 +703,9 @@ def generate_face_reading(
         "legal_notice": legal,
         # §7.2.6 a11y — 스크린 리더·인지장애 어댑터를 위한 구조화 메타데이터
         "a11y": _extract_a11y_metadata(text or "", legal),
+        # §7.2.3 — 화두 언어 감지 + 외국어 안내
+        "detected_language": detected_lang,
+        "language_advisory": language_advisory,
     }
     if warn_code:
         out["error_code"] = warn_code  # 풀이는 정상이나 경고 동봉 (WARN_FACE_*)
