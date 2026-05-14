@@ -19,6 +19,12 @@ from engine.safety.legal_notice import (
     LEGAL_NOTICE_FOOTER_KO,
     build_legal_footer,
 )
+from engine.safety.pii import (
+    mask_pii,
+    hash_uid,
+    hash_question,
+    mask_crisis_keyword,
+)
 
 __all__ = [
     "detect_crisis",
@@ -28,4 +34,8 @@ __all__ = [
     "FORTUNE_DISCLAIMER_KO",
     "LEGAL_NOTICE_FOOTER_KO",
     "build_legal_footer",
+    "mask_pii",
+    "hash_uid",
+    "hash_question",
+    "mask_crisis_keyword",
 ]
