@@ -393,6 +393,58 @@ def test_generate_face_reading_returns_warn_code_on_flat_photo(monkeypatch, tmp_
     assert "허허" in r["text"]  # 풀이 본문은 정상 산출됨
 
 
+# ─────────────────────────── §7.2.8 캐시 무효화 트리거 ───────────────────────────
+
+def test_system_prompt_hash_is_8_chars():
+    """_SYSTEM_PROMPT_HASH는 _FACE_SYSTEM SHA256 앞 8자."""
+    import hashlib
+    from engine.divination.face_reading import _FACE_SYSTEM, _SYSTEM_PROMPT_HASH
+    expected = hashlib.sha256(_FACE_SYSTEM.encode("utf-8")).hexdigest()[:8]
+    assert _SYSTEM_PROMPT_HASH == expected
+    assert len(_SYSTEM_PROMPT_HASH) == 8
+
+
+def test_hash_payload_includes_system_prompt_prefix():
+    """캐시 키에 시스템 프롬프트 해시가 포함되어야 (§7.2.8)."""
+    from engine.divination import face_reading
+    key = face_reading._hash_payload("img", 30, "남", "q", None)
+    # 키는 24자 SHA256 prefix이지만, 같은 입력 + 다른 시스템 프롬프트 해시면 달라져야 함
+    # 우회 검증: monkeypatch로 _SYSTEM_PROMPT_HASH 임시 변경 시 키가 달라지는지
+    orig_hash = face_reading._SYSTEM_PROMPT_HASH
+    try:
+        face_reading._SYSTEM_PROMPT_HASH = "deadbeef"
+        key_changed = face_reading._hash_payload("img", 30, "남", "q", None)
+        assert key != key_changed, "시스템 프롬프트 해시 변경 시 캐시 키도 달라져야 함"
+    finally:
+        face_reading._SYSTEM_PROMPT_HASH = orig_hash
+
+
+def test_cache_invalidation_on_prompt_change(monkeypatch, tmp_path):
+    """프롬프트 변경 시 기존 캐시 hit 안 되는지 시뮬레이션."""
+    from engine.divination import face_reading
+    monkeypatch.setattr(face_reading, "_CACHE_DIR", tmp_path)
+
+    call_count = {"n": 0}
+    def fake(*a, **k):
+        call_count["n"] += 1
+        return f"call {call_count['n']}"
+    monkeypatch.setattr(face_reading, "_call_vision", fake)
+
+    # 첫 호출 — 캐시 저장
+    face_reading.generate_face_reading(
+        image_b64="img", age=30, gender="남", question="화두"
+    )
+    assert call_count["n"] == 1
+
+    # 시스템 프롬프트 해시 변경 (배포 시 _FACE_SYSTEM 수정한 효과 시뮬레이션)
+    monkeypatch.setattr(face_reading, "_SYSTEM_PROMPT_HASH", "newhash1")
+
+    face_reading.generate_face_reading(
+        image_b64="img", age=30, gender="남", question="화두"
+    )
+    assert call_count["n"] == 2, "프롬프트 해시 변경 후 캐시 hit 발생 (§7.2.8 위반)"
+
+
 # ─────────────────────────── §7.2.6 a11y 메타데이터 어댑터 ───────────────────────────
 
 def test_a11y_metadata_extraction_full_reading():
