@@ -350,6 +350,15 @@ from engine.safety.response_alignment import (
     check_response_topic,
     evaluate_alignment,
 )
+from engine.safety.output_safety_gate import (
+    SafetyGateResult,
+    VERDICT_CLEAN,
+    VERDICT_MINOR,
+    VERDICT_WARN,
+    VERDICT_CRITICAL,
+    run_safety_gates,
+    should_fallback as safety_gate_should_fallback,
+)
 
 __all__ = [
     "detect_crisis",
@@ -622,4 +631,11 @@ __all__ = [
     "detect_topic",
     "check_response_topic",
     "evaluate_alignment",
+    "SafetyGateResult",
+    "VERDICT_CLEAN",
+    "VERDICT_MINOR",
+    "VERDICT_WARN",
+    "VERDICT_CRITICAL",
+    "run_safety_gates",
+    "safety_gate_should_fallback",
 ]
