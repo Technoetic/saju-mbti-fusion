@@ -75,6 +75,12 @@ from engine.safety.data_governance import (
     days_until_expiry,
     audit_dataset,
 )
+from engine.safety.consent_screen import (
+    CONSENT_FIELDS,
+    ConsentItem,
+    get_consent_screen,
+    validate_consent_payload,
+)
 
 __all__ = [
     "detect_crisis",
@@ -122,4 +128,8 @@ __all__ = [
     "is_expired",
     "days_until_expiry",
     "audit_dataset",
+    "CONSENT_FIELDS",
+    "ConsentItem",
+    "get_consent_screen",
+    "validate_consent_payload",
 ]
