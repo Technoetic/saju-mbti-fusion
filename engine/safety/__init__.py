@@ -63,6 +63,18 @@ from engine.safety.photo_guide import (
     get_retry_tips,
     build_photo_guidance,
 )
+from engine.safety.data_governance import (
+    DataProvenance,
+    LICIT_SOURCES,
+    ILLICIT_SOURCES,
+    REQUIRED_CONSENT_FIELDS,
+    MAX_RETENTION_DAYS,
+    validate_provenance,
+    is_eligible_for_regression,
+    is_expired,
+    days_until_expiry,
+    audit_dataset,
+)
 
 __all__ = [
     "detect_crisis",
@@ -100,4 +112,14 @@ __all__ = [
     "get_error_hint",
     "get_retry_tips",
     "build_photo_guidance",
+    "DataProvenance",
+    "LICIT_SOURCES",
+    "ILLICIT_SOURCES",
+    "REQUIRED_CONSENT_FIELDS",
+    "MAX_RETENTION_DAYS",
+    "validate_provenance",
+    "is_eligible_for_regression",
+    "is_expired",
+    "days_until_expiry",
+    "audit_dataset",
 ]
