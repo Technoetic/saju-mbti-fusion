@@ -129,3 +129,94 @@ def test_planning_keyword_english():
     r = detect_crisis("I wrote a suicide note last night")
     assert r["crisis_detected"] is True
     assert r["severity"] == "planning"
+
+
+# ─────────────────────────── 일본어 자해 (§5.2.7 보강) ───────────────────────────
+
+def test_japanese_selfharm_rlsk():
+    from engine.safety import detect_crisis
+    r = detect_crisis("リスカしてしまった")
+    assert r["crisis_detected"] is True
+
+
+def test_japanese_overdose():
+    from engine.safety import detect_crisis
+    r = detect_crisis("薬を一気に飲みたい")
+    assert r["crisis_detected"] is True
+
+
+def test_japanese_planning_train():
+    from engine.safety import detect_crisis
+    r = detect_crisis("電車に飛び込もうかと考えている")
+    assert r["crisis_detected"] is True
+    assert r["severity"] == "planning"
+
+
+# ─────────────────────────── 중국어 위기 (§5.2.7 신규) ───────────────────────────
+
+def test_chinese_simplified_suicide():
+    from engine.safety import detect_crisis
+    r = detect_crisis("我想自杀")
+    assert r["crisis_detected"] is True
+
+
+def test_chinese_traditional_suicide():
+    from engine.safety import detect_crisis
+    r = detect_crisis("我想自殺")
+    assert r["crisis_detected"] is True
+
+
+def test_chinese_want_to_die():
+    from engine.safety import detect_crisis
+    r = detect_crisis("我想死")
+    assert r["crisis_detected"] is True
+
+
+def test_chinese_cant_live():
+    from engine.safety import detect_crisis
+    r = detect_crisis("我活不下去了")
+    assert r["crisis_detected"] is True
+
+
+def test_chinese_self_harm():
+    from engine.safety import detect_crisis
+    r = detect_crisis("我想自残")
+    assert r["crisis_detected"] is True
+
+
+def test_chinese_indirect_no_hope():
+    from engine.safety import detect_crisis
+    r = detect_crisis("生活没有希望了")
+    assert r["crisis_detected"] is True
+    assert r["severity"] == "indirect"
+
+
+def test_chinese_planning_yishu():
+    """행동·계획 — 遗书."""
+    from engine.safety import detect_crisis
+    r = detect_crisis("我写好遗书了")
+    assert r["crisis_detected"] is True
+    assert r["severity"] == "planning"
+
+
+def test_chinese_jump_from_building():
+    from engine.safety import detect_crisis
+    r = detect_crisis("从楼上跳下去")
+    assert r["crisis_detected"] is True
+    assert r["severity"] == "planning"
+
+
+# ─────────────────────────── 4언어 평등 ───────────────────────────
+
+def test_all_4_languages_can_detect():
+    """ko/en/ja/zh 모두 직접 위기 표현은 감지되어야 함."""
+    from engine.safety import detect_crisis
+    samples = {
+        "ko": "죽고 싶어요",
+        "en": "I want to die",
+        "ja": "死にたい",
+        "zh": "我想死",
+    }
+    for lang, text in samples.items():
+        r = detect_crisis(text)
+        assert r["crisis_detected"] is True, f"{lang}: {text}"

@@ -123,12 +123,47 @@ PLANNING_KEYWORDS_EN = [
 # 일본어
 DIRECT_SUICIDE_KEYWORDS_JA = [
     "自殺", "死にたい", "消えたい", "命を絶", "首を吊",
+    "死のうと", "死ぬしかない", "もう死にたい",
+]
+DIRECT_SELFHARM_KEYWORDS_JA = [
+    "自傷", "リストカット", "リスカ", "自分を傷つけ",
+    "薬を一気に", "オーバードーズ",
 ]
 INDIRECT_DESPAIR_KEYWORDS_JA = [
     "生きる意味がない", "もう限界", "もう無理", "誰も必要としない",
+    "生きる価値がない", "希望がない", "存在したくない",
 ]
 PLANNING_KEYWORDS_JA = [
-    "遺書", "別れの手紙",
+    "遺書", "別れの手紙", "ビルから飛び", "電車に飛び込",
+]
+
+# 중국어 — 简体/繁体 모두
+DIRECT_SUICIDE_KEYWORDS_ZH = [
+    "自杀", "自殺",            # 简/繁 자살
+    "想死", "我想死",
+    "不想活了", "活不下去",
+    "结束生命", "結束生命",
+    "上吊", "跳楼", "跳樓",
+]
+DIRECT_SELFHARM_KEYWORDS_ZH = [
+    "自残", "自殘",
+    "划伤自己", "劃傷自己",
+    "伤害自己", "傷害自己",
+    "服药过量", "服藥過量",
+]
+INDIRECT_DESPAIR_KEYWORDS_ZH = [
+    "活着没意思", "活著沒意思",
+    "没有希望", "沒有希望",
+    "没有出路", "沒有出路",
+    "我消失了", "消失就好",
+    "再也撑不下去", "再也撐不下去",
+    "没人需要我", "沒人需要我",
+]
+PLANNING_KEYWORDS_ZH = [
+    "遗书", "遺書",
+    "最后的信", "最後的信",
+    "怎么死", "怎麼死",
+    "从楼上跳", "從樓上跳",
 ]
 
 
@@ -198,26 +233,31 @@ def detect_crisis(text: str) -> dict[str, Any]:
             "hotlines": None,
         }
 
-    # 1차: 모든 키워드 매칭 (한국어 + 영어 소문자 + 일본어)
+    # 1차: 모든 키워드 매칭 (한국어 + 영어 소문자 + 일본어 + 중국어)
     t_lower = t.lower()
     direct_suicide = (
         _contains_any(t, DIRECT_SUICIDE_KEYWORDS)
         + _contains_any(t_lower, DIRECT_SUICIDE_KEYWORDS_EN)
         + _contains_any(t, DIRECT_SUICIDE_KEYWORDS_JA)
+        + _contains_any(t, DIRECT_SUICIDE_KEYWORDS_ZH)
     )
     direct_selfharm = (
         _contains_any(t, DIRECT_SELFHARM_KEYWORDS)
         + _contains_any(t_lower, DIRECT_SELFHARM_KEYWORDS_EN)
+        + _contains_any(t, DIRECT_SELFHARM_KEYWORDS_JA)
+        + _contains_any(t, DIRECT_SELFHARM_KEYWORDS_ZH)
     )
     indirect = (
         _contains_any(t, INDIRECT_DESPAIR_KEYWORDS)
         + _contains_any(t_lower, INDIRECT_DESPAIR_KEYWORDS_EN)
         + _contains_any(t, INDIRECT_DESPAIR_KEYWORDS_JA)
+        + _contains_any(t, INDIRECT_DESPAIR_KEYWORDS_ZH)
     )
     planning = (
         _contains_any(t, PLANNING_KEYWORDS)
         + _contains_any(t_lower, PLANNING_KEYWORDS_EN)
         + _contains_any(t, PLANNING_KEYWORDS_JA)
+        + _contains_any(t, PLANNING_KEYWORDS_ZH)
     )
 
     # 2차: false positive 필터 (꿈 내용·3인칭·미디어)
