@@ -233,6 +233,20 @@ from engine.safety.shadow_eval import (
     compare_pair,
     aggregate_shadow_results,
 )
+from engine.safety.response_envelope import (
+    REQUIRED_KEYS,
+    ENVELOPE_NORMAL,
+    ENVELOPE_CACHED,
+    ENVELOPE_CRISIS,
+    ENVELOPE_JAILBREAK,
+    ENVELOPE_ERROR,
+    ENVELOPE_WARN,
+    detect_branch,
+    validate_envelope,
+    is_valid,
+    normalize_envelope,
+    audit_envelopes,
+)
 
 __all__ = [
     "detect_crisis",
@@ -408,4 +422,16 @@ __all__ = [
     "jaccard_overlap",
     "compare_pair",
     "aggregate_shadow_results",
+    "REQUIRED_KEYS",
+    "ENVELOPE_NORMAL",
+    "ENVELOPE_CACHED",
+    "ENVELOPE_CRISIS",
+    "ENVELOPE_JAILBREAK",
+    "ENVELOPE_ERROR",
+    "ENVELOPE_WARN",
+    "detect_branch",
+    "validate_envelope",
+    "is_valid",
+    "normalize_envelope",
+    "audit_envelopes",
 ]
