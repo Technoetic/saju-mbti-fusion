@@ -194,7 +194,14 @@ def _format_metrics_block(metrics: dict[str, Any] | None) -> list[str]:
         out.append(f"  • 입꼬리 — {mcl:+.2f} ({kind})")
     edr = metrics.get("eye_distance_ratio")
     if isinstance(edr, (int, float)):
-        out.append(f"  • 미간 폭 (한눈 길이 대비) — {edr:.2f}")
+        # 관상 고전 5등분(눈 1 : 미간 1 : 눈 1 …) 기준으로 분류
+        if edr < 0.90:
+            kind = "명궁이 좁다 — 집중력 강하나 답답할 수 있다"
+        elif edr <= 1.10:
+            kind = "명궁이 고르다 — 사유의 폭이 균형"
+        else:
+            kind = "명궁이 트였다 — 시야가 넓고 포용력 있다"
+        out.append(f"  • 미간 폭 (한눈 길이 대비) — {edr:.2f} ({kind})")
     fs = metrics.get("face_shape")
     if isinstance(fs, str) and fs:
         ko = {

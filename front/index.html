@@ -8652,7 +8652,9 @@ if (document.readyState === 'loading') {
   rows.push(`<div class="face-metric-row"><span class="face-metric-label">입꼬리</span><span class="face-metric-value">${m >= 0 ? '+' : ''}${m.toFixed(2)} · ${kind}</span></div>`);
   }
   if (typeof metrics.eye_distance_ratio === 'number') {
-  rows.push(`<div class="face-metric-row"><span class="face-metric-label">미간 폭 (한눈 길이 대비)</span><span class="face-metric-value">${metrics.eye_distance_ratio.toFixed(2)}</span></div>`);
+  const e = metrics.eye_distance_ratio;
+  const kind = e < 0.90 ? '명궁 좁다' : (e <= 1.10 ? '명궁 고르다' : '명궁 트였다');
+  rows.push(`<div class="face-metric-row"><span class="face-metric-label">미간 폭 (한눈 길이 대비)</span><span class="face-metric-value">${e.toFixed(2)} · ${kind}</span></div>`);
   }
   if (metrics.face_shape) {
   const ko = { round: '원형 · 영양질', square: '각진형 · 근골질', inverted_tri: '역삼각 · 심성질', oval: '계란형', long: '긴 얼굴 · 지력질' }[metrics.face_shape] || metrics.face_shape;

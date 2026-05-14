@@ -275,6 +275,22 @@ def test_format_metrics_block_asymmetry_classification():
     assert "은은한 비대칭" in "\n".join(_format_metrics_block({"asymmetry": 0.019}))
 
 
+def test_format_metrics_block_eye_distance_classification():
+    """미간 폭 3단계 — 명궁 좁다/고르다/트였다."""
+    from engine.divination.face_reading import _format_metrics_block
+    narrow = "\n".join(_format_metrics_block({"eye_distance_ratio": 0.85}))
+    mid = "\n".join(_format_metrics_block({"eye_distance_ratio": 1.00}))
+    wide = "\n".join(_format_metrics_block({"eye_distance_ratio": 1.20}))
+    assert "명궁이 좁다" in narrow
+    assert "명궁이 고르다" in mid
+    assert "명궁이 트였다" in wide
+    # 경계 0.90 / 1.10
+    assert "명궁이 고르다" in "\n".join(_format_metrics_block({"eye_distance_ratio": 0.90}))
+    assert "명궁이 고르다" in "\n".join(_format_metrics_block({"eye_distance_ratio": 1.10}))
+    assert "명궁이 좁다" in "\n".join(_format_metrics_block({"eye_distance_ratio": 0.89}))
+    assert "명궁이 트였다" in "\n".join(_format_metrics_block({"eye_distance_ratio": 1.11}))
+
+
 # ─────────────────────────── 캐시 라운드트립 ───────────────────────────
 
 def test_cache_save_load_roundtrip(tmp_path, monkeypatch):
