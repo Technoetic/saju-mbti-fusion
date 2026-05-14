@@ -580,6 +580,44 @@ def test_normal_question_not_blocked(monkeypatch, tmp_path):
     assert "허허, 그대" in r["text"]
 
 
+# ─────────────────────────── §5.2.5 페르소나 자체 평가 ───────────────────────────
+
+def test_normal_response_has_persona_self_eval(monkeypatch, tmp_path):
+    """정상 응답에 §5.2.5 self_eval 메타가 첨부되어야 함."""
+    from engine.divination import face_reading
+    monkeypatch.setattr(face_reading, "_CACHE_DIR", tmp_path)
+    monkeypatch.setattr(face_reading, "_call_vision",
+                        lambda *a, **k: "허허, 그대, 자네의 상을 짚으니, 이 늙은이의 결이로구먼.")
+
+    r = face_reading.generate_face_reading(
+        image_b64="dummy",
+        metrics={"face_count": 1, "three_thirds": [33, 34, 33]},
+        lang="ko",
+    )
+    eval_meta = r["persona_self_eval"]
+    assert eval_meta["passed"] is True
+    assert eval_meta["encouraged_hits"] >= 3
+    assert eval_meta["forbidden_hits"] == 0
+    assert eval_meta["score"] > 0
+
+
+def test_response_with_forbidden_word_fails_self_eval(monkeypatch, tmp_path):
+    """LLM이 '대박' 같은 금지어를 뱉으면 self_eval.passed=False로 노출."""
+    from engine.divination import face_reading
+    monkeypatch.setattr(face_reading, "_CACHE_DIR", tmp_path)
+    monkeypatch.setattr(face_reading, "_call_vision",
+                        lambda *a, **k: "허허, 그대, 자네에게 대박 운이 따르겠구먼.")
+
+    r = face_reading.generate_face_reading(
+        image_b64="dummy",
+        metrics={"face_count": 1, "three_thirds": [33, 34, 33]},
+        lang="ko",
+    )
+    eval_meta = r["persona_self_eval"]
+    assert eval_meta["passed"] is False
+    assert "대박" in eval_meta["matched_forbidden"]
+
+
 # ─────────────────────────── 신 명세서 §3.2 멀티모달 페이로드 ───────────────────────────
 
 def test_build_openai_user_message_structure():

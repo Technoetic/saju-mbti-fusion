@@ -29,6 +29,8 @@ from engine.safety import (
     get_disclosure_metadata,
     detect_jailbreak,
     build_jailbreak_response,
+    evaluate_persona_tone,
+    to_response_dict as persona_eval_dict,
 )
 
 
@@ -766,6 +768,8 @@ def generate_face_reading(
     full_text = inject_emotion_disclosure(body_with_legal, region=region, lang=resolved_lang)
     emotion_meta = get_disclosure_metadata(region, resolved_lang)
 
+    # §5.2.5 페르소나 톤 자체 평가 (legal/disclosure 추가 전의 LLM 본문으로 평가)
+    persona_eval = evaluate_persona_tone(text or "")
     out: dict[str, Any] = {
         "text": full_text,
         "cached": False,
@@ -778,17 +782,23 @@ def generate_face_reading(
         "language_advisory": language_advisory,
         # EU AI Act §50(3) — 감정 추론 명시 고지 메타데이터
         "emotion_disclosure": emotion_meta,
+        # §5.2.5 페르소나 톤 자체 평가
+        "persona_self_eval": persona_eval_dict(persona_eval),
     }
     if warn_code:
         out["error_code"] = warn_code  # 풀이는 정상이나 경고 동봉 (WARN_FACE_*)
         # §7.2.9 — 경고도 사진 가이드 첨부 (다음 촬영 개선용)
         out["photo_guidance"] = build_photo_guidance(warn_code, resolved_lang)
     _save_cache(key, out)
-    # §7.3.4 — LLM 호출 성공 로깅
+    # §7.3.4 — LLM 호출 성공 로깅 (§5.2.5 self_eval_score 포함)
     emit_face_reading_event(
         event_type="request_completed",
         error_code=warn_code,
         text_length=len(full_text),
+        extra={
+            "self_eval_score": persona_eval.score,
+            "self_eval_passed": persona_eval.passed,
+        },
         **_trace_base,
     )
     return out

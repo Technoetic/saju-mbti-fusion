@@ -169,6 +169,16 @@ from engine.safety.canary_guard import (
     decide_canary,
     metrics_from_slo_report,
 )
+from engine.safety.persona_self_eval import (
+    PersonaEvalResult,
+    PERSONA_ENCOURAGED,
+    PERSONA_FORBIDDEN,
+    MEDICAL_LEGAL_FORBIDDEN,
+    MIN_ENCOURAGED_HITS,
+    evaluate_persona_tone,
+    to_response_dict,
+    aggregate_pass_rate,
+)
 
 __all__ = [
     "detect_crisis",
@@ -290,4 +300,12 @@ __all__ = [
     "has_sufficient_sample",
     "decide_canary",
     "metrics_from_slo_report",
+    "PersonaEvalResult",
+    "PERSONA_ENCOURAGED",
+    "PERSONA_FORBIDDEN",
+    "MEDICAL_LEGAL_FORBIDDEN",
+    "MIN_ENCOURAGED_HITS",
+    "evaluate_persona_tone",
+    "to_response_dict",
+    "aggregate_pass_rate",
 ]
