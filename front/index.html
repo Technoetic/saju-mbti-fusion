@@ -1845,11 +1845,41 @@
   justify-content: center;
   margin: 0 0 18px 0;
   padding-bottom: 12px;
-  border-bottom: 1px dotted rgba(212,175,55,0.18);
   }
   .face-radar-wrap svg {
   max-width: 100%;
   height: auto;
+  }
+  /* 명세서 §6.4 — 윤곽 + 방사형 좌우 배치 */
+  .face-vis-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px dotted rgba(212,175,55,0.18);
+  }
+  .face-outline-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  }
+  .face-outline-wrap svg {
+  max-width: 100%;
+  height: auto;
+  }
+  .face-outline-cap {
+  margin-top: 6px;
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 11px;
+  color: var(--text-mute);
+  letter-spacing: 3px;
+  }
+  @media (max-width: 540px) {
+  .face-vis-row { gap: 4px; }
+  .face-outline-wrap svg, .face-radar-wrap svg { width: 180px; height: auto; }
   }
 
   @media (max-width: 600px) {
@@ -8128,6 +8158,40 @@ if (document.readyState === 'loading') {
   return Math.sqrt(dx*dx + dy*dy + dz*dz);
   }
 
+  // 명세서 §6.4 — 결과 화면 윤곽 그래픽 라인용 핵심 좌표만 추출
+  // MediaPipe Face Mesh canonical 토폴로지 기준 얼굴 윤곽 + 눈썹 + 눈 + 입.
+  // 모든 478점을 저장하면 메트릭 직렬화가 무거워지니 의미 있는 인덱스만.
+  function extractOutlinePoints(L) {
+  // 얼굴 외곽 윤곽 (시계방향, 코끝 회전 보정 후 좌표 사용)
+  // 위→오른쪽→아래→왼쪽 순서로 자연스럽게 잇기 위한 폴리라인
+  const FACE_OVAL = [10, 338, 297, 332, 284, 251, 389, 356, 454, 323,
+                     361, 288, 397, 365, 379, 378, 400, 377, 152,
+                     148, 176, 149, 150, 136, 172, 58, 132, 93, 234,
+                     127, 162, 21, 54, 103, 67, 109];
+  const LEFT_EYE = [33, 160, 158, 133, 153, 144];  // 6점 폴리곤
+  const RIGHT_EYE = [263, 387, 385, 362, 380, 373];
+  const LEFT_BROW = [70, 63, 105, 66, 107];
+  const RIGHT_BROW = [336, 296, 334, 293, 300];
+  const LIPS_OUTER = [61, 185, 40, 39, 37, 0, 267, 269, 270, 409, 291,
+                      375, 321, 405, 314, 17, 84, 181, 91, 146];
+  const NOSE_BRIDGE = [168, 6, 197, 195, 5, 4];
+
+  const pick = (idxs) => idxs.map(i => ({
+  x: +L[i].x.toFixed(4),
+  y: +L[i].y.toFixed(4),
+  }));
+
+  return {
+  oval: pick(FACE_OVAL),
+  leftEye: pick(LEFT_EYE),
+  rightEye: pick(RIGHT_EYE),
+  leftBrow: pick(LEFT_BROW),
+  rightBrow: pick(RIGHT_BROW),
+  lips: pick(LIPS_OUTER),
+  noseBridge: pick(NOSE_BRIDGE),
+  };
+  }
+
   // 명세서 §6.2 헤드 포즈 정규화 — 양 눈꼬리(33,263) 기준으로 수평이 되도록
   // 코끝(4)을 원점 삼아 2D 회전 변환. z축은 보존 (입체감 정보).
   // 이렇게 해야 기울어진 셀카에서도 3정/12궁 비율이 일관되게 산출됨.
@@ -8252,6 +8316,9 @@ if (document.readyState === 'loading') {
   // 얼마나 떨어졌는지 0~1 (0=정중앙, 0.5=가장자리). 0.15 초과면 광각 배럴
   // 왜곡으로 이마/턱이 부정확. 정규화 좌표라 x,y는 0~1.
   face_center_offset: +Math.sqrt((L[4].x - 0.5)**2 + (L[4].y - 0.5)**2).toFixed(3),
+  // 명세서 §6.4 — 안면 윤곽 그래픽 라인을 위한 핵심 윤곽 인덱스
+  // (정규화 좌표 그대로, 결과 카드의 SVG가 다시 사용)
+  outline: extractOutlinePoints(L),
   };
   } catch (e) {
   console.warn('[face] computeMetrics 예외:', e);
@@ -8546,15 +8613,56 @@ if (document.readyState === 'loading') {
   }
   if (rows.length === 0) return '';
 
-  // 명세서 §6.4 권고 — 방사형 차트로 시각화 (5축: 상정·중정·하정·콧방울·입꼬리·미간)
+  // 명세서 §6.4 권고 — 방사형 차트 + 안면 윤곽 그래픽 라인
   const radarSvg = renderRadarChart(metrics);
+  const outlineSvg = renderOutlineSvg(metrics);
 
   return `
   <div class="face-metrics-card">
   <div class="face-metrics-title">― 그대의 상에서 측정된 자취 ―</div>
+  <div class="face-vis-row">
+  ${outlineSvg}
   ${radarSvg}
+  </div>
   ${rows.join('')}
   <div class="face-metrics-foot">MediaPipe Face Landmarker 478점 좌표 기반 · 외모 평가가 아닌 기하학적 측정치</div>
+  </div>
+  `;
+  }
+
+  // 명세서 §6.4 — 사용자의 안면 윤곽을 사극풍 금색 라인으로 그래픽 렌더
+  function renderOutlineSvg(m) {
+  if (!m || !m.outline) return '';
+  const o = m.outline;
+  // 정규화 좌표(0~1)를 viewBox(220×260)로 매핑. 얼굴은 보통 y 0.15~0.85 분포.
+  const W = 220, H = 260;
+  const toPoint = p => `${(p.x * W).toFixed(1)},${(p.y * H).toFixed(1)}`;
+  const toPath = (pts, close) => {
+  if (!Array.isArray(pts) || pts.length === 0) return '';
+  const d = pts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${toPoint(p)}`).join(' ') + (close ? ' Z' : '');
+  return d;
+  };
+
+  const facePath = toPath(o.oval, true);
+  const lEyePath = toPath(o.leftEye, true);
+  const rEyePath = toPath(o.rightEye, true);
+  const lBrowPath = toPath(o.leftBrow, false);
+  const rBrowPath = toPath(o.rightBrow, false);
+  const lipsPath = toPath(o.lips, true);
+  const nosePath = toPath(o.noseBridge, false);
+
+  return `
+  <div class="face-outline-wrap">
+  <svg viewBox="0 0 ${W} ${H}" width="220" height="260" xmlns="http://www.w3.org/2000/svg" aria-label="안면 윤곽 그래픽 라인">
+  <path d="${facePath}" fill="rgba(212,175,55,0.04)" stroke="#d4af37" stroke-width="1.4" opacity="0.95"/>
+  <path d="${lBrowPath}" fill="none" stroke="#d4af37" stroke-width="1.6" opacity="0.85"/>
+  <path d="${rBrowPath}" fill="none" stroke="#d4af37" stroke-width="1.6" opacity="0.85"/>
+  <path d="${lEyePath}" fill="none" stroke="#d4af37" stroke-width="1.3" opacity="0.9"/>
+  <path d="${rEyePath}" fill="none" stroke="#d4af37" stroke-width="1.3" opacity="0.9"/>
+  <path d="${nosePath}" fill="none" stroke="#d4af37" stroke-width="1.2" opacity="0.7" stroke-dasharray="2 2"/>
+  <path d="${lipsPath}" fill="rgba(176,79,79,0.18)" stroke="#d4af37" stroke-width="1.3" opacity="0.9"/>
+  </svg>
+  <div class="face-outline-cap">― 그대의 윤곽 ―</div>
   </div>
   `;
   }
