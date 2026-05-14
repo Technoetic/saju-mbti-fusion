@@ -293,6 +293,19 @@ from engine.safety.input_sanitizer import (
     sanitize_name,
     has_injection_attempt,
 )
+from engine.safety.cache_integrity import (
+    IntegrityResult,
+    IntegrityAuditReport,
+    INTEGRITY_PARSE_ERROR,
+    INTEGRITY_MISSING_KEY,
+    INTEGRITY_EMPTY_TEXT,
+    INTEGRITY_MISSING_LEGAL,
+    INTEGRITY_NOT_DICT,
+    INTEGRITY_PROMPT_HASH_MISMATCH,
+    verify_cache_file,
+    audit_cache_directory,
+    list_corrupt_files,
+)
 
 __all__ = [
     "detect_crisis",
@@ -518,4 +531,15 @@ __all__ = [
     "sanitize_question",
     "sanitize_name",
     "has_injection_attempt",
+    "IntegrityResult",
+    "IntegrityAuditReport",
+    "INTEGRITY_PARSE_ERROR",
+    "INTEGRITY_MISSING_KEY",
+    "INTEGRITY_EMPTY_TEXT",
+    "INTEGRITY_MISSING_LEGAL",
+    "INTEGRITY_NOT_DICT",
+    "INTEGRITY_PROMPT_HASH_MISMATCH",
+    "verify_cache_file",
+    "audit_cache_directory",
+    "list_corrupt_files",
 ]
