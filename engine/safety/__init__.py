@@ -544,6 +544,19 @@ from engine.safety.changelog_tracker import (
     record_change as record_change_log,
     get_default_store as get_changelog_store,
 )
+from engine.safety.dependency_graph import (
+    DependencyGraph,
+    DependencyNode,
+    HOTSPOT_IN_DEGREE,
+    build_graph as build_dependency_graph,
+    in_degree as in_degree_of,
+    out_degree as out_degree_of,
+    has_cycles as has_dependency_cycles,
+    get_dependents,
+    get_dependencies,
+    format_graph_text as format_dependency_graph,
+    to_json as dependency_graph_to_json,
+)
 
 __all__ = [
     "detect_crisis",
@@ -982,4 +995,15 @@ __all__ = [
     "REASON_DEPRECATION",
     "record_change_log",
     "get_changelog_store",
+    "DependencyGraph",
+    "DependencyNode",
+    "HOTSPOT_IN_DEGREE",
+    "build_dependency_graph",
+    "in_degree_of",
+    "out_degree_of",
+    "has_dependency_cycles",
+    "get_dependents",
+    "get_dependencies",
+    "format_dependency_graph",
+    "dependency_graph_to_json",
 ]
