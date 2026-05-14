@@ -401,6 +401,18 @@ from engine.safety.latency_audit import (
     aggregate_step_p95,
     aggregate_total_p95,
 )
+from engine.safety.response_consistency import (
+    ConsistencyReport,
+    CONSISTENCY_PERSONA_DROP,
+    CONSISTENCY_MEDICAL_LEAK,
+    CONSISTENCY_FORBIDDEN_INCONSISTENT,
+    CONSISTENCY_TOPIC_DRIFT,
+    CONSISTENCY_LENGTH_VARIANCE_HIGH,
+    LENGTH_CV_MAX,
+    TOPIC_AGREEMENT_MIN,
+    MIN_SAMPLES_FOR_EVAL,
+    evaluate_consistency,
+)
 
 __all__ = [
     "detect_crisis",
@@ -714,4 +726,14 @@ __all__ = [
     "evaluate_latency",
     "aggregate_step_p95",
     "aggregate_total_p95",
+    "ConsistencyReport",
+    "CONSISTENCY_PERSONA_DROP",
+    "CONSISTENCY_MEDICAL_LEAK",
+    "CONSISTENCY_FORBIDDEN_INCONSISTENT",
+    "CONSISTENCY_TOPIC_DRIFT",
+    "CONSISTENCY_LENGTH_VARIANCE_HIGH",
+    "LENGTH_CV_MAX",
+    "TOPIC_AGREEMENT_MIN",
+    "MIN_SAMPLES_FOR_EVAL",
+    "evaluate_consistency",
 ]
