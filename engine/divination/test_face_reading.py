@@ -393,6 +393,74 @@ def test_generate_face_reading_returns_warn_code_on_flat_photo(monkeypatch, tmp_
     assert "허허" in r["text"]  # 풀이 본문은 정상 산출됨
 
 
+# ─────────────────────────── §7.2.6 a11y 메타데이터 어댑터 ───────────────────────────
+
+def test_a11y_metadata_extraction_full_reading():
+    """전형적 풀이 → 인사·본문 단락·마무리 분리."""
+    from engine.divination.face_reading import _extract_a11y_metadata
+    body = (
+        "허허, 그대의 상이 잘 잡혀 있구먼.\n\n"
+        "광대의 결이 든든하니 근골의 자리가 또렷하구먼.\n\n"
+        "콧방울이 도타워 재백의 결이 보이는구먼.\n\n"
+        "이 늙은이의 한 마디 — 한 해를 도모하시게나."
+    )
+    a = _extract_a11y_metadata(body, "법적 고지 1단락")
+    assert a["paragraph_count"] == 4
+    assert a["has_greeting"] is True
+    assert a["has_closing"] is True
+    roles = [p["role"] for p in a["paragraphs"]]
+    assert roles[0] == "greeting"
+    assert roles[-1] == "closing"
+    assert a["total_length"] == len(body)
+    assert a["legal_footer_length"] == len("법적 고지 1단락")
+
+
+def test_a11y_metadata_empty_text():
+    """빈 풀이 → paragraph_count=0, has_* 모두 False."""
+    from engine.divination.face_reading import _extract_a11y_metadata
+    a = _extract_a11y_metadata("", "")
+    assert a["paragraph_count"] == 0
+    assert a["has_greeting"] is False
+    assert a["has_closing"] is False
+    assert a["paragraphs"] == []
+
+
+def test_a11y_metadata_no_greeting_no_closing():
+    """본문만 있을 때 has_greeting/has_closing 모두 False."""
+    from engine.divination.face_reading import _extract_a11y_metadata
+    body = "그대의 콧대가 곧으니 결이 또렷하구먼.\n\n광대의 결이 든든하이."
+    a = _extract_a11y_metadata(body, "")
+    assert a["paragraph_count"] == 2
+    assert a["has_greeting"] is False
+    assert a["has_closing"] is False
+
+
+def test_a11y_metadata_paragraph_role_body():
+    """인사·마무리 아닌 단락은 'body' 역할."""
+    from engine.divination.face_reading import _extract_a11y_metadata
+    body = "허허, 시작.\n\n중간 단락.\n\n이 늙은이의 한 마디 — 끝."
+    a = _extract_a11y_metadata(body, "")
+    roles = [p["role"] for p in a["paragraphs"]]
+    assert roles == ["greeting", "body", "closing"]
+
+
+def test_generate_face_reading_includes_a11y(monkeypatch, tmp_path):
+    """generate_face_reading 응답에 a11y 필드 포함."""
+    from engine.divination import face_reading
+    monkeypatch.setattr(face_reading, "_CACHE_DIR", tmp_path)
+    monkeypatch.setattr(
+        face_reading, "_call_vision",
+        lambda *a, **k: "허허, 시험이로세.\n\n이 늙은이의 한 마디 — 끝."
+    )
+    r = face_reading.generate_face_reading(
+        image_b64="dummy-img", age=30, gender="남", question=None,
+    )
+    assert "a11y" in r
+    assert r["a11y"]["paragraph_count"] >= 1
+    assert r["a11y"]["has_greeting"] is True
+    assert r["a11y"]["has_closing"] is True
+
+
 # ─────────────────────────── ④ 신(神) 엔진 (운영표준 §5.5) ───────────────────────────
 
 def test_format_metrics_block_shen_bright():

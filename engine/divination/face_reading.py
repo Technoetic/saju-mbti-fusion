@@ -610,8 +610,51 @@ def generate_face_reading(
         "cached": False,
         "crisis_alert": None,
         "legal_notice": legal,
+        # §7.2.6 a11y — 스크린 리더·인지장애 어댑터를 위한 구조화 메타데이터
+        "a11y": _extract_a11y_metadata(text or "", legal),
     }
     if warn_code:
         out["error_code"] = warn_code  # 풀이는 정상이나 경고 동봉 (WARN_FACE_*)
     _save_cache(key, out)
     return out
+
+
+def _extract_a11y_metadata(text: str, legal: str) -> dict[str, Any]:
+    """운영표준 §7.2.6 — 접근성(a11y) 어댑터용 구조화 메타데이터.
+
+    클라이언트가 스크린 리더·TTS·간결 요약 옵션을 만들 때 사용.
+    풀이 본문을 단락별로 분리하고 각 길이·역할을 제공한다.
+
+    출력:
+      {
+        "paragraph_count": int,
+        "total_length": int,
+        "has_greeting": bool,
+        "has_closing": bool,
+        "paragraphs": [{"length": int, "role": str}, ...]
+        "legal_footer_length": int,
+      }
+    """
+    body = (text or "").strip()
+    # 빈 줄 기준 단락 분리 (운영표준 §6.4.1 단락별 길이 가이드 정합)
+    raw_paragraphs = [p.strip() for p in body.split("\n\n") if p.strip()]
+    paragraphs = []
+    has_greeting = False
+    has_closing = False
+    for i, p in enumerate(raw_paragraphs):
+        role = "body"
+        if i == 0 and p.startswith("허허"):
+            role = "greeting"
+            has_greeting = True
+        elif p.startswith("이 늙은이의 한 마디"):
+            role = "closing"
+            has_closing = True
+        paragraphs.append({"length": len(p), "role": role})
+    return {
+        "paragraph_count": len(paragraphs),
+        "total_length": len(body),
+        "has_greeting": has_greeting,
+        "has_closing": has_closing,
+        "paragraphs": paragraphs,
+        "legal_footer_length": len(legal or ""),
+    }
