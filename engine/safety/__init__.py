@@ -413,6 +413,12 @@ from engine.safety.response_consistency import (
     MIN_SAMPLES_FOR_EVAL,
     evaluate_consistency,
 )
+from engine.safety.standard_doc_builder import (
+    build_markdown_report,
+    build_json_summary,
+    build_json_string,
+    build_audit_letter,
+)
 
 __all__ = [
     "detect_crisis",
@@ -736,4 +742,8 @@ __all__ = [
     "TOPIC_AGREEMENT_MIN",
     "MIN_SAMPLES_FOR_EVAL",
     "evaluate_consistency",
+    "build_markdown_report",
+    "build_json_summary",
+    "build_json_string",
+    "build_audit_letter",
 ]
