@@ -8059,10 +8059,37 @@ if (document.readyState === 'loading') {
   return Math.sqrt(dx*dx + dy*dy + dz*dz);
   }
 
+  // 명세서 §6.2 헤드 포즈 정규화 — 양 눈꼬리(33,263) 기준으로 수평이 되도록
+  // 코끝(4)을 원점 삼아 2D 회전 변환. z축은 보존 (입체감 정보).
+  // 이렇게 해야 기울어진 셀카에서도 3정/12궁 비율이 일관되게 산출됨.
+  function normalizeHeadPose(landmarks) {
+  const L = landmarks;
+  if (!L || L.length < 468) return L;
+  const e1 = L[33], e2 = L[263];
+  const theta = Math.atan2(e2.y - e1.y, e2.x - e1.x); // 현재 기울기
+  if (Math.abs(theta) < 0.01) return L; // 거의 수평이면 보정 불필요
+  const cos = Math.cos(-theta), sin = Math.sin(-theta);
+  const cx = L[4].x, cy = L[4].y; // 코끝 = 회전 중심
+  return L.map(p => {
+  const dx = p.x - cx, dy = p.y - cy;
+  return {
+  x: cx + dx * cos - dy * sin,
+  y: cy + dx * sin + dy * cos,
+  z: p.z,
+  };
+  });
+  }
+
   // 478개 랜드마크 → 관상학 메트릭 (3정/콧방울/입꼬리/얼굴형 등)
-  function computeMetrics(landmarks, blendshapes) {
-  if (!landmarks || landmarks.length < 468) return null;
-  const L = landmarks; // 인덱스 명세서 §5 기준
+  function computeMetrics(rawLandmarks, blendshapes) {
+  if (!rawLandmarks || rawLandmarks.length < 468) return null;
+  // head_tilt_deg는 원본 좌표에서 측정해야 의미 있음 (보정 전 기울기)
+  const rawTiltDeg = Math.atan2(
+  rawLandmarks[263].y - rawLandmarks[33].y,
+  rawLandmarks[263].x - rawLandmarks[33].x
+  ) * 180 / Math.PI;
+  // 명세서 §6.2 — 모든 비율 메트릭은 정규화된 좌표로 산출
+  const L = normalizeHeadPose(rawLandmarks);
   try {
   // 3정 — 이마10 → 미간9 → 코끝4 → 턱끝152
   const dUpper  = dist3d(L[10], L[9]);
@@ -8095,8 +8122,8 @@ if (document.readyState === 'loading') {
   const eyeLen = dist3d(L[33], L[133]);
   const eye_distance_ratio = eyeLen > 0 ? innerEye / eyeLen : null;
 
-  // 헤드 틸트 — 양 눈꼬리(33, 263) 잇는 선이 수평과 이루는 각
-  const head_tilt_deg = Math.atan2(L[263].y - L[33].y, L[263].x - L[33].x) * 180 / Math.PI;
+  // 헤드 틸트 — 보정 전 원본 좌표에서 측정한 기울기 (정규화 후 L에서는 ~0이므로 raw로 측정)
+  const head_tilt_deg = rawTiltDeg;
 
   // 좌우 비대칭 — 좌우 대칭점 쌍의 x좌표 거리 표준편차 (코끝을 중심선으로)
   const cx = L[4].x;
