@@ -555,6 +555,25 @@ def _call_vision(system_prompt: str, user_text: str, image_b64: str) -> str:
     return text
 
 
+def _region_to_lang(region: str | None) -> str:
+    """region 코드 → 면책 언어 자동 매핑 (§7.2.10).
+
+    KR → ko, US-* → en, UK → en, EU → en (다국어 시장이지만 영문 기본), JP → ja, CN → zh.
+    """
+    if not region:
+        return "ko"
+    r = region.upper().strip()
+    if r.startswith("KO") or r == "KR":
+        return "ko"
+    if r.startswith("JA") or r == "JP":
+        return "ja"
+    if r.startswith("ZH") or r == "CN":
+        return "zh"
+    if r.startswith("EN") or r in ("US-CA", "US-IL", "UK", "EU"):
+        return "en"
+    return "ko"
+
+
 def generate_face_reading(
     image_b64: str,
     age: int | None = None,
@@ -562,6 +581,7 @@ def generate_face_reading(
     question: str | None = None,
     metrics: dict[str, Any] | None = None,
     region: str | None = None,
+    lang: str | None = None,
 ) -> dict[str, Any]:
     """운학 도사 관상 풀이.
 
@@ -572,26 +592,32 @@ def generate_face_reading(
             None이면 LLM이 사진만 보고 풀이. 있으면 객관적 수치를 함께 제공.
         region: 사용자 지역 코드 (BCP-47 또는 ISO). 위기 응답 시 지역별
             핫라인 라우팅에 사용. None이면 KR fallback.
+        lang: 법적 면책 언어 ('ko'/'en'/'ja'/'zh'). None이면 region에서 자동 추출.
+            §7.2.10 본문화 — 한국 외 사용자는 자국 면책 동봉.
 
     Returns:
         {
             "text": str,
             "cached": bool,
-            "crisis_alert": dict | None,  # hotlines는 region 기반 라우팅
+            "crisis_alert": dict | None,
             "legal_notice": str | None,
+            "a11y": dict,
         }
     """
+    # lang 미지정 시 region에서 자동 매핑
+    resolved_lang = lang or _region_to_lang(region)
+
     # 0. 위기 신호 — 화두 본문 검사
     crisis = detect_crisis(question or "")
     if crisis["crisis_detected"]:
-        crisis_legal = build_legal_footer(is_crisis=True)
-        crisis_text = CRISIS_RESPONSE_KO + crisis_legal
+        crisis_legal = build_legal_footer(is_crisis=True, lang=resolved_lang)
         # §7.2.12 — 지역별 위기 자원 라우팅 (KR fallback 보장)
         from engine.safety.crisis_resources import (
             get_crisis_resources, format_hotlines_text,
         )
         regional_hotlines = get_crisis_resources(region)
-        # 본문에 지역별 핫라인 자동 부착
+        # 본문에 지역별 핫라인 자동 부착 (CRISIS_RESPONSE_KO는 현재 한국어 고정,
+        # 향후 별도 모국어 위기 본문 본문화 시 함께 확장)
         crisis_text = (
             CRISIS_RESPONSE_KO + "\n\n" + format_hotlines_text(regional_hotlines)
             + crisis_legal
@@ -630,7 +656,7 @@ def generate_face_reading(
     # 0.5 §7.2.1 사진 불량 분류 — 전체 거부 코드면 한 줄 안내 후 종료 (억지 풀이 금지)
     issue = classify_metric_issue(metrics)
     if issue and issue in _ERR_HINTS_KO:
-        legal = build_legal_footer(is_crisis=False)
+        legal = build_legal_footer(is_crisis=False, lang=resolved_lang)
         return {
             "text": _ERR_HINTS_KO[issue] + legal,
             "cached": False,
@@ -654,7 +680,7 @@ def generate_face_reading(
     # 2. LLM 호출
     user_text = _build_user_text(age, gender, question, metrics)
     text = _call_vision(_FACE_SYSTEM, user_text, image_b64)
-    legal = build_legal_footer(is_crisis=False)
+    legal = build_legal_footer(is_crisis=False, lang=resolved_lang)
     full_text = (text or "").strip() + legal
 
     out: dict[str, Any] = {

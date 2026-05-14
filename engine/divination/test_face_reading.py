@@ -643,6 +643,56 @@ def test_crisis_response_unknown_region_falls_back_to_kr(monkeypatch, tmp_path):
     assert "1393" in phones
 
 
+def test_face_reading_uses_english_legal_footer_for_us_region(monkeypatch, tmp_path):
+    """region=US-CA → 영어 법적 면책 자동 동봉 (§7.2.10)."""
+    from engine.divination import face_reading
+    monkeypatch.setattr(face_reading, "_CACHE_DIR", tmp_path)
+    monkeypatch.setattr(face_reading, "_call_vision",
+                        lambda *a, **k: "허허, 시험이로세.\n\n이 늙은이의 끝.")
+    r = face_reading.generate_face_reading(
+        image_b64="dummy", region="US-CA",
+    )
+    # text 끝부분 = legal footer. 영어 [Notice] 포함
+    assert "[Notice]" in r["text"]
+    assert "988" in r["text"]
+    assert r["legal_notice"] is not None
+    assert "[Notice]" in r["legal_notice"]
+
+
+def test_face_reading_explicit_lang_override(monkeypatch, tmp_path):
+    """lang='ja' 명시 → region 무관하게 일본어 면책."""
+    from engine.divination import face_reading
+    monkeypatch.setattr(face_reading, "_CACHE_DIR", tmp_path)
+    monkeypatch.setattr(face_reading, "_call_vision",
+                        lambda *a, **k: "허허, 시험.\n\n이 늙은이의 끝.")
+    r = face_reading.generate_face_reading(
+        image_b64="dummy", region="KR", lang="ja",
+    )
+    assert "[ご案内]" in r["text"]
+    assert "0120-279-338" in r["text"]
+
+
+def test_face_reading_crisis_footer_in_japanese(monkeypatch, tmp_path):
+    """region=JP + 위기 신호 → 일본어 위기 푸터."""
+    from engine.divination import face_reading
+    monkeypatch.setattr(face_reading, "_CACHE_DIR", tmp_path)
+    r = face_reading.generate_face_reading(
+        image_b64="dummy", question="死にたい", region="JP",
+    )
+    assert r["crisis_alert"] is not None
+    assert "[重要]" in r["text"]
+
+
+def test_face_reading_default_korean_unchanged(monkeypatch, tmp_path):
+    """region 미지정 → 기존처럼 한국어 면책."""
+    from engine.divination import face_reading
+    monkeypatch.setattr(face_reading, "_CACHE_DIR", tmp_path)
+    monkeypatch.setattr(face_reading, "_call_vision",
+                        lambda *a, **k: "허허, 시험.\n\n이 늙은이의 끝.")
+    r = face_reading.generate_face_reading(image_b64="dummy")
+    assert "[안내]" in r["text"]
+
+
 def test_crisis_response_legacy_hotlines_key_preserved(monkeypatch, tmp_path):
     """기존 crisis_alert.hotlines 키도 유지 (하위 호환)."""
     from engine.divination import face_reading

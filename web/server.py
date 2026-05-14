@@ -167,6 +167,9 @@ class FaceReadingRequest(BaseModel):
     # §7.2.12 — 위기 응답 시 지역별 핫라인 라우팅 (BCP-47 또는 ISO).
     # None이면 한국 fallback. 'KR'/'US-CA'/'EU'/'UK'/'JP'/'CN'/'US-IL' 또는 'ko-KR'/'en-US' 등.
     region: str | None = None
+    # §7.2.10 — 법적 면책 언어. None이면 region에서 자동 추출 ('en-US' → 'en').
+    # 명시적 지정 가능: 'ko' / 'en' / 'ja' / 'zh'.
+    lang: str | None = None
 
 
 class DreamInterpretRequest(BaseModel):
@@ -1644,6 +1647,7 @@ class PersonalityAPIServer:
                 req.question,
                 req.metrics,
                 req.region,
+                req.lang,
             )
             return result
         except ValueError as ve:
