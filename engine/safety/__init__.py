@@ -359,6 +359,14 @@ from engine.safety.output_safety_gate import (
     run_safety_gates,
     should_fallback as safety_gate_should_fallback,
 )
+from engine.safety.request_pipeline import (
+    PipelineDecision,
+    BLOCK_RATE_LIMITED,
+    BLOCK_COST_EXHAUSTED,
+    BLOCK_JAILBREAK,
+    BLOCK_INPUT_EMPTY,
+    preflight,
+)
 
 __all__ = [
     "detect_crisis",
@@ -638,4 +646,10 @@ __all__ = [
     "VERDICT_CRITICAL",
     "run_safety_gates",
     "safety_gate_should_fallback",
+    "PipelineDecision",
+    "BLOCK_RATE_LIMITED",
+    "BLOCK_COST_EXHAUSTED",
+    "BLOCK_JAILBREAK",
+    "BLOCK_INPUT_EMPTY",
+    "preflight",
 ]

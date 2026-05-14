@@ -60,6 +60,7 @@ def _check_safety_imports() -> dict[str, Any]:
         "engine.safety.rate_limiter",
         "engine.safety.response_alignment",
         "engine.safety.output_safety_gate",
+        "engine.safety.request_pipeline",
     ]
     missing: list[str] = []
     for m in required:
