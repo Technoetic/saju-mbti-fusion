@@ -232,6 +232,12 @@ def _format_metrics_block(metrics: dict[str, Any] | None) -> list[str]:
     zv = metrics.get("z_variance")
     if isinstance(zv, (int, float)) and 0 < zv < 0.0001:
         quality_notes.append("입체감이 옅음 — 평면 사진 가능성")
+    br = metrics.get("brightness")
+    if isinstance(br, (int, float)):
+        if br < 0.20:
+            quality_notes.append(f"조도가 낮음(~{br:.2f}) — 기색 판단 보수적으로")
+        elif br > 0.85:
+            quality_notes.append(f"조도가 과강(~{br:.2f}) — 역광/하이라이트 가능성")
     if quality_notes:
         out.append("  • 측정 신뢰도 단서 — " + "; ".join(quality_notes))
 

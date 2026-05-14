@@ -248,6 +248,19 @@ def test_format_metrics_block_quality_thresholds_independent():
     assert "측정 신뢰도 단서" not in o3
 
 
+def test_format_metrics_block_brightness_notes():
+    """조도 기반 신뢰도 단서 — 낮음/과강/안전."""
+    from engine.divination.face_reading import _format_metrics_block
+    dark = "\n".join(_format_metrics_block({"brightness": 0.15}))
+    bright = "\n".join(_format_metrics_block({"brightness": 0.90}))
+    safe = "\n".join(_format_metrics_block({"brightness": 0.50}))
+    assert "조도가 낮음" in dark
+    assert "기색 판단 보수적" in dark
+    assert "과강" in bright
+    assert "역광/하이라이트" in bright
+    assert "조도" not in safe
+
+
 # ─────────────────────────── 캐시 라운드트립 ───────────────────────────
 
 def test_cache_save_load_roundtrip(tmp_path, monkeypatch):
