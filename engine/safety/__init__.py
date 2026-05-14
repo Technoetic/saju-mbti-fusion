@@ -419,6 +419,22 @@ from engine.safety.standard_doc_builder import (
     build_json_string,
     build_audit_letter,
 )
+from engine.safety.onboarding_checklist import (
+    ChecklistItem,
+    PHASE_DAY1,
+    PHASE_WEEK1,
+    PHASE_MONTH1,
+    PHASE_ONGOING,
+    STATUS_NOT_STARTED,
+    STATUS_IN_PROGRESS,
+    STATUS_COMPLETED,
+    get_all_items as get_onboarding_items,
+    get_items_by_phase as get_onboarding_items_by_phase,
+    get_item as get_onboarding_item,
+    total_estimated_minutes as onboarding_total_minutes,
+    evaluate_progress as evaluate_onboarding_progress,
+    format_progress_text as format_onboarding_progress,
+)
 
 __all__ = [
     "detect_crisis",
@@ -746,4 +762,18 @@ __all__ = [
     "build_json_summary",
     "build_json_string",
     "build_audit_letter",
+    "ChecklistItem",
+    "PHASE_DAY1",
+    "PHASE_WEEK1",
+    "PHASE_MONTH1",
+    "PHASE_ONGOING",
+    "STATUS_NOT_STARTED",
+    "STATUS_IN_PROGRESS",
+    "STATUS_COMPLETED",
+    "get_onboarding_items",
+    "get_onboarding_items_by_phase",
+    "get_onboarding_item",
+    "onboarding_total_minutes",
+    "evaluate_onboarding_progress",
+    "format_onboarding_progress",
 ]
