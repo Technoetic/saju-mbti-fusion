@@ -25,6 +25,12 @@ from engine.safety.pii import (
     hash_question,
     mask_crisis_keyword,
 )
+from engine.safety.feedback import (
+    record_feedback,
+    get_aggregate_stats,
+    get_reading_counts,
+    reading_hash,
+)
 
 __all__ = [
     "detect_crisis",
@@ -38,4 +44,8 @@ __all__ = [
     "hash_uid",
     "hash_question",
     "mask_crisis_keyword",
+    "record_feedback",
+    "get_aggregate_stats",
+    "get_reading_counts",
+    "reading_hash",
 ]
