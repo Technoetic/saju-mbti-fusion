@@ -198,6 +198,14 @@ from engine.safety.llm_fallback_router import (
     deterministic_stub_response,
     to_trace_event,
 )
+from engine.safety.cache_janitor import (
+    JanitorReport,
+    DEFAULT_TTL_SEC,
+    DISK_WARN_BYTES,
+    find_expired_files,
+    run_janitor,
+    should_alert_disk_full,
+)
 
 __all__ = [
     "detect_crisis",
@@ -344,4 +352,10 @@ __all__ = [
     "plan_llm_calls",
     "deterministic_stub_response",
     "to_trace_event",
+    "JanitorReport",
+    "DEFAULT_TTL_SEC",
+    "DISK_WARN_BYTES",
+    "find_expired_files",
+    "run_janitor",
+    "should_alert_disk_full",
 ]
