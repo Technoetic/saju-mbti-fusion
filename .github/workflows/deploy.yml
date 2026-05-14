@@ -79,44 +79,41 @@ jobs:
         env:
           RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_API_TOKEN }}
         run: |
-          # 라이브 HTTP 200만 보면 거짓 양성 발생 (이전 배포가 살아있어 늘 200).
-          # 새 배포의 latestDeployment.status가 SUCCESS인지 직접 확인.
-          PROJECT_ID="585d6fb2-3438-48eb-9010-5b291a7f1fa1"
-          ENV_ID="36ecbd1d-b0f0-4683-a4b5-d125ab37cb94"
+          # 라이브 HTTP 200만 확인하면 거짓 양성 (이전 배포가 살아있어 늘 200).
+          # GraphQL `service(id:)` 로 최신 deployment status 직접 폴링.
           SERVICE_ID="00fbc238-ae49-4db6-8548-b4bf3478a7c8"
+          QUERY='{"query":"query { service(id: \"'"$SERVICE_ID"'\") { deployments(first: 1) { edges { node { id status } } } } }"}'
+
           for i in $(seq 1 18); do
             sleep 15
             RESP=$(curl -s -X POST https://backboard.railway.app/graphql/v2 \
               -H "Authorization: Bearer $RAILWAY_API_TOKEN" \
               -H "Content-Type: application/json" \
-              -d "{\"query\":\"query D(\$id: String!, \$envId: String!) { project(id: \$id) { services { edges { node { id name serviceInstances { edges { node { environmentId latestDeployment { id status } } } } } } } } }\",\"variables\":{\"id\":\"$PROJECT_ID\",\"envId\":\"$ENV_ID\"}}")
+              -d "$QUERY")
             STATUS=$(echo "$RESP" | python3 -c "
           import sys, json
-          d = json.load(sys.stdin)
-          for s in d.get('data',{}).get('project',{}).get('services',{}).get('edges',[]):
-              for inst in s['node']['serviceInstances']['edges']:
-                  n = inst['node']
-                  if n['environmentId'] == '$ENV_ID' and s['node']['id'] == '$SERVICE_ID':
-                      ld = n.get('latestDeployment') or {}
-                      print(ld.get('status','UNKNOWN'))
-                      break
-          " 2>/dev/null || echo "PARSE_ERROR")
-            echo "attempt $i: latest deployment status = $STATUS"
+          try:
+              d = json.load(sys.stdin)
+              edges = d['data']['service']['deployments']['edges']
+              if edges:
+                  print(edges[0]['node']['status'])
+              else:
+                  print('NO_DEPLOYMENT')
+          except Exception:
+              print('PARSE_ERROR')
+          " 2>/dev/null || echo "PIPE_ERROR")
+            code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 5 https://saju-mbti-fusion-production.up.railway.app/ || echo 000)
+            echo "attempt $i: deployment=$STATUS, live HTTP=$code"
             case "$STATUS" in
               SUCCESS)
-                code=$(curl -s -o /dev/null -w "%{http_code}" https://saju-mbti-fusion-production.up.railway.app/)
                 if [ "$code" = "200" ]; then
                   echo "✅ New deployment SUCCESS + live HTTP 200"
                   exit 0
                 fi
-                echo "  ↳ deployment SUCCESS but HTTP=$code, waiting routing…"
                 ;;
               FAILED|CRASHED|REMOVED)
                 echo "❌ Deployment $STATUS — failing CI"
                 exit 1
-                ;;
-              *)
-                # BUILDING / DEPLOYING / INITIALIZING / QUEUED — keep waiting
                 ;;
             esac
           done
