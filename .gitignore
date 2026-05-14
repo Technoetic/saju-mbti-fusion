@@ -42,4 +42,8 @@ Thumbs.db
 
 # 명세서 / 작업 메모 (공개 X)
 관상 분석*.md
+관상_앱_*.md
+
+# step 하네스 진행 파일
+step_archive/progress.json
 

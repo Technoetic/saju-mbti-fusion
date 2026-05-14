@@ -103,8 +103,14 @@ _FACE_SYSTEM = (
 )
 
 
-def _hash_payload(image_b64: str, age: int | None, gender: str | None, question: str | None) -> str:
-    """캐시 키 — 이미지 본문 + 보조 정보."""
+def _hash_payload(
+    image_b64: str,
+    age: int | None,
+    gender: str | None,
+    question: str | None,
+    metrics: dict[str, Any] | None = None,
+) -> str:
+    """캐시 키 — 이미지 본문 + 보조 정보 + 메트릭."""
     h = hashlib.sha256()
     h.update(image_b64.encode("utf-8", errors="ignore"))
     h.update(b"|")
@@ -113,6 +119,10 @@ def _hash_payload(image_b64: str, age: int | None, gender: str | None, question:
     h.update((gender or "").encode())
     h.update(b"|")
     h.update((question or "").strip().encode("utf-8", errors="ignore"))
+    if metrics:
+        # 메트릭을 결정론적으로 직렬화 — 키 순서 고정
+        h.update(b"|")
+        h.update(json.dumps(metrics, sort_keys=True, separators=(",", ":")).encode("utf-8"))
     return h.hexdigest()[:24]
 
 
@@ -140,7 +150,91 @@ def _save_cache(key: str, data: dict[str, Any]) -> None:
         pass
 
 
-def _build_user_text(age: int | None, gender: str | None, question: str | None) -> str:
+def _format_metrics_block(metrics: dict[str, Any] | None) -> list[str]:
+    """클라이언트에서 MediaPipe Face Landmarker로 산출한 메트릭을 사극풍 안내 문장으로 변환.
+
+    metrics 스키마(클라이언트 generate):
+      {
+        "three_thirds": [상정%, 중정%, 하정%],     # 합 100
+        "alar_ratio": float,                        # 콧방울 너비 / 얼굴 너비
+        "philtrum_to_chin_ratio": float,
+        "mouth_corner_lift": float,                 # -1.0(처짐) ~ +1.0(올라감)
+        "eye_distance_ratio": float,                # 미간 / 한눈 너비
+        "face_shape": "round|square|inverted_tri|oval|long",
+        "blendshapes": {
+            "jaw_open": float, "mouth_smile": float,
+            "brow_inner_up": float, "eye_blink": float
+        },
+        "head_tilt_deg": float,                     # 머리 기울기 (정규화 전)
+        "asymmetry": float,                         # 좌우 거리 표준편차
+        "z_variance": float                         # 라이브니스 단서 (평면 사진은 낮음)
+      }
+    """
+    if not isinstance(metrics, dict) or not metrics:
+        return []
+
+    out = ["", "[그대의 상에서 측정된 자취 — 이 늙은이의 안목을 거든 수치라네]"]
+    tt = metrics.get("three_thirds")
+    if isinstance(tt, (list, tuple)) and len(tt) == 3:
+        out.append(
+            f"  • 삼정 비율 (상:중:하) — {tt[0]:.0f}% : {tt[1]:.0f}% : {tt[2]:.0f}%"
+        )
+    alar = metrics.get("alar_ratio")
+    if isinstance(alar, (int, float)):
+        kind = "도탑다" if alar >= 0.34 else ("아담하다" if alar <= 0.28 else "고르다")
+        out.append(f"  • 콧방울 너비 비율 — 약 {alar:.2f} ({kind})")
+    mcl = metrics.get("mouth_corner_lift")
+    if isinstance(mcl, (int, float)):
+        if mcl >= 0.05:
+            kind = "올라간 상"
+        elif mcl <= -0.05:
+            kind = "처진 상"
+        else:
+            kind = "단정한 상"
+        out.append(f"  • 입꼬리 — {mcl:+.2f} ({kind})")
+    edr = metrics.get("eye_distance_ratio")
+    if isinstance(edr, (int, float)):
+        out.append(f"  • 미간 폭 (한눈 길이 대비) — {edr:.2f}")
+    fs = metrics.get("face_shape")
+    if isinstance(fs, str) and fs:
+        ko = {
+            "round": "원형(영양질 경향)",
+            "square": "각진형(근골질 경향)",
+            "inverted_tri": "역삼각(심성질 경향)",
+            "oval": "계란형",
+            "long": "긴 얼굴(지력질 경향)",
+        }.get(fs, fs)
+        out.append(f"  • 얼굴형 결 — {ko}")
+    asym = metrics.get("asymmetry")
+    if isinstance(asym, (int, float)):
+        out.append(f"  • 좌우 균형 편차 — {asym:.3f} (0에 가까울수록 균형)")
+
+    bs = metrics.get("blendshapes")
+    if isinstance(bs, dict):
+        flags = []
+        if isinstance(bs.get("jaw_open"), (int, float)) and bs["jaw_open"] >= 0.15:
+            flags.append("입이 살짝 벌어진 상태")
+        if isinstance(bs.get("mouth_smile"), (int, float)) and bs["mouth_smile"] >= 0.15:
+            flags.append("미소 띤 상태")
+        if isinstance(bs.get("brow_inner_up"), (int, float)) and bs["brow_inner_up"] >= 0.15:
+            flags.append("눈썹이 올라간 상태")
+        if flags:
+            out.append("  • 표정 단서 — " + ", ".join(flags) + " (기본 상에 약간의 변형 있음)")
+
+    out.append("")
+    out.append(
+        "위 수치는 객관적 측정치이니, 사진의 결(피부·눈빛·기색)과 함께 종합해 "
+        "한두 군데만 자연스럽게 풀이에 녹여주시게. 수치를 그대로 나열하지는 말 것."
+    )
+    return out
+
+
+def _build_user_text(
+    age: int | None,
+    gender: str | None,
+    question: str | None,
+    metrics: dict[str, Any] | None = None,
+) -> str:
     """이미지와 함께 보낼 텍스트 부분."""
     lines = ["[그대의 정보]"]
     if age is not None:
@@ -149,6 +243,9 @@ def _build_user_text(age: int | None, gender: str | None, question: str | None) 
         lines.append(f"  • 성별: {gender}")
     q = (question or "").strip()
     lines.append(f"  • 화두: {q if q else '(특별한 화두 없이 전체 상을 봐주십시오)'}")
+
+    lines.extend(_format_metrics_block(metrics))
+
     lines.append("")
     lines.append(
         "위 사진을 보고 운학 도사의 어조로 관상 풀이를 해주시게나. "
@@ -277,8 +374,15 @@ def generate_face_reading(
     age: int | None = None,
     gender: str | None = None,
     question: str | None = None,
+    metrics: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """운학 도사 관상 풀이.
+
+    Args:
+        image_b64: 사용자 얼굴 사진 (data URL 또는 raw base64).
+        age, gender, question: 보조 정보.
+        metrics: 클라이언트(MediaPipe Face Landmarker)에서 산출한 정량 메트릭.
+            None이면 LLM이 사진만 보고 풀이. 있으면 객관적 수치를 함께 제공.
 
     Returns:
         {
@@ -305,8 +409,8 @@ def generate_face_reading(
     if not (image_b64 or "").strip():
         raise ValueError("image_b64 is required")
 
-    # 1. 캐시 — 같은 이미지+보조정보 24h 재사용
-    key = _hash_payload(image_b64, age, gender, question)
+    # 1. 캐시 — 같은 이미지+보조정보+메트릭 24h 재사용
+    key = _hash_payload(image_b64, age, gender, question, metrics)
     cached = _load_cache(key)
     if cached is not None:
         cached.setdefault("crisis_alert", None)
@@ -315,7 +419,7 @@ def generate_face_reading(
         return cached
 
     # 2. LLM 호출
-    user_text = _build_user_text(age, gender, question)
+    user_text = _build_user_text(age, gender, question, metrics)
     text = _call_vision(_FACE_SYSTEM, user_text, image_b64)
     legal = build_legal_footer(is_crisis=False)
     full_text = (text or "").strip() + legal

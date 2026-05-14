@@ -1746,6 +1746,53 @@
   font-family: 'Nanum Myeongjo', serif;
   }
 
+  /* ── 메트릭 수치 카드 — MediaPipe Face Landmarker 산출치 ── */
+  .face-metrics-card {
+  margin-top: 22px;
+  padding: 18px 20px;
+  border: 1px dashed var(--gold-dp);
+  border-radius: 3px;
+  background: rgba(0,0,0,0.18);
+  }
+  .face-metrics-title {
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 12px;
+  letter-spacing: 4px;
+  color: var(--text-mute);
+  text-align: center;
+  margin-bottom: 14px;
+  }
+  .face-metric-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 6px 0;
+  border-bottom: 1px dotted rgba(212,175,55,0.18);
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 13px;
+  letter-spacing: 1px;
+  }
+  .face-metric-row:last-child {
+  border-bottom: none;
+  }
+  .face-metric-label {
+  color: var(--text-mute);
+  }
+  .face-metric-value {
+  color: var(--gold);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.5px;
+  }
+  .face-metrics-foot {
+  margin-top: 12px;
+  font-size: 10px;
+  color: var(--text-mute);
+  text-align: center;
+  letter-spacing: 1px;
+  opacity: 0.75;
+  font-family: 'Nanum Myeongjo', serif;
+  }
+
   @media (max-width: 600px) {
   .face-master-card { padding: 18px 16px; margin: 12px 0 20px; }
   .face-master-emblem { font-size: 24px; letter-spacing: 6px; }
@@ -2429,7 +2476,7 @@
   <button id="faceReadBtn" disabled>운 학 도 사 께  풀 이  청 하 기</button>
   <div class="hint" style="margin-top:14px">
   사진과 정보를 모두 채우시면 활성화되네.
-  <br><small style="opacity:0.7">백엔드 · Gemini 비전 멀티모달</small>
+  <br><small style="opacity:0.7">MediaPipe 478점 랜드마크로 그대의 삼정·콧방울·입꼬리를 측정한 뒤, Gemini 비전 멀티모달로 운학 도사가 풀이하네</small>
   </div>
   </div>
   </div><!-- /paper-scroll face-input -->
@@ -7956,6 +8003,8 @@ if (document.readyState === 'loading') {
 (function initFaceReading() {
   let stream = null;
   let capturedDataUrl = null;
+  let capturedMetrics = null;       // MediaPipe Face Landmarker 산출 메트릭
+  let landmarkerPromise = null;     // FaceLandmarker 인스턴스 lazy promise
 
   const $ = (id) => document.getElementById(id);
 
@@ -7963,6 +8012,165 @@ if (document.readyState === 'loading') {
   document.querySelectorAll('#tab-face .face-step').forEach(s => {
   s.classList.toggle('active', s.id === stepId);
   });
+  }
+
+  // ──────────────────────────────────────────────────────────────
+  // MediaPipe Face Landmarker — 478 랜드마크 + blendshape 추출
+  // ──────────────────────────────────────────────────────────────
+  // 명세서(관상 분석 명세서.md §5) 권고에 따라 클라이언트에서 정량 메트릭 산출.
+  // 모델·라이브러리 모두 lazy 로드 (face 탭을 안 열면 다운로드 없음).
+  async function getFaceLandmarker() {
+  if (landmarkerPromise) return landmarkerPromise;
+  landmarkerPromise = (async () => {
+  const tasksVisionUrl = 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision/vision_bundle.mjs';
+  const wasmRoot = 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision/wasm';
+  const modelUrl = 'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/latest/face_landmarker.task';
+  const { FilesetResolver, FaceLandmarker } = await import(tasksVisionUrl);
+  const filesetResolver = await FilesetResolver.forVisionTasks(wasmRoot);
+  return FaceLandmarker.createFromOptions(filesetResolver, {
+  baseOptions: { modelAssetPath: modelUrl, delegate: 'GPU' },
+  runningMode: 'IMAGE',
+  numFaces: 1,
+  outputFaceBlendshapes: true,
+  outputFacialTransformationMatrixes: false,
+  });
+  })().catch(err => {
+  console.warn('[face] FaceLandmarker 로드 실패, 메트릭 없이 진행:', err);
+  landmarkerPromise = null; // 다음 호출에서 재시도 허용
+  return null;
+  });
+  return landmarkerPromise;
+  }
+
+  // 두 NormalizedLandmark 사이의 3D 거리 (정규화 좌표 공간)
+  function dist3d(a, b) {
+  const dx = a.x - b.x, dy = a.y - b.y, dz = a.z - b.z;
+  return Math.sqrt(dx*dx + dy*dy + dz*dz);
+  }
+
+  // 478개 랜드마크 → 관상학 메트릭 (3정/콧방울/입꼬리/얼굴형 등)
+  function computeMetrics(landmarks, blendshapes) {
+  if (!landmarks || landmarks.length < 468) return null;
+  const L = landmarks; // 인덱스 명세서 §5 기준
+  try {
+  // 3정 — 이마10 → 미간9 → 코끝4 → 턱끝152
+  const dUpper  = dist3d(L[10], L[9]);
+  const dMiddle = dist3d(L[9],  L[4]);
+  const dLower  = dist3d(L[4],  L[152]);
+  const total = dUpper + dMiddle + dLower;
+  const three_thirds = total > 0
+  ? [dUpper, dMiddle, dLower].map(v => (v / total) * 100)
+  : null;
+
+  // 얼굴 너비 / 콧방울 너비 / 광대 / 턱 너비
+  const W_face = dist3d(L[234], L[454]);   // 광대 최대 너비
+  const W_alar = dist3d(L[129], L[358]);   // 콧방울
+  const W_forehead = dist3d(L[21],  L[251]);
+  const W_jaw   = dist3d(L[132], L[361]);
+  const alar_ratio = W_face > 0 ? W_alar / W_face : null;
+
+  // 입꼬리 lift — 입꼬리 평균 y가 아랫입술 중앙 y보다 위면 +
+  // y는 위가 작은 값 → 평균이 작으면 +로 (올라간 상)
+  const cornerY = (L[61].y + L[291].y) / 2;
+  const lipBottomY = L[14].y;
+  // 얼굴 높이로 정규화하여 비례 단위
+  const faceH = dist3d(L[10], L[152]);
+  const mouth_corner_lift = faceH > 0
+  ? (lipBottomY - cornerY) / faceH * 5  // 5배 확대 → -1..+1 범위
+  : 0;
+
+  // 미간 폭 = 양 안쪽 눈머리(133, 362) 거리 / 한쪽 눈 길이(33→133)
+  const innerEye = dist3d(L[133], L[362]);
+  const eyeLen = dist3d(L[33], L[133]);
+  const eye_distance_ratio = eyeLen > 0 ? innerEye / eyeLen : null;
+
+  // 헤드 틸트 — 양 눈꼬리(33, 263) 잇는 선이 수평과 이루는 각
+  const head_tilt_deg = Math.atan2(L[263].y - L[33].y, L[263].x - L[33].x) * 180 / Math.PI;
+
+  // 좌우 비대칭 — 좌우 대칭점 쌍의 x좌표 거리 표준편차 (코끝을 중심선으로)
+  const cx = L[4].x;
+  const pairs = [[33,263], [129,358], [61,291], [234,454], [21,251]];
+  const offsets = pairs.map(([l,r]) => Math.abs((cx - L[l].x) - (L[r].x - cx)));
+  const meanOff = offsets.reduce((a,b)=>a+b, 0) / offsets.length;
+  const asymmetry = meanOff;
+
+  // z값 분산 — 평면 사진(모니터·종이)일수록 z가 거의 0에 가까워 분산이 작다
+  const zs = L.map(p => p.z);
+  const zMean = zs.reduce((a,b)=>a+b,0) / zs.length;
+  const z_variance = zs.reduce((a,b)=>a+(b-zMean)**2, 0) / zs.length;
+
+  // 얼굴형 결정 — 너비 비율 → 5체질
+  let face_shape = 'oval';
+  if (W_face > 0) {
+  const rForehead = W_forehead / W_face;
+  const rJaw = W_jaw / W_face;
+  if (rJaw >= 0.85 && rForehead >= 0.85) face_shape = 'square';      // 근골질
+  else if (rForehead >= 0.95 && rJaw <= 0.80) face_shape = 'inverted_tri'; // 심성질
+  else if (faceH > 0 && (faceH / W_face) >= 1.45) face_shape = 'long';     // 지력질
+  else if (rJaw <= 0.78 && rForehead <= 0.85) face_shape = 'round';        // 영양질
+  else face_shape = 'oval';
+  }
+
+  // Blendshape 핵심 4개만 추출
+  let bs = {};
+  if (blendshapes && Array.isArray(blendshapes.categories)) {
+  const get = (name) => {
+  const c = blendshapes.categories.find(x => x.categoryName === name);
+  return c ? c.score : 0;
+  };
+  bs = {
+  jaw_open: get('jawOpen'),
+  mouth_smile: (get('mouthSmileLeft') + get('mouthSmileRight')) / 2,
+  brow_inner_up: get('browInnerUp'),
+  eye_blink: (get('eyeBlinkLeft') + get('eyeBlinkRight')) / 2,
+  };
+  }
+
+  return {
+  three_thirds: three_thirds ? three_thirds.map(v => +v.toFixed(2)) : null,
+  alar_ratio: alar_ratio != null ? +alar_ratio.toFixed(3) : null,
+  mouth_corner_lift: +mouth_corner_lift.toFixed(3),
+  eye_distance_ratio: eye_distance_ratio != null ? +eye_distance_ratio.toFixed(3) : null,
+  face_shape,
+  asymmetry: +asymmetry.toFixed(4),
+  blendshapes: {
+  jaw_open: +(bs.jaw_open || 0).toFixed(3),
+  mouth_smile: +(bs.mouth_smile || 0).toFixed(3),
+  brow_inner_up: +(bs.brow_inner_up || 0).toFixed(3),
+  eye_blink: +(bs.eye_blink || 0).toFixed(3),
+  },
+  head_tilt_deg: +head_tilt_deg.toFixed(2),
+  z_variance: +z_variance.toFixed(5),
+  };
+  } catch (e) {
+  console.warn('[face] computeMetrics 예외:', e);
+  return null;
+  }
+  }
+
+  // 캡처된 dataURL → HTMLImageElement → FaceLandmarker → 메트릭
+  async function extractMetricsFromDataUrl(dataUrl) {
+  const landmarker = await getFaceLandmarker();
+  if (!landmarker) return null;
+  try {
+  const img = await new Promise((resolve, reject) => {
+  const im = new Image();
+  im.onload = () => resolve(im);
+  im.onerror = reject;
+  im.src = dataUrl;
+  });
+  const result = landmarker.detect(img);
+  if (!result.faceLandmarks || result.faceLandmarks.length === 0) {
+  console.warn('[face] 얼굴 미감지 — 메트릭 없이 진행');
+  return null;
+  }
+  const lms = result.faceLandmarks[0];
+  const bs  = (result.faceBlendshapes && result.faceBlendshapes[0]) || null;
+  return computeMetrics(lms, bs);
+  } catch (e) {
+  console.warn('[face] 랜드마크 추출 실패:', e);
+  return null;
+  }
   }
 
   function updateReadButton() {
@@ -8018,6 +8226,8 @@ if (document.readyState === 'loading') {
   capturedDataUrl = canvas.toDataURL('image/jpeg', 0.85);
   showCapturedPreview();
   stopCamera();
+  // 백그라운드로 메트릭 추출 (LLM 호출 전까지 충분히 끝남)
+  runMetricsExtraction();
   }
 
   function showCapturedPreview() {
@@ -8025,6 +8235,21 @@ if (document.readyState === 'loading') {
   $('facePreviewImg').src = capturedDataUrl;
   $('facePreviewArea').style.display = 'block';
   updateReadButton();
+  }
+
+  // 캡처 직후 메트릭 추출 — 실패해도 풀이는 정상 진행 (graceful degradation)
+  async function runMetricsExtraction() {
+  capturedMetrics = null;
+  if (!capturedDataUrl) return;
+  try {
+  capturedMetrics = await extractMetricsFromDataUrl(capturedDataUrl);
+  if (capturedMetrics) {
+  console.log('[face] 메트릭 추출 완료:', capturedMetrics);
+  }
+  } catch (e) {
+  console.warn('[face] 메트릭 추출 중 오류:', e);
+  capturedMetrics = null;
+  }
   }
 
   function loadFromFile(file) {
@@ -8051,6 +8276,7 @@ if (document.readyState === 'loading') {
   capturedDataUrl = canvas.toDataURL('image/jpeg', 0.85);
   showCapturedPreview();
   stopCamera();
+  runMetricsExtraction();
   };
   img.onerror = () => alert('사진을 읽을 수 없네.');
   img.src = reader.result;
@@ -8061,6 +8287,7 @@ if (document.readyState === 'loading') {
 
   function resetAll() {
   capturedDataUrl = null;
+  capturedMetrics = null;
   stopCamera();
   $('facePreviewArea').style.display = 'none';
   const upload = $('faceUploadInput');
@@ -8068,6 +8295,44 @@ if (document.readyState === 'loading') {
   $('faceResultBoard').innerHTML = '';
   updateReadButton();
   showFaceStep('face-step-input');
+  }
+
+  // 메트릭 → 사극풍 수치 카드 HTML
+  function renderMetricsCard(metrics) {
+  if (!metrics) return '';
+  const rows = [];
+  if (Array.isArray(metrics.three_thirds) && metrics.three_thirds.length === 3) {
+  const [a, b, c] = metrics.three_thirds;
+  rows.push(`<div class="face-metric-row"><span class="face-metric-label">삼정 비율 (상:중:하)</span><span class="face-metric-value">${a.toFixed(0)}% : ${b.toFixed(0)}% : ${c.toFixed(0)}%</span></div>`);
+  }
+  if (typeof metrics.alar_ratio === 'number') {
+  const a = metrics.alar_ratio;
+  const kind = a >= 0.34 ? '도탑다' : (a <= 0.28 ? '아담하다' : '고르다');
+  rows.push(`<div class="face-metric-row"><span class="face-metric-label">콧방울 너비 비율</span><span class="face-metric-value">${a.toFixed(2)} · ${kind}</span></div>`);
+  }
+  if (typeof metrics.mouth_corner_lift === 'number') {
+  const m = metrics.mouth_corner_lift;
+  const kind = m >= 0.05 ? '올라간 상' : (m <= -0.05 ? '처진 상' : '단정한 상');
+  rows.push(`<div class="face-metric-row"><span class="face-metric-label">입꼬리</span><span class="face-metric-value">${m >= 0 ? '+' : ''}${m.toFixed(2)} · ${kind}</span></div>`);
+  }
+  if (typeof metrics.eye_distance_ratio === 'number') {
+  rows.push(`<div class="face-metric-row"><span class="face-metric-label">미간 폭 (한눈 길이 대비)</span><span class="face-metric-value">${metrics.eye_distance_ratio.toFixed(2)}</span></div>`);
+  }
+  if (metrics.face_shape) {
+  const ko = { round: '원형 · 영양질', square: '각진형 · 근골질', inverted_tri: '역삼각 · 심성질', oval: '계란형', long: '긴 얼굴 · 지력질' }[metrics.face_shape] || metrics.face_shape;
+  rows.push(`<div class="face-metric-row"><span class="face-metric-label">얼굴형 결</span><span class="face-metric-value">${ko}</span></div>`);
+  }
+  if (typeof metrics.asymmetry === 'number') {
+  rows.push(`<div class="face-metric-row"><span class="face-metric-label">좌우 균형 편차</span><span class="face-metric-value">${metrics.asymmetry.toFixed(3)}</span></div>`);
+  }
+  if (rows.length === 0) return '';
+  return `
+  <div class="face-metrics-card">
+  <div class="face-metrics-title">― 그대의 상에서 측정된 자취 ―</div>
+  ${rows.join('')}
+  <div class="face-metrics-foot">MediaPipe Face Landmarker 478점 좌표 기반 · 외모 평가가 아닌 기하학적 측정치</div>
+  </div>
+  `;
   }
 
   function renderResult(data) {
@@ -8088,10 +8353,13 @@ if (document.readyState === 'loading') {
   </div>`;
   }
 
+  const metricsCard = renderMetricsCard(capturedMetrics);
+
   board.innerHTML = `
   <div class="face-result-card">
   <h2 class="story-title">운 학 도 사 의 얼 굴 풀 이</h2>
   <div class="face-result-text">${escaped}</div>
+  ${metricsCard}
   ${crisisBlock}
   <div class="face-result-meta">
   ${cached ? '이전에 풀었던 상이로세' : '운학 도사가 갓 살핀 상이로세'}
@@ -8111,6 +8379,29 @@ if (document.readyState === 'loading') {
   const question = ($('faceQuestion').value || '').trim() || null;
 
   showFaceStep('face-step-loading');
+
+  // 메트릭이 아직 도착 안 했으면 최대 3초 대기 (랜드마커 초기 다운로드 직후 케이스)
+  if (!capturedMetrics) {
+  try { await Promise.race([runMetricsExtraction(), new Promise(r => setTimeout(r, 3000))]); }
+  catch (_) {}
+  }
+
+  // 무표정 가드 — 입 벌림·미소가 강하면 부드럽게 안내 (강제 차단 X)
+  if (capturedMetrics && capturedMetrics.blendshapes) {
+  const bs = capturedMetrics.blendshapes;
+  if ((bs.jaw_open || 0) > 0.30 || (bs.mouth_smile || 0) > 0.40) {
+  const proceed = confirm(
+  '허허, 그대의 입가에 표정이 살짝 실려 있구먼.\n' +
+  '관상은 무표정에서 가장 본바탕이 드러나네.\n' +
+  '입을 다물고 한 장 더 담아보시겠는가? (취소하면 이대로 풀이 진행)'
+  );
+  if (proceed) {
+  showFaceStep('face-step-input');
+  return;
+  }
+  }
+  }
+
   try {
   const resp = await fetch('/api/face/reading', {
   method: 'POST',
@@ -8120,6 +8411,7 @@ if (document.readyState === 'loading') {
   age: Number.isFinite(age) ? age : null,
   gender,
   question,
+  metrics: capturedMetrics,
   }),
   });
   if (!resp.ok) {

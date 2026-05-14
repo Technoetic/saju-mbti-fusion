@@ -156,12 +156,14 @@ class HwapaeReadingRequest(BaseModel):
 
 
 class FaceReadingRequest(BaseModel):
-    """운학 도사 얼굴 풀이 요청 — 사진(base64) + 보조 정보."""
+    """운학 도사 얼굴 풀이 요청 — 사진(base64) + 보조 정보 + (선택) MediaPipe 메트릭."""
 
     image_base64: str  # data URL 또는 raw base64. 1024px 이하 권장.
     age: int | None = None
     gender: str | None = None  # 'M' / 'F' / 자유 문자열
     question: str | None = None  # 화두
+    # 클라이언트(MediaPipe Face Landmarker)에서 산출한 정량 메트릭. 없어도 정상 동작.
+    metrics: dict[str, Any] | None = None
 
 
 class DreamInterpretRequest(BaseModel):
@@ -1637,6 +1639,7 @@ class PersonalityAPIServer:
                 req.age,
                 req.gender,
                 req.question,
+                req.metrics,
             )
             return result
         except ValueError as ve:
