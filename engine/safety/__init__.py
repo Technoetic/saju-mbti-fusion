@@ -91,6 +91,13 @@ from engine.safety.alert_router import (
     build_pagerduty_event,
     alerts_from_slo_report,
 )
+from engine.safety.emotion_disclosure import (
+    is_emotion_disclosure_required,
+    is_emotion_disclosure_recommended,
+    build_emotion_disclosure,
+    inject_emotion_disclosure,
+    get_disclosure_metadata,
+)
 
 __all__ = [
     "detect_crisis",
@@ -150,4 +157,9 @@ __all__ = [
     "build_slack_message",
     "build_pagerduty_event",
     "alerts_from_slo_report",
+    "is_emotion_disclosure_required",
+    "is_emotion_disclosure_recommended",
+    "build_emotion_disclosure",
+    "inject_emotion_disclosure",
+    "get_disclosure_metadata",
 ]

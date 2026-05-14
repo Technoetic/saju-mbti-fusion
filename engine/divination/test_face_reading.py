@@ -466,6 +466,66 @@ def test_err_response_photo_guidance_respects_lang(monkeypatch, tmp_path):
     assert "허허" not in g["hint"]
 
 
+# ─────────────────────────── EU AI Act §50(3) 감정 추론 고지 ───────────────────────────
+
+def test_eu_region_response_includes_emotion_disclosure_in_text(monkeypatch, tmp_path):
+    """region='DE'일 때 응답 본문에 EU AI Act 고지가 자동 첨부."""
+    from engine.divination import face_reading
+    monkeypatch.setattr(face_reading, "_CACHE_DIR", tmp_path)
+    monkeypatch.setattr(face_reading, "_call_vision",
+                        lambda *a, **k: "허허, 그대의 상을 살피니…")
+
+    r = face_reading.generate_face_reading(
+        image_b64="dummy",
+        metrics={"face_count": 1, "three_thirds": [33, 34, 33]},
+        region="DE",
+        lang="en",
+    )
+    assert "EU AI Act" in r["text"]
+    meta = r["emotion_disclosure"]
+    assert meta["required"] is True
+    assert meta["legal_basis"] == "EU AI Act Art.50(3)"
+
+
+def test_uk_region_response_appends_recommended_disclosure(monkeypatch, tmp_path):
+    """region='UK'일 때도 권고 수준으로 고지 첨부."""
+    from engine.divination import face_reading
+    monkeypatch.setattr(face_reading, "_CACHE_DIR", tmp_path)
+    monkeypatch.setattr(face_reading, "_call_vision",
+                        lambda *a, **k: "허허, 그대의 상을 살피니…")
+
+    r = face_reading.generate_face_reading(
+        image_b64="dummy",
+        metrics={"face_count": 1, "three_thirds": [33, 34, 33]},
+        region="UK",
+        lang="en",
+    )
+    meta = r["emotion_disclosure"]
+    assert meta["required"] is False
+    assert meta["recommended"] is True
+    assert "EU AI Act" in r["text"]
+
+
+def test_kr_region_response_has_no_disclosure_text(monkeypatch, tmp_path):
+    """region='KR'은 본문에 고지 미첨부, 메타데이터는 required=False."""
+    from engine.divination import face_reading
+    monkeypatch.setattr(face_reading, "_CACHE_DIR", tmp_path)
+    monkeypatch.setattr(face_reading, "_call_vision",
+                        lambda *a, **k: "허허, 그대의 상을 살피니…")
+
+    r = face_reading.generate_face_reading(
+        image_b64="dummy",
+        metrics={"face_count": 1, "three_thirds": [33, 34, 33]},
+        region="KR",
+        lang="ko",
+    )
+    assert "EU AI Act" not in r["text"]
+    meta = r["emotion_disclosure"]
+    assert meta["required"] is False
+    assert meta["recommended"] is False
+    assert meta["legal_basis"] is None
+
+
 # ─────────────────────────── 신 명세서 §3.2 멀티모달 페이로드 ───────────────────────────
 
 def test_build_openai_user_message_structure():

@@ -25,6 +25,8 @@ from engine.safety import (
     EMERGENCY_HOTLINES_KR,
     build_legal_footer,
     build_photo_guidance,
+    inject_emotion_disclosure,
+    get_disclosure_metadata,
 )
 
 
@@ -732,7 +734,10 @@ def generate_face_reading(
     user_text = _build_user_text(age, gender, question, metrics)
     text = _call_vision(_FACE_SYSTEM, user_text, image_b64)
     legal = build_legal_footer(is_crisis=False, lang=resolved_lang)
-    full_text = (text or "").strip() + legal
+    # EU AI Act §50(3) — EU 지역일 때 감정 추론 명시 고지 자동 첨부
+    body_with_legal = (text or "").strip() + legal
+    full_text = inject_emotion_disclosure(body_with_legal, region=region, lang=resolved_lang)
+    emotion_meta = get_disclosure_metadata(region, resolved_lang)
 
     out: dict[str, Any] = {
         "text": full_text,
@@ -744,6 +749,8 @@ def generate_face_reading(
         # §7.2.3 — 화두 언어 감지 + 외국어 안내
         "detected_language": detected_lang,
         "language_advisory": language_advisory,
+        # EU AI Act §50(3) — 감정 추론 명시 고지 메타데이터
+        "emotion_disclosure": emotion_meta,
     }
     if warn_code:
         out["error_code"] = warn_code  # 풀이는 정상이나 경고 동봉 (WARN_FACE_*)
