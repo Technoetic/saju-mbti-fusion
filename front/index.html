@@ -1712,6 +1712,27 @@
   border-radius: 3px;
   border: 1px solid var(--gold-dp);
   }
+  /* 미리보기 품질 배지 (face_center_offset / z / blendshape 기반) */
+  .face-preview-badge {
+  margin-top: 12px;
+  padding: 8px 14px;
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 12px;
+  letter-spacing: 1px;
+  border-radius: 3px;
+  display: inline-block;
+  max-width: 90%;
+  }
+  .face-preview-badge.badge-ok {
+  background: rgba(40,100,60,0.18);
+  border: 1px solid rgba(120,200,140,0.4);
+  color: #b6e2c4;
+  }
+  .face-preview-badge.badge-warn {
+  background: rgba(176,127,40,0.14);
+  border: 1px solid rgba(212,175,55,0.45);
+  color: #e9d28a;
+  }
   .face-camera-controls,
   .face-preview-controls {
   margin-top: 16px;
@@ -2520,6 +2541,7 @@
   </div>
   <div id="facePreviewArea" class="face-preview-area" style="display:none">
   <img id="facePreviewImg" alt="얼굴 사진 미리보기">
+  <div id="facePreviewBadge" class="face-preview-badge" style="display:none"></div>
   <div class="face-preview-controls">
   <button id="faceRetakeBtn" type="button" class="face-btn">다시 담기</button>
   </div>
@@ -8332,9 +8354,43 @@ if (document.readyState === 'loading') {
   if (capturedMetrics) {
   console.log('[face] 메트릭 추출 완료:', capturedMetrics);
   }
+  updatePreviewBadge();
   } catch (e) {
   console.warn('[face] 메트릭 추출 중 오류:', e);
   capturedMetrics = null;
+  updatePreviewBadge();
+  }
+  }
+
+  // 미리보기에 측정 품질 배지 표시 — 사용자가 풀이 청하기 전에 사진 품질을 시각 확인
+  function updatePreviewBadge() {
+  const badge = $('facePreviewBadge');
+  if (!badge) return;
+  if (!capturedMetrics) {
+  badge.style.display = 'block';
+  badge.className = 'face-preview-badge badge-warn';
+  badge.textContent = '얼굴을 또렷이 잡지 못했네 — 풀이는 사진만으로 진행하네';
+  return;
+  }
+  const warnings = [];
+  const m = capturedMetrics;
+  if (typeof m.face_center_offset === 'number' && m.face_center_offset > 0.18)
+  warnings.push('얼굴이 가장자리에 치우침');
+  if (typeof m.z_variance === 'number' && m.z_variance > 0 && m.z_variance < 0.0001)
+  warnings.push('입체감이 옅음 (평면 사진?)');
+  if (typeof m.head_tilt_deg === 'number' && Math.abs(m.head_tilt_deg) > 15)
+  warnings.push(`고개 ${Math.round(Math.abs(m.head_tilt_deg))}° 기울어짐`);
+  if (m.blendshapes) {
+  if ((m.blendshapes.jaw_open || 0) > 0.30) warnings.push('입이 벌어짐');
+  if ((m.blendshapes.mouth_smile || 0) > 0.40) warnings.push('미소 띤 상태');
+  }
+  badge.style.display = 'block';
+  if (warnings.length === 0) {
+  badge.className = 'face-preview-badge badge-ok';
+  badge.textContent = '✓ 그대의 상이 잘 잡혔네 — 운학 도사께 청해보시게';
+  } else {
+  badge.className = 'face-preview-badge badge-warn';
+  badge.textContent = '! ' + warnings.join(' · ') + ' (그대로 풀이도 가능)';
   }
   }
 
@@ -8376,6 +8432,8 @@ if (document.readyState === 'loading') {
   capturedMetrics = null;
   stopCamera();
   $('facePreviewArea').style.display = 'none';
+  const badge = $('facePreviewBadge');
+  if (badge) { badge.style.display = 'none'; badge.textContent = ''; }
   const upload = $('faceUploadInput');
   if (upload) upload.value = '';
   $('faceResultBoard').innerHTML = '';
