@@ -341,6 +341,15 @@ from engine.safety.rate_limiter import (
     WINDOW_HOUR_SEC,
     WINDOW_DAY_SEC,
 )
+from engine.safety.response_alignment import (
+    AlignmentResult,
+    ALIGN_TOPIC_MISSING,
+    ALIGN_OFF_TOPIC,
+    ALIGN_QUESTION_IGNORED,
+    detect_topic,
+    check_response_topic,
+    evaluate_alignment,
+)
 
 __all__ = [
     "detect_crisis",
@@ -606,4 +615,11 @@ __all__ = [
     "WINDOW_MINUTE_SEC",
     "WINDOW_HOUR_SEC",
     "WINDOW_DAY_SEC",
+    "AlignmentResult",
+    "ALIGN_TOPIC_MISSING",
+    "ALIGN_OFF_TOPIC",
+    "ALIGN_QUESTION_IGNORED",
+    "detect_topic",
+    "check_response_topic",
+    "evaluate_alignment",
 ]
