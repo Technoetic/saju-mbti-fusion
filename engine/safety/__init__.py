@@ -47,6 +47,10 @@ from engine.safety.language import (
     detect_language,
     get_language_advisory,
 )
+from engine.safety.tracing import (
+    FaceReadingTrace,
+    emit_face_reading_event,
+)
 
 __all__ = [
     "detect_crisis",
@@ -74,4 +78,6 @@ __all__ = [
     "list_supported_crisis_regions",
     "detect_language",
     "get_language_advisory",
+    "FaceReadingTrace",
+    "emit_face_reading_event",
 ]
