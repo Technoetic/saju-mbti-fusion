@@ -393,6 +393,69 @@ def test_generate_face_reading_returns_warn_code_on_flat_photo(monkeypatch, tmp_
     assert "허허" in r["text"]  # 풀이 본문은 정상 산출됨
 
 
+# ─────────────────────────── ③ 기색 엔진 (운영표준 §5.5) ───────────────────────────
+
+def test_format_metrics_block_complexion_red():
+    """이마 붉은 결 → '열의 기운' 사극풍 어휘."""
+    from engine.divination.face_reading import _format_metrics_block
+    out = "\n".join(_format_metrics_block({
+        "complexion": {
+            "forehead": {"kind": "red", "rgb": {"r": 200, "g": 130, "b": 130}},
+        }
+    }))
+    assert "기색" in out
+    assert "이마" in out
+    assert "열의 기운" in out
+
+
+def test_format_metrics_block_complexion_pale_cheek():
+    """좌 뺨 흰 결 → 서늘한 기운."""
+    from engine.divination.face_reading import _format_metrics_block
+    out = "\n".join(_format_metrics_block({
+        "complexion": {"cheek_l": {"kind": "pale"}},
+    }))
+    assert "좌 뺨" in out
+    assert "서늘한 기운" in out
+
+
+def test_format_metrics_block_complexion_all_neutral():
+    """모든 부위 neutral → '단정한 결' 한 줄."""
+    from engine.divination.face_reading import _format_metrics_block
+    out = "\n".join(_format_metrics_block({
+        "complexion": {
+            "forehead": {"kind": "neutral"},
+            "cheek_l": {"kind": "neutral"},
+            "cheek_r": {"kind": "neutral"},
+        }
+    }))
+    assert "전체적으로 단정한 결" in out
+    # notable 라인은 없어야
+    assert "열의 기운" not in out
+    assert "서늘한 기운" not in out
+
+
+def test_format_metrics_block_complexion_multiple_regions():
+    """이마 붉음 + 턱 어두움 같이 노출."""
+    from engine.divination.face_reading import _format_metrics_block
+    out = "\n".join(_format_metrics_block({
+        "complexion": {
+            "forehead": {"kind": "red"},
+            "chin": {"kind": "dark"},
+            "nose": {"kind": "neutral"},
+        }
+    }))
+    assert "이마" in out and "열의 기운" in out
+    assert "턱" in out and "정체" in out
+
+
+def test_format_metrics_block_complexion_invalid_type():
+    """complexion 값이 dict가 아니면 graceful."""
+    from engine.divination.face_reading import _format_metrics_block
+    out = _format_metrics_block({"complexion": "not a dict"})
+    # 다른 메트릭 없이는 헤더만 있거나 빈 출력 — assertion 단순
+    assert isinstance(out, list)
+
+
 def test_format_metrics_block_wajam_classification():
     """와잠(자녀궁) 3단계."""
     from engine.divination.face_reading import _format_metrics_block

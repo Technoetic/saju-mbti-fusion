@@ -165,6 +165,12 @@ _FACE_SYSTEM = (
 )
 
 
+# 운영표준 §7.2.8 — _FACE_SYSTEM 변경 시 캐시 자동 무효화.
+# 시스템 프롬프트 SHA256 앞 8자를 캐시 키 prefix로 포함.
+# 프롬프트 1글자만 바뀌어도 prefix가 달라지므로 기존 캐시 hit 안 됨.
+_SYSTEM_PROMPT_HASH = hashlib.sha256(_FACE_SYSTEM.encode("utf-8")).hexdigest()[:8]
+
+
 def _hash_payload(
     image_b64: str,
     age: int | None,
@@ -172,8 +178,11 @@ def _hash_payload(
     question: str | None,
     metrics: dict[str, Any] | None = None,
 ) -> str:
-    """캐시 키 — 이미지 본문 + 보조 정보 + 메트릭."""
+    """캐시 키 — 시스템 프롬프트 + 이미지 본문 + 보조 정보 + 메트릭."""
     h = hashlib.sha256()
+    # §7.2.8 prefix — 프롬프트 해시 변경 시 전 캐시 자동 폴드아웃
+    h.update(_SYSTEM_PROMPT_HASH.encode("ascii"))
+    h.update(b"|")
     h.update(image_b64.encode("utf-8", errors="ignore"))
     h.update(b"|")
     h.update(str(age or "").encode())
@@ -313,6 +322,37 @@ def _format_metrics_block(metrics: dict[str, Any] | None) -> list[str]:
             flags.append("눈썹이 올라간 상태")
         if flags:
             out.append("  • 표정 단서 — " + ", ".join(flags) + " (기본 상에 약간의 변형 있음)")
+
+    # 기색(氣色) — 부위별 색 분석 (운영표준 §5.5 + 심층분석 §2 황제내경)
+    comp = metrics.get("complexion")
+    if isinstance(comp, dict) and comp:
+        # 황제내경 5색 → 사극풍 어휘
+        _kind_ko = {
+            "red": "붉은 결 (열의 기운)",
+            "pale": "옅고 흰 결 (서늘한 기운)",
+            "yellow": "노란 결 (소화·가래의 기운)",
+            "green": "푸르스름한 결 (독·정체의 기운)",
+            "dark": "어두운 결 (정체·피로의 기운)",
+            "neutral": "단정한 결",
+        }
+        _region_ko = {
+            "forehead": "이마(상정)",
+            "cheek_l": "좌 뺨",
+            "cheek_r": "우 뺨",
+            "nose": "코",
+            "chin": "턱(하정)",
+        }
+        notable = []
+        for region, info in comp.items():
+            if not isinstance(info, dict):
+                continue
+            kind = info.get("kind")
+            if kind and kind != "neutral":
+                notable.append(f"{_region_ko.get(region, region)}={_kind_ko.get(kind, kind)}")
+        if notable:
+            out.append("  • 기색(氣色) 단서 — " + " / ".join(notable))
+        else:
+            out.append("  • 기색(氣色) — 전체적으로 단정한 결")
 
     # 측정 신뢰도 가드 — 헤드 틸트가 크거나 얼굴이 가장자리에 있으면 LLM에 주의 표시
     quality_notes = []

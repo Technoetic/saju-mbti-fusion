@@ -8384,6 +8384,8 @@ if (document.readyState === 'loading') {
   if (typeof brightness === 'number') {
   m.brightness = +brightness.toFixed(3);
   }
+  // ③ 기색 엔진 — 운영표준 §5.5 + 심층분석 §2 황제내경 표1
+  m.complexion = analyzeComplexion(img, lms);
   }
   return m;
   } catch (e) {
@@ -8470,6 +8472,103 @@ if (document.readyState === 'loading') {
   return null;
   }
   }
+
+  // ③ 기색(氣色) 엔진 — 운영표준 §5.5 + 심층분석 §2 황제내경 표1
+  // 부위별 ROI 픽셀 평균 RGB → HSV → 5색 분류 (적·백·황·녹·흑)
+  // 황제내경: 적색=열·염증, 백색=차가움, 흑색=정체·통증, 녹색=독성, 황색=가래·소화
+  const _compCanvas = document.createElement('canvas');
+  function _rgb2hsv(r, g, b) {
+  r /= 255; g /= 255; b /= 255;
+  const max = Math.max(r, g, b), min = Math.min(r, g, b);
+  const d = max - min;
+  let h = 0;
+  if (d !== 0) {
+  if (max === r) h = ((g - b) / d) % 6;
+  else if (max === g) h = (b - r) / d + 2;
+  else h = (r - g) / d + 4;
+  h *= 60;
+  if (h < 0) h += 360;
+  }
+  const s = max === 0 ? 0 : d / max;
+  const v = max;
+  return { h, s, v };
+  }
+  function _classifyHue(h, s, v) {
+  // s/v 매우 낮으면 무채색(피부 톤이 옅음) — '백색·차가움'
+  if (v < 0.35) return 'dark';      // 검·정체
+  if (s < 0.10 && v > 0.75) return 'pale';  // 백·차가움
+  if (s < 0.10) return 'neutral';
+  // 황제내경 색상 매핑 (피부 톤은 대부분 H 0~30 또는 350~360)
+  if (h >= 350 || h < 15) return 'red';     // 적·열
+  if (h >= 15 && h < 45) return 'yellow';   // 황·소화/가래
+  if (h >= 45 && h < 75) return 'pale';     // 옅은 황 → 백 근사
+  if (h >= 75 && h < 165) return 'green';   // 녹·독
+  return 'neutral';
+  }
+  function _roiBoundsFromLandmarks(lms, indices, imgW, imgH) {
+  let minX = 1, minY = 1, maxX = 0, maxY = 0;
+  for (const i of indices) {
+  const p = lms[i];
+  if (!p) continue;
+  if (p.x < minX) minX = p.x;
+  if (p.y < minY) minY = p.y;
+  if (p.x > maxX) maxX = p.x;
+  if (p.y > maxY) maxY = p.y;
+  }
+  return {
+  x: Math.floor(minX * imgW), y: Math.floor(minY * imgH),
+  w: Math.max(1, Math.floor((maxX - minX) * imgW)),
+  h: Math.max(1, Math.floor((maxY - minY) * imgH)),
+  };
+  }
+  function _avgRgbInRoi(ctx, x, y, w, h) {
+  try {
+  const data = ctx.getImageData(x, y, w, h).data;
+  let r = 0, g = 0, b = 0;
+  const N = data.length / 4;
+  for (let i = 0; i < data.length; i += 4) {
+  r += data[i]; g += data[i + 1]; b += data[i + 2];
+  }
+  return { r: r / N, g: g / N, b: b / N };
+  } catch (_) {
+  return null;
+  }
+  }
+  function analyzeComplexion(img, lms) {
+  if (!img || !lms || lms.length < 468) return null;
+  try {
+  const W = img.naturalWidth || img.width, H = img.naturalHeight || img.height;
+  if (!W || !H) return null;
+  _compCanvas.width = W; _compCanvas.height = H;
+  const ctx = _compCanvas.getContext('2d', { willReadFrequently: true });
+  ctx.drawImage(img, 0, 0, W, H);
+  // 부위별 핵심 인덱스 (이마·양 뺨·코·턱)
+  const regions = {
+  forehead: [10, 67, 109, 297, 338, 151],    // 이마 중앙~양변
+  cheek_l:  [50, 117, 118, 119, 120, 100],   // 좌 뺨
+  cheek_r:  [280, 346, 347, 348, 349, 329],  // 우 뺨
+  nose:     [4, 5, 6, 195, 197],             // 콧대·코끝
+  chin:     [152, 175, 199, 200, 18],        // 턱
+  };
+  const out = {};
+  for (const [name, idxs] of Object.entries(regions)) {
+  const b = _roiBoundsFromLandmarks(lms, idxs, W, H);
+  const rgb = _avgRgbInRoi(ctx, b.x, b.y, b.w, b.h);
+  if (!rgb) continue;
+  const hsv = _rgb2hsv(rgb.r, rgb.g, rgb.b);
+  out[name] = {
+  rgb: { r: Math.round(rgb.r), g: Math.round(rgb.g), b: Math.round(rgb.b) },
+  hsv: { h: +hsv.h.toFixed(0), s: +hsv.s.toFixed(2), v: +hsv.v.toFixed(2) },
+  kind: _classifyHue(hsv.h, hsv.s, hsv.v),
+  };
+  }
+  return out;
+  } catch (e) {
+  console.warn('[face] analyzeComplexion 실패:', e);
+  return null;
+  }
+  }
+
   function stopGuideTracking() {
   if (guideTrackingTimer) clearInterval(guideTrackingTimer);
   guideTrackingTimer = null;
