@@ -113,6 +113,14 @@ from engine.safety.quick_check import (
     run_quick_check,
     format_quick_check_text,
 )
+from engine.safety.rights_information import (
+    RIGHT_KEYS,
+    RightInfo,
+    get_rights_information,
+    get_right_by_key,
+    list_automatable_rights,
+    get_sla_for_region,
+)
 
 __all__ = [
     "detect_crisis",
@@ -188,4 +196,10 @@ __all__ = [
     "to_alert_payload",
     "run_quick_check",
     "format_quick_check_text",
+    "RIGHT_KEYS",
+    "RightInfo",
+    "get_rights_information",
+    "get_right_by_key",
+    "list_automatable_rights",
+    "get_sla_for_region",
 ]
