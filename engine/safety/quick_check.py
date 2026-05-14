@@ -43,6 +43,7 @@ def _check_safety_imports() -> dict[str, Any]:
         "engine.safety.dsr_processor",
         "engine.safety.model_card",
         "engine.safety.jailbreak_defense",
+        "engine.safety.canary_guard",
     ]
     missing: list[str] = []
     for m in required:

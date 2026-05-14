@@ -157,6 +157,18 @@ from engine.safety.jailbreak_defense import (
     CATEGORY_HARM_INSTRUCTION,
     CATEGORY_RACIAL_GENERALIZATION,
 )
+from engine.safety.canary_guard import (
+    CanaryMetrics,
+    CanaryDecision,
+    CANARY_STAGES,
+    CANARY_THRESHOLDS,
+    DECISION_PROMOTE,
+    DECISION_HOLD,
+    DECISION_ROLLBACK,
+    has_sufficient_sample,
+    decide_canary,
+    metrics_from_slo_report,
+)
 
 __all__ = [
     "detect_crisis",
@@ -268,4 +280,14 @@ __all__ = [
     "CATEGORY_FORBIDDEN_ADVICE",
     "CATEGORY_HARM_INSTRUCTION",
     "CATEGORY_RACIAL_GENERALIZATION",
+    "CanaryMetrics",
+    "CanaryDecision",
+    "CANARY_STAGES",
+    "CANARY_THRESHOLDS",
+    "DECISION_PROMOTE",
+    "DECISION_HOLD",
+    "DECISION_ROLLBACK",
+    "has_sufficient_sample",
+    "decide_canary",
+    "metrics_from_slo_report",
 ]
