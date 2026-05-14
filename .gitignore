@@ -44,6 +44,9 @@ Thumbs.db
 관상 분석*.md
 관상_앱_*.md
 
-# step 하네스 진행 파일
+# step 하네스 산출물 / 작업 노트 (face_reading_cache만 디렉토리 자체 추적)
 step_archive/progress.json
+step_archive/task-metrics.jsonl
+step_archive/보강_*.md
+step_archive/specs/
 

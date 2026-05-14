@@ -8402,6 +8402,24 @@ if (document.readyState === 'loading') {
   }
   }
 
+  // 라이브니스 가드 — z 분산이 너무 낮으면 평면 사진/모니터 화면 의심
+  // 실제 얼굴: z 분산 ~10⁻³, 평면 종이/모니터 사진: ~10⁻⁵
+  // 명세서 §7.3 anti-spoofing 1차 가드 (LLM 차단이 아닌 사용자 안내)
+  if (capturedMetrics && typeof capturedMetrics.z_variance === 'number'
+  && capturedMetrics.z_variance < 0.0001
+  && capturedMetrics.z_variance > 0) {
+  const proceed = confirm(
+  '허허, 그대의 상에 입체감이 옅게 잡히는구먼.\n' +
+  '혹 사진 속 사진을 비추신 건 아닌가? 카메라를 직접 향하셔야 ' +
+  '이 늙은이가 그대의 골상을 제대로 살필 수 있다네.\n' +
+  '직접 한 장 더 담아보시겠는가? (취소하면 이대로 풀이 진행)'
+  );
+  if (proceed) {
+  showFaceStep('face-step-input');
+  return;
+  }
+  }
+
   try {
   const resp = await fetch('/api/face/reading', {
   method: 'POST',
