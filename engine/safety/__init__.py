@@ -98,6 +98,17 @@ from engine.safety.emotion_disclosure import (
     inject_emotion_disclosure,
     get_disclosure_metadata,
 )
+from engine.safety.rollback_trigger import (
+    AUTO,
+    APPROVAL,
+    NEVER,
+    RollbackDecision,
+    classify_rollback_policy,
+    build_revert_command,
+    decide_rollback,
+    should_execute_immediately,
+    to_alert_payload,
+)
 
 __all__ = [
     "detect_crisis",
@@ -162,4 +173,13 @@ __all__ = [
     "build_emotion_disclosure",
     "inject_emotion_disclosure",
     "get_disclosure_metadata",
+    "AUTO",
+    "APPROVAL",
+    "NEVER",
+    "RollbackDecision",
+    "classify_rollback_policy",
+    "build_revert_command",
+    "decide_rollback",
+    "should_execute_immediately",
+    "to_alert_payload",
 ]
