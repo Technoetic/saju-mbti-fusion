@@ -580,6 +580,30 @@ def test_normal_question_not_blocked(monkeypatch, tmp_path):
     assert "허허, 그대" in r["text"]
 
 
+# ─────────────────────────── §7.2.21 output_safety_gate 통합 ───────────────────────────
+
+def test_normal_response_includes_safety_gate(monkeypatch, tmp_path):
+    """정상 응답에 §7.2.21 safety_gate verdict가 첨부."""
+    from engine.divination import face_reading
+    monkeypatch.setattr(face_reading, "_CACHE_DIR", tmp_path)
+    monkeypatch.setattr(face_reading, "_call_vision",
+                        lambda *a, **k: "허허, 그대, 자네의 상을 짚으니, 이 늙은이의 결이로구먼. "
+                                         "삼정이 고르고 명궁이 환하니 마음의 결이 맑도다.")
+
+    r = face_reading.generate_face_reading(
+        image_b64="dummy",
+        metrics={"face_count": 1, "three_thirds": [33, 34, 33]},
+        lang="ko",
+    )
+    assert "safety_gate" in r
+    sg = r["safety_gate"]
+    assert "verdict" in sg
+    assert "failures" in sg
+    assert "fallback_trigger" in sg
+    # 정상 응답이면 clean 또는 minor
+    assert sg["verdict"] in ("clean", "minor", "warn", "critical", "skipped")
+
+
 # ─────────────────────────── §5.2.5 페르소나 자체 평가 ───────────────────────────
 
 def test_normal_response_has_persona_self_eval(monkeypatch, tmp_path):

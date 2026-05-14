@@ -789,6 +789,24 @@ def generate_face_reading(
         out["error_code"] = warn_code  # 풀이는 정상이나 경고 동봉 (WARN_FACE_*)
         # §7.2.9 — 경고도 사진 가이드 첨부 (다음 촬영 개선용)
         out["photo_guidance"] = build_photo_guidance(warn_code, resolved_lang)
+
+    # §7.2.21 통합 출력 안전망 — 6개 후처리 게이트 verdict 노출 (차단 X, 관찰만)
+    try:
+        from engine.safety.output_safety_gate import run_safety_gates
+        gate = run_safety_gates(
+            text or "",
+            question=question, age=age, gender=gender,
+            metrics=metrics, region=region, lang=resolved_lang,
+        )
+        out["safety_gate"] = {
+            "verdict": gate.verdict,
+            "failures": list(gate.failures),
+            "fallback_trigger": gate.fallback_trigger,
+        }
+    except Exception:  # noqa: BLE001
+        # 안전망 자체가 실패해도 응답은 계속 — 운영자가 trace로 확인
+        out["safety_gate"] = {"verdict": "skipped", "failures": [], "fallback_trigger": ""}
+
     _save_cache(key, out)
     # §7.3.4 — LLM 호출 성공 로깅 (§5.2.5 self_eval_score 포함)
     emit_face_reading_event(
