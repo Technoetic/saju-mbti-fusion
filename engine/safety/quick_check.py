@@ -70,6 +70,7 @@ def _check_safety_imports() -> dict[str, Any]:
         "engine.safety.incident_playbook",
         "engine.safety.postmortem_builder",
         "engine.safety.quarterly_review",
+        "engine.safety.manual_index",
     ]
     missing: list[str] = []
     for m in required:
