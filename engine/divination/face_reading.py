@@ -615,6 +615,20 @@ def generate_face_reading(
         get_language_advisory(detected_lang) if (question or "").strip() else None
     )
 
+    # §7.3.4 — 요청 진입 시각 캡처 (각 반환 직전에 emit_face_reading_event 호출)
+    from engine.safety.tracing import emit_face_reading_event, _now_ms
+    _trace_started_at = _now_ms()
+    _trace_base: dict[str, Any] = {
+        "request_started_at_ms": _trace_started_at,
+        "region": region,
+        "lang": resolved_lang,
+        "detected_language": detected_lang,
+        "age": age,
+        "gender": gender,
+        "question": question,
+        "metrics_keys": sorted(metrics.keys()) if isinstance(metrics, dict) else None,
+    }
+
     # 0. 위기 신호 — 화두 본문 검사
     crisis = detect_crisis(question or "")
     if crisis["crisis_detected"]:
@@ -629,6 +643,13 @@ def generate_face_reading(
         crisis_text = (
             CRISIS_RESPONSE_KO + "\n\n" + format_hotlines_text(regional_hotlines)
             + crisis_legal
+        )
+        # §7.3.4 — 위기 차단 로깅
+        emit_face_reading_event(
+            event_type="crisis_blocked",
+            crisis_detected=True,
+            text_length=len(crisis_text),
+            **_trace_base,
         )
         return {
             "text": crisis_text,
@@ -668,6 +689,13 @@ def generate_face_reading(
     issue = classify_metric_issue(metrics)
     if issue and issue in _ERR_HINTS_KO:
         legal = build_legal_footer(is_crisis=False, lang=resolved_lang)
+        # §7.3.4 — ERR 거부 로깅
+        emit_face_reading_event(
+            event_type="err_rejected",
+            error_code=issue,
+            text_length=len(_ERR_HINTS_KO[issue]),
+            **_trace_base,
+        )
         return {
             "text": _ERR_HINTS_KO[issue] + legal,
             "cached": False,
@@ -688,6 +716,13 @@ def generate_face_reading(
         cached.setdefault("crisis_alert", None)
         cached.setdefault("legal_notice", None)
         cached["text"] = cached.get("text", "") + ""
+        # §7.3.4 — 캐시 히트 로깅
+        emit_face_reading_event(
+            event_type="cached_hit",
+            cached=True,
+            text_length=len(cached.get("text", "")),
+            **_trace_base,
+        )
         return cached
 
     # 2. LLM 호출
@@ -710,6 +745,13 @@ def generate_face_reading(
     if warn_code:
         out["error_code"] = warn_code  # 풀이는 정상이나 경고 동봉 (WARN_FACE_*)
     _save_cache(key, out)
+    # §7.3.4 — LLM 호출 성공 로깅
+    emit_face_reading_event(
+        event_type="request_completed",
+        error_code=warn_code,
+        text_length=len(full_text),
+        **_trace_base,
+    )
     return out
 
 

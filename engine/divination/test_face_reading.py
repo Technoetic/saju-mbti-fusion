@@ -683,6 +683,79 @@ def test_face_reading_crisis_footer_in_japanese(monkeypatch, tmp_path):
     assert "[重要]" in r["text"]
 
 
+# ─────────────────────────── §7.3.4 자동 로깅 회귀 ───────────────────────────
+
+def _last_log_line(capsys):
+    """stdout 마지막 JSON 라인 파싱."""
+    import json
+    out = capsys.readouterr().out.strip()
+    lines = [l for l in out.splitlines() if l.startswith("{")]
+    return json.loads(lines[-1]) if lines else None
+
+
+def test_face_reading_emits_request_completed_log(monkeypatch, tmp_path, capsys):
+    """일반 풀이 — 'request_completed' 이벤트 emit."""
+    from engine.divination import face_reading
+    monkeypatch.setattr(face_reading, "_CACHE_DIR", tmp_path)
+    monkeypatch.setattr(face_reading, "_call_vision",
+                        lambda *a, **k: "허허, 풀이.\n\n이 늙은이의 끝.")
+    face_reading.generate_face_reading(
+        image_b64="dummy", age=35, gender="여", region="US-CA",
+    )
+    ev = _last_log_line(capsys)
+    assert ev is not None
+    assert ev["event"] == "request_completed"
+    assert ev["region"] == "US-CA"
+    assert ev["age_bucket"] == "30s"
+    assert ev["gender"] == "여"
+    assert "text_len" in ev
+    # 본문 미저장
+    assert "허허" not in str(ev)
+
+
+def test_face_reading_emits_crisis_blocked_log(monkeypatch, tmp_path, capsys):
+    """위기 응답 — 'crisis_blocked' 이벤트."""
+    from engine.divination import face_reading
+    monkeypatch.setattr(face_reading, "_CACHE_DIR", tmp_path)
+    face_reading.generate_face_reading(
+        image_b64="dummy", question="죽고 싶다", region="KR",
+    )
+    ev = _last_log_line(capsys)
+    assert ev["event"] == "crisis_blocked"
+    assert ev["crisis_detected"] is True
+
+
+def test_face_reading_emits_err_rejected_log(monkeypatch, tmp_path, capsys):
+    """ERR_FACE_* — 'err_rejected' 이벤트."""
+    from engine.divination import face_reading
+    monkeypatch.setattr(face_reading, "_CACHE_DIR", tmp_path)
+    face_reading.generate_face_reading(
+        image_b64="dummy", metrics={"face_count": 0},
+    )
+    ev = _last_log_line(capsys)
+    assert ev["event"] == "err_rejected"
+    assert ev["error_code"] == "ERR_FACE_NOT_DETECTED"
+
+
+def test_face_reading_log_no_pii_in_question(monkeypatch, tmp_path, capsys):
+    """원본 질문 본문 절대 로그 미저장 — 해시·길이만."""
+    from engine.divination import face_reading
+    monkeypatch.setattr(face_reading, "_CACHE_DIR", tmp_path)
+    monkeypatch.setattr(face_reading, "_call_vision",
+                        lambda *a, **k: "허허.\n\n이 늙은이의 끝.")
+    secret_q = "비밀번호 hello@example.com 010-1234-5678 이런 거 알려줘"
+    face_reading.generate_face_reading(
+        image_b64="dummy", question=secret_q,
+    )
+    ev = _last_log_line(capsys)
+    assert "비밀번호" not in str(ev)
+    assert "hello@example.com" not in str(ev)
+    assert "010-1234-5678" not in str(ev)
+    # 해시·길이만
+    assert "question_hash" in ev
+    assert ev["question_len"] == len(secret_q)
+
+
 def test_face_reading_korean_question_no_advisory(monkeypatch, tmp_path):
     """한국어 화두 → language_advisory None."""
     from engine.divination import face_reading
