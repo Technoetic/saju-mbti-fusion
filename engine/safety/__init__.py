@@ -31,6 +31,12 @@ from engine.safety.feedback import (
     get_reading_counts,
     reading_hash,
 )
+from engine.safety.regulation import (
+    RegulationProfile,
+    get_regulation_profile,
+    is_biometric_inference_restricted,
+    list_supported_regions,
+)
 
 __all__ = [
     "detect_crisis",
@@ -48,4 +54,8 @@ __all__ = [
     "get_aggregate_stats",
     "get_reading_counts",
     "reading_hash",
+    "RegulationProfile",
+    "get_regulation_profile",
+    "is_biometric_inference_restricted",
+    "list_supported_regions",
 ]
