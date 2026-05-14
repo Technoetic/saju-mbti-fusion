@@ -221,6 +221,20 @@ def _format_metrics_block(metrics: dict[str, Any] | None) -> list[str]:
         if flags:
             out.append("  • 표정 단서 — " + ", ".join(flags) + " (기본 상에 약간의 변형 있음)")
 
+    # 측정 신뢰도 가드 — 헤드 틸트가 크거나 얼굴이 가장자리에 있으면 LLM에 주의 표시
+    quality_notes = []
+    tilt = metrics.get("head_tilt_deg")
+    if isinstance(tilt, (int, float)) and abs(tilt) > 10:
+        quality_notes.append(f"고개가 {abs(tilt):.0f}° 기울어졌으나 좌표는 회전 보정됨")
+    offset = metrics.get("face_center_offset")
+    if isinstance(offset, (int, float)) and offset > 0.18:
+        quality_notes.append("얼굴이 프레임 가장자리에 있어 광각 왜곡 가능성")
+    zv = metrics.get("z_variance")
+    if isinstance(zv, (int, float)) and 0 < zv < 0.0001:
+        quality_notes.append("입체감이 옅음 — 평면 사진 가능성")
+    if quality_notes:
+        out.append("  • 측정 신뢰도 단서 — " + "; ".join(quality_notes))
+
     out.append("")
     out.append(
         "위 수치는 객관적 측정치이니, 사진의 결(피부·눈빛·기색)과 함께 종합해 "

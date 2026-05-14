@@ -8179,6 +8179,10 @@ if (document.readyState === 'loading') {
   },
   head_tilt_deg: +head_tilt_deg.toFixed(2),
   z_variance: +z_variance.toFixed(5),
+  // 명세서 §7.2 렌즈 왜곡 가드 — 얼굴 중심(코끝)이 프레임 중심에서
+  // 얼마나 떨어졌는지 0~1 (0=정중앙, 0.5=가장자리). 0.15 초과면 광각 배럴
+  // 왜곡으로 이마/턱이 부정확. 정규화 좌표라 x,y는 0~1.
+  face_center_offset: +Math.sqrt((L[4].x - 0.5)**2 + (L[4].y - 0.5)**2).toFixed(3),
   };
   } catch (e) {
   console.warn('[face] computeMetrics 예외:', e);
@@ -8517,6 +8521,21 @@ if (document.readyState === 'loading') {
   showFaceStep('face-step-input');
   return;
   }
+  }
+  }
+
+  // 렌즈 왜곡 가드 — 얼굴이 프레임 가장자리에 있으면 광각 배럴 왜곡으로
+  // 이마·턱이 부정확. 명세서 §7.2 (반경 15% 권고)
+  if (capturedMetrics && typeof capturedMetrics.face_center_offset === 'number'
+  && capturedMetrics.face_center_offset > 0.18) {
+  const proceed = confirm(
+  '허허, 그대의 상이 사진 가장자리에 치우쳐 있구먼.\n' +
+  '광각 렌즈의 휨 때문에 이마와 턱의 자리가 부정확하게 비추네.\n' +
+  '얼굴을 사진 한가운데로 두고 한 장 더 담아보시겠는가? (취소하면 이대로 풀이 진행)'
+  );
+  if (proceed) {
+  showFaceStep('face-step-input');
+  return;
   }
   }
 
