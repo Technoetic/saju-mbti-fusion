@@ -262,6 +262,15 @@ from engine.safety.output_token_guard import (
     should_trigger_fallback,
     to_fallback_trigger,
 )
+from engine.safety.idempotency_key import (
+    IdempotencyManager,
+    IdempotencySlot,
+    SLOT_PENDING,
+    SLOT_RESOLVED,
+    SLOT_FAILED,
+    DEFAULT_WINDOW_SEC,
+    compute_idempotency_key,
+)
 
 __all__ = [
     "detect_crisis",
@@ -462,4 +471,11 @@ __all__ = [
     "evaluate_output",
     "should_trigger_fallback",
     "to_fallback_trigger",
+    "IdempotencyManager",
+    "IdempotencySlot",
+    "SLOT_PENDING",
+    "SLOT_RESOLVED",
+    "SLOT_FAILED",
+    "DEFAULT_WINDOW_SEC",
+    "compute_idempotency_key",
 ]
