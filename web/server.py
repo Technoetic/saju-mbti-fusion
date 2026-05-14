@@ -164,6 +164,9 @@ class FaceReadingRequest(BaseModel):
     question: str | None = None  # 화두
     # 클라이언트(MediaPipe Face Landmarker)에서 산출한 정량 메트릭. 없어도 정상 동작.
     metrics: dict[str, Any] | None = None
+    # §7.2.12 — 위기 응답 시 지역별 핫라인 라우팅 (BCP-47 또는 ISO).
+    # None이면 한국 fallback. 'KR'/'US-CA'/'EU'/'UK'/'JP'/'CN'/'US-IL' 또는 'ko-KR'/'en-US' 등.
+    region: str | None = None
 
 
 class DreamInterpretRequest(BaseModel):
@@ -1640,6 +1643,7 @@ class PersonalityAPIServer:
                 req.gender,
                 req.question,
                 req.metrics,
+                req.region,
             )
             return result
         except ValueError as ve:

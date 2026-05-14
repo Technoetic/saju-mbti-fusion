@@ -592,6 +592,68 @@ def test_generate_face_reading_crisis_response_includes_a11y(monkeypatch, tmp_pa
     assert r["a11y"]["paragraph_count"] >= 1
 
 
+# ─────────────────────────── §7.2.11 + §7.2.12 위기 응답 다국가 라우팅 ───────────────────────────
+
+def test_crisis_response_kr_default(monkeypatch, tmp_path):
+    """region 미지정 → 한국 1393/1577-0199/1388."""
+    from engine.divination import face_reading
+    monkeypatch.setattr(face_reading, "_CACHE_DIR", tmp_path)
+    r = face_reading.generate_face_reading(
+        image_b64="dummy", question="죽고 싶다",
+    )
+    assert r["crisis_alert"] is not None
+    assert r["crisis_alert"]["region"] == "KR"
+    phones = [h["phone"] for h in r["crisis_alert"]["regional_hotlines"]]
+    assert "1393" in phones
+    # 본문에도 부착되었는가
+    assert "1393" in r["text"]
+
+
+def test_crisis_response_us_routes_988(monkeypatch, tmp_path):
+    """region=US-CA → 988 라이프라인."""
+    from engine.divination import face_reading
+    monkeypatch.setattr(face_reading, "_CACHE_DIR", tmp_path)
+    r = face_reading.generate_face_reading(
+        image_b64="dummy", question="죽고 싶다", region="US-CA",
+    )
+    phones = [h["phone"] for h in r["crisis_alert"]["regional_hotlines"]]
+    assert "988" in phones
+    assert "988" in r["text"]
+
+
+def test_crisis_response_eu_routes_116_123(monkeypatch, tmp_path):
+    """region=EU → 116 123 사마리탄즈."""
+    from engine.divination import face_reading
+    monkeypatch.setattr(face_reading, "_CACHE_DIR", tmp_path)
+    r = face_reading.generate_face_reading(
+        image_b64="dummy", question="자살하고 싶어", region="EU",
+    )
+    phones = [h["phone"] for h in r["crisis_alert"]["regional_hotlines"]]
+    assert "116 123" in phones
+
+
+def test_crisis_response_unknown_region_falls_back_to_kr(monkeypatch, tmp_path):
+    """미지 지역 → KR fallback (생명 보호 최소 보장)."""
+    from engine.divination import face_reading
+    monkeypatch.setattr(face_reading, "_CACHE_DIR", tmp_path)
+    r = face_reading.generate_face_reading(
+        image_b64="dummy", question="죽고 싶다", region="ZZ",
+    )
+    phones = [h["phone"] for h in r["crisis_alert"]["regional_hotlines"]]
+    assert "1393" in phones
+
+
+def test_crisis_response_legacy_hotlines_key_preserved(monkeypatch, tmp_path):
+    """기존 crisis_alert.hotlines 키도 유지 (하위 호환)."""
+    from engine.divination import face_reading
+    monkeypatch.setattr(face_reading, "_CACHE_DIR", tmp_path)
+    r = face_reading.generate_face_reading(
+        image_b64="dummy", question="죽고 싶다",
+    )
+    assert "hotlines" in r["crisis_alert"]  # 기존 키
+    assert "regional_hotlines" in r["crisis_alert"]  # 새 키
+
+
 # ─────────────────────────── ④ 신(神) 엔진 (운영표준 §5.5) ───────────────────────────
 
 def test_format_metrics_block_shen_bright():

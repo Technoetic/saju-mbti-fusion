@@ -561,6 +561,7 @@ def generate_face_reading(
     gender: str | None = None,
     question: str | None = None,
     metrics: dict[str, Any] | None = None,
+    region: str | None = None,
 ) -> dict[str, Any]:
     """운학 도사 관상 풀이.
 
@@ -569,12 +570,14 @@ def generate_face_reading(
         age, gender, question: 보조 정보.
         metrics: 클라이언트(MediaPipe Face Landmarker)에서 산출한 정량 메트릭.
             None이면 LLM이 사진만 보고 풀이. 있으면 객관적 수치를 함께 제공.
+        region: 사용자 지역 코드 (BCP-47 또는 ISO). 위기 응답 시 지역별
+            핫라인 라우팅에 사용. None이면 KR fallback.
 
     Returns:
         {
             "text": str,
             "cached": bool,
-            "crisis_alert": dict | None,
+            "crisis_alert": dict | None,  # hotlines는 region 기반 라우팅
             "legal_notice": str | None,
         }
     """
@@ -583,16 +586,42 @@ def generate_face_reading(
     if crisis["crisis_detected"]:
         crisis_legal = build_legal_footer(is_crisis=True)
         crisis_text = CRISIS_RESPONSE_KO + crisis_legal
+        # §7.2.12 — 지역별 위기 자원 라우팅 (KR fallback 보장)
+        from engine.safety.crisis_resources import (
+            get_crisis_resources, format_hotlines_text,
+        )
+        regional_hotlines = get_crisis_resources(region)
+        # 본문에 지역별 핫라인 자동 부착
+        crisis_text = (
+            CRISIS_RESPONSE_KO + "\n\n" + format_hotlines_text(regional_hotlines)
+            + crisis_legal
+        )
         return {
             "text": crisis_text,
             "cached": False,
             "crisis_alert": {
                 "severity": crisis["severity"],
+                # KR 핫라인은 호환성 위해 유지, 지역별은 별도 키
                 "hotlines": EMERGENCY_HOTLINES_KR,
+                "regional_hotlines": [
+                    {
+                        "name_ko": h.name_ko,
+                        "name_local": h.name_local,
+                        "phone": h.phone,
+                        "available_24h": h.available_24h,
+                        "language": h.language,
+                    }
+                    for h in regional_hotlines
+                ],
+                "region": region or "KR",
                 "matched_count": len(crisis["matched_keywords"]),
             },
             "legal_notice": None,
-            "a11y": _extract_a11y_metadata(CRISIS_RESPONSE_KO, crisis_legal),
+            # a11y는 지역별 핫라인이 부착된 새 본문 기준
+            "a11y": _extract_a11y_metadata(
+                CRISIS_RESPONSE_KO + "\n\n" + format_hotlines_text(regional_hotlines),
+                crisis_legal,
+            ),
         }
 
     if not (image_b64 or "").strip():
