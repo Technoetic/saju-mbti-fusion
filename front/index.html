@@ -8774,6 +8774,9 @@ if (document.readyState === 'loading') {
   { label: '콧방울', value: typeof m.alar_ratio === 'number' ? Math.min(1, m.alar_ratio / 0.42) : null },
   { label: '입꼬리', value: typeof m.mouth_corner_lift === 'number' ? Math.max(0, Math.min(1, (m.mouth_corner_lift + 0.3) / 0.6)) : null },
   { label: '미간', value: typeof m.eye_distance_ratio === 'number' ? Math.min(1, m.eye_distance_ratio / 1.5) : null },
+  // 명세서 §5.2 — 처첩궁/자녀궁 보조 메트릭 시각화
+  { label: '처첩궁', value: typeof m.cheo_cheop_ratio === 'number' ? Math.min(1, m.cheo_cheop_ratio / 0.40) : null },
+  { label: '자녀궁', value: typeof m.wajam_ratio === 'number' ? Math.min(1, m.wajam_ratio / 0.25) : null },
   ];
   // 데이터 없으면 렌더 생략
   if (axes.every(a => a.value == null)) return '';
