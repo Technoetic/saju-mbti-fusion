@@ -316,6 +316,18 @@ from engine.safety.cost_guard import (
     CRITICAL_PERCENT,
     calculate_cost,
 )
+from engine.safety.response_pii_leak import (
+    PIILeakResult,
+    PII_PHONE_KR,
+    PII_PHONE_INTL,
+    PII_EMAIL,
+    PII_KOR_SSN,
+    PII_CREDIT_CARD,
+    PII_IPV4,
+    PII_API_KEY,
+    scan_response_pii,
+    has_pii_leak,
+)
 
 __all__ = [
     "detect_crisis",
@@ -560,4 +572,14 @@ __all__ = [
     "WARN_PERCENT",
     "CRITICAL_PERCENT",
     "calculate_cost",
+    "PIILeakResult",
+    "PII_PHONE_KR",
+    "PII_PHONE_INTL",
+    "PII_EMAIL",
+    "PII_KOR_SSN",
+    "PII_CREDIT_CARD",
+    "PII_IPV4",
+    "PII_API_KEY",
+    "scan_response_pii",
+    "has_pii_leak",
 ]

@@ -56,6 +56,7 @@ def _check_safety_imports() -> dict[str, Any]:
         "engine.safety.input_sanitizer",
         "engine.safety.cache_integrity",
         "engine.safety.cost_guard",
+        "engine.safety.response_pii_leak",
     ]
     missing: list[str] = []
     for m in required:
