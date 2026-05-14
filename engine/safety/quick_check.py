@@ -52,6 +52,7 @@ def _check_safety_imports() -> dict[str, Any]:
         "engine.safety.response_envelope",
         "engine.safety.output_token_guard",
         "engine.safety.idempotency_key",
+        "engine.safety.response_fact_check",
     ]
     missing: list[str] = []
     for m in required:

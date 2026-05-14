@@ -271,6 +271,20 @@ from engine.safety.idempotency_key import (
     DEFAULT_WINDOW_SEC,
     compute_idempotency_key,
 )
+from engine.safety.response_fact_check import (
+    FactCheckResult,
+    FACT_AGE,
+    FACT_GENDER,
+    FACT_FACE_COUNT,
+    FACT_REGION,
+    FACT_GAZE,
+    check_response,
+    check_age_consistency,
+    check_gender_consistency,
+    check_face_count,
+    check_region_consistency,
+    check_gaze_consistency,
+)
 
 __all__ = [
     "detect_crisis",
@@ -478,4 +492,16 @@ __all__ = [
     "SLOT_FAILED",
     "DEFAULT_WINDOW_SEC",
     "compute_idempotency_key",
+    "FactCheckResult",
+    "FACT_AGE",
+    "FACT_GENDER",
+    "FACT_FACE_COUNT",
+    "FACT_REGION",
+    "FACT_GAZE",
+    "check_response",
+    "check_age_consistency",
+    "check_gender_consistency",
+    "check_face_count",
+    "check_region_consistency",
+    "check_gaze_consistency",
 ]
