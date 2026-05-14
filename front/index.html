@@ -1698,6 +1698,9 @@
   height: 100%;
   pointer-events: none;
   }
+  .face-guide-overlay ellipse[stroke] {
+  transition: stroke 0.4s ease, stroke-opacity 0.4s ease;
+  }
   .face-guide-hint {
   margin-top: 10px;
   font-family: 'Nanum Myeongjo', serif;
@@ -8301,6 +8304,7 @@ if (document.readyState === 'loading') {
   video.srcObject = stream;
   $('faceCameraArea').style.display = 'block';
   $('facePreviewArea').style.display = 'none';
+  startGuideTracking(); // 실시간 얼굴 위치 피드백
   } catch (err) {
   alert('카메라를 열 수 없네: ' + (err.message || err));
   console.error(err);
@@ -8308,11 +8312,82 @@ if (document.readyState === 'loading') {
   }
 
   function stopCamera() {
+  stopGuideTracking();
   if (stream) {
   stream.getTracks().forEach(t => t.stop());
   stream = null;
   }
   $('faceCameraArea').style.display = 'none';
+  }
+
+  // 실시간 얼굴 위치 피드백 — 1초마다 비디오 프레임 → FaceLandmarker → 가이드 색
+  // 명세서 §6.1 의 발전형. graceful: MediaPipe 미로드 시 그냥 정적 가이드만.
+  let guideTrackingTimer = null;
+  let guideTrackingBusy = false;
+  function startGuideTracking() {
+  stopGuideTracking();
+  guideTrackingTimer = setInterval(async () => {
+  if (guideTrackingBusy) return;
+  const video = $('faceVideo');
+  if (!video || !video.videoWidth) return;
+  const landmarker = await getFaceLandmarker();
+  if (!landmarker) return;
+  guideTrackingBusy = true;
+  try {
+  const result = landmarker.detect(video);
+  updateGuideState(result);
+  } catch (_) {}
+  guideTrackingBusy = false;
+  }, 1000);
+  }
+  function stopGuideTracking() {
+  if (guideTrackingTimer) clearInterval(guideTrackingTimer);
+  guideTrackingTimer = null;
+  guideTrackingBusy = false;
+  resetGuideState();
+  }
+  function updateGuideState(result) {
+  const svg = document.querySelector('#faceCameraArea .face-guide-overlay');
+  const hint = document.querySelector('#faceCameraArea .face-guide-hint');
+  if (!svg || !hint) return;
+  const ellipse = svg.querySelector('ellipse[stroke]');
+  if (!ellipse) return;
+  if (!result.faceLandmarks || result.faceLandmarks.length === 0) {
+  ellipse.setAttribute('stroke', '#d4af37');
+  ellipse.setAttribute('stroke-opacity', '0.55');
+  hint.textContent = '얼굴이 잡히지 않네 — 카메라를 향해 주시게';
+  return;
+  }
+  const lm = result.faceLandmarks[0];
+  const nose = lm[4];
+  const offset = Math.sqrt((nose.x - 0.5) ** 2 + (nose.y - 0.5) ** 2);
+  if (offset < 0.10) {
+  // 잘 잡힘 → 녹색
+  ellipse.setAttribute('stroke', '#79c89a');
+  ellipse.setAttribute('stroke-opacity', '0.95');
+  hint.textContent = '✓ 자리가 잡혔네 — 한 장 담아보시게';
+  } else if (offset < 0.18) {
+  // 약간 치우침 → 금색 (기본)
+  ellipse.setAttribute('stroke', '#d4af37');
+  ellipse.setAttribute('stroke-opacity', '0.85');
+  hint.textContent = '얼굴을 타원 한가운데로 조금 더 옮기시게';
+  } else {
+  // 많이 치우침 → 따뜻한 경고
+  ellipse.setAttribute('stroke', '#e9a85a');
+  ellipse.setAttribute('stroke-opacity', '0.95');
+  hint.textContent = '얼굴이 너무 치우쳤네 — 가운데로 옮겨주시게';
+  }
+  }
+  function resetGuideState() {
+  const svg = document.querySelector('#faceCameraArea .face-guide-overlay');
+  const hint = document.querySelector('#faceCameraArea .face-guide-hint');
+  if (!svg || !hint) return;
+  const ellipse = svg.querySelector('ellipse[stroke]');
+  if (ellipse) {
+  ellipse.setAttribute('stroke', '#d4af37');
+  ellipse.setAttribute('stroke-opacity', '0.85');
+  }
+  hint.textContent = '얼굴을 타원 안에 두고 정면을 향하시게';
   }
 
   function captureFromVideo() {
