@@ -35,13 +35,24 @@ jobs:
           python -c "from engine.divination.face_reading import generate_face_reading; print('face_reading loaded')"
           python -c "from engine.saju import pillars, luck_cycle, ten_gods; print('saju engine loaded')"
 
-      - name: Pytest (if test files present)
+      - name: Pytest — engine 단위 테스트 (필수)
         run: |
-          if compgen -G "web/test_*.py" > /dev/null || compgen -G "engine/**/test_*.py" > /dev/null; then
-            pip install pytest
-            pytest -x --tb=short web/ engine/ 2>&1 | tail -50 || echo "pytest had issues (non-blocking for now)"
+          pip install pytest
+          # engine/ 단위 테스트는 외부 의존성 없음 — 실패 시 CI fail.
+          if compgen -G "engine/**/test_*.py" > /dev/null; then
+            pytest -x --tb=short engine/
           else
-            echo "no test files yet — skipping"
+            echo "no engine test files yet — skipping"
+          fi
+        shell: bash
+
+      - name: Pytest — web 통합 테스트 (best-effort)
+        run: |
+          # web/test_*.py 는 외부 API(LLM/MiniMax)를 호출할 수 있어 best-effort.
+          if compgen -G "web/test_*.py" > /dev/null; then
+            pytest --tb=short web/ 2>&1 | tail -50 || echo "::warning::web tests failed (외부 API 미설정 가능, non-blocking)"
+          else
+            echo "no web test files — skipping"
           fi
         shell: bash
 
