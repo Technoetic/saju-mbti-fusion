@@ -328,6 +328,19 @@ from engine.safety.response_pii_leak import (
     scan_response_pii,
     has_pii_leak,
 )
+from engine.safety.rate_limiter import (
+    RateLimiter,
+    RateLimitConfig,
+    RateLimitResult,
+    RESULT_ALLOWED,
+    RESULT_LIMITED,
+    DEFAULT_PER_MINUTE,
+    DEFAULT_PER_HOUR,
+    DEFAULT_PER_DAY,
+    WINDOW_MINUTE_SEC,
+    WINDOW_HOUR_SEC,
+    WINDOW_DAY_SEC,
+)
 
 __all__ = [
     "detect_crisis",
@@ -582,4 +595,15 @@ __all__ = [
     "PII_API_KEY",
     "scan_response_pii",
     "has_pii_leak",
+    "RateLimiter",
+    "RateLimitConfig",
+    "RateLimitResult",
+    "RESULT_ALLOWED",
+    "RESULT_LIMITED",
+    "DEFAULT_PER_MINUTE",
+    "DEFAULT_PER_HOUR",
+    "DEFAULT_PER_DAY",
+    "WINDOW_MINUTE_SEC",
+    "WINDOW_HOUR_SEC",
+    "WINDOW_DAY_SEC",
 ]
