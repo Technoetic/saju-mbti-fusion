@@ -27,6 +27,8 @@ from engine.safety import (
     build_photo_guidance,
     inject_emotion_disclosure,
     get_disclosure_metadata,
+    detect_jailbreak,
+    build_jailbreak_response,
 )
 
 
@@ -632,7 +634,32 @@ def generate_face_reading(
         "metrics_keys": sorted(metrics.keys()) if isinstance(metrics, dict) else None,
     }
 
-    # 0. 위기 신호 — 화두 본문 검사
+    # 0. §5.2.4 적대적 프롬프트(jailbreak) 사전 차단 — 위기 검사보다 우선.
+    # 위기 신호가 함께 잡혀도 자해 방법 등 정보 요청은 jailbreak로 분류해 거절.
+    jb_hits = detect_jailbreak(question or "")
+    if jb_hits:
+        jb_resp = build_jailbreak_response(jb_hits, lang=resolved_lang)
+        jb_legal = build_legal_footer(is_crisis=False, lang=resolved_lang)
+        jb_text = jb_resp["text"] + jb_legal
+        emit_face_reading_event(
+            event_type="jailbreak_blocked",
+            error_code=jb_resp["primary_category"],
+            text_length=len(jb_text),
+            **_trace_base,
+        )
+        return {
+            "text": jb_text,
+            "cached": False,
+            "crisis_alert": None,
+            "legal_notice": jb_legal,
+            "error_code": jb_resp["primary_category"],
+            "jailbreak_categories": jb_resp["categories"],
+            "a11y": _extract_a11y_metadata(jb_resp["text"], jb_legal),
+            "detected_language": detected_lang,
+            "language_advisory": language_advisory,
+        }
+
+    # 0.5 위기 신호 — 화두 본문 검사
     crisis = detect_crisis(question or "")
     if crisis["crisis_detected"]:
         crisis_legal = build_legal_footer(is_crisis=True, lang=resolved_lang)

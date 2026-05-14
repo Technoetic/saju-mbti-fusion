@@ -145,6 +145,18 @@ from engine.safety.model_card import (
     validate_data_card,
     card_to_dict,
 )
+from engine.safety.jailbreak_defense import (
+    JailbreakHit,
+    detect_jailbreak,
+    is_jailbreak_attempt,
+    get_rejection_text,
+    build_jailbreak_response,
+    CATEGORY_PERSONA_OVERRIDE,
+    CATEGORY_PROMPT_EXTRACTION,
+    CATEGORY_FORBIDDEN_ADVICE,
+    CATEGORY_HARM_INSTRUCTION,
+    CATEGORY_RACIAL_GENERALIZATION,
+)
 
 __all__ = [
     "detect_crisis",
@@ -246,4 +258,14 @@ __all__ = [
     "validate_model_card",
     "validate_data_card",
     "card_to_dict",
+    "JailbreakHit",
+    "detect_jailbreak",
+    "is_jailbreak_attempt",
+    "get_rejection_text",
+    "build_jailbreak_response",
+    "CATEGORY_PERSONA_OVERRIDE",
+    "CATEGORY_PROMPT_EXTRACTION",
+    "CATEGORY_FORBIDDEN_ADVICE",
+    "CATEGORY_HARM_INSTRUCTION",
+    "CATEGORY_RACIAL_GENERALIZATION",
 ]
