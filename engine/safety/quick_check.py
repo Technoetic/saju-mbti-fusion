@@ -62,6 +62,7 @@ def _check_safety_imports() -> dict[str, Any]:
         "engine.safety.output_safety_gate",
         "engine.safety.request_pipeline",
         "engine.safety.cache_key_resolver",
+        "engine.safety.compliance_report",
     ]
     missing: list[str] = []
     for m in required:

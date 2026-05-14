@@ -373,6 +373,14 @@ from engine.safety.cache_key_resolver import (
     resolve_cache_key,
     invalidates_on_prompt_change,
 )
+from engine.safety.compliance_report import (
+    ItemReport,
+    ComplianceReport,
+    COMPLIANCE_MANIFEST,
+    check_item as check_compliance_item,
+    generate_report as generate_compliance_report,
+    format_report_text as format_compliance_report,
+)
 
 __all__ = [
     "detect_crisis",
@@ -662,4 +670,10 @@ __all__ = [
     "CACHE_KEY_LENGTH",
     "resolve_cache_key",
     "invalidates_on_prompt_change",
+    "ItemReport",
+    "ComplianceReport",
+    "COMPLIANCE_MANIFEST",
+    "check_compliance_item",
+    "generate_compliance_report",
+    "format_compliance_report",
 ]
