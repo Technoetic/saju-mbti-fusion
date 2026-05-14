@@ -62,9 +62,10 @@ railway up
 - **MediaPipe Face Landmarker** (`@mediapipe/tasks-vision`, ESM CDN lazy load)
   - 478 랜드마크 + 52 blendshape + GPU delegate
 - **헤드 포즈 정규화** (§6.2): 양 눈꼬리 기울기 → 코끝 기준 아핀 회전
-- **7+α 메트릭** (§5/§6.3):
-  - 3정 비율, 콧방울 너비, 입꼬리 lift, 미간 폭, 얼굴형 5체질
-  - 좌우 비대칭, z 분산(라이브니스), face_center_offset, head_tilt_deg, brightness
+- **12 메트릭** (§5/§6.3):
+  - 핵심 7개: 3정 비율, 콧방울 너비, 입꼬리 lift, 미간 폭, 얼굴형 5체질, 좌우 비대칭, **처첩궁/자녀궁 폭**
+  - 보조 5개: z 분산(라이브니스), face_center_offset, head_tilt_deg, brightness, blendshapes(jaw/smile/brow/blink)
+  - 모든 핵심 메트릭이 사극풍 라벨 동봉 (도탑/고르/아담, 명궁 좁다/고르다/트였다, …)
 - **5중 가드** (§7):
   - 조도 0.18 미만 / 0.88 초과 (실시간 가이드)
   - 무표정 (jaw_open 0.30 / mouth_smile 0.40 초과)
