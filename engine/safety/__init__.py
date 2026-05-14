@@ -37,6 +37,12 @@ from engine.safety.regulation import (
     is_biometric_inference_restricted,
     list_supported_regions,
 )
+from engine.safety.crisis_resources import (
+    CrisisHotline,
+    get_crisis_resources,
+    format_hotlines_text,
+    list_supported_crisis_regions,
+)
 
 __all__ = [
     "detect_crisis",
@@ -58,4 +64,8 @@ __all__ = [
     "get_regulation_profile",
     "is_biometric_inference_restricted",
     "list_supported_regions",
+    "CrisisHotline",
+    "get_crisis_resources",
+    "format_hotlines_text",
+    "list_supported_crisis_regions",
 ]
