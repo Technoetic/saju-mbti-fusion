@@ -81,6 +81,16 @@ from engine.safety.consent_screen import (
     get_consent_screen,
     validate_consent_payload,
 )
+from engine.safety.alert_router import (
+    AlertEvent,
+    Debouncer,
+    classify_event,
+    classify_slo_violation,
+    route_alert,
+    build_slack_message,
+    build_pagerduty_event,
+    alerts_from_slo_report,
+)
 
 __all__ = [
     "detect_crisis",
@@ -132,4 +142,12 @@ __all__ = [
     "ConsentItem",
     "get_consent_screen",
     "validate_consent_payload",
+    "AlertEvent",
+    "Debouncer",
+    "classify_event",
+    "classify_slo_violation",
+    "route_alert",
+    "build_slack_message",
+    "build_pagerduty_event",
+    "alerts_from_slo_report",
 ]
