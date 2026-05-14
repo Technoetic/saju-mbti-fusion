@@ -121,6 +121,19 @@ from engine.safety.rights_information import (
     list_automatable_rights,
     get_sla_for_region,
 )
+from engine.safety.dsr_processor import (
+    DSRRequest,
+    DSRPlan,
+    DSR_STATUS_PENDING,
+    DSR_STATUS_PLANNED,
+    DSR_STATUS_EXECUTED,
+    DSR_STATUS_REJECTED,
+    ingest_dsr,
+    plan_dsr,
+    execute_dsr,
+    build_audit_record,
+    process_dsr,
+)
 
 __all__ = [
     "detect_crisis",
@@ -202,4 +215,15 @@ __all__ = [
     "get_right_by_key",
     "list_automatable_rights",
     "get_sla_for_region",
+    "DSRRequest",
+    "DSRPlan",
+    "DSR_STATUS_PENDING",
+    "DSR_STATUS_PLANNED",
+    "DSR_STATUS_EXECUTED",
+    "DSR_STATUS_REJECTED",
+    "ingest_dsr",
+    "plan_dsr",
+    "execute_dsr",
+    "build_audit_record",
+    "process_dsr",
 ]
