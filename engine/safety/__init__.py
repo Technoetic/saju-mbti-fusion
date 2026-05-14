@@ -43,6 +43,10 @@ from engine.safety.crisis_resources import (
     format_hotlines_text,
     list_supported_crisis_regions,
 )
+from engine.safety.language import (
+    detect_language,
+    get_language_advisory,
+)
 
 __all__ = [
     "detect_crisis",
@@ -68,4 +72,6 @@ __all__ = [
     "get_crisis_resources",
     "format_hotlines_text",
     "list_supported_crisis_regions",
+    "detect_language",
+    "get_language_advisory",
 ]
