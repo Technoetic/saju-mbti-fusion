@@ -529,6 +529,21 @@ from engine.safety.kpi_dashboard import (
     to_datadog_metrics,
     format_dashboard_text,
 )
+from engine.safety.changelog_tracker import (
+    ChangelogEntry,
+    ChangelogStore,
+    CHANGE_ADDED,
+    CHANGE_MODIFIED,
+    CHANGE_DEPRECATED,
+    CHANGE_REMOVED,
+    CHANGE_REGULATION_ADDED,
+    REASON_INCIDENT,
+    REASON_REGULATION,
+    REASON_IMPROVEMENT,
+    REASON_DEPRECATION,
+    record_change as record_change_log,
+    get_default_store as get_changelog_store,
+)
 
 __all__ = [
     "detect_crisis",
@@ -954,4 +969,17 @@ __all__ = [
     "to_grafana_json",
     "to_datadog_metrics",
     "format_dashboard_text",
+    "ChangelogEntry",
+    "ChangelogStore",
+    "CHANGE_ADDED",
+    "CHANGE_MODIFIED",
+    "CHANGE_DEPRECATED",
+    "CHANGE_REMOVED",
+    "CHANGE_REGULATION_ADDED",
+    "REASON_INCIDENT",
+    "REASON_REGULATION",
+    "REASON_IMPROVEMENT",
+    "REASON_DEPRECATION",
+    "record_change_log",
+    "get_changelog_store",
 ]
