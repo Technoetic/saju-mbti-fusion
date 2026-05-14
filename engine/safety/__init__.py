@@ -306,6 +306,16 @@ from engine.safety.cache_integrity import (
     audit_cache_directory,
     list_corrupt_files,
 )
+from engine.safety.cost_guard import (
+    CostBudget,
+    CostRecord,
+    CostStatus,
+    CostTracker,
+    DEFAULT_PRICING_USD_PER_M,
+    WARN_PERCENT,
+    CRITICAL_PERCENT,
+    calculate_cost,
+)
 
 __all__ = [
     "detect_crisis",
@@ -542,4 +552,12 @@ __all__ = [
     "verify_cache_file",
     "audit_cache_directory",
     "list_corrupt_files",
+    "CostBudget",
+    "CostRecord",
+    "CostStatus",
+    "CostTracker",
+    "DEFAULT_PRICING_USD_PER_M",
+    "WARN_PERCENT",
+    "CRITICAL_PERCENT",
+    "calculate_cost",
 ]
