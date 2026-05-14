@@ -456,6 +456,21 @@ from engine.safety.incident_playbook import (
     format_playbook_text,
     to_alert_attachment,
 )
+from engine.safety.postmortem_builder import (
+    PostmortemDraft,
+    TimelineEvent,
+    RemediationAction,
+    NOTIFICATION_NONE,
+    NOTIFICATION_INTERNAL,
+    NOTIFICATION_DPO,
+    NOTIFICATION_REGULATOR_72H,
+    NOTIFICATION_USERS,
+    evaluate_notification_required,
+    build_five_whys_template,
+    build_draft as build_postmortem_draft,
+    format_markdown as format_postmortem_markdown,
+    to_json as postmortem_to_json,
+)
 
 __all__ = [
     "detect_crisis",
@@ -816,4 +831,17 @@ __all__ = [
     "list_p0_playbooks",
     "format_playbook_text",
     "to_alert_attachment",
+    "PostmortemDraft",
+    "TimelineEvent",
+    "RemediationAction",
+    "NOTIFICATION_NONE",
+    "NOTIFICATION_INTERNAL",
+    "NOTIFICATION_DPO",
+    "NOTIFICATION_REGULATOR_72H",
+    "NOTIFICATION_USERS",
+    "evaluate_notification_required",
+    "build_five_whys_template",
+    "build_postmortem_draft",
+    "format_postmortem_markdown",
+    "postmortem_to_json",
 ]
