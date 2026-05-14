@@ -51,6 +51,12 @@ from engine.safety.tracing import (
     FaceReadingTrace,
     emit_face_reading_event,
 )
+from engine.safety.slo import (
+    SLO_THRESHOLDS,
+    parse_log_line,
+    compute_slo,
+    compute_slo_from_lines,
+)
 
 __all__ = [
     "detect_crisis",
@@ -80,4 +86,8 @@ __all__ = [
     "get_language_advisory",
     "FaceReadingTrace",
     "emit_face_reading_event",
+    "SLO_THRESHOLDS",
+    "parse_log_line",
+    "compute_slo",
+    "compute_slo_from_lines",
 ]
