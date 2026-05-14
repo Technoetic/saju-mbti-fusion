@@ -8276,6 +8276,23 @@ if (document.readyState === 'loading') {
   const zMean = zs.reduce((a,b)=>a+b,0) / zs.length;
   const z_variance = zs.reduce((a,b)=>a+(b-zMean)**2, 0) / zs.length;
 
+  // 명세서 §5.2 — 12궁 보조 메트릭
+  // 처첩궁(눈꼬리 옆 어미) — 눈꼬리(33, 263)에서 관자놀이(127, 356) 까지 길이
+  // 관상학적으로 이 영역의 매끈함·살집이 부부 화목을 상징 (살집 자체는 측정 불가하니 길이 비율로 대용)
+  const lTempleLen = dist3d(L[33], L[127]);   // 좌 눈꼬리 → 좌 관자놀이
+  const rTempleLen = dist3d(L[263], L[356]);  // 우 눈꼬리 → 우 관자놀이
+  const cheoCheop_ratio = faceH > 0
+  ? ((lTempleLen + rTempleLen) / 2) / faceH
+  : null;
+
+  // 자녀궁(눈 아래 와잠) — 눈 아래쪽 인덱스(LOWER_EYE)와 코 양옆 인덱스 사이 거리
+  // 좌측 와잠: 145(좌 눈 하단) ↔ 50(좌 광대 윗쪽), 우측 와잠: 374 ↔ 280
+  const lWajamLen = dist3d(L[145], L[50]);
+  const rWajamLen = dist3d(L[374], L[280]);
+  const wajam_ratio = faceH > 0
+  ? ((lWajamLen + rWajamLen) / 2) / faceH
+  : null;
+
   // 얼굴형 결정 — 너비 비율 → 5체질
   let face_shape = 'oval';
   if (W_face > 0) {
@@ -8322,6 +8339,9 @@ if (document.readyState === 'loading') {
   // 얼마나 떨어졌는지 0~1 (0=정중앙, 0.5=가장자리). 0.15 초과면 광각 배럴
   // 왜곡으로 이마/턱이 부정확. 정규화 좌표라 x,y는 0~1.
   face_center_offset: +Math.sqrt((L[4].x - 0.5)**2 + (L[4].y - 0.5)**2).toFixed(3),
+  // 명세서 §5.2 — 처첩궁/자녀궁 보조 비율
+  cheo_cheop_ratio: cheoCheop_ratio != null ? +cheoCheop_ratio.toFixed(3) : null,
+  wajam_ratio: wajam_ratio != null ? +wajam_ratio.toFixed(3) : null,
   // 명세서 §6.4 — 안면 윤곽 그래픽 라인을 위한 핵심 윤곽 인덱스
   // (정규화 좌표 그대로, 결과 카드의 SVG가 다시 사용)
   outline: extractOutlinePoints(L),
@@ -8664,6 +8684,16 @@ if (document.readyState === 'loading') {
   const a = metrics.asymmetry;
   const kind = a < 0.010 ? '거의 대칭' : (a < 0.020 ? '은은한 비대칭' : '또렷한 비대칭');
   rows.push(`<div class="face-metric-row"><span class="face-metric-label">좌우 균형 편차</span><span class="face-metric-value">${a.toFixed(3)} · ${kind}</span></div>`);
+  }
+  if (typeof metrics.cheo_cheop_ratio === 'number') {
+  const c2 = metrics.cheo_cheop_ratio;
+  const kind = c2 >= 0.30 ? '넓다' : (c2 >= 0.22 ? '고르다' : '좁다');
+  rows.push(`<div class="face-metric-row"><span class="face-metric-label">처첩궁 폭</span><span class="face-metric-value">${c2.toFixed(2)} · ${kind}</span></div>`);
+  }
+  if (typeof metrics.wajam_ratio === 'number') {
+  const w = metrics.wajam_ratio;
+  const kind = w >= 0.18 ? '도톰하다' : (w >= 0.12 ? '고르다' : '옅다');
+  rows.push(`<div class="face-metric-row"><span class="face-metric-label">와잠(자녀궁)</span><span class="face-metric-value">${w.toFixed(2)} · ${kind}</span></div>`);
   }
   if (rows.length === 0) return '';
 

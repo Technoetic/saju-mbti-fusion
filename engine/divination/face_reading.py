@@ -221,6 +221,24 @@ def _format_metrics_block(metrics: dict[str, Any] | None) -> list[str]:
         else:
             qual = "또렷한 비대칭 — 한쪽 결이 더 두드러진다"
         out.append(f"  • 좌우 균형 편차 — {asym:.3f} ({qual})")
+    cc = metrics.get("cheo_cheop_ratio")
+    if isinstance(cc, (int, float)):
+        if cc >= 0.30:
+            ck = "처첩궁이 넓다 — 인연의 자리가 후하다"
+        elif cc >= 0.22:
+            ck = "처첩궁이 고르다"
+        else:
+            ck = "처첩궁이 좁다 — 인연의 자리가 단출하다"
+        out.append(f"  • 처첩궁 폭 비율 — {cc:.2f} ({ck})")
+    wj = metrics.get("wajam_ratio")
+    if isinstance(wj, (int, float)):
+        if wj >= 0.18:
+            wk = "와잠이 도톰하다 — 자녀궁의 결이 두텁다"
+        elif wj >= 0.12:
+            wk = "와잠이 고르다"
+        else:
+            wk = "와잠이 옅다"
+        out.append(f"  • 자녀궁(와잠) 비율 — {wj:.2f} ({wk})")
 
     bs = metrics.get("blendshapes")
     if isinstance(bs, dict):

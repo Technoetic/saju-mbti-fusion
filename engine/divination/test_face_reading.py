@@ -291,6 +291,28 @@ def test_format_metrics_block_eye_distance_classification():
     assert "명궁이 트였다" in "\n".join(_format_metrics_block({"eye_distance_ratio": 1.11}))
 
 
+def test_format_metrics_block_cheo_cheop_classification():
+    """처첩궁 폭 3단계."""
+    from engine.divination.face_reading import _format_metrics_block
+    assert "처첩궁이 좁다" in "\n".join(_format_metrics_block({"cheo_cheop_ratio": 0.20}))
+    assert "처첩궁이 고르다" in "\n".join(_format_metrics_block({"cheo_cheop_ratio": 0.25}))
+    assert "처첩궁이 넓다" in "\n".join(_format_metrics_block({"cheo_cheop_ratio": 0.35}))
+    # 경계 0.22 / 0.30
+    assert "처첩궁이 고르다" in "\n".join(_format_metrics_block({"cheo_cheop_ratio": 0.22}))
+    assert "처첩궁이 넓다" in "\n".join(_format_metrics_block({"cheo_cheop_ratio": 0.30}))
+
+
+def test_format_metrics_block_wajam_classification():
+    """와잠(자녀궁) 3단계."""
+    from engine.divination.face_reading import _format_metrics_block
+    assert "와잠이 옅다" in "\n".join(_format_metrics_block({"wajam_ratio": 0.10}))
+    assert "와잠이 고르다" in "\n".join(_format_metrics_block({"wajam_ratio": 0.15}))
+    assert "와잠이 도톰하다" in "\n".join(_format_metrics_block({"wajam_ratio": 0.20}))
+    # 경계 0.12 / 0.18
+    assert "와잠이 고르다" in "\n".join(_format_metrics_block({"wajam_ratio": 0.12}))
+    assert "와잠이 도톰하다" in "\n".join(_format_metrics_block({"wajam_ratio": 0.18}))
+
+
 # ─────────────────────────── 캐시 라운드트립 ───────────────────────────
 
 def test_cache_save_load_roundtrip(tmp_path, monkeypatch):
