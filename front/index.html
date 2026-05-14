@@ -8659,7 +8659,9 @@ if (document.readyState === 'loading') {
   rows.push(`<div class="face-metric-row"><span class="face-metric-label">얼굴형 결</span><span class="face-metric-value">${ko}</span></div>`);
   }
   if (typeof metrics.asymmetry === 'number') {
-  rows.push(`<div class="face-metric-row"><span class="face-metric-label">좌우 균형 편차</span><span class="face-metric-value">${metrics.asymmetry.toFixed(3)}</span></div>`);
+  const a = metrics.asymmetry;
+  const kind = a < 0.010 ? '거의 대칭' : (a < 0.020 ? '은은한 비대칭' : '또렷한 비대칭');
+  rows.push(`<div class="face-metric-row"><span class="face-metric-label">좌우 균형 편차</span><span class="face-metric-value">${a.toFixed(3)} · ${kind}</span></div>`);
   }
   if (rows.length === 0) return '';
 

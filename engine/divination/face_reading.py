@@ -207,7 +207,13 @@ def _format_metrics_block(metrics: dict[str, Any] | None) -> list[str]:
         out.append(f"  • 얼굴형 결 — {ko}")
     asym = metrics.get("asymmetry")
     if isinstance(asym, (int, float)):
-        out.append(f"  • 좌우 균형 편차 — {asym:.3f} (0에 가까울수록 균형)")
+        if asym < 0.010:
+            qual = "거의 대칭 — 음양이 고르다"
+        elif asym < 0.020:
+            qual = "은은한 비대칭 — 자연스러운 결"
+        else:
+            qual = "또렷한 비대칭 — 한쪽 결이 더 두드러진다"
+        out.append(f"  • 좌우 균형 편차 — {asym:.3f} ({qual})")
 
     bs = metrics.get("blendshapes")
     if isinstance(bs, dict):

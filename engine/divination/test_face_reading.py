@@ -261,6 +261,20 @@ def test_format_metrics_block_brightness_notes():
     assert "조도" not in safe
 
 
+def test_format_metrics_block_asymmetry_classification():
+    """좌우 비대칭 3단계 — 0.010 / 0.020 임계."""
+    from engine.divination.face_reading import _format_metrics_block
+    low = "\n".join(_format_metrics_block({"asymmetry": 0.005}))
+    mid = "\n".join(_format_metrics_block({"asymmetry": 0.015}))
+    high = "\n".join(_format_metrics_block({"asymmetry": 0.030}))
+    assert "거의 대칭" in low
+    assert "은은한 비대칭" in mid
+    assert "또렷한 비대칭" in high
+    # 경계
+    assert "거의 대칭" in "\n".join(_format_metrics_block({"asymmetry": 0.009}))
+    assert "은은한 비대칭" in "\n".join(_format_metrics_block({"asymmetry": 0.019}))
+
+
 # ─────────────────────────── 캐시 라운드트립 ───────────────────────────
 
 def test_cache_save_load_roundtrip(tmp_path, monkeypatch):
