@@ -367,6 +367,12 @@ from engine.safety.request_pipeline import (
     BLOCK_INPUT_EMPTY,
     preflight,
 )
+from engine.safety.cache_key_resolver import (
+    CacheKey,
+    CACHE_KEY_LENGTH,
+    resolve_cache_key,
+    invalidates_on_prompt_change,
+)
 
 __all__ = [
     "detect_crisis",
@@ -652,4 +658,8 @@ __all__ = [
     "BLOCK_JAILBREAK",
     "BLOCK_INPUT_EMPTY",
     "preflight",
+    "CacheKey",
+    "CACHE_KEY_LENGTH",
+    "resolve_cache_key",
+    "invalidates_on_prompt_change",
 ]
