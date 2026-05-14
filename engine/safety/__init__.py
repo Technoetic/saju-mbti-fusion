@@ -285,6 +285,14 @@ from engine.safety.response_fact_check import (
     check_region_consistency,
     check_gaze_consistency,
 )
+from engine.safety.input_sanitizer import (
+    SanitizeResult,
+    MAX_QUESTION_CHARS,
+    MAX_NAME_CHARS,
+    sanitize_question,
+    sanitize_name,
+    has_injection_attempt,
+)
 
 __all__ = [
     "detect_crisis",
@@ -504,4 +512,10 @@ __all__ = [
     "check_face_count",
     "check_region_consistency",
     "check_gaze_consistency",
+    "SanitizeResult",
+    "MAX_QUESTION_CHARS",
+    "MAX_NAME_CHARS",
+    "sanitize_question",
+    "sanitize_name",
+    "has_injection_attempt",
 ]
