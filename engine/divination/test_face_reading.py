@@ -461,6 +461,30 @@ def test_generate_face_reading_includes_a11y(monkeypatch, tmp_path):
     assert r["a11y"]["has_closing"] is True
 
 
+def test_generate_face_reading_err_response_includes_a11y(monkeypatch, tmp_path):
+    """ERR_FACE_* 거부 응답에도 a11y 필드 포함."""
+    from engine.divination import face_reading
+    monkeypatch.setattr(face_reading, "_CACHE_DIR", tmp_path)
+    r = face_reading.generate_face_reading(
+        image_b64="dummy-img", metrics={"face_count": 0},
+    )
+    assert r.get("error_code") == "ERR_FACE_NOT_DETECTED"
+    assert "a11y" in r
+    assert r["a11y"]["paragraph_count"] >= 1
+
+
+def test_generate_face_reading_crisis_response_includes_a11y(monkeypatch, tmp_path):
+    """위기 응답에도 a11y 필드 포함."""
+    from engine.divination import face_reading
+    monkeypatch.setattr(face_reading, "_CACHE_DIR", tmp_path)
+    r = face_reading.generate_face_reading(
+        image_b64="dummy-img", question="죽고 싶다",
+    )
+    assert r["crisis_alert"] is not None
+    assert "a11y" in r
+    assert r["a11y"]["paragraph_count"] >= 1
+
+
 # ─────────────────────────── ④ 신(神) 엔진 (운영표준 §5.5) ───────────────────────────
 
 def test_format_metrics_block_shen_bright():

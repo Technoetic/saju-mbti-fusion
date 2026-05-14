@@ -562,8 +562,10 @@ def generate_face_reading(
     # 0. 위기 신호 — 화두 본문 검사
     crisis = detect_crisis(question or "")
     if crisis["crisis_detected"]:
+        crisis_legal = build_legal_footer(is_crisis=True)
+        crisis_text = CRISIS_RESPONSE_KO + crisis_legal
         return {
-            "text": CRISIS_RESPONSE_KO + build_legal_footer(is_crisis=True),
+            "text": crisis_text,
             "cached": False,
             "crisis_alert": {
                 "severity": crisis["severity"],
@@ -571,6 +573,7 @@ def generate_face_reading(
                 "matched_count": len(crisis["matched_keywords"]),
             },
             "legal_notice": None,
+            "a11y": _extract_a11y_metadata(CRISIS_RESPONSE_KO, crisis_legal),
         }
 
     if not (image_b64 or "").strip():
@@ -586,6 +589,7 @@ def generate_face_reading(
             "crisis_alert": None,
             "legal_notice": legal,
             "error_code": issue,
+            "a11y": _extract_a11y_metadata(_ERR_HINTS_KO[issue], legal),
         }
     # 경고만 (WARN_FACE_*) 인 경우는 풀이 정상 진행, 단 응답에 코드 노출
     warn_code = issue if issue and issue.startswith("WARN_") else None
