@@ -1,0 +1,16 @@
+__pycache__/
+*.pyc
+.git/
+.gitignore
+.venv/
+venv/
+node_modules/
+web/node_modules/
+web/dist/
+.env
+.env.local
+*.md
+.claude/
+.railway/
+.vscode/
+.idea/

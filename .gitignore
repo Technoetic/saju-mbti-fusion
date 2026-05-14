@@ -1,0 +1,45 @@
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+env/
+
+# Node
+node_modules/
+web/node_modules/
+web/dist/
+
+# 환경변수 (Railway에서 주입)
+.env
+.env.local
+*.local.env
+
+# DB 파일 (Railway 볼륨 /data 에 마운트됨)
+*.db
+*.sqlite
+*.sqlite3
+data/
+
+# 캐시 (런타임 산출물)
+step_archive/face_reading_cache/*.json
+step_archive/**/cache/
+.cache/
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Railway
+.railway/
+
+# Claude Code 로컬 워크플로 (글로벌 명령/훅 — 공개 레포 제외)
+.claude/
+
+# 명세서 / 작업 메모 (공개 X)
+관상 분석*.md
+
