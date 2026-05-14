@@ -492,35 +492,42 @@ def build_openai_user_message(user_text: str, image_b64: str) -> dict[str, Any]:
 
 
 def _call_vision(system_prompt: str, user_text: str, image_b64: str) -> str:
-    """비전 LLM 호출 — Bizrouter(Gemini) 우선, Anthropic Claude fallback."""
+    """비전 LLM 호출 — Bizrouter(Bedrock/Claude 우선) → Anthropic SDK fallback.
+
+    BIZROUTER_VISION_MODEL이 권한 없거나 빈 응답을 주면 즉시 Anthropic SDK의
+    직접 claude-opus-4-7 호출로 폴백. 사용자 의도(BIZROUTER claude-opus-4-7)와
+    실제 가용성(Bedrock 권한) 사이의 갭을 코드 수준에서 회복.
+    """
     # raw_b64는 Anthropic fallback에서 직접 사용
     mime, raw_b64 = _normalize_image_b64(image_b64)
 
     if _bizrouter_enabled():
-        client = _bizrouter_client()
-        # Gemini 비전 모델 — Image generation 모델(flash-image)이 아닌
-        # 일반 멀티모달 모델 사용. 환경변수로 오버라이드 가능.
         model = (
             os.environ.get("BIZROUTER_VISION_MODEL")
             or os.environ.get("BIZROUTER_MODEL")
             or "google/gemini-2.5-flash-lite"
         )
-        resp = client.chat.completions.create(
-            model=model,
-            max_tokens=_MAX_TOKENS,
-            messages=[
-                {"role": "system", "content": system_prompt},
-                build_openai_user_message(user_text, image_b64),  # type: ignore[list-item]
-            ],
-        )
-        if not resp.choices:
-            raise ValueError("empty model response")
-        content = resp.choices[0].message.content
-        if not content:
-            raise ValueError("empty model response")
-        return content
+        try:
+            client = _bizrouter_client()
+            resp = client.chat.completions.create(
+                model=model,
+                max_tokens=_MAX_TOKENS,
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    build_openai_user_message(user_text, image_b64),  # type: ignore[list-item]
+                ],
+            )
+            if not resp.choices:
+                raise ValueError("empty model response")
+            content = resp.choices[0].message.content
+            if not content:
+                raise ValueError("empty model response")
+            return content
+        except Exception:
+            # Bizrouter 실패 (권한 부재·timeout·5xx 등) → Anthropic SDK 직접 fallback
+            pass
 
-    # Anthropic fallback
+    # Anthropic SDK 직접 호출 (claude-opus-4-7)
     client = _anthropic_client()
     msg = client.messages.create(
         model="claude-opus-4-7",
