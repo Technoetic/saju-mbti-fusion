@@ -54,7 +54,9 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Install Railway CLI
-        run: bash <(curl -fsSL railway.com/install.sh) -y
+        run: |
+          bash <(curl -fsSL railway.com/install.sh) -y
+          echo "$HOME/.railway/bin" >> "$GITHUB_PATH"
 
       - name: Verify Railway auth
         env:
