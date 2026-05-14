@@ -224,6 +224,15 @@ from engine.safety.backup_manifest import (
     compute_sha256,
     verify_backup_record,
 )
+from engine.safety.shadow_eval import (
+    ShadowComparison,
+    CANDIDATE_BETTER,
+    CANDIDATE_NEUTRAL,
+    CANDIDATE_WORSE,
+    jaccard_overlap,
+    compare_pair,
+    aggregate_shadow_results,
+)
 
 __all__ = [
     "detect_crisis",
@@ -392,4 +401,11 @@ __all__ = [
     "overdue_backups",
     "compute_sha256",
     "verify_backup_record",
+    "ShadowComparison",
+    "CANDIDATE_BETTER",
+    "CANDIDATE_NEUTRAL",
+    "CANDIDATE_WORSE",
+    "jaccard_overlap",
+    "compare_pair",
+    "aggregate_shadow_results",
 ]
