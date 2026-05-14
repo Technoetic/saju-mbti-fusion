@@ -393,6 +393,79 @@ def test_generate_face_reading_returns_warn_code_on_flat_photo(monkeypatch, tmp_
     assert "허허" in r["text"]  # 풀이 본문은 정상 산출됨
 
 
+# ─────────────────────────── §7.2.9 photo_guidance 응답 첨부 ───────────────────────────
+
+def test_err_response_includes_photo_guidance(monkeypatch, tmp_path):
+    """ERR_FACE_* 거부 응답에 §7.2.9 photo_guidance가 첨부되어야 함."""
+    from engine.divination import face_reading
+    monkeypatch.setattr(face_reading, "_CACHE_DIR", tmp_path)
+    monkeypatch.setattr(face_reading, "_call_vision",
+                        lambda *a, **k: (_ for _ in ()).throw(RuntimeError("X")))
+
+    r = face_reading.generate_face_reading(
+        image_b64="dummy",
+        metrics={"face_count": 0},
+        lang="ko",
+    )
+    g = r.get("photo_guidance")
+    assert isinstance(g, dict)
+    assert g["lang"] == "ko"
+    assert g["error_code"] == "ERR_FACE_NOT_DETECTED"
+    assert "hint" in g
+    assert isinstance(g["checklist"], list) and len(g["checklist"]) >= 4
+
+
+def test_warn_response_includes_photo_guidance(monkeypatch, tmp_path):
+    """WARN_FACE_* 정상 풀이에도 §7.2.9 photo_guidance가 첨부되어야 함."""
+    from engine.divination import face_reading
+    monkeypatch.setattr(face_reading, "_CACHE_DIR", tmp_path)
+    monkeypatch.setattr(face_reading, "_call_vision",
+                        lambda *a, **k: "허허, 그대의 상을 살피니…")
+
+    r = face_reading.generate_face_reading(
+        image_b64="dummy",
+        metrics={"z_variance": 0.00005, "three_thirds": [33, 34, 33]},
+        lang="ko",
+    )
+    g = r.get("photo_guidance")
+    assert isinstance(g, dict)
+    assert g["error_code"] == "WARN_FACE_FLAT"
+    assert g["lang"] == "ko"
+
+
+def test_normal_response_has_no_photo_guidance(monkeypatch, tmp_path):
+    """정상 응답(에러/경고 없음)에는 photo_guidance가 없어야 함."""
+    from engine.divination import face_reading
+    monkeypatch.setattr(face_reading, "_CACHE_DIR", tmp_path)
+    monkeypatch.setattr(face_reading, "_call_vision",
+                        lambda *a, **k: "허허, 그대의 상을 살피니…")
+
+    r = face_reading.generate_face_reading(
+        image_b64="dummy",
+        metrics={"face_count": 1, "three_thirds": [33, 34, 33]},
+        lang="ko",
+    )
+    assert "photo_guidance" not in r
+
+
+def test_err_response_photo_guidance_respects_lang(monkeypatch, tmp_path):
+    """region/lang에 따라 photo_guidance 언어가 결정되어야 함."""
+    from engine.divination import face_reading
+    monkeypatch.setattr(face_reading, "_CACHE_DIR", tmp_path)
+    monkeypatch.setattr(face_reading, "_call_vision",
+                        lambda *a, **k: (_ for _ in ()).throw(RuntimeError("X")))
+
+    r = face_reading.generate_face_reading(
+        image_b64="dummy",
+        metrics={"face_count": 0},
+        lang="en",
+    )
+    g = r["photo_guidance"]
+    assert g["lang"] == "en"
+    # 영어 hint는 "허허"를 포함하지 않음
+    assert "허허" not in g["hint"]
+
+
 # ─────────────────────────── 신 명세서 §3.2 멀티모달 페이로드 ───────────────────────────
 
 def test_build_openai_user_message_structure():

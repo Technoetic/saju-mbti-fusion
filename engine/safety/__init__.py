@@ -57,6 +57,12 @@ from engine.safety.slo import (
     compute_slo,
     compute_slo_from_lines,
 )
+from engine.safety.photo_guide import (
+    get_photo_checklist,
+    get_error_hint,
+    get_retry_tips,
+    build_photo_guidance,
+)
 
 __all__ = [
     "detect_crisis",
@@ -90,4 +96,8 @@ __all__ = [
     "parse_log_line",
     "compute_slo",
     "compute_slo_from_lines",
+    "get_photo_checklist",
+    "get_error_hint",
+    "get_retry_tips",
+    "build_photo_guidance",
 ]

@@ -24,6 +24,7 @@ from engine.safety import (
     CRISIS_RESPONSE_KO,
     EMERGENCY_HOTLINES_KR,
     build_legal_footer,
+    build_photo_guidance,
 )
 
 
@@ -705,6 +706,8 @@ def generate_face_reading(
             "a11y": _extract_a11y_metadata(_ERR_HINTS_KO[issue], legal),
             "detected_language": detected_lang,
             "language_advisory": language_advisory,
+            # §7.2.9 — 사진 가이드 첨부 (체크리스트 + 에러별 안내)
+            "photo_guidance": build_photo_guidance(issue, resolved_lang),
         }
     # 경고만 (WARN_FACE_*) 인 경우는 풀이 정상 진행, 단 응답에 코드 노출
     warn_code = issue if issue and issue.startswith("WARN_") else None
@@ -744,6 +747,8 @@ def generate_face_reading(
     }
     if warn_code:
         out["error_code"] = warn_code  # 풀이는 정상이나 경고 동봉 (WARN_FACE_*)
+        # §7.2.9 — 경고도 사진 가이드 첨부 (다음 촬영 개선용)
+        out["photo_guidance"] = build_photo_guidance(warn_code, resolved_lang)
     _save_cache(key, out)
     # §7.3.4 — LLM 호출 성공 로깅
     emit_face_reading_event(
