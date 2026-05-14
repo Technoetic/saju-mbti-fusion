@@ -92,6 +92,43 @@ NEGATION_PATTERNS = [
     "영화에서", "드라마에서", "소설에서", "게임에서",
     "친구가 죽", "지인이 죽", "가족이 죽", "할아버지가 죽", "할머니가 죽",
     "고인", "사망자", "장례식장",
+    # 영어 부정 컨텍스트
+    "in my dream", "in a dream", "in the movie", "in the show",
+]
+
+
+# ─────────────────────────── 다국어 위기 키워드 (소문자 매칭) ───────────────────────────
+# 영어 — 988 라이프라인이 기준
+DIRECT_SUICIDE_KEYWORDS_EN = [
+    "want to die", "wanna die", "kill myself", "kill me",
+    "end my life", "take my own life", "commit suicide",
+    "i want to be dead", "rather be dead", "better off dead",
+    "suicidal",
+]
+DIRECT_SELFHARM_KEYWORDS_EN = [
+    "self-harm", "self harm", "cut myself", "cutting myself",
+    "hurt myself", "overdose",
+]
+INDIRECT_DESPAIR_KEYWORDS_EN = [
+    "no reason to live", "no point in living", "can't go on",
+    "i can't take it anymore", "no way out", "nobody needs me",
+    "want to disappear", "wish i was gone", "tired of living",
+    "give up on life",
+]
+PLANNING_KEYWORDS_EN = [
+    "suicide note", "final letter", "how to die", "how to kill myself",
+    "jump off", "from a bridge", "from a building",
+]
+
+# 일본어
+DIRECT_SUICIDE_KEYWORDS_JA = [
+    "自殺", "死にたい", "消えたい", "命を絶", "首を吊",
+]
+INDIRECT_DESPAIR_KEYWORDS_JA = [
+    "生きる意味がない", "もう限界", "もう無理", "誰も必要としない",
+]
+PLANNING_KEYWORDS_JA = [
+    "遺書", "別れの手紙",
 ]
 
 
@@ -116,16 +153,23 @@ def _contains_any(text: str, keywords: list[str]) -> list[str]:
 
 
 def _is_negated_context(text: str, matched_keyword: str) -> bool:
-    """매칭된 키워드가 꿈 내용 묘사·3인칭·미디어 인용 맥락인지 판단."""
-    # 매칭된 키워드 주변 ±15자 윈도우에서 부정 패턴 검색
+    """매칭된 키워드가 꿈 내용 묘사·3인칭·미디어 인용 맥락인지 판단.
+
+    영어 키워드는 소문자 매칭이라 원본 text에서 idx 검색 시 못 찾을 수 있음.
+    따라서 소문자 windowing으로 폴백.
+    """
+    # 매칭된 키워드 주변 ±25자 윈도우에서 부정 패턴 검색
     idx = text.find(matched_keyword)
     if idx < 0:
+        # 영어/일본어 — 원본은 대소문자 혼합이라 idx 못 찾을 수 있음 → 소문자에서 재시도
+        idx = text.lower().find(matched_keyword.lower())
+    if idx < 0:
         return False
-    start = max(0, idx - 15)
-    end = min(len(text), idx + len(matched_keyword) + 15)
-    window = text[start:end]
+    start = max(0, idx - 25)
+    end = min(len(text), idx + len(matched_keyword) + 25)
+    window = text[start:end].lower()  # 부정 패턴은 모두 소문자
     for neg in NEGATION_PATTERNS:
-        if neg in window:
+        if neg.lower() in window:
             return True
     return False
 
@@ -154,11 +198,27 @@ def detect_crisis(text: str) -> dict[str, Any]:
             "hotlines": None,
         }
 
-    # 1차: 모든 키워드 매칭
-    direct_suicide = _contains_any(t, DIRECT_SUICIDE_KEYWORDS)
-    direct_selfharm = _contains_any(t, DIRECT_SELFHARM_KEYWORDS)
-    indirect = _contains_any(t, INDIRECT_DESPAIR_KEYWORDS)
-    planning = _contains_any(t, PLANNING_KEYWORDS)
+    # 1차: 모든 키워드 매칭 (한국어 + 영어 소문자 + 일본어)
+    t_lower = t.lower()
+    direct_suicide = (
+        _contains_any(t, DIRECT_SUICIDE_KEYWORDS)
+        + _contains_any(t_lower, DIRECT_SUICIDE_KEYWORDS_EN)
+        + _contains_any(t, DIRECT_SUICIDE_KEYWORDS_JA)
+    )
+    direct_selfharm = (
+        _contains_any(t, DIRECT_SELFHARM_KEYWORDS)
+        + _contains_any(t_lower, DIRECT_SELFHARM_KEYWORDS_EN)
+    )
+    indirect = (
+        _contains_any(t, INDIRECT_DESPAIR_KEYWORDS)
+        + _contains_any(t_lower, INDIRECT_DESPAIR_KEYWORDS_EN)
+        + _contains_any(t, INDIRECT_DESPAIR_KEYWORDS_JA)
+    )
+    planning = (
+        _contains_any(t, PLANNING_KEYWORDS)
+        + _contains_any(t_lower, PLANNING_KEYWORDS_EN)
+        + _contains_any(t, PLANNING_KEYWORDS_JA)
+    )
 
     # 2차: false positive 필터 (꿈 내용·3인칭·미디어)
     def _filter(matches: list[str]) -> tuple[list[str], list[str]]:
