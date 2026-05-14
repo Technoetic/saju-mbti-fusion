@@ -109,6 +109,10 @@ from engine.safety.rollback_trigger import (
     should_execute_immediately,
     to_alert_payload,
 )
+from engine.safety.quick_check import (
+    run_quick_check,
+    format_quick_check_text,
+)
 
 __all__ = [
     "detect_crisis",
@@ -182,4 +186,6 @@ __all__ = [
     "decide_rollback",
     "should_execute_immediately",
     "to_alert_payload",
+    "run_quick_check",
+    "format_quick_check_text",
 ]
