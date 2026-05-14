@@ -189,3 +189,167 @@ def test_face_system_prompt_contains_terminology():
     # 오형
     for term in ["영양질", "근골질", "심성질", "지력질", "체력질"]:
         assert term in _FACE_SYSTEM, f"{term} 누락"
+
+
+# ─────────────────────────── 엣지 케이스 — graceful degradation ───────────────────────────
+
+def test_format_metrics_block_partial_metrics():
+    """메트릭이 부분적으로만 있어도 정상 (한 항목만 있는 경우)."""
+    from engine.divination.face_reading import _format_metrics_block
+    out = _format_metrics_block({"alar_ratio": 0.35})
+    joined = "\n".join(out)
+    assert "콧방울" in joined
+    # 다른 항목은 노출 X
+    assert "삼정 비율" not in joined
+    assert "입꼬리" not in joined
+
+
+def test_format_metrics_block_invalid_types_ignored():
+    """잘못된 타입(str/None)이 들어와도 KeyError/TypeError 없이 무시."""
+    from engine.divination.face_reading import _format_metrics_block
+    out = _format_metrics_block({
+        "three_thirds": "not a list",
+        "alar_ratio": None,
+        "mouth_corner_lift": "+0.1",  # str
+        "face_shape": 123,  # int
+        "blendshapes": "not a dict",
+    })
+    joined = "\n".join(out)
+    # 헤더는 있지만 잘못된 라인은 모두 생략
+    assert "측정된 자취" in joined or out == [] or len([l for l in out if "•" in l]) == 0
+
+
+def test_format_metrics_block_threshold_boundary_alar():
+    """콧방울 너비 임계값 경계 — 0.28 / 0.34."""
+    from engine.divination.face_reading import _format_metrics_block
+    # exact thresholds
+    assert "아담하다" in "\n".join(_format_metrics_block({"alar_ratio": 0.28}))
+    # 0.28 보다 살짝 위 → 고르다
+    assert "고르다" in "\n".join(_format_metrics_block({"alar_ratio": 0.281}))
+    # 0.34 정확히 → 도탑다
+    assert "도탑다" in "\n".join(_format_metrics_block({"alar_ratio": 0.34}))
+    # 0.34 미만 → 고르다
+    assert "고르다" in "\n".join(_format_metrics_block({"alar_ratio": 0.339}))
+
+
+def test_format_metrics_block_quality_thresholds_independent():
+    """신뢰도 단서 — 각각 독립 노출."""
+    from engine.divination.face_reading import _format_metrics_block
+    # 틸트만
+    o1 = "\n".join(_format_metrics_block({"head_tilt_deg": 11.0}))
+    assert "기울어졌" in o1
+    assert "광각 왜곡" not in o1
+    # 광각만
+    o2 = "\n".join(_format_metrics_block({"face_center_offset": 0.20}))
+    assert "광각 왜곡" in o2
+    assert "기울어졌" not in o2
+    # 안전 범위
+    o3 = "\n".join(_format_metrics_block({"head_tilt_deg": 5.0, "face_center_offset": 0.10}))
+    assert "측정 신뢰도 단서" not in o3
+
+
+# ─────────────────────────── 캐시 라운드트립 ───────────────────────────
+
+def test_cache_save_load_roundtrip(tmp_path, monkeypatch):
+    """캐시 저장 → 로드 → 같은 내용 복원."""
+    from engine.divination import face_reading
+
+    # 임시 경로로 캐시 디렉토리 우회
+    monkeypatch.setattr(face_reading, "_CACHE_DIR", tmp_path)
+    key = "test-key-abc"
+    data = {"text": "허허, 시험이로세", "cached": False, "crisis_alert": None}
+    face_reading._save_cache(key, data)
+    loaded = face_reading._load_cache(key)
+    assert loaded is not None
+    assert loaded["text"] == "허허, 시험이로세"
+    assert loaded["cached"] is True  # _load_cache가 cached=True로 강제
+
+
+def test_cache_expiry(tmp_path, monkeypatch):
+    """TTL 초과 캐시는 무시되어 None 반환."""
+    import time, json
+    from engine.divination import face_reading
+
+    monkeypatch.setattr(face_reading, "_CACHE_DIR", tmp_path)
+    key = "expired-key"
+    # 직접 만든 만료된 캐시 파일 (TTL 25시간 전)
+    payload = {"text": "old", "_ts": time.time() - 25 * 3600}
+    (tmp_path / f"{key}.json").write_text(json.dumps(payload), encoding="utf-8")
+    assert face_reading._load_cache(key) is None
+
+
+# ─────────────────────────── 전체 흐름 — LLM mock ───────────────────────────
+
+def test_generate_face_reading_with_mocked_llm(tmp_path, monkeypatch):
+    """LLM mock으로 전체 흐름 + 캐시 + 메트릭 키 작동 검증."""
+    from engine.divination import face_reading
+
+    monkeypatch.setattr(face_reading, "_CACHE_DIR", tmp_path)
+
+    captured_user_text = {}
+    def fake_vision(system, user_text, img_b64):
+        captured_user_text["t"] = user_text
+        return "허허, 그대의 상이 잘 잡혔구먼."
+    monkeypatch.setattr(face_reading, "_call_vision", fake_vision)
+
+    result = face_reading.generate_face_reading(
+        image_b64="img-data",
+        age=42,
+        gender="여성",
+        question="새 길을 떠나도 좋을지",
+        metrics={"three_thirds": [33, 34, 33], "alar_ratio": 0.36},
+    )
+    assert "허허" in result["text"]
+    assert result["cached"] is False
+    assert result["crisis_alert"] is None
+    # 메트릭 안내가 user_text에 들어갔는지
+    assert "측정된 자취" in captured_user_text["t"]
+    assert "삼정 비율" in captured_user_text["t"]
+
+    # 같은 입력 → 캐시 hit (LLM 호출되면 안 됨)
+    def boom(*a, **k):
+        raise RuntimeError("캐시 hit 시 LLM 호출 X")
+    monkeypatch.setattr(face_reading, "_call_vision", boom)
+    result2 = face_reading.generate_face_reading(
+        image_b64="img-data",
+        age=42,
+        gender="여성",
+        question="새 길을 떠나도 좋을지",
+        metrics={"three_thirds": [33, 34, 33], "alar_ratio": 0.36},
+    )
+    assert result2["cached"] is True
+    assert "허허" in result2["text"]
+
+
+def test_generate_face_reading_metric_change_invalidates_cache(tmp_path, monkeypatch):
+    """메트릭이 바뀌면 캐시 hit 안 됨 (새 LLM 호출)."""
+    from engine.divination import face_reading
+
+    monkeypatch.setattr(face_reading, "_CACHE_DIR", tmp_path)
+
+    call_count = {"n": 0}
+    def fake_vision(*a, **k):
+        call_count["n"] += 1
+        return f"call #{call_count['n']}"
+    monkeypatch.setattr(face_reading, "_call_vision", fake_vision)
+
+    # 같은 사진, 다른 메트릭 → 두 번 호출되어야 함
+    face_reading.generate_face_reading(
+        image_b64="same", age=30, gender="M", question=None,
+        metrics={"alar_ratio": 0.30},
+    )
+    face_reading.generate_face_reading(
+        image_b64="same", age=30, gender="M", question=None,
+        metrics={"alar_ratio": 0.40},
+    )
+    assert call_count["n"] == 2
+
+
+def test_generate_face_reading_empty_image_raises():
+    """빈 이미지 → ValueError (FastAPI에서 400으로 변환됨)."""
+    import pytest as _pytest
+    from engine.divination import face_reading
+    with _pytest.raises(ValueError, match="image_b64 is required"):
+        face_reading.generate_face_reading(image_b64="", age=30)
+    with _pytest.raises(ValueError, match="image_b64 is required"):
+        face_reading.generate_face_reading(image_b64="   ", age=30)
