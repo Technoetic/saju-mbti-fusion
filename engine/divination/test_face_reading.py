@@ -393,6 +393,48 @@ def test_generate_face_reading_returns_warn_code_on_flat_photo(monkeypatch, tmp_
     assert "허허" in r["text"]  # 풀이 본문은 정상 산출됨
 
 
+# ─────────────────────────── ④ 신(神) 엔진 (운영표준 §5.5) ───────────────────────────
+
+def test_format_metrics_block_shen_bright():
+    """신 bright → '맑고 또렷' 사극풍."""
+    from engine.divination.face_reading import _format_metrics_block
+    out = "\n".join(_format_metrics_block({
+        "shen": {"kind": "bright", "shen_score": 0.82}
+    }))
+    assert "신(神)" in out
+    assert "맑고 또렷" in out
+    assert "0.82" in out
+
+
+def test_format_metrics_block_shen_steady():
+    from engine.divination.face_reading import _format_metrics_block
+    out = "\n".join(_format_metrics_block({
+        "shen": {"kind": "steady", "shen_score": 0.60}
+    }))
+    assert "단정하다" in out
+
+
+def test_format_metrics_block_shen_dim():
+    """신 dim → '안정·휴식이 필요'."""
+    from engine.divination.face_reading import _format_metrics_block
+    out = "\n".join(_format_metrics_block({
+        "shen": {"kind": "dim", "shen_score": 0.22}
+    }))
+    assert "옅다" in out
+    assert "안정·휴식" in out
+
+
+def test_format_metrics_block_shen_missing_kind():
+    """kind 또는 score 누락 시 graceful."""
+    from engine.divination.face_reading import _format_metrics_block
+    out1 = _format_metrics_block({"shen": {"kind": "bright"}})  # score 없음
+    out2 = _format_metrics_block({"shen": {"shen_score": 0.5}})  # kind 없음
+    out3 = _format_metrics_block({"shen": "not a dict"})
+    # 모두 crash 없이 list 반환
+    for o in [out1, out2, out3]:
+        assert isinstance(o, list)
+
+
 # ─────────────────────────── ③ 기색 엔진 (운영표준 §5.5) ───────────────────────────
 
 def test_format_metrics_block_complexion_red():

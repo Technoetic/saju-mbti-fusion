@@ -323,6 +323,20 @@ def _format_metrics_block(metrics: dict[str, Any] | None) -> list[str]:
         if flags:
             out.append("  • 표정 단서 — " + ", ".join(flags) + " (기본 상에 약간의 변형 있음)")
 
+    # 신(神) — 눈빛의 활기 (운영표준 §5.5 "골상보다 신을 중히")
+    shen = metrics.get("shen")
+    if isinstance(shen, dict):
+        kind = shen.get("kind")
+        score = shen.get("shen_score")
+        _shen_ko = {
+            "bright": "신(神)이 맑고 또렷하다 — 눈빛에 활기가 있다",
+            "steady": "신(神)이 단정하다 — 눈빛이 차분히 깃들어 있다",
+            "flat": "신(神)이 평이하다",
+            "dim": "신(神)이 옅다 — 안정·휴식이 필요한 결",
+        }
+        if kind and isinstance(score, (int, float)):
+            out.append(f"  • 신(神) — {_shen_ko.get(kind, kind)} (점수 {score:.2f})")
+
     # 기색(氣色) — 부위별 색 분석 (운영표준 §5.5 + 심층분석 §2 황제내경)
     comp = metrics.get("complexion")
     if isinstance(comp, dict) and comp:

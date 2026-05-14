@@ -8386,6 +8386,8 @@ if (document.readyState === 'loading') {
   }
   // ③ 기색 엔진 — 운영표준 §5.5 + 심층분석 §2 황제내경 표1
   m.complexion = analyzeComplexion(img, lms);
+  // ④ 신(神) 엔진 — 운영표준 §5.5 "골상보다 신을 중히" + 명세서 §5.2 감찰관
+  m.shen = analyzeShen(img, lms, bs);
   }
   return m;
   } catch (e) {
@@ -8534,6 +8536,106 @@ if (document.readyState === 'loading') {
   return null;
   }
   }
+  // ④ 신(神) 엔진 — 눈빛의 활기를 정량화 (운영표준 §5.5 + 명세서 §5.2 감찰관)
+  // 종합 점수 0~1 = 0.5·홍채 시야 비율 + 0.3·눈 광채(휘도) + 0.2·눈빛 안정성(blink↓)
+  // MediaPipe FaceLandmarker는 기본 478점 (468~477이 양 홍채 5점씩)
+  function analyzeShen(img, lms, bs) {
+  if (!lms || lms.length < 478) return null;  // 홍채 미포함이면 분석 불가
+  try {
+  const W = img.naturalWidth || img.width, H = img.naturalHeight || img.height;
+  if (!W || !H) return null;
+
+  // 홍채 인덱스 — MediaPipe Iris (좌 469~472, 우 474~477; 468/473은 중심)
+  const L_IRIS = [469, 470, 471, 472];
+  const R_IRIS = [474, 475, 476, 477];
+  // 눈 윤곽 (좌 33/133 양 꼬리, 159/145 상하; 우 263/362, 386/374)
+  const L_EYE_CORNERS = [33, 133];
+  const L_EYE_VERT = [159, 145];
+  const R_EYE_CORNERS = [263, 362];
+  const R_EYE_VERT = [386, 374];
+
+  const _bbox = (idxs) => {
+  let minX = 1, minY = 1, maxX = 0, maxY = 0;
+  for (const i of idxs) {
+  const p = lms[i]; if (!p) continue;
+  if (p.x < minX) minX = p.x; if (p.y < minY) minY = p.y;
+  if (p.x > maxX) maxX = p.x; if (p.y > maxY) maxY = p.y;
+  }
+  return { w: (maxX - minX) || 0, h: (maxY - minY) || 0 };
+  };
+
+  // (a) 홍채 시야 비율 — 홍채 가로 / 눈 가로 (정면 응시일수록 일정)
+  const lIris = _bbox(L_IRIS);
+  const rIris = _bbox(R_IRIS);
+  const lEye = _bbox([...L_EYE_CORNERS, ...L_EYE_VERT]);
+  const rEye = _bbox([...R_EYE_CORNERS, ...R_EYE_VERT]);
+  const lOpenness = (lEye.h > 0 && lEye.w > 0) ? (lEye.h / lEye.w) : 0;
+  const rOpenness = (rEye.h > 0 && rEye.w > 0) ? (rEye.h / rEye.w) : 0;
+  const eye_openness = (lOpenness + rOpenness) / 2;  // 0.3~0.5가 일반 (정면)
+
+  const lIrisRatio = (lEye.w > 0) ? (lIris.w / lEye.w) : 0;
+  const rIrisRatio = (rEye.w > 0) ? (rIris.w / rEye.w) : 0;
+  const iris_ratio = (lIrisRatio + rIrisRatio) / 2;  // 정면 응시면 ~0.45
+
+  // (b) 눈동자 광채 — 홍채 ROI 픽셀 평균 휘도 (밝을수록 신이 살아있다)
+  _compCanvas.width = W; _compCanvas.height = H;
+  const ctx = _compCanvas.getContext('2d', { willReadFrequently: true });
+  ctx.drawImage(img, 0, 0, W, H);
+  const _avgLumaInIris = (irisIdxs) => {
+  const b = _roiBoundsFromLandmarks(lms, irisIdxs, W, H);
+  try {
+  const data = ctx.getImageData(b.x, b.y, Math.max(1, b.w), Math.max(1, b.h)).data;
+  if (!data.length) return 0;
+  let s = 0;
+  for (let i = 0; i < data.length; i += 4) {
+  s += 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+  }
+  return s / (data.length / 4) / 255;
+  } catch (_) { return 0; }
+  };
+  const lLuma = _avgLumaInIris(L_IRIS);
+  const rLuma = _avgLumaInIris(R_IRIS);
+  const iris_luma = (lLuma + rLuma) / 2;  // 0~1
+
+  // (c) blendshape 깜빡임 — 0에 가까울수록 눈 또렷 (현재 단발 측정의 한계 인정)
+  const blink = (bs && Array.isArray(bs.categories))
+  ? (() => {
+  const get = (name) => {
+  const c = bs.categories.find(x => x.categoryName === name);
+  return c ? c.score : 0;
+  };
+  return (get('eyeBlinkLeft') + get('eyeBlinkRight')) / 2;
+  })()
+  : 0;
+
+  // 종합 신 점수 — 운영표준 §5.5 "골상보다 신"
+  // 정면 응시(iris_ratio 0.40~0.50) + 광채 있음(luma 0.25 이상) + 깜빡임 아님(blink<0.3) → 만점
+  const irisFocusScore = (iris_ratio >= 0.40 && iris_ratio <= 0.55) ? 1.0
+  : Math.max(0, 1 - Math.abs(iris_ratio - 0.475) * 8);
+  const lumaScore = Math.min(1, Math.max(0, (iris_luma - 0.10) / 0.40));
+  const blinkScore = Math.max(0, 1 - blink * 2);
+  const shen_score = 0.5 * irisFocusScore + 0.3 * lumaScore + 0.2 * blinkScore;
+
+  // 분류 라벨 (사극풍 — 백엔드 _format_metrics_block 에서 사용)
+  let kind = 'flat';  // 평이
+  if (shen_score >= 0.75) kind = 'bright';        // 신이 맑다
+  else if (shen_score >= 0.55) kind = 'steady';   // 신이 단정하다
+  else if (shen_score <= 0.30) kind = 'dim';      // 신이 옅다
+
+  return {
+  shen_score: +shen_score.toFixed(3),
+  iris_ratio: +iris_ratio.toFixed(3),
+  iris_luma: +iris_luma.toFixed(3),
+  eye_openness: +eye_openness.toFixed(3),
+  blink: +blink.toFixed(3),
+  kind,
+  };
+  } catch (e) {
+  console.warn('[face] analyzeShen 실패:', e);
+  return null;
+  }
+  }
+
   function analyzeComplexion(img, lms) {
   if (!img || !lms || lms.length < 468) return null;
   try {
@@ -8803,6 +8905,12 @@ if (document.readyState === 'loading') {
   const kind = w >= 0.18 ? '도톰하다' : (w >= 0.12 ? '고르다' : '옅다');
   rows.push(`<div class="face-metric-row"><span class="face-metric-label">와잠(자녀궁)</span><span class="face-metric-value">${w.toFixed(2)} · ${kind}</span></div>`);
   }
+  // ④ 신(神) 점수 — 운영표준 §5.5
+  if (metrics.shen && typeof metrics.shen.shen_score === 'number') {
+  const sk = metrics.shen.kind;
+  const labels = { bright: '맑고 또렷', steady: '단정', flat: '평이', dim: '옅음' };
+  rows.push(`<div class="face-metric-row"><span class="face-metric-label">신(神) — 눈빛 활기</span><span class="face-metric-value">${metrics.shen.shen_score.toFixed(2)} · ${labels[sk] || sk}</span></div>`);
+  }
   if (rows.length === 0) return '';
 
   // 명세서 §6.4 권고 — 방사형 차트 + 안면 윤곽 그래픽 라인
@@ -8885,6 +8993,8 @@ if (document.readyState === 'loading') {
   // 명세서 §5.2 — 처첩궁/자녀궁 보조 메트릭 시각화
   { label: '처첩궁', value: typeof m.cheo_cheop_ratio === 'number' ? Math.min(1, m.cheo_cheop_ratio / 0.40) : null },
   { label: '자녀궁', value: typeof m.wajam_ratio === 'number' ? Math.min(1, m.wajam_ratio / 0.25) : null },
+  // ④ 신(神) — 운영표준 §5.5 "골상보다 신을 중히"
+  { label: '신(神)', value: (m.shen && typeof m.shen.shen_score === 'number') ? m.shen.shen_score : null },
   ];
   // 데이터 없으면 렌더 생략
   if (axes.every(a => a.value == null)) return '';
