@@ -61,13 +61,16 @@ jobs:
       - name: Verify Railway auth
         env:
           RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_API_TOKEN }}
-        run: railway whoami
+        run: |
+          railway whoami
+          railway --version
 
       - name: Deploy
         env:
           RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_API_TOKEN }}
         run: |
           railway up \
+            --project 585d6fb2-3438-48eb-9010-5b291a7f1fa1 \
             --service saju-mbti-fusion \
             --environment production \
             --detach
