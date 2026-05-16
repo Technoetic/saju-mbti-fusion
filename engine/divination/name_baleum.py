@@ -60,14 +60,67 @@ def extract_chosung(syllable: str) -> str:
     return ""
 
 
+# 종성(받침) 리스트 — 유니코드 순서 (0번은 받침 없음)
+_JONGSUNG_LIST = [
+    "",   "ㄱ", "ㄲ", "ㄳ", "ㄴ", "ㄵ", "ㄶ", "ㄷ", "ㄹ", "ㄺ",
+    "ㄻ", "ㄼ", "ㄽ", "ㄾ", "ㄿ", "ㅀ", "ㅁ", "ㅂ", "ㅄ", "ㅅ",
+    "ㅆ", "ㅇ", "ㅈ", "ㅊ", "ㅋ", "ㅌ", "ㅍ", "ㅎ",
+]
+
+# 겹받침의 대표음 (성명학에서는 보통 첫 자음으로 취급)
+_JONGSUNG_REPRESENTATIVE: dict[str, str] = {
+    "ㄳ": "ㄱ", "ㄵ": "ㄴ", "ㄶ": "ㄴ", "ㄺ": "ㄹ", "ㄻ": "ㅁ",
+    "ㄼ": "ㄹ", "ㄽ": "ㄹ", "ㄾ": "ㄹ", "ㄿ": "ㄹ", "ㅀ": "ㄹ",
+    "ㅄ": "ㅂ",
+}
+
+
+def extract_jongsung(syllable: str) -> str:
+    """한글 음절에서 종성(받침) 추출. 받침 없거나 한글 아니면 빈 문자열.
+
+    겹받침은 대표 자음으로 정규화 (예: 'ㄺ' → 'ㄹ').
+    """
+    if not isinstance(syllable, str) or len(syllable) == 0:
+        return ""
+    code = ord(syllable[0])
+    if _HANGUL_BASE <= code <= 0xD7A3:
+        idx = (code - _HANGUL_BASE) % 28
+        if 0 <= idx < len(_JONGSUNG_LIST):
+            j = _JONGSUNG_LIST[idx]
+            return _JONGSUNG_REPRESENTATIVE.get(j, j)
+    return ""
+
+
 def chosung_to_ohaeng(chosung: str) -> str:
     """초성 → 오행. 매핑 없으면 빈 문자열."""
     return _INITIAL_TO_OHAENG.get(chosung, "")
 
 
+def jongsung_to_ohaeng(jongsung: str) -> str:
+    """종성 → 오행. 받침 없거나 매핑 없으면 빈 문자열."""
+    if not jongsung:
+        return ""
+    return _INITIAL_TO_OHAENG.get(jongsung, "")
+
+
 def syllable_to_ohaeng(syllable: str) -> str:
-    """한글 음절 → 발음오행."""
+    """한글 음절 → 초성 기준 발음오행 (기본·통설)."""
     return chosung_to_ohaeng(extract_chosung(syllable))
+
+
+def syllable_to_ohaeng_pair(syllable: str) -> tuple[str, str]:
+    """한글 음절 → (초성 오행, 종성 오행) 페어.
+
+    종성이 없는 음절은 두 번째 값이 빈 문자열.
+    예:
+      "성" → ("금", "토")   # ㅅ + ㅇ
+      "이" → ("토", "")     # ㅇ + (받침 없음)
+      "민" → ("수", "화")   # ㅁ + ㄴ
+    """
+    return (
+        chosung_to_ohaeng(extract_chosung(syllable)),
+        jongsung_to_ohaeng(extract_jongsung(syllable)),
+    )
 
 
 # ─────────────────────────── 상생·상극 ───────────────────────────
@@ -132,11 +185,14 @@ class BaleumReport:
     reason: str = ""
 
 
-def evaluate_baleum(name_korean: str) -> BaleumReport:
+def evaluate_baleum(name_korean: str, *, include_jongsung: bool = False) -> BaleumReport:
     """한글 이름 전체의 발음오행 평가.
 
     Args:
         name_korean: 성+이름 한글 (예: "이성민"). 공백 무시.
+        include_jongsung: True면 종성(받침) 오행도 시퀀스에 포함.
+            "성" → 초성 ㅅ(金) + 종성 ㅇ(土) 둘 다.
+            보고서 §3 "초성·중성·종성 모두 반영" 권고 본문화 (받침 한정).
 
     Returns:
         BaleumReport — 오행 시퀀스 + 인접 관계 + 종합 등급.
@@ -147,7 +203,18 @@ def evaluate_baleum(name_korean: str) -> BaleumReport:
       · 상극 한 번이라도 등장 → BAD
     """
     syllables = [c for c in (name_korean or "") if c.strip()]
-    ohaeng_seq = [syllable_to_ohaeng(s) for s in syllables]
+
+    ohaeng_seq: list[str] = []
+    if include_jongsung:
+        # 음절별 (초성, 종성) 페어 → 시퀀스로 펼침
+        for s in syllables:
+            cho, jong = syllable_to_ohaeng_pair(s)
+            if cho:
+                ohaeng_seq.append(cho)
+            if jong:  # 받침 있는 경우만
+                ohaeng_seq.append(jong)
+    else:
+        ohaeng_seq = [syllable_to_ohaeng(s) for s in syllables]
 
     if len(ohaeng_seq) < 2:
         return BaleumReport(

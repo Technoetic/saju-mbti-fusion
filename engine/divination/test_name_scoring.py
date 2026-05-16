@@ -223,3 +223,14 @@ def test_보고서_핵심_길수_길수성():
     from engine.divination.name_scoring import is_good
     for n in (1, 3, 5, 6, 7, 8, 11, 13, 15, 16, 21, 23, 24, 25):
         assert is_good(n), f"{n} should be GOOD per 통설"
+
+
+def test_all_81_have_labels():
+    """1~81 모든 수에 의미 라벨이 있어야."""
+    from engine.divination.name_scoring import eval_su
+    missing = []
+    for n in range(1, 82):
+        r = eval_su(n)
+        if not r.label:
+            missing.append(n)
+    assert not missing, f"라벨 없는 수: {missing}"
