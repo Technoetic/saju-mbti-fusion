@@ -2091,7 +2091,12 @@
   <div class="row">
   <label>이름</label>
   <input id="pFullName" placeholder="한글로 적으세요 (선택)" style="width:200px" autocomplete="off">
+  <span class="hint" id="pSplitHint">— 적은 이름에서 성과 이름을 자동으로 나눕니다.</span>
   </div>
+  <div id="pHanjaSelectors" class="row">
+  <span class="hint">이름을 적으면 글자마다 쓸 수 있는 한자가 아래에 나옵니다. 한자를 모르면 그냥 두셔도 분석은 됩니다.</span>
+  </div>
+  <div id="pStrokeTotal" class="row stroke-total">한자를 골라주세요</div>
   <div class="row">
   <label>생년월일</label>
   <input type="number" id="pYear" value="1990" min="1900" max="2100" style="width:80px"> 년
@@ -2134,17 +2139,31 @@
   </div>
   <div class="row">
   <label>태어난 곳</label>
-  <select id="pBirthplace">
+  <input type="text" id="pBirthplaceQuery" placeholder="여기를 눌러 주소 검색 (예: 봉빛병원, 강남역, 부산 해운대)" readonly style="width:340px;cursor:pointer;background:rgba(10,15,30,0.45)">
+  <span class="hint" style="display:block;margin-top:4px">입력란을 누르면 주소 검색이 열립니다. 결과 박스 클릭으로 바로 기입.</span>
+  </div>
+  <select id="pBirthplace" style="display:none">
   <option value="seoul" data-lon="126.978" data-tz="9" selected>서울</option>
   <option value="busan" data-lon="129.075" data-tz="9">부산</option>
   <option value="incheon" data-lon="126.705" data-tz="9">인천</option>
   <option value="daegu" data-lon="128.601" data-tz="9">대구</option>
   <option value="gwangju" data-lon="126.853" data-tz="9">광주</option>
+  <option value="daejeon" data-lon="127.385" data-tz="9">대전</option>
+  <option value="ulsan" data-lon="129.311" data-tz="9">울산</option>
+  <option value="sejong" data-lon="127.289" data-tz="9">세종</option>
+  <option value="gyeonggi" data-lon="127.041" data-tz="9">경기 (수원)</option>
+  <option value="gangwon" data-lon="127.730" data-tz="9">강원 (춘천)</option>
+  <option value="chungbuk" data-lon="127.491" data-tz="9">충북 (청주)</option>
+  <option value="chungnam" data-lon="126.836" data-tz="9">충남 (홍성)</option>
+  <option value="jeonbuk" data-lon="127.148" data-tz="9">전북 (전주)</option>
+  <option value="jeonnam" data-lon="126.461" data-tz="9">전남 (무안)</option>
+  <option value="gyeongbuk" data-lon="128.886" data-tz="9">경북 (안동)</option>
+  <option value="gyeongnam" data-lon="128.687" data-tz="9">경남 (창원)</option>
   <option value="jeju" data-lon="126.498" data-tz="9">제주</option>
   <option value="tokyo" data-lon="139.692" data-tz="9">도쿄 (일본)</option>
   <option value="beijing" data-lon="116.405" data-tz="8">베이징 (중국)</option>
+  <option value="custom" data-lon="" data-tz="9">기타 (직접 입력)</option>
   </select>
-  </div>
   <div class="row">
   <label>MBTI</label>
   <select id="pMbti">
@@ -6031,6 +6050,104 @@ document.getElementById('hanjaSelectors').addEventListener('input',  updateStrok
 
 document.getElementById('fullName').addEventListener('input', updateHanjaSelectors);
 
+// ── 상대방(궁합) 이름 한자 선택 — 개인 모드와 동일 로직 (id에 'p' 접두사) ──
+function updatePartnerHanjaSelectors() {
+  const fullName = (document.getElementById('pFullName')?.value || '').trim();
+  const { surname, givenName } = splitName(fullName);
+
+  const splitHint = document.getElementById('pSplitHint');
+  if (splitHint) {
+    if (fullName) {
+      splitHint.textContent = `→ 성: ${surname || '-'}  이름: ${givenName || '-'}`;
+      splitHint.style.color = '#d4af37';
+    } else {
+      splitHint.textContent = '— 적은 이름에서 성과 이름을 자동으로 나눕니다.';
+      splitHint.style.color = '';
+    }
+  }
+
+  const container = document.getElementById('pHanjaSelectors');
+  if (!container) return;
+  const surnameChars = Array.from(surname);
+  const nameChars = Array.from(givenName);
+  const allChars = [...surnameChars, ...nameChars];
+
+  if (allChars.length === 0) {
+    container.innerHTML = '<span class="hint">이름을 적으면 글자마다 쓸 수 있는 한자가 아래에 나옵니다. 한자를 모르면 그냥 두셔도 분석은 됩니다.</span>';
+    updatePartnerStrokeTotal();
+    return;
+  }
+
+  const previous = {};
+  container.querySelectorAll('.hanja-select').forEach(sel => {
+    if (sel.value) previous[sel.dataset.char + ':' + sel.dataset.idx] = sel.value;
+  });
+
+  let html = '<div style="margin-bottom:6px;color:#d4af37;font-weight:600">한자 고르기 <span style="font-weight:normal;color:#8b7e5d;font-size:12px">(모르면 그냥 두세요)</span></div>';
+  let hasUnknown = false;
+  for (let i = 0; i < allChars.length; i++) {
+    const ch = allChars[i];
+    const isSurname = i < surnameChars.length;
+    const candidates = (한글음_한자[ch] || []).filter(h => 한자획수[h] && 한자_뜻[h]);
+    if (candidates.length === 0) hasUnknown = true;
+    const key = ch + ':' + i;
+    const prevSel = previous[key] || '';
+    const opts = [`<option value="">— 한자 안 씀 —</option>`,
+      ...candidates.map(h => {
+        const stroke = 한자획수[h];
+        const meaning = 한자_뜻[h] || '';
+        const sel = (h === prevSel) ? ' selected' : '';
+        const strokePart = stroke ? ` (${stroke}획)` : '';
+        return `<option value="${h}"${sel}>${h} ${meaning}${strokePart}</option>`;
+      })
+    ].join('');
+    html += `<span class="hanja-cell">
+      <div class="hanja-han"><b>${ch}</b><small>${isSurname ? '성' : '이름'}</small></div>
+      <select class="hanja-select" data-char="${ch}" data-idx="${i}">${opts}</select>
+    </span>`;
+  }
+  if (hasUnknown) {
+    html += '<div class="hint" style="margin-top:6px">※ "—" 표시된 글자는 후보가 없는 한자라 분석에서 제외됩니다.</div>';
+  }
+  container.innerHTML = html;
+  updatePartnerStrokeTotal();
+}
+
+function updatePartnerStrokeTotal() {
+  const target = document.getElementById('pStrokeTotal');
+  if (!target) return;
+  const cells = document.querySelectorAll('#pHanjaSelectors .hanja-cell');
+  if (cells.length === 0) {
+    target.textContent = '이름을 적어주세요';
+    return;
+  }
+  let total = 0;
+  const rows = [];
+  cells.forEach(cell => {
+    const ch = cell.querySelector('.hanja-han b')?.textContent || '';
+    const sel = cell.querySelector('.hanja-select');
+    const han = sel ? sel.value : '';
+    if (!han) {
+      rows.push(`<span class="stroke-row stroke-empty">${ch} → 한자 없음</span>`);
+      return;
+    }
+    const stroke = 한자획수[han] || 0;
+    total += stroke;
+    rows.push(`<span class="stroke-row">${ch}(${han}) ${stroke}획</span>`);
+  });
+  target.innerHTML = `${rows.join(' ')} <b style="color:var(--gold);margin-left:8px">총 ${total}획</b>`;
+}
+
+const pFullNameEl = document.getElementById('pFullName');
+if (pFullNameEl) {
+  pFullNameEl.addEventListener('input', updatePartnerHanjaSelectors);
+}
+const pHanjaContainer = document.getElementById('pHanjaSelectors');
+if (pHanjaContainer) {
+  pHanjaContainer.addEventListener('change', updatePartnerStrokeTotal);
+  pHanjaContainer.addEventListener('input', updatePartnerStrokeTotal);
+}
+
 document.getElementById('birthplace').addEventListener('change', (e) => {
   const opt = e.target.selectedOptions[0];
   const lon = opt.dataset.lon, tz = opt.dataset.tz;
@@ -8449,25 +8566,30 @@ if (document.readyState === 'loading') {
     // 다음 open()에서 새로 채워줌.
   }
 
-  function openPostcode() {
+  // 마지막으로 어떤 input을 위해 모달을 열었는지 (personal vs partner)
+  let activeTargets = { queryId: 'birthplaceQuery', selectId: 'birthplace' };
+
+  function openPostcode(queryId, selectId) {
     if (typeof daum === 'undefined' || !daum.Postcode) {
       alert('주소 검색 스크립트가 아직 로딩되지 않았습니다. 잠시 후 다시 시도하세요.');
       return;
     }
+    activeTargets = {
+      queryId: queryId || 'birthplaceQuery',
+      selectId: selectId || 'birthplace',
+    };
     const modal = document.getElementById('postcodeModal');
     const container = document.getElementById('postcodeContainer');
     if (!modal || !container) {
       new daum.Postcode({ oncomplete: handleComplete }).open();
       return;
     }
-    // 새로 열 때만 이전 instance 비움
     container.innerHTML = '';
     modal.style.display = 'flex';
 
     new daum.Postcode({
       oncomplete: function (data) {
         handleComplete(data);
-        // oncomplete 처리가 완전히 끝난 후 모달만 숨김 (iframe 유지)
         setTimeout(closeModal, 80);
       },
       width: '100%',
@@ -8489,12 +8611,12 @@ if (document.readyState === 'loading') {
     const address = data.roadAddress || data.address || data.jibunAddress || '';
     const buildingName = data.buildingName ? ' (' + data.buildingName + ')' : '';
     const display = address + buildingName;
-    const input = document.getElementById('birthplaceQuery');
+    const input = document.getElementById(activeTargets.queryId);
     if (input) input.value = display;
 
     const sido = (data.sido || '').trim();
     const mapped = SIDO_MAP.find(s => s.match.test(sido));
-    const birthSel = document.getElementById('birthplace');
+    const birthSel = document.getElementById(activeTargets.selectId);
     if (mapped && birthSel) {
       birthSel.value = mapped.key;
       birthSel.dispatchEvent(new Event('change'));
@@ -8503,7 +8625,11 @@ if (document.readyState === 'loading') {
 
   function init() {
     const input = document.getElementById('birthplaceQuery');
-    if (input) input.addEventListener('click', openPostcode);
+    if (input) input.addEventListener('click', () => openPostcode('birthplaceQuery', 'birthplace'));
+
+    // 상대방(궁합) 주소 검색
+    const pInput = document.getElementById('pBirthplaceQuery');
+    if (pInput) pInput.addEventListener('click', () => openPostcode('pBirthplaceQuery', 'pBirthplace'));
 
     const closeBtn = document.getElementById('postcodeModalClose');
     if (closeBtn) closeBtn.addEventListener('click', closeModal);
