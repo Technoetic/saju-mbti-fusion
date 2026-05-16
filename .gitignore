@@ -38,3 +38,8 @@ desktop.ini
 # Unihan 원본 zip + 추출 txt (빌드 결과 JSON만 commit)
 data/unihan/Unihan.zip
 data/unihan/*.txt
+
+# Obsidian Vault 설정 (개인 워크스페이스만, 노트는 commit)
+vault/.obsidian/workspace*.json
+vault/.obsidian/graph.json
+vault/.trash/
