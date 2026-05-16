@@ -1,0 +1,290 @@
+{
+  "url": "https://technoetic.github.io/wolha-mong-tarot/",
+  "status": 200,
+  "title": "月下夢 한국 신화 타로 — 78장 갤러리",
+  "meta": {
+    "lang": "ko",
+    "charset": "UTF-8",
+    "headings": [
+      {
+        "tag": "H1",
+        "text": "月下夢 한국 신화 타로 78장"
+      }
+    ],
+    "buttons": [
+      {
+        "text": "전체78",
+        "ariaLabel": null,
+        "className": "on",
+        "visible": true
+      },
+      {
+        "text": "메이저22",
+        "ariaLabel": null,
+        "className": "",
+        "visible": true
+      },
+      {
+        "text": "주작 朱雀14",
+        "ariaLabel": null,
+        "className": "",
+        "visible": true
+      },
+      {
+        "text": "현무 玄武14",
+        "ariaLabel": null,
+        "className": "",
+        "visible": true
+      },
+      {
+        "text": "백호 白虎14",
+        "ariaLabel": null,
+        "className": "",
+        "visible": true
+      },
+      {
+        "text": "청룡 靑龍14",
+        "ariaLabel": null,
+        "className": "",
+        "visible": true
+      },
+      {
+        "text": "보강 필요17",
+        "ariaLabel": null,
+        "className": "",
+        "visible": true
+      },
+      {
+        "text": "×",
+        "ariaLabel": null,
+        "className": "close",
+        "visible": false
+      },
+      {
+        "text": "‹",
+        "ariaLabel": null,
+        "className": "nav prev",
+        "visible": false
+      },
+      {
+        "text": "›",
+        "ariaLabel": null,
+        "className": "nav next",
+        "visible": false
+      }
+    ],
+    "links": [],
+    "images": [
+      {
+        "src": "https://technoetic.github.io/wolha-mong-tarot/images/major_00_fool.png",
+        "alt": "동자",
+        "naturalW": 832,
+        "naturalH": 1248
+      },
+      {
+        "src": "https://technoetic.github.io/wolha-mong-tarot/images/major_01_magician.png",
+        "alt": "무당",
+        "naturalW": 0,
+        "naturalH": 0
+      },
+      {
+        "src": "https://technoetic.github.io/wolha-mong-tarot/images/major_02_priestess.png",
+        "alt": "만신",
+        "naturalW": 0,
+        "naturalH": 0
+      },
+      {
+        "src": "https://technoetic.github.io/wolha-mong-tarot/images/major_03_empress.png",
+        "alt": "웅녀",
+        "naturalW": 832,
+        "naturalH": 1248
+      },
+      {
+        "src": "https://technoetic.github.io/wolha-mong-tarot/images/major_04_emperor.png",
+        "alt": "단군",
+        "naturalW": 832,
+        "naturalH": 1248
+      },
+      {
+        "src": "https://technoetic.github.io/wolha-mong-tarot/images/major_05_hierophant.png",
+        "alt": "원효",
+        "naturalW": 0,
+        "naturalH": 0
+      },
+      {
+        "src": "https://technoetic.github.io/wolha-mong-tarot/images/major_06_lovers.png",
+        "alt": "견우직녀",
+        "naturalW": 832,
+        "naturalH": 1248
+      },
+      {
+        "src": "https://technoetic.github.io/wolha-mong-tarot/images/major_07_chariot.png",
+        "alt": "장군",
+        "naturalW": 0,
+        "naturalH": 0
+      },
+      {
+        "src": "https://technoetic.github.io/wolha-mong-tarot/images/major_08_strength.png",
+        "alt": "산신",
+        "naturalW": 0,
+        "naturalH": 0
+      },
+      {
+        "src": "https://technoetic.github.io/wolha-mong-tarot/images/major_09_hermit.png",
+        "alt": "신선",
+        "naturalW": 0,
+        "naturalH": 0
+      },
+      {
+        "src": "https://technoetic.github.io/wolha-mong-tarot/images/major_10_wheel.png",
+        "alt": "윤회",
+        "naturalW": 0,
+        "naturalH": 0
+      },
+      {
+        "src": "https://technoetic.github.io/wolha-mong-tarot/images/major_11_justice.png",
+        "alt": "염라",
+        "naturalW": 0,
+        "naturalH": 0
+      },
+      {
+        "src": "https://technoetic.github.io/wolha-mong-tarot/images/major_12_hanged.png",
+        "alt": "솟대",
+        "naturalW": 0,
+        "naturalH": 0
+      },
+      {
+        "src": "https://technoetic.github.io/wolha-mong-tarot/images/major_13_death.png",
+        "alt": "사자",
+        "naturalW": 0,
+        "naturalH": 0
+      },
+      {
+        "src": "https://technoetic.github.io/wolha-mong-tarot/images/major_14_temperance.png",
+        "alt": "선녀",
+        "naturalW": 0,
+        "naturalH": 0
+      },
+      {
+        "src": "https://technoetic.github.io/wolha-mong-tarot/images/major_15_devil.png",
+        "alt": "도깨비",
+        "naturalW": 832,
+        "naturalH": 1248
+      },
+      {
+        "src": "https://technoetic.github.io/wolha-mong-tarot/images/major_16_tower.png",
+        "alt": "탑",
+        "naturalW": 0,
+        "naturalH": 0
+      },
+      {
+        "src": "https://technoetic.github.io/wolha-mong-tarot/images/major_17_star.png",
+        "alt": "칠성",
+        "naturalW": 0,
+        "naturalH": 0
+      },
+      {
+        "src": "https://technoetic.github.io/wolha-mong-tarot/images/major_18_moon.png",
+        "alt": "월",
+        "naturalW": 0,
+        "naturalH": 0
+      },
+      {
+        "src": "https://technoetic.github.io/wolha-mong-tarot/images/major_19_sun.png",
+        "alt": "일",
+        "naturalW": 0,
+        "naturalH": 0
+      },
+      {
+        "src": "https://technoetic.github.io/wolha-mong-tarot/images/major_20_judgement.png",
+        "alt": "부활",
+        "naturalW": 832,
+        "naturalH": 1248
+      },
+      {
+        "src": "https://technoetic.github.io/wolha-mong-tarot/images/major_21_world.png",
+        "alt": "천지인",
+        "naturalW": 0,
+        "naturalH": 0
+      },
+      {
+        "src": "https://technoetic.github.io/wolha-mong-tarot/images/wands_01_ace.png",
+        "alt": "주작 일거",
+        "naturalW": 0,
+        "naturalH": 0
+      },
+      {
+        "src": "https://technoetic.github.io/wolha-mong-tarot/images/wands_02_two.png",
+        "alt": "주작 이거",
+        "naturalW": 0,
+        "naturalH": 0
+      },
+      {
+        "src": "https://technoetic.github.io/wolha-mong-tarot/images/wands_03_three.png",
+        "alt": "주작 삼거",
+        "naturalW": 0,
+        "naturalH": 0
+      },
+      {
+        "src": "https://technoetic.github.io/wolha-mong-tarot/images/wands_04_four.png",
+        "alt": "주작 사거",
+        "naturalW": 0,
+        "naturalH": 0
+      },
+      {
+        "src": "https://technoetic.github.io/wolha-mong-tarot/images/wands_05_five.png",
+        "alt": "주작 오거",
+        "naturalW": 0,
+        "naturalH": 0
+      },
+      {
+        "src": "https://technoetic.github.io/wolha-mong-tarot/images/wands_06_six.png",
+        "alt": "주작 육거",
+        "naturalW": 0,
+        "naturalH": 0
+      },
+      {
+        "src": "https://technoetic.github.io/wolha-mong-tarot/images/wands_07_seven.png",
+        "alt": "주작 칠거",
+        "naturalW": 0,
+        "naturalH": 0
+      },
+      {
+        "src": "https://technoetic.github.io/wolha-mong-tarot/images/wands_08_eight.png",
+        "alt": "주작 팔거",
+        "naturalW": 0,
+        "naturalH": 0
+      }
+    ],
+    "imageCount": 79,
+    "stylesheets": [],
+    "scripts": [],
+    "inlineScriptCount": 1,
+    "bodyTextLen": 1650,
+    "bodyTextPreview": "月下夢 한국 신화 타로 78장\n총 78장\n합격 61\n보강 17\n비용 1,645원\n전체78\n메이저22\n주작 朱雀14\n현무 玄武14\n백호 白虎14\n청룡 靑龍14\n보강 필요17\n✓\n동자\n00 The Fool\n✓\n무당\n01 Magician\n✓\n만신\n02 High Priestess\n✓\n웅녀\n03 Empress\n✓\n단군\n04 Emperor\n!\n원효\n05 Hierophant\n✓\n견우직녀\n06 Lovers\n!\n장군\n07 Chariot\n✓\n산신\n08 Strength\n✓\n신선\n09 Hermit\n✓\n윤회\n10 Wheel of Fortune\n✓\n염라\n11 Justice\n✓\n솟대\n12 Hanged Man\n✓\n사자\n13 Death\n✓\n선녀\n14 Temperance\n✓\n도깨비\n15 Devil\n✓\n탑\n16 Tower\n✓\n칠성\n17 Star\n✓\n월\n18 Moon\n✓\n일\n19 Sun\n✓\n부활\n20 Judgement\n!\n천지인\n21 World\n✓\n주작 일거\nAce of Wands\n!\n주작 이거\n2 of Wands\n!\n주작 삼거\n3 of Wands\n✓\n주작 사거\n4 of Wands\n✓\n주작 오거\n5 of Wands\n✓\n주작 육거\n6 of Wands\n!\n주작 칠거\n7 of Wands\n✓\n주작 팔거\n8 of Wands\n✓\n주작 구거\n9 of Wands\n!\n주작 십거\n10 of Wands\n✓\n주작 동자\nPage of Wands\n✓\n주작 낭자\nKnight of Wands\n✓\n주작 중전\nQueen of Wands\n✓\n주작 전하\nKing of Wands\n✓\n현무 일잔\nAce of Cups\n✓\n현무 이잔\n2 of Cups\n!\n현무 삼잔\n3 of Cups\n✓\n현무 사잔\n4 of Cups\n!\n현무 오잔\n5 of Cups\n✓\n현무 육잔\n6 of Cups\n✓\n현무 칠잔\n7 of Cups\n✓\n현무 팔잔\n8 of Cups\n✓\n현무 구잔\n9 of Cups\n!\n현무 십잔\n10 of Cups\n✓\n현무 동자\nPage of Cups\n✓\n현무 낭자\nKnight of Cups\n✓\n현무 중전\nQueen of Cups\n✓\n현무 전하\nKing of Cups\n✓\n백호 일도\nAce of Swords\n✓\n백호 이도\n2 of Swords\n!\n백호 삼도\n3 of Swords\n✓\n백호 사도\n4 of Swords\n✓\n백호 오도\n5 of Swords\n!\n백호 육도\n6 of Swords\n✓\n백호 칠도\n7 of Swords\n✓\n백호 팔도\n8 of Swords\n✓\n백호 구도\n9 of Swords\n!\n백호 십도\n10 of Swords\n✓\n백호 동자\nPage of Swords\n✓\n백호 낭자\nKnight of Swords\n✓\n백호 중전\nQueen of Swords\n✓\n백호 전하\nKing of Swords\n!\n청룡 일전\nAce of Pentacles\n✓\n청룡 이전\n2 of Pentacles\n!\n청룡 삼전\n3 of Pentacles\n✓\n청룡 사전\n4 of Pentacles\n✓\n청룡 오전\n5 of Pentacles\n✓\n청룡 육전\n6 of Pentacles\n✓\n청룡 칠전\n7 of Pentacles\n✓\n청룡 팔전\n8 of Pentacles\n✓\n청룡 구전\n9 of Pentacles\n!\n청룡 십전\n10 of Pentacles\n!\n청룡 동자\nPage of Pentacles\n✓\n청룡 낭자\nKnight of Pentacles\n✓\n청룡 중전\nQueen of Pentacles\n✓\n청룡 전하\nKing of Pentacles",
+    "htmlSize": 37265,
+    "structure": {
+      "nav": true,
+      "header": true,
+      "main": false,
+      "footer": false,
+      "sections": 0,
+      "articles": 0
+    }
+  },
+  "requestSummary": {
+    "total": 78,
+    "byType": {
+      "document": 1,
+      "image": 77
+    },
+    "failed": []
+  },
+  "consoleErrors": [],
+  "consoleWarnings": [],
+  "screenshots": {
+    "desktop": "C:\\Users\\Admin\\Desktop\\사주 프로그램\\tarot_viewport.png",
+    "full": "C:\\Users\\Admin\\Desktop\\사주 프로그램\\tarot_fullpage.png",
+    "mobile": "C:\\Users\\Admin\\Desktop\\사주 프로그램\\tarot_mobile.png"
+  }
+}

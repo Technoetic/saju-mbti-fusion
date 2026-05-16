@@ -1,0 +1,22 @@
+{
+  "imgStats": {
+    "total": 79,
+    "loaded": 78,
+    "broken": 1,
+    "brokenList": [
+      {
+        "src": "",
+        "alt": ""
+      }
+    ]
+  },
+  "filterStats": {
+    "visibleCardLike": 17
+  },
+  "lightboxState": {
+    "closeVisible": true,
+    "prevVisible": true,
+    "nextVisible": true,
+    "bodyHasModalClass": ""
+  }
+}
