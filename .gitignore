@@ -34,3 +34,7 @@ Thumbs.db
 desktop.ini
 .idea/
 .vscode/
+
+# Unihan 원본 zip + 추출 txt (빌드 결과 JSON만 commit)
+data/unihan/Unihan.zip
+data/unihan/*.txt

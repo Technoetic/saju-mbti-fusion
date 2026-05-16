@@ -370,23 +370,51 @@ _BY_CHAR: dict[str, StrokesEntry] = {e.char: e for e in _ENTRIES}
 
 
 # ─────────────────────────── Public API ───────────────────────────
+#
+# 조회 우선순위 (보고서 §2 변형 부수 보정 정확도 우선):
+#   1. 수동 큐레이트 표(_BY_CHAR, 250자) — 변형 부수 보정 정확
+#   2. Unihan 자동 추출(name_unihan, 8525자) — fallback
+#
+# 변형 부수 보정이 필요한 한자(花·江·萬 등)는 수동 표가 정답. Unihan은 단순
+# 필획만 제공하므로 변형 부수 보정 없음.
+
 
 def kangxi_strokes(char: str) -> int | None:
-    """단일 한자의 강희자전 원획수. 미수록 시 None."""
+    """단일 한자의 강희자전 원획수. 수동 표 우선, Unihan fallback."""
     e = _BY_CHAR.get(char)
-    return e.kangxi_strokes if e else None
+    if e is not None:
+        return e.kangxi_strokes
+    # Fallback — Unihan (변형 부수 보정 없는 단순 필획)
+    try:
+        from engine.divination.name_unihan import kangxi_strokes as _unihan_strokes
+        return _unihan_strokes(char)
+    except Exception:
+        return None
 
 
 def writing_strokes(char: str) -> int | None:
-    """단일 한자의 일반 필획수. 미수록 시 None."""
+    """단일 한자의 일반 필획수. 수동 표 우선, Unihan fallback."""
     e = _BY_CHAR.get(char)
-    return e.writing_strokes if e else None
+    if e is not None:
+        return e.writing_strokes
+    try:
+        from engine.divination.name_unihan import kangxi_strokes as _unihan_strokes
+        # Unihan은 단순 필획 = 일반 필획과 일치
+        return _unihan_strokes(char)
+    except Exception:
+        return None
 
 
 def resource_ohaeng(char: str) -> str | None:
-    """자원오행. 미수록 또는 미정 시 None."""
+    """자원오행. 수동 표 우선, Unihan 부수 매핑 fallback."""
     e = _BY_CHAR.get(char)
-    return e.resource_ohaeng if (e and e.resource_ohaeng) else None
+    if e is not None and e.resource_ohaeng:
+        return e.resource_ohaeng
+    try:
+        from engine.divination.name_unihan import resource_ohaeng as _unihan_ohaeng
+        return _unihan_ohaeng(char)
+    except Exception:
+        return None
 
 
 def get_entry(char: str) -> StrokesEntry | None:
