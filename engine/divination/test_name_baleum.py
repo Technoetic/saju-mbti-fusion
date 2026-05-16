@@ -161,3 +161,72 @@ def test_report_to_dict():
     d = report_to_dict(evaluate_baleum("이성민"))
     for k in ("syllables", "ohaeng_sequence", "relations", "grade", "reason"):
         assert k in d
+
+
+# ─────────────────────────── 종성(받침) 보강 ───────────────────────────
+
+def test_extract_jongsung():
+    """종성 추출 — 받침 있는 음절."""
+    from engine.divination.name_baleum import extract_jongsung
+    assert extract_jongsung("성") == "ㅇ"
+    assert extract_jongsung("민") == "ㄴ"
+    assert extract_jongsung("김") == "ㅁ"
+    assert extract_jongsung("박") == "ㄱ"
+
+
+def test_extract_jongsung_no_batchim():
+    """받침 없으면 빈 문자열."""
+    from engine.divination.name_baleum import extract_jongsung
+    assert extract_jongsung("이") == ""
+    assert extract_jongsung("아") == ""
+    assert extract_jongsung("나") == ""
+
+
+def test_extract_jongsung_complex_batchim():
+    """겹받침은 대표 자음으로 정규화."""
+    from engine.divination.name_baleum import extract_jongsung
+    # 닭(ㄺ → ㄹ), 값(ㅄ → ㅂ)
+    assert extract_jongsung("닭") == "ㄹ"
+    assert extract_jongsung("값") == "ㅂ"
+
+
+def test_jongsung_to_ohaeng():
+    """종성 → 오행 매핑."""
+    from engine.divination.name_baleum import jongsung_to_ohaeng, EARTH, FIRE, WATER
+    assert jongsung_to_ohaeng("ㅇ") == EARTH
+    assert jongsung_to_ohaeng("ㄴ") == FIRE
+    assert jongsung_to_ohaeng("ㅁ") == WATER
+    assert jongsung_to_ohaeng("") == ""
+
+
+def test_syllable_to_ohaeng_pair():
+    """음절 → (초성, 종성) 오행 페어."""
+    from engine.divination.name_baleum import syllable_to_ohaeng_pair
+    # 성: ㅅ(金) + ㅇ(土)
+    assert syllable_to_ohaeng_pair("성") == ("금", "토")
+    # 이: ㅇ(土) + 받침 없음
+    assert syllable_to_ohaeng_pair("이") == ("토", "")
+    # 민: ㅁ(水) + ㄴ(火)
+    assert syllable_to_ohaeng_pair("민") == ("수", "화")
+
+
+def test_evaluate_with_jongsung_extends_sequence():
+    """include_jongsung=True면 시퀀스 길이가 확장됨."""
+    from engine.divination.name_baleum import evaluate_baleum
+    r_no = evaluate_baleum("이성민", include_jongsung=False)
+    r_with = evaluate_baleum("이성민", include_jongsung=True)
+    # 이=받침X, 성=ㅇ받침, 민=ㄴ받침 → 종성 2개 추가 = 시퀀스 5
+    assert len(r_no.ohaeng_sequence) == 3
+    assert len(r_with.ohaeng_sequence) == 5
+
+
+def test_evaluate_with_jongsung_이성민():
+    """이성민 종성 포함: 토(이) → 금(ㅅ) → 토(ㅇ) → 수(ㅁ) → 화(ㄴ).
+    토→금 상생, 금→토 sangsaeng_reverse, 토→수 상극!
+    → BAD 등급.
+    """
+    from engine.divination.name_baleum import evaluate_baleum, GRADE_BAD
+    r = evaluate_baleum("이성민", include_jongsung=True)
+    # 상극이 들어가야
+    assert any("sanggeuk" in rel for rel in r.relations)
+    assert r.grade == GRADE_BAD
