@@ -1,0 +1,132 @@
+name: CI/CD — Test & Deploy
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  test:
+    name: Lint & Import Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12.13"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Import smoke test (engine + web modules load)
+        run: |
+          python -c "from web.server import app; print('FastAPI app routes:', len(app.routes))"
+          python -c "from engine.divination.face_reading import generate_face_reading; print('face_reading loaded')"
+          python -c "from engine.saju import pillars, luck_cycle, ten_gods; print('saju engine loaded')"
+
+      - name: Pytest — engine 단위 테스트 (필수)
+        run: |
+          pip install pytest
+          # engine/ 단위 테스트는 외부 의존성 없음 — 실패 시 CI fail.
+          if compgen -G "engine/**/test_*.py" > /dev/null; then
+            pytest -x --tb=short engine/
+          else
+            echo "no engine test files yet — skipping"
+          fi
+        shell: bash
+
+      - name: Pytest — web 통합 테스트 (best-effort)
+        run: |
+          # web/test_*.py 는 외부 API(LLM/MiniMax)를 호출할 수 있어 best-effort.
+          if compgen -G "web/test_*.py" > /dev/null; then
+            pytest --tb=short web/ 2>&1 | tail -50 || echo "::warning::web tests failed (외부 API 미설정 가능, non-blocking)"
+          else
+            echo "no web test files — skipping"
+          fi
+        shell: bash
+
+  deploy:
+    name: Deploy to Railway
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Railway CLI
+        run: |
+          bash <(curl -fsSL railway.com/install.sh) -y
+          echo "$HOME/.railway/bin" >> "$GITHUB_PATH"
+
+      - name: Verify Railway auth
+        env:
+          RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_API_TOKEN }}
+        run: |
+          railway whoami
+          railway --version
+
+      - name: Deploy
+        env:
+          RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_API_TOKEN }}
+        run: |
+          railway up \
+            --project 585d6fb2-3438-48eb-9010-5b291a7f1fa1 \
+            --service saju-mbti-fusion \
+            --environment production \
+            --detach
+
+      - name: Wait for new deployment SUCCESS
+        env:
+          RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_API_TOKEN }}
+        run: |
+          # 라이브 HTTP 200만 확인하면 거짓 양성 (이전 배포가 살아있어 늘 200).
+          # GraphQL `service(id:)` 로 최신 deployment status 직접 폴링.
+          SERVICE_ID="00fbc238-ae49-4db6-8548-b4bf3478a7c8"
+          QUERY='{"query":"query { service(id: \"'"$SERVICE_ID"'\") { deployments(first: 1) { edges { node { id status } } } } }"}'
+
+          for i in $(seq 1 18); do
+            sleep 15
+            RESP=$(curl -s -X POST https://backboard.railway.app/graphql/v2 \
+              -H "Authorization: Bearer $RAILWAY_API_TOKEN" \
+              -H "Content-Type: application/json" \
+              -d "$QUERY")
+            STATUS=$(echo "$RESP" | python3 -c "
+          import sys, json
+          try:
+              d = json.load(sys.stdin)
+              edges = d['data']['service']['deployments']['edges']
+              if edges:
+                  print(edges[0]['node']['status'])
+              else:
+                  print('NO_DEPLOYMENT')
+          except Exception:
+              print('PARSE_ERROR')
+          " 2>/dev/null || echo "PIPE_ERROR")
+            code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 5 https://saju-mbti-fusion-production.up.railway.app/ || echo 000)
+            echo "attempt $i: deployment=$STATUS, live HTTP=$code"
+            case "$STATUS" in
+              SUCCESS)
+                if [ "$code" = "200" ]; then
+                  echo "✅ New deployment SUCCESS + live HTTP 200"
+                  exit 0
+                fi
+                ;;
+              FAILED|CRASHED|REMOVED)
+                echo "❌ Deployment $STATUS — failing CI"
+                exit 1
+                ;;
+            esac
+          done
+          echo "❌ New deployment did not reach SUCCESS within 270s"
+          exit 1
