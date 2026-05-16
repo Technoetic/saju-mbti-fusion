@@ -4906,6 +4906,29 @@ const 한자_뜻 = {
 };
 
 /**
+ * 작명 불용한자 — 의미가 어둡거나 흉운으로 분류되어 인명에 잘 쓰지 않는 한자.
+ * (인명용 한자/한문 사전·전통 작명서 통설 기준. 절대적 금지는 아님 — 참고용)
+ */
+const 불용한자 = new Set([
+  // 죽음·소멸·끝
+  '死','亡','終','末','滅','喪','葬','墳','墓','棺','屍','弔','哭','涕','涙',
+  // 병·고통·슬픔
+  '病','疾','痛','苦','哀','愁','悲','恨','怨','痾','疫','癌',
+  // 흉·재앙·악
+  '凶','災','禍','害','殺','罪','罰','邪','妖','鬼','怪','厄',
+  // 어두움·차가움·낡음
+  '暗','黑','陰','寒','冷','老','朽','衰','枯','腐',
+  // 파괴·실패·결핍
+  '破','折','缺','失','散','離','敗','劣','弱','卑','賤','拙','愚','狂','痴','迷',
+  // 천한 직위·신체 일부
+  '奴','婢','屎','尿','血',
+  // 동물·곤충(부정적 함의)
+  '蛇','蟲','虫','鼠','豚',
+  // 흉기·갈등
+  '刀','劍','槍','矛','戈','戰','爭','鬪',
+]);
+
+/**
  * 한글 음 → 한자 후보 목록 (인명 자주 쓰임 위주)
  * 사용자가 한글 이름을 입력하면 각 글자별로 가능한 한자를 드롭다운으로 표시
  * 같은 한자가 여러 음을 가지면 각 음에 모두 등록됨
@@ -5994,7 +6017,8 @@ function updateHanjaSelectors() {
   const meaning = 한자_뜻[h] || '';
   const sel = (h === prevSel) ? ' selected' : '';
   const strokePart = stroke ? ` (${stroke}획)` : '';
-  return `<option value="${h}"${sel}>${h} ${meaning}${strokePart}</option>`;
+  const unusable = 불용한자.has(h) ? ' · [불용]' : '';
+  return `<option value="${h}"${sel}>${h} ${meaning}${strokePart}${unusable}</option>`;
   })
   ].join('');
   html += `<span class="hanja-cell">
@@ -6005,6 +6029,7 @@ function updateHanjaSelectors() {
   if (hasUnknown) {
   html += '<div class="hint" style="margin-top:6px">※ "—" 표시된 글자는 후보가 없는 한자라 분석에서 제외됩니다. 한글 음오행 분석은 됩니다.</div>';
   }
+  html += '<div class="hint" style="margin-top:4px;color:var(--text-dim)">※ [불용] 표시는 의미가 어둡거나 흉운으로 분류되어 작명에서 잘 쓰지 않는 한자 (참고용).</div>';
   container.innerHTML = html;
   updateStrokeTotal();
 }
@@ -6098,7 +6123,8 @@ function updatePartnerHanjaSelectors() {
         const meaning = 한자_뜻[h] || '';
         const sel = (h === prevSel) ? ' selected' : '';
         const strokePart = stroke ? ` (${stroke}획)` : '';
-        return `<option value="${h}"${sel}>${h} ${meaning}${strokePart}</option>`;
+        const unusable = 불용한자.has(h) ? ' · [불용]' : '';
+        return `<option value="${h}"${sel}>${h} ${meaning}${strokePart}${unusable}</option>`;
       })
     ].join('');
     html += `<span class="hanja-cell">
@@ -6109,6 +6135,7 @@ function updatePartnerHanjaSelectors() {
   if (hasUnknown) {
     html += '<div class="hint" style="margin-top:6px">※ "—" 표시된 글자는 후보가 없는 한자라 분석에서 제외됩니다.</div>';
   }
+  html += '<div class="hint" style="margin-top:4px;color:var(--text-dim)">※ [불용] 표시는 의미가 어둡거나 흉운으로 분류되어 작명에서 잘 쓰지 않는 한자 (참고용).</div>';
   container.innerHTML = html;
   updatePartnerStrokeTotal();
 }
