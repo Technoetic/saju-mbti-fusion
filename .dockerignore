@@ -23,3 +23,7 @@ step_archive/
 
 *.md
 README*
+
+# data/ 중 라이브에 안 필요한 큰 파일들 — JSON만 가게
+data/unihan/
+data/app.db
