@@ -174,6 +174,17 @@ class PalmReadingRequest(BaseModel):
     question: str | None = None
 
 
+class NameReadingRequest(BaseModel):
+    """묵향 선생 이름 풀이 요청 — 한글/한자/사주 보조."""
+
+    fullname_ko: str  # 한글 이름 (필수)
+    fullname_han: str | None = None  # 한자 (선택)
+    gender: str | None = None
+    birth: str | None = None  # 'YYYY-MM-DD' 형식 권장
+    saju_day_master: str | None = None  # 일간 (있으면 더 깊은 풀이)
+    saju_summary: str | None = None  # 사주 요약 텍스트
+
+
 class DreamInterpretRequest(BaseModel):
     """해몽 요청 — 꿈 본문 + 개인 맥락(사주/MBTI 등)."""
 
@@ -718,6 +729,7 @@ class PersonalityAPIServer:
         self.app.post("/api/hwapae/reading")(self.post_hwapae_reading)
         self.app.post("/api/face/reading")(self.post_face_reading)
         self.app.post("/api/palm/reading")(self.post_palm_reading)
+        self.app.post("/api/name/reading")(self.post_name_reading)
         self.app.post("/api/dream/interpret")(self.post_dream_interpret)
         self.app.post("/api/clinical/screening")(self.post_clinical_screening)
         self.app.get("/api/clinical/instruments")(self.get_clinical_instruments)
@@ -1669,6 +1681,28 @@ class PersonalityAPIServer:
                 req.gender,
                 req.hand,
                 req.question,
+            )
+            return result
+        except ValueError as ve:
+            raise HTTPException(400, str(ve))
+        except Exception as e:
+            raise HTTPException(500, str(e))
+
+    async def post_name_reading(
+        self, req: NameReadingRequest
+    ) -> dict[str, Any]:
+        """묵향 선생 이름 풀이 — 텍스트 전용 LLM 호출 + 캐시."""
+        try:
+            from engine.divination.name_reading import generate_name_reading
+
+            result = await asyncio.to_thread(
+                generate_name_reading,
+                req.fullname_ko,
+                req.fullname_han,
+                req.gender,
+                req.birth,
+                req.saju_day_master,
+                req.saju_summary,
             )
             return result
         except ValueError as ve:

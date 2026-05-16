@@ -1583,6 +1583,62 @@
     opacity: 1;
   }
 
+  /* ───── 묵향 선생 · 이름 풀이 — face/palm 과 동일 톤 ───── */
+  .name-step { display: none; }
+  .name-step.active { display: block; }
+
+  .name-master-card {
+    border: 1px solid var(--gold-dp);
+    background: rgba(10,15,30,0.55);
+    border-radius: 3px;
+    padding: 22px 24px 20px;
+    margin: 18px auto 26px;
+    max-width: 560px;
+    text-align: center;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.35);
+  }
+  .name-master-emblem {
+    font-family: 'Nanum Myeongjo', serif;
+    font-size: 30px;
+    letter-spacing: 8px;
+    color: var(--gold-bri);
+    line-height: 1;
+  }
+  .name-master-name {
+    margin-top: 8px;
+    font-size: 15px;
+    letter-spacing: 5px;
+    color: var(--gold);
+    font-family: 'Nanum Myeongjo', serif;
+  }
+  .name-master-sub {
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--text-dim);
+    margin-top: 6px;
+  }
+  .name-master-quote {
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px dashed var(--gold-dp);
+    font-size: 14px;
+    color: var(--text-soft);
+    line-height: 1.7;
+    font-family: 'Nanum Myeongjo', serif;
+  }
+  @media (max-width: 600px) {
+    .name-master-card { padding: 18px 16px; margin: 12px 0 20px; }
+    .name-master-emblem { font-size: 24px; letter-spacing: 6px; }
+    .name-master-name { font-size: 13px; letter-spacing: 4px; }
+    .name-master-quote { font-size: 13px; }
+  }
+  #nameResultBoard { max-width: 720px; margin: 18px auto 0; }
+  body.in-app .name-master-card {
+    background: rgba(10,15,30,0.50);
+    backdrop-filter: blur(8px) brightness(0.92);
+    -webkit-backdrop-filter: blur(8px) brightness(0.92);
+  }
+
   /* ───── 옥선 할미 · 손금 풀이 — face-* 와 동일 톤 ───── */
   .palm-step { display: none; }
   .palm-step.active { display: block; }
@@ -1864,10 +1920,11 @@
 
 <div class="tab-bar">
   <button class="tab-btn active" data-tab="saju">만월 아씨의 사주 풀이</button>
-  <button class="tab-btn" data-tab="dream">몽이 도령의 꿈 해몽</button>
-  <button class="tab-btn" data-tab="hwapae">화선 낭자의 화패 풀이</button>
+  <button class="tab-btn" data-tab="dream">몽이 도령의 꿈 풀이</button>
+  <button class="tab-btn" data-tab="hwapae">화선 낭자의 꽃패 풀이</button>
   <button class="tab-btn" data-tab="face">운학 도사의 얼굴 풀이</button>
   <button class="tab-btn" data-tab="palm">옥선 할미의 손금 풀이</button>
+  <button class="tab-btn" data-tab="name">묵향 선생의 이름 풀이</button>
 </div>
 
 <div id="tab-saju" class="tab-content active">
@@ -2706,6 +2763,89 @@
   </div><!-- /palm-step-result -->
 
 </div><!-- /tab-palm -->
+
+<!-- ───────────────────────── 묵향 선생 · 이름 풀이 ───────────────────────── -->
+<div id="tab-name" class="tab-content">
+
+  <!-- 1단계: 입력 + 안내 -->
+  <div id="name-step-input" class="name-step active">
+  <div class="paper-scroll" data-paper="name-input">
+
+  <div class="name-master-card">
+  <div class="name-master-emblem">墨 香</div>
+  <div class="name-master-name">묵향 선생</div>
+  <div class="name-master-sub">조선 사대부 출신 학자 · 성명학(姓名學)</div>
+  <div class="name-master-quote">
+  "이 사람이 한 평생을 이름 한 글자에 매달려 왔다오. 그대의 이름, 한 번 풀어드리리다."
+  </div>
+  </div>
+
+  <fieldset>
+  <legend>一. 풀이할 이름</legend>
+  <div class="row">
+  <label>한글 이름</label>
+  <input id="nameFullKo" placeholder="예: 박형민" style="width:220px" autocomplete="off">
+  <span class="hint" id="nameSplitHint">— 적은 이름에서 성과 이름을 자동으로 나눕니다.</span>
+  </div>
+  <div id="nameHanjaSelectors" class="row">
+  <span class="hint">이름을 적으면 글자마다 쓸 수 있는 한자가 아래에 나옵니다. 한자를 모르면 그냥 두셔도 풀이됩니다.</span>
+  </div>
+  <div id="nameStrokeTotal" class="row stroke-total">한자를 골라주세요</div>
+  </fieldset>
+
+  <fieldset>
+  <legend>二. 보조 정보 (선택)</legend>
+  <div class="row">
+  <label>성별</label>
+  <select id="nameGender" style="width:140px">
+  <option value="">— 선택 안 함 —</option>
+  <option value="남성">남성</option>
+  <option value="여성">여성</option>
+  </select>
+  </div>
+  <div class="row">
+  <label>생년월일</label>
+  <input type="date" id="nameBirth" style="width:170px">
+  <span class="hint">사주 일간과 함께 보면 자원오행 균형까지 짚어드립니다.</span>
+  </div>
+  <div class="row">
+  <label>사주 일간(선택)</label>
+  <input id="nameDayMaster" placeholder="예: 甲, 乙, 丙... (모르면 비워두세요)" style="width:220px">
+  <span class="hint">사주 풀이 탭에서 본인 일간을 확인할 수 있습니다.</span>
+  </div>
+  </fieldset>
+
+  <div class="big-action">
+  <button id="nameReadBtn" disabled class="face-btn" style="padding:14px 32px;font-size:15px;letter-spacing:4px">묵 향  선 생 께  풀 이  청 하 기</button>
+  <div class="hint" style="margin-top:14px">
+  한글 이름을 입력하시면 활성화됩니다.
+  <br><small style="opacity:0.7">백엔드 · LLM 텍스트 호출</small>
+  </div>
+  </div>
+
+  </div><!-- /paper-scroll name-input -->
+  </div><!-- /name-step-input -->
+
+  <!-- 2단계: 분석 중 -->
+  <div id="name-step-loading" class="name-step">
+  <div class="face-loading-block">
+  <div class="face-loading-emblem">墨 香</div>
+  <div class="face-loading-msg">
+  묵향 선생이 그대의 이름을 살피는 중이외다 <span class="dots">⋯</span>
+  </div>
+  <div class="hint">잠시만 기다리시오. 자의·음오행·자원오행·수리오격을 차례로 짚는 데 한 30초 남짓 걸리오.</div>
+  </div>
+  </div><!-- /name-step-loading -->
+
+  <!-- 3단계: 결과 -->
+  <div id="name-step-result" class="name-step">
+  <div class="back-bar">
+  <button id="nameRestartBtn">← 다시 풀이</button>
+  </div>
+  <div id="nameResultBoard"></div>
+  </div><!-- /name-step-result -->
+
+</div><!-- /tab-name -->
 
 <script>
 'use strict';
@@ -8946,6 +9086,205 @@ if (document.readyState === 'loading') {
         if (btn.dataset.tab !== 'palm') stopCamera();
       });
     });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bind);
+  } else {
+    bind();
+  }
+})();
+
+// ============================================================
+// SECTION: 묵향 선생 · 이름 풀이 (姓名學)
+// ============================================================
+(function initNameReading() {
+  const $ = (id) => document.getElementById(id);
+
+  function showStep(stepId) {
+    document.querySelectorAll('#tab-name .name-step').forEach(s => {
+      s.classList.toggle('active', s.id === stepId);
+    });
+  }
+
+  function updateReadButton() {
+    const btn = $('nameReadBtn');
+    if (!btn) return;
+    btn.disabled = !( ($('nameFullKo')?.value || '').trim() );
+  }
+
+  // 한글 이름 변경 시 한자 셀 자동 생성 (개인 모드와 동일 로직)
+  function updateNameHanjaSelectors() {
+    const fullName = ($('nameFullKo')?.value || '').trim();
+    const { surname, givenName } = splitName(fullName);
+
+    const splitHint = $('nameSplitHint');
+    if (splitHint) {
+      if (fullName) {
+        splitHint.textContent = `→ 성: ${surname || '-'}  이름: ${givenName || '-'}`;
+        splitHint.style.color = '#d4af37';
+      } else {
+        splitHint.textContent = '— 적은 이름에서 성과 이름을 자동으로 나눕니다.';
+        splitHint.style.color = '';
+      }
+    }
+
+    const container = $('nameHanjaSelectors');
+    if (!container) return;
+    const surnameChars = Array.from(surname);
+    const nameChars = Array.from(givenName);
+    const allChars = [...surnameChars, ...nameChars];
+
+    if (allChars.length === 0) {
+      container.innerHTML = '<span class="hint">이름을 적으면 글자마다 쓸 수 있는 한자가 아래에 나옵니다. 한자를 모르면 그냥 두셔도 풀이됩니다.</span>';
+      updateNameStrokeTotal();
+      updateReadButton();
+      return;
+    }
+
+    const previous = {};
+    container.querySelectorAll('.hanja-select').forEach(sel => {
+      if (sel.value) previous[sel.dataset.char + ':' + sel.dataset.idx] = sel.value;
+    });
+
+    let html = '<div style="margin-bottom:6px;color:#d4af37;font-weight:600">한자 고르기 <span style="font-weight:normal;color:#8b7e5d;font-size:12px">(모르면 그냥 두세요)</span></div>';
+    let hasUnknown = false;
+    for (let i = 0; i < allChars.length; i++) {
+      const ch = allChars[i];
+      const isSurname = i < surnameChars.length;
+      const candidates = (한글음_한자[ch] || []).filter(h => 한자획수[h] && 한자_뜻[h]);
+      if (candidates.length === 0) hasUnknown = true;
+      const key = ch + ':' + i;
+      const prevSel = previous[key] || '';
+      const opts = [`<option value="">— 한자 안 씀 —</option>`,
+        ...candidates.map(h => {
+          const stroke = 한자획수[h];
+          const meaning = 한자_뜻[h] || '';
+          const sel = (h === prevSel) ? ' selected' : '';
+          const strokePart = stroke ? ` (${stroke}획)` : '';
+          const unusable = (typeof 불용한자 !== 'undefined' && 불용한자.has(h)) ? ' · [불용]' : '';
+          return `<option value="${h}"${sel}>${h} ${meaning}${strokePart}${unusable}</option>`;
+        })
+      ].join('');
+      html += `<span class="hanja-cell">
+        <div class="hanja-han"><b>${ch}</b><small>${isSurname ? '성' : '이름'}</small></div>
+        <select class="hanja-select" data-char="${ch}" data-idx="${i}">${opts}</select>
+      </span>`;
+    }
+    if (hasUnknown) {
+      html += '<div class="hint" style="margin-top:6px">※ "—" 표시된 글자는 후보가 없는 한자라 풀이에서 제외됩니다.</div>';
+    }
+    html += '<div class="hint" style="margin-top:4px;color:var(--text-dim)">※ [불용] 표시는 의미가 어둡거나 흉운으로 분류되는 한자 (참고용).</div>';
+    container.innerHTML = html;
+    updateNameStrokeTotal();
+    updateReadButton();
+  }
+
+  function updateNameStrokeTotal() {
+    const target = $('nameStrokeTotal');
+    if (!target) return;
+    const cells = document.querySelectorAll('#nameHanjaSelectors .hanja-cell');
+    if (cells.length === 0) {
+      target.textContent = '이름을 적어주세요';
+      return;
+    }
+    let total = 0;
+    const rows = [];
+    cells.forEach(cell => {
+      const ch = cell.querySelector('.hanja-han b')?.textContent || '';
+      const sel = cell.querySelector('.hanja-select');
+      const han = sel ? sel.value : '';
+      if (!han) {
+        rows.push(`<span class="stroke-row stroke-empty">${ch} → 한자 없음</span>`);
+        return;
+      }
+      const stroke = 한자획수[han] || 0;
+      total += stroke;
+      rows.push(`<span class="stroke-row">${ch}(${han}) ${stroke}획</span>`);
+    });
+    target.innerHTML = `${rows.join(' ')} <b style="color:var(--gold);margin-left:8px">총 ${total}획</b>`;
+  }
+
+  function collectHanjaText() {
+    const cells = document.querySelectorAll('#nameHanjaSelectors .hanja-cell');
+    if (!cells.length) return '';
+    const parts = [];
+    cells.forEach(cell => {
+      const sel = cell.querySelector('.hanja-select');
+      if (sel && sel.value) parts.push(sel.value);
+    });
+    return parts.join('');
+  }
+
+  function renderResult(data) {
+    const text = (data && data.text) ? data.text : '(풀이를 받지 못했소.)';
+    const cached = data && data.cached;
+    const board = $('nameResultBoard');
+    const escaped = text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    board.innerHTML = `
+      <div class="face-result-card">
+        <h2 class="face-result-title story-title">묵 향  선 생 의  이 름  풀 이</h2>
+        <div class="face-result-text">${escaped}</div>
+        <div class="face-result-meta">${cached ? '캐시 결과 · ' : ''}묵향 선생 · 성명학</div>
+      </div>`;
+  }
+
+  async function requestReading() {
+    const fullnameKo = ($('nameFullKo')?.value || '').trim();
+    if (!fullnameKo) { alert('한글 이름을 먼저 적어주시오.'); return; }
+    const fullnameHan = collectHanjaText() || null;
+    const gender = ($('nameGender')?.value || '').trim() || null;
+    const birth = ($('nameBirth')?.value || '').trim() || null;
+    const dayMaster = ($('nameDayMaster')?.value || '').trim() || null;
+
+    showStep('name-step-loading');
+    try {
+      const resp = await fetch('/api/name/reading', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fullname_ko: fullnameKo,
+          fullname_han: fullnameHan,
+          gender,
+          birth,
+          saju_day_master: dayMaster,
+        }),
+      });
+      if (!resp.ok) {
+        const errText = await resp.text();
+        throw new Error(`서버 오류 (${resp.status}): ${errText}`);
+      }
+      const data = await resp.json();
+      renderResult(data);
+      showStep('name-step-result');
+    } catch (err) {
+      $('nameResultBoard').innerHTML = `
+        <div class="face-result-card">
+          <div class="face-result-text" style="color:#e9b3a8">
+            이 사람이 풀이를 마치지 못했소.<br><br>
+            <code style="font-size:12px">${(err.message || err).toString().replace(/</g,'&lt;')}</code>
+          </div>
+        </div>`;
+      showStep('name-step-result');
+    }
+  }
+
+  function resetAll() {
+    $('nameResultBoard').innerHTML = '';
+    showStep('name-step-input');
+  }
+
+  function bind() {
+    if (!$('nameFullKo')) return;
+    $('nameFullKo').addEventListener('input', updateNameHanjaSelectors);
+    const container = $('nameHanjaSelectors');
+    if (container) {
+      container.addEventListener('change', updateNameStrokeTotal);
+      container.addEventListener('input', updateNameStrokeTotal);
+    }
+    $('nameReadBtn').addEventListener('click', requestReading);
+    $('nameRestartBtn').addEventListener('click', resetAll);
+    updateReadButton();
   }
 
   if (document.readyState === 'loading') {
