@@ -17,6 +17,7 @@ last_updated: 2026-05-17
 | ADR-005 | [[ADR-005-claude-opus-vision]] | accepted | 2026-05-16 |
 | ADR-006 | [[ADR-006-legaltech-rejected]] | accepted | 2026-05-17 |
 | ADR-007 | [[ADR-007-obsidian-vault-introduced]] | accepted | 2026-05-17 |
+| ADR-008 | [[ADR-008-ai-work-protocol]] | accepted | 2026-05-17 |
 
 ## 원칙
 
