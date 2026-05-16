@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Env (시크릿 포함)
+.env
+.env.*
+!.env.example
+
+# Local runtime data (Railway volume mirror)
+.data/
+
+# Node (web 번들링 도구)
+node_modules/
+web/node_modules/
+
+# Runtime cache
+step_archive/
+
+# 원본 wav 백업 (다운샘플링 전 33MB) — git에 안 올림
+*.wav.original
+
+# 임시 파일들
+C:/temp/
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.claude/
+desktop.ini
+.idea/
+.vscode/

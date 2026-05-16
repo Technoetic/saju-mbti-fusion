@@ -1,0 +1,9 @@
+fastapi==0.136.1
+uvicorn[standard]==0.41.0
+pydantic==2.12.5
+python-dotenv==1.0.1
+openai==2.33.0
+anthropic==0.75.0
+skyfield==1.54
+requests
+lunar-python==1.4.4
