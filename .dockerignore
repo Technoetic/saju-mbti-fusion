@@ -27,3 +27,6 @@ README*
 # data/ 중 라이브에 안 필요한 큰 파일들 — JSON만 가게
 data/unihan/
 data/app.db
+
+# Obsidian Vault — 인간 지식 저장소, 운영 코드 무관
+vault/
