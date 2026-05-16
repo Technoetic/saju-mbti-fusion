@@ -165,41 +165,48 @@ def _bizrouter_enabled() -> bool:
 
 
 def _call_vision(system_prompt: str, user_text: str, image_b64: str) -> str:
-    """비전 LLM 호출 — Bizrouter(Gemini) 우선, Anthropic Claude fallback."""
+    """비전 LLM 호출 — Bizrouter(claude-opus-4.7) 우선, Anthropic SDK 자동 fallback.
+
+    BIZROUTER_VISION_MODEL이 timeout·5xx·권한 부재 등으로 실패하면 즉시
+    Anthropic SDK 직접 호출(claude-opus-4-7)로 fallback. 사용자 의도와
+    실제 가용성 사이의 갭을 코드 수준에서 회복.
+    """
     mime, raw_b64 = _normalize_image_b64(image_b64)
     data_url = f"data:{mime};base64,{raw_b64}"
 
     if _bizrouter_enabled():
-        client = _bizrouter_client()
-        # Gemini 비전 모델 — Image generation 모델(flash-image)이 아닌
-        # 일반 멀티모달 모델 사용. 환경변수로 오버라이드 가능.
         model = (
             os.environ.get("BIZROUTER_VISION_MODEL")
             or os.environ.get("BIZROUTER_MODEL")
             or "google/gemini-2.5-flash-lite"
         )
-        resp = client.chat.completions.create(
-            model=model,
-            max_tokens=_MAX_TOKENS,
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {
-                    "role": "user",
-                    "content": [
-                        {"type": "text", "text": user_text},
-                        {"type": "image_url", "image_url": {"url": data_url}},
-                    ],
-                },
-            ],
-        )
-        if not resp.choices:
-            raise ValueError("empty model response")
-        content = resp.choices[0].message.content
-        if not content:
-            raise ValueError("empty model response")
-        return content
+        try:
+            client = _bizrouter_client()
+            resp = client.chat.completions.create(
+                model=model,
+                max_tokens=_MAX_TOKENS,
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {
+                        "role": "user",
+                        "content": [
+                            {"type": "text", "text": user_text},
+                            {"type": "image_url", "image_url": {"url": data_url}},
+                        ],
+                    },
+                ],
+            )
+            if not resp.choices:
+                raise ValueError("empty model response")
+            content = resp.choices[0].message.content
+            if not content:
+                raise ValueError("empty model response")
+            return content
+        except Exception:
+            # Bizrouter 실패 → Anthropic SDK 직접 fallback (claude-opus-4-7)
+            pass
 
-    # Anthropic fallback
+    # Anthropic SDK 직접 호출
     client = _anthropic_client()
     msg = client.messages.create(
         model="claude-opus-4-7",
@@ -246,8 +253,15 @@ def generate_face_reading(
     age: int | None = None,
     gender: str | None = None,
     question: str | None = None,
+    metrics: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """운학 도사 관상 풀이.
+
+    Args:
+        image_b64: 사용자 얼굴 사진 (data URL 또는 raw base64).
+        age, gender, question: 보조 정보.
+        metrics: 클라이언트(MediaPipe Face Landmarker)에서 산출한 정량 메트릭.
+            face_scoring으로 12궁 정량 점수 산출에 사용.
 
     Returns:
         {
@@ -255,6 +269,7 @@ def generate_face_reading(
             "cached": bool,
             "crisis_alert": dict | None,
             "legal_notice": str | None,
+            "palace_scores": dict | None,  # 키포인트 기반 결정론 12궁 점수
         }
     """
     # 0. 위기 신호 — 화두 본문 검사
@@ -269,18 +284,26 @@ def generate_face_reading(
                 "matched_count": len(crisis["matched_keywords"]),
             },
             "legal_notice": None,
+            "palace_scores": None,
         }
 
     if not (image_b64 or "").strip():
         raise ValueError("image_b64 is required")
 
-    # 1. 캐시 — 같은 이미지+보조정보 24h 재사용
+    # 키포인트 → 12궁 결정론 점수 (LLM 호출 전, 캐시와 무관하게 항상 산출)
+    from engine.divination.face_scoring import score_face, report_to_dict
+    score_report = score_face(metrics)
+    palace_scores = report_to_dict(score_report)
+
+    # 1. 캐시 — 같은 이미지+보조정보 24h 재사용 (메트릭은 캐시 키에 미포함, palace_scores만 재산출)
     key = _hash_payload(image_b64, age, gender, question)
     cached = _load_cache(key)
     if cached is not None:
         cached.setdefault("crisis_alert", None)
         cached.setdefault("legal_notice", None)
         cached["text"] = cached.get("text", "") + ""
+        # palace_scores는 결정론이므로 항상 최신 재산출 (캐시 본문 그대로 + 점수만 갱신)
+        cached["palace_scores"] = palace_scores
         return cached
 
     # 2. LLM 호출
@@ -294,6 +317,7 @@ def generate_face_reading(
         "cached": False,
         "crisis_alert": None,
         "legal_notice": legal,
+        "palace_scores": palace_scores,
     }
     _save_cache(key, out)
     return out
