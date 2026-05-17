@@ -1756,3 +1756,41 @@ def test_stage2_persona_fallback_to_template_when_both_llm_fail(monkeypatch):
     # 결정론 템플릿 결과 — 페르소나 어조 + 해부학 사실 인용
     assert "허허" in text or "이 늙은이" in text
     assert "또렷한 눈빛" in text
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Phase 20 — Stage 2 시스템 프롬프트 영역-학파명 매핑 예시 제거
+#
+# 사용자 결정 (2026-05-17): 시스템 프롬프트가 Gemini에게 "관록궁=이마,
+# 명궁=눈썹/눈, 노복궁=턱" 학파 매핑을 직접 가르치는 잔재 제거. 학파
+# 명칭은 엔진 결정론 출력 라벨로만 흘러가야 함.
+# ADR-005 Supplement 5.
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+def test_stage2_system_omits_region_to_school_name_mapping():
+    """Stage 2 시스템 프롬프트에 '이마=상정/관록궁' 같은 영역-학파명 매핑 예시 부재."""
+    from engine.divination.face_reading import _STAGE2_PERSONA_SYSTEM
+    s = _STAGE2_PERSONA_SYSTEM
+    # Phase 19까지 있던 영역별 학파 매핑 예시 부재 검증
+    forbidden_mappings = [
+        "상정·관록궁",          # 이마에 상정·관록궁 매핑
+        "명궁·재백궁",          # 눈썹·눈·코에 명궁·재백궁 매핑
+        "하정·노복궁",          # 입·턱에 하정·노복궁 매핑
+        "이마 (결정론에 상정",  # 작성 형식의 매핑 명시
+        "눈·코 (결정론에 명궁",
+        "입·턱 (결정론에 하정",
+    ]
+    for mapping in forbidden_mappings:
+        assert mapping not in s, f"Stage 2 프롬프트에 영역-학파명 매핑 잔재: {mapping!r}"
+
+
+def test_stage2_system_still_allows_deterministic_label_citation():
+    """Stage 2는 여전히 결정론 출력 라벨 인용은 허용해야 한다 (Phase 19 정신 유지)."""
+    from engine.divination.face_reading import _STAGE2_PERSONA_SYSTEM
+    s = _STAGE2_PERSONA_SYSTEM
+    # 결정론 출처만 인용 강제 절 유지
+    assert "deterministic_scores" in s
+    assert "사전학습으로" in s and "끌어오지" in s
+    # 라벨 그대로 인용 지시 (Phase 20 신규)
+    assert "라벨" in s and "인용" in s
