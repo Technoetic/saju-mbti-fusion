@@ -12,7 +12,22 @@ related:
   - decisions/ADR-006-legaltech-rejected.md
   - decisions/ADR-010-name-sibling-factuality.md
 original_file: ../../지능형 손금 분석 모바일 애플리케이션 개발을 위한 종합 도메인 지식 및 기술 아키텍처 보고서.md
----
+adr_017_first_application: "2026-05-17 (분석/판정 분리 절차 첫 적용)"
+permanently_rejected:
+  - "§4.1 2D:4D Digit Ratio = 성격 예측 — ADR-006 의료·생물학적 인과 + Manning 2002 출처 라이브 검증 실패"
+  - "§4.2 한의학 손톱 병리 사용자 출력 — ADR-006 영구 거부 (1차 확정)"
+  - "§5.1 베다 점성술(Jyotish) D10 통합 — 본 시스템 스코프 외 (한국 동양학)"
+  - "§6.2 U-Net + CFM 딥러닝 세그멘테이션 — 학습 데이터 0장 + 온디바이스 아키텍처 부재 + 결정론 정책 위반"
+  - "§2.2 생명선 끊어짐 = 환경 급변·스트레스 인과 — palm_reading.py 페르소나 이미 차단"
+  - "환원주의 인과 ('Digit Ratio = 호르몬 = 성격')"
+deferred_pending_research:
+  - "§2.1 좌우 손 교차 분석 (선천=비우세수 / 후천=우세수) — MediaPipe Hand 21 키포인트 결정론 매핑 + 학술 출처 필요"
+  - "§2.2-2.3 4대 주요 선 + 보조선 결정론 점수표 — 보고서 임계값 미명시 (호 넓이·곡률 모호 표현만), face_scoring.py 패턴 재사용 가능하나 손금 선 정량화 학술 출처 필요"
+user_decision_required:
+  - "§8 경쟁사 벤치마킹 + 에이전틱 AI UX — GDPR/PIPA 개인화 데이터 정책 ADR 선행 필요"
+already_protected:
+  - "palm_reading.py 옥선 할미 페르소나: 단정 예언 금지 + 의료·법률·투자 자문 거절 + 외모 평가 금지 + 겁주기 금지 (1차 처리에서 확인)"
+  - "engine/divination/face_scoring.py 532줄: MediaPipe 478 키포인트 결정론 엔진 (LLM 없이 12궁 점수) — 손금 영역 적용 시 참조 패턴"
 
 # 손금 분석 앱 도메인·아키텍처 — 사실성 검토
 
@@ -104,8 +119,38 @@ original_file: ../../지능형 손금 분석 모바일 애플리케이션 개발
 
 - 본 보고서 원본: `사주/지능형 손금 분석 모바일 애플리케이션 개발을 위한 종합 도메인 지식 및 기술 아키텍처 보고서.md`
 
+## 2026-05-17 ADR-017 절차 첫 적용 결과
+
+본 보고서는 1차 처리(2026-05-17)가 ADR-017 분석/판정 분리 패턴 도입 전이라
+**ADR-017 절차 첫 적용 재호출** 수행. 분석/판정 에이전트 (Haiku) 2회 dispatch.
+
+### 분석 결과
+- 후보 7건 (C1~C7) + 거부 3건 (R1·R2·R3) + 사용자 결정 3건 (U1·U2·U3)
+
+### 판정 결과
+- **ACCEPT 0건**
+- **REJECT 6건**: C3 Digit Ratio·C4 손톱·C5 점성술·C6 U-Net·R1·R2·R3
+- **DEFER 2건**: C1 좌우 손·C2 4선 점수표 (별도 딥리서치 + 학술 임계값 필요)
+- **USER_DECISION 2건**: C7 에이전틱 UX·U1~U3
+
+### 오케스트레이터 핵심 발견
+
+| 항목 | 사실 |
+|---|---|
+| face_scoring.py | 532줄, MediaPipe Face Landmarker 478 키포인트 → 12궁 0.0~1.0 점수, LLM 없이 결정론 산출 |
+| palm_reading.py | 351줄, **Gemini Vision LLM 단독**, 결정론 점수표 0개 |
+| 결손 영역 | palm_scoring.py (face_scoring.py 패턴 차용) — 단, 보고서 본문에 손금 선 정량 임계값 명시 부재 → 즉시 본문화 불가 |
+
+### 결론
+
+본 호출도 코드 변경 0. 비용 (Haiku 2회 ≈ $0.02)으로:
+- ADR-017 절차 정합화
+- frontmatter `permanently_rejected` 6건 + `deferred_pending_research` 2건 + `already_protected` 2건 영속화
+- C1·C2 DEFER 영역은 별도 딥리서치 프롬프트(palm_scoring) 신설 가치 발견
+
 ## 메타
 
 - 영속화: 2026-05-17 (ADR-010 사실성 분리)
+- ADR-017 첫 적용: 2026-05-17 (코드 변경 0, 절차 정합화 + 영구 거부 영속화)
 - ADR-010 사례 9호
 - 본 노트 immutable
