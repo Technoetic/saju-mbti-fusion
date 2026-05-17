@@ -35,7 +35,7 @@ Session Handoff 정신 — "Needs Human Review" 명시 — 을 분류 라벨에 
 | ✅ 관상 5형 결정론 분류 완료 (ADR-022, 회귀 18 PASS) | [[../done/face-shape-5형-classifier]] | done | (사용자 의도 삭제) |
 | 손금 4선 결정론 점수 (palm_scoring.py 신설, palm-reading-app C1·C2 DEFER) | [[../reports/palm-reading-app]] | **높음** | (사용자 의도 삭제) |
 | 십이운성 옵션 C (engine/saju/ 신살 5종 외 결손) | (새 항목) | 중 | [[../templates/PROMPT_saju-12-stages-jangsaeng]] |
-| 🟡 한국 성씨·인명 빈도 — **신규 보고서 도착 대기 처리** | (사용자 placed 보고서) | 중 | (사용자 보고서) |
+| 🟡 한국 성씨·인명 빈도 — **부분 완료** (ADR-029 본문화, 15 성씨 + 30쌍 회귀 12 PASS) | [[../reports/korean-name-frequency-statistics]] | done (부분) | (잔여: 통계청 KOSIS 300위 전수 별도 작업) |
 | ✅ 한국 화투 48매 결정론 점패 엔진 완료 (ADR-025, 회귀 30 PASS, 핵심 6패) | [[../done/hwapae-korean-deterministic]] | done | (사용자 의도 삭제) |
 | ✅ §4 인명용 한자 9389자 → 9932자 본문화 완료 (ADR-026, scourt API 직접 추출) | [[../done/hanja-9389-scourt-api]] | done | (사용자 의도 삭제) |
 | ✅ 궁합 MBTI 16×16 매트릭스 v2 완료 (ADR-024, 회귀 29 PASS) | [[../done/saju-mbti-compat-v2]] | done | (사용자 의도 삭제) |

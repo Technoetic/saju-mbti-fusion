@@ -34,6 +34,8 @@ last_updated: 2026-05-17
 | 대법원 인명용 한자 (2024년 5월 개정 9,389자) | `name_strokes` 풀 |
 | 가족관계의 등록 등에 관한 규칙 §37 | 한자 사용 규정 |
 | 두음법칙 (한국 표준) | `name_dueum` |
+| 통계청 2015 인구주택총조사 성씨·본관 편 (KOSIS, 공공누리 제1유형) | `name_uniqueness` 성씨 빈도 (ADR-029) |
+| 대법원 efamily.scourt.go.kr 인기 이름 통계 | `name_uniqueness` + `name_aesthetic` (ADR-026·029) |
 
 ## 데이터 소스
 

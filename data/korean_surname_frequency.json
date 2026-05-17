@@ -1,0 +1,117 @@
+{
+  "source": "통계청 2015년 인구주택총조사 성씨·본관 편",
+  "license": "공공누리 제1유형 (출처표시 + 상업 사용 허가)",
+  "license_url": "https://www.kogl.or.kr/info/license.do",
+  "adr": "ADR-029",
+  "extracted_from": "보고서 §3.2 YAML 본문 명시 18건 (전체 표는 \"중략\")",
+  "extraction_date": "2026-05-17",
+  "total_population_2015": 49705663,
+  "coverage_notes": "보고서 본문에 명시된 15건만 본문화 (1·2·3위 상위 + 55~59 중위 + 151~157 희귀). 잔여 ~285건은 통계청 KOSIS 직접 추출 별도 작업 (DEFER).",
+  "surnames": [
+    {
+      "rank": 1,
+      "surname": "김",
+      "hanja": "金",
+      "count": 9959154,
+      "pct": 21.5
+    },
+    {
+      "rank": 2,
+      "surname": "이",
+      "hanja": "李",
+      "count": 7306828,
+      "pct": 14.7
+    },
+    {
+      "rank": 3,
+      "surname": "박",
+      "hanja": "朴",
+      "count": 4192074,
+      "pct": 8.4
+    },
+    {
+      "rank": 55,
+      "surname": "방",
+      "hanja": "方",
+      "count": 94831,
+      "pct": 0.18
+    },
+    {
+      "rank": 56,
+      "surname": "공",
+      "hanja": "孔",
+      "count": 91869,
+      "pct": 0.18
+    },
+    {
+      "rank": 57,
+      "surname": "강",
+      "hanja": "康",
+      "count": 91625,
+      "pct": 0.18
+    },
+    {
+      "rank": 58,
+      "surname": "현",
+      "hanja": "玄",
+      "count": 88824,
+      "pct": 0.17
+    },
+    {
+      "rank": 59,
+      "surname": "함",
+      "hanja": "咸",
+      "count": 80659,
+      "pct": 0.16
+    },
+    {
+      "rank": 151,
+      "surname": "견",
+      "hanja": "甄",
+      "count": 1251,
+      "pct": 0.0025
+    },
+    {
+      "rank": 152,
+      "surname": "당",
+      "hanja": "唐",
+      "count": 1146,
+      "pct": 0.0022
+    },
+    {
+      "rank": 153,
+      "surname": "도",
+      "hanja": "陶",
+      "count": 1037,
+      "pct": 0.002
+    },
+    {
+      "rank": 154,
+      "surname": "화",
+      "hanja": "化",
+      "count": 915,
+      "pct": 0.0018
+    },
+    {
+      "rank": 155,
+      "surname": "창",
+      "hanja": "昌",
+      "count": 908,
+      "pct": 0.0018
+    },
+    {
+      "rank": 156,
+      "surname": "방",
+      "hanja": "龐",
+      "count": 893,
+      "pct": 0.0017
+    },
+    {
+      "rank": 157,
+      "surname": "옹",
+      "hanja": "邕",
+      "count": 837,
+      "pct": 0.0016
+    }
+  ]
+}
