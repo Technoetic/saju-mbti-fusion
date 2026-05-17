@@ -49,7 +49,7 @@ Session Handoff 정신 — "Needs Human Review" 명시 — 을 분류 라벨에 
 |---|---|---|---|
 | A8 Freud v2 — 4기제·상징 결정론 매핑 (현재 v1 페르소나만) | (새 항목) | 중 | [[../templates/PROMPT_freud-classical-v2]] |
 | A13 사회적 무의식 v3 — DB 클러스터링 (운영 데이터 누적 후) | (새 항목) | 낮음 | [[../templates/PROMPT_social-unconscious-v3]] |
-| B6 DreamNet v4 — 멀티모달 통합 (운영 데이터 누적 후) | (새 항목) | 낮음 | [[../templates/PROMPT_dreamnet-multimodal-v4]] |
+| ✅ B6 DreamNet v4 완료 (ADR-021, 회귀 17 PASS) | [[../done/dream-b6-dreamnet-v4]] | done | [[../templates/PROMPT_dreamnet-multimodal-v4]] |
 
 > ✅ §1 가족 서열 상대 불용한자 — **완료** (ADR-010 사실성 분리 적용) → [[../done/name-phase3-sibling-preference]]
 > ✅ §3 용신 학파 옵션 B — **완료** (이재승 2019 계량화 억부론, KCI 검증) → [[../done/saju-option-B-eokbu]]

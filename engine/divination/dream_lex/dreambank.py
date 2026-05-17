@@ -21,7 +21,7 @@ DREAMBANK_LABEL = (
 )
 
 
-# Hall-Van de Castle norms (백분율)
+# Hall-Van de Castle norms (백분율) — 미국 DreamBank 표본
 NORMS = {
     "male": {
         "aggression_pct": 47.0,
@@ -36,6 +36,27 @@ NORMS = {
         "misfortune_pct": 38.0,
         "failure_pct": 54.0,
         "friendliness_pct": 56.0,
+    },
+}
+
+
+# Hall-Van de Castle 한국 규준 — KCI 등재 학술 (vault/references/korean-dream-norms-hvdc.md)
+# 출처: 김성재 외(2004), 김린 외(2007) — 학술지 "수면정신생리" (대한수면의학회)
+# ADR-021 본문화. 향후 운영 데이터 10만 건+ 누적 시 동적 스케일링 (post_traffic).
+NORMS_KOREAN = {
+    "default": {
+        "aggression_pct": 45.0,           # 김성재 외(2004) 20대 한국 남녀 기준
+        "negative_emotion_pct": 40.0,     # 한국 표본 부정 정서 비율
+        "unfamiliar_character_pct": 55.0, # 미국 55% 대비 한국 유사
+        "misfortune_pct": 35.0,           # 김린 외(2007) 한국 청소년 표본
+    },
+    "_meta": {
+        "source": "수면정신생리 (대한수면의학국) KCI 등재",
+        "papers": [
+            "김성재 외(2004) Hall/Van de Castle System을 이용한 20대 한국 남녀의 꿈 내용 분석",
+            "김린 외(2007) Hall/Van de Castle System에 의한 한국 초기 청소년의 최근 꿈 분석",
+        ],
+        "post_traffic_dynamic_scaling": "운영 데이터 10만 건+ 누적 시 별도 ADR로 동적 전환",
     },
 }
 
