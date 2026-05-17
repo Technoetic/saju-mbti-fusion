@@ -601,11 +601,15 @@ def _call_stage1_objective(
 def _build_deterministic_scores_summary(
     palace_scores: dict[str, Any] | None,
     face_shape: dict[str, Any] | None,
+    facial_features: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Stage 2용 결정론 점수 요약 — 한국어 라벨만, 영문 key 미노출.
 
     Phase 21: top_palace·weakest_palace 영문 key를 palace_scores.palaces
     dict의 label_ko로 매핑. Stage 2 본문에 영문 key 노출 차단.
+
+    ADR-034 (Phase 1): facial_features dict 추가 — facial_feature_classifier
+    결과(앙월구·복주구·일자구 등) 한국어 라벨만 포함.
     """
     out: dict[str, Any] = {}
     if face_shape and face_shape.get("shape_type"):
@@ -613,6 +617,17 @@ def _build_deterministic_scores_summary(
             "shape": face_shape["shape_type"],
             "morphological_name": face_shape.get("morphological_name", ""),
         }
+    if facial_features:
+        # facial_feature_classifier 결과 (mouth_corner 등). 한국어 라벨만 노출.
+        ff_clean: dict[str, Any] = {}
+        for region, info in facial_features.items():
+            if not isinstance(info, dict):
+                continue
+            shape = info.get("shape_type")
+            if shape:
+                ff_clean[region] = {"shape": shape}
+        if ff_clean:
+            out["facial_features"] = ff_clean
     if palace_scores:
         # 영문 key → 한국어 라벨 룩업 테이블
         palaces = palace_scores.get("palaces") or {}
@@ -919,8 +934,29 @@ def generate_face_reading(
             "photo_quality_note": "Stage 1 시각 분석 실패 — 결정론 점수 단독 풀이",
         }
 
+    # 부위별 형상 결정론 분류 — ADR-034 Phase 1 (앙월구·복주구·일자구)
+    facial_features_dict: dict[str, Any] | None = None
+    if metrics:
+        try:
+            from engine.divination.facial_feature_classifier import (
+                classify_from_metrics as _classify_mouth,
+            )
+            mouth_result = _classify_mouth(metrics)
+            if mouth_result is not None:
+                facial_features_dict = {
+                    "mouth_corner": {
+                        "shape_type": mouth_result.shape_type,
+                        "angle_deg": mouth_result.angle_deg,
+                        "confidence": mouth_result.confidence,
+                    }
+                }
+        except Exception:
+            facial_features_dict = None
+
     # Stage 2 — 해부학 JSON + 결정론 점수 요약 두 가지 입력
-    deterministic_scores = _build_deterministic_scores_summary(palace_scores, face_shape_dict)
+    deterministic_scores = _build_deterministic_scores_summary(
+        palace_scores, face_shape_dict, facial_features_dict,
+    )
     reading_text = _call_stage2_persona(
         anatomical_description, deterministic_scores, age, gender, question,
     )
@@ -940,6 +976,7 @@ def generate_face_reading(
         "legal_notice": legal,
         "palace_scores": palace_scores,
         "face_shape": face_shape_dict,
+        "facial_features": facial_features_dict,  # ADR-034 Phase 1 — 부위 결정론 분류
         "anatomical_description": anatomical_description,  # Phase 19 — Opus 순수 해부학 JSON
         "deterministic_scores_summary": deterministic_scores,  # Phase 19 — Stage 2 결정론 입력
     }
