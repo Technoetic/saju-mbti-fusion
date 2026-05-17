@@ -64,13 +64,30 @@ def _load_freq_data() -> dict:
 
 
 def _get_freq_dict(gender: str) -> dict[str, int]:
-    """성별별 음절 빈도 dict 반환."""
+    """성별별 음절 빈도 dict 반환 (위치 무관)."""
     data = _load_freq_data()
     if gender == GENDER_MALE:
         return data.get("male_syllable_freq", {})
     if gender == GENDER_FEMALE:
         return data.get("female_syllable_freq", {})
     return data.get("neutral_syllable_freq", {})
+
+
+# 위치 라벨
+POSITION_START = "start"
+POSITION_END = "end"
+
+
+def _get_positional_freq(gender: str, position: str) -> dict[str, int]:
+    """위치별(시작/끝) 음절 빈도 — 보고서 §2 본문 '준·윤으로 끝나는' 명시 반영."""
+    data = _load_freq_data()
+    key_map = {
+        (GENDER_MALE, POSITION_START): "male_start_syllable_freq",
+        (GENDER_MALE, POSITION_END): "male_end_syllable_freq",
+        (GENDER_FEMALE, POSITION_START): "female_start_syllable_freq",
+        (GENDER_FEMALE, POSITION_END): "female_end_syllable_freq",
+    }
+    return data.get(key_map.get((gender, position), ""), {})
 
 
 DISCLAIMER_KO = (
@@ -162,6 +179,85 @@ def get_top_syllables(gender: str = GENDER_NEUTRAL, n: int = 10) -> list[tuple[s
     """상위 N개 인기 음절 (디버깅·관리용)."""
     freq = _get_freq_dict(gender)
     return sorted(freq.items(), key=lambda kv: -kv[1])[:n]
+
+
+def get_top_positional_syllables(
+    gender: str,
+    position: str,
+    n: int = 10,
+) -> list[tuple[str, int]]:
+    """위치별 상위 N개 인기 음절 — 보고서 §2 본문 명시 ('준·윤으로 끝나는')."""
+    freq = _get_positional_freq(gender, position)
+    return sorted(freq.items(), key=lambda kv: -kv[1])[:n]
+
+
+def position_match_score(
+    name_korean: str,
+    gender: Literal["male", "female"] = "male",
+) -> dict:
+    """이름의 시작/끝 음절이 인기 위치 패턴과 일치하는지 점수.
+
+    보고서 §2 본문 "준·윤으로 끝나는 이름이 자주 관찰" 명시 반영.
+    위치별 가중 빈도가 위치 무관 빈도보다 명확한 신호.
+
+    Returns:
+        {
+            "start_syllable": str,
+            "end_syllable": str,
+            "start_score": float,  # 0.0~1.0 (시작 음절의 위치별 정규화)
+            "end_score": float,
+            "combined_score": float,  # 평균
+            "rationale": str,
+        }
+    """
+    syllables = [c for c in name_korean if "가" <= c <= "힣"]
+    if len(syllables) < 2:
+        return {
+            "start_syllable": syllables[0] if syllables else "",
+            "end_syllable": "",
+            "start_score": 0.0,
+            "end_score": 0.0,
+            "combined_score": 0.0,
+            "rationale": f"2음절 이상이어야 위치 평가 가능. ※ {DISCLAIMER_KO}",
+        }
+
+    start_freq = _get_positional_freq(gender, POSITION_START)
+    end_freq = _get_positional_freq(gender, POSITION_END)
+    start_max = max(start_freq.values()) if start_freq else 1
+    end_max = max(end_freq.values()) if end_freq else 1
+
+    start_syl = syllables[0]
+    end_syl = syllables[-1]
+    start_score = start_freq.get(start_syl, 0) / start_max if start_max > 0 else 0.0
+    end_score = end_freq.get(end_syl, 0) / end_max if end_max > 0 else 0.0
+    combined = (start_score + end_score) / 2
+
+    rationale = _build_position_rationale(
+        start_syl, end_syl, start_score, end_score, start_freq, end_freq, gender
+    )
+    return {
+        "start_syllable": start_syl,
+        "end_syllable": end_syl,
+        "start_score": start_score,
+        "end_score": end_score,
+        "combined_score": combined,
+        "rationale": rationale,
+    }
+
+
+def _build_position_rationale(
+    start: str, end: str, start_s: float, end_s: float,
+    start_freq: dict, end_freq: dict, gender: str,
+) -> str:
+    """위치별 점수 사용자 출력 — 면책 자동 포함."""
+    parts = []
+    if start_s > 0.5:
+        parts.append(f"시작 음절 '{start}'은(는) 인기 시작 음절")
+    if end_s > 0.5:
+        parts.append(f"끝 음절 '{end}'은(는) 인기 끝 음절")
+    if not parts:
+        parts.append("시작·끝 음절 모두 인기 통계에서 흔하지 않음")
+    return f"{', '.join(parts)}. ※ {DISCLAIMER_KO}"
 
 
 # ─────────────────────────── 음운 결합 자연스러움 (보고서 §1) ───────────────────────────
