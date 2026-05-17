@@ -35,6 +35,7 @@ last_updated: 2026-05-17
 | ADR-023 | [[ADR-023-freud-v2-adoption]] | accepted | 2026-05-17 |
 | ADR-024 | [[ADR-024-mbti-compat-v2-socionics]] | accepted | 2026-05-17 |
 | ADR-025 | [[ADR-025-hwapae-korean-deterministic]] | accepted | 2026-05-17 |
+| ADR-026 | [[ADR-026-hanja-9389-scourt-api]] | accepted | 2026-05-17 |
 
 ## 원칙
 

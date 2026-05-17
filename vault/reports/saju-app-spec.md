@@ -24,8 +24,9 @@ already_implemented:
   - "§4 인명용 한자 풀 8525자 (90.8%) → data/korean_hanja_unihan.json"
   - "§5-A 개명 트랙 발음오행 상생 대량 생성 → engine/divination/name_gaemyeong.py (require_baleum_sangsaeng=True, max_combinations=50000)"
   - "§5-B 개자 트랙 3-step Constraint Satisfaction (자원오행 제약3 포함) → engine/divination/name_gaeja.py (target_ohaeng 파라미터)"
-deferred_pending_source:
-  - "§4 9389자 - 8525자 = 864자 추가 (2026-05-17 라이브 검증 실패, 출처 확보 후 재호출)"
+deferred_pending_source_resolved_2026_05_17:
+  - "✅ §4 9389자 해소 — ADR-026 본문화 (efamily.scourt.go.kr API 직접 추출 → 9932자)"
+  - "추출 방법: mode=listUnicodeByTotstroke 획수 1~33 전수 fetch (1,407자 신규 + 변형자 439자 보존)"
 adr_017_first_application: "2026-05-17 (본 보고서 ADR-017 분석/판정 분리 절차 첫 적용)"
 
 # 작명·개명 특화 앱을 위한 성명학 도메인 지식·시스템 설계 보고서

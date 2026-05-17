@@ -40,6 +40,7 @@ last_updated: 2026-05-17
 | 2026-05-17 | A8 Freud v2 — 4기제 결정론 + 보편 상징 6건 + ISBN 3종 + output filter | engine/agents/freud_v2.py | 26 | ADR-023 |
 | 2026-05-17 | MBTI 16×16 compat v2 — 4단계 알고리즘 + Socionics + Keirsey + 256 매트릭스 | engine/saju/mbti_compat_v2.py | 29 | ADR-024 |
 | 2026-05-17 | 한국 화투 48매 결정론 점패 엔진 — 핵심 6패 + 3장 스프레드 + 아패영유 알고리즘 | engine/divination/hwapae_korean.py | 30 | ADR-025 |
+| 2026-05-17 | 대법원 인명용 한자 9389자 → 9932자 본문화 (efamily.scourt.go.kr API 직접 추출 + 변형자 보존) | data/korean_hanja_unihan.json + name_unihan.py | 기존 회귀 자동 통과 | ADR-026 |
 
 → 자세히: [[dream-b6-dreamnet-v4]]
 
