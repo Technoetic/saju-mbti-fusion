@@ -1,0 +1,367 @@
+{
+  "source": "보고서 §6 회귀 검증 30쌍 (라인 437-557)",
+  "adr": "ADR-029",
+  "extraction_date": "2026-05-17",
+  "tests": [
+    {
+      "id": "freq_001",
+      "name": "김민준",
+      "gender": "M",
+      "year": 2015,
+      "expected": {
+        "surname_rank": 1,
+        "first_syllable_rank": 1,
+        "last_syllable_rank": null,
+        "combined_frequency": "very_common"
+      }
+    },
+    {
+      "id": "freq_002",
+      "name": "이서연",
+      "gender": "F",
+      "year": 2015,
+      "expected": {
+        "surname_rank": 2,
+        "first_syllable_rank": 1,
+        "last_syllable_rank": null,
+        "combined_frequency": "very_common"
+      }
+    },
+    {
+      "id": "freq_003",
+      "name": "박서준",
+      "gender": "M",
+      "year": 2020,
+      "expected": {
+        "surname_rank": 3,
+        "first_syllable_rank": 1,
+        "last_syllable_rank": null,
+        "combined_frequency": "very_common"
+      }
+    },
+    {
+      "id": "freq_004",
+      "name": "최서윤",
+      "gender": "F",
+      "year": 2020,
+      "expected": {
+        "surname_rank": 4,
+        "first_syllable_rank": null,
+        "last_syllable_rank": 2,
+        "combined_frequency": "very_common"
+      }
+    },
+    {
+      "id": "freq_005",
+      "name": "정하준",
+      "gender": "M",
+      "year": 2025,
+      "expected": {
+        "surname_rank": 5,
+        "first_syllable_rank": null,
+        "last_syllable_rank": 1,
+        "combined_frequency": "very_common"
+      }
+    },
+    {
+      "id": "freq_006",
+      "name": "강지훈",
+      "gender": "M",
+      "year": 1990,
+      "expected": {
+        "surname_rank": 6,
+        "first_syllable_rank": null,
+        "last_syllable_rank": 1,
+        "combined_frequency": "very_common"
+      }
+    },
+    {
+      "id": "freq_007",
+      "name": "조은주",
+      "gender": "F",
+      "year": 1980,
+      "expected": {
+        "surname_rank": 7,
+        "first_syllable_rank": null,
+        "last_syllable_rank": 2,
+        "combined_frequency": "very_common"
+      }
+    },
+    {
+      "id": "freq_008",
+      "name": "윤영숙",
+      "gender": "F",
+      "year": 1960,
+      "expected": {
+        "surname_rank": 8,
+        "first_syllable_rank": null,
+        "last_syllable_rank": 1,
+        "combined_frequency": "very_common"
+      }
+    },
+    {
+      "id": "freq_009",
+      "name": "장영수",
+      "gender": "M",
+      "year": 1950,
+      "expected": {
+        "surname_rank": 9,
+        "first_syllable_rank": 1,
+        "last_syllable_rank": null,
+        "combined_frequency": "very_common"
+      }
+    },
+    {
+      "id": "freq_010",
+      "name": "임도현",
+      "gender": "M",
+      "year": 2010,
+      "expected": {
+        "surname_rank": 10,
+        "first_syllable_rank": null,
+        "last_syllable_rank": 4,
+        "combined_frequency": "common"
+      }
+    },
+    {
+      "id": "freq_011",
+      "name": "남궁민",
+      "gender": "M",
+      "year": 2020,
+      "expected": {
+        "surname_rank": 93,
+        "first_syllable_rank": null,
+        "last_syllable_rank": 1,
+        "combined_frequency": "uncommon"
+      }
+    },
+    {
+      "id": "freq_012",
+      "name": "제서연",
+      "gender": "F",
+      "year": 2015,
+      "expected": {
+        "surname_rank": 90,
+        "first_syllable_rank": 1,
+        "last_syllable_rank": null,
+        "combined_frequency": "uncommon"
+      }
+    },
+    {
+      "id": "freq_013",
+      "name": "방현우",
+      "gender": "M",
+      "year": 2010,
+      "expected": {
+        "surname_rank": 55,
+        "first_syllable_rank": null,
+        "last_syllable_rank": 5,
+        "combined_frequency": "common"
+      }
+    },
+    {
+      "id": "freq_014",
+      "name": "갈민준",
+      "gender": "M",
+      "year": 2020,
+      "expected": {
+        "surname_rank": 250,
+        "first_syllable_rank": null,
+        "last_syllable_rank": 1,
+        "combined_frequency": "rare"
+      }
+    },
+    {
+      "id": "freq_015",
+      "name": "견사랑",
+      "gender": "F",
+      "year": 2010,
+      "expected": {
+        "surname_rank": 151,
+        "first_syllable_rank": 10,
+        "last_syllable_rank": null,
+        "combined_frequency": "rare"
+      }
+    },
+    {
+      "id": "freq_016",
+      "name": "당한결",
+      "gender": "M",
+      "year": 2010,
+      "expected": {
+        "surname_rank": 152,
+        "first_syllable_rank": 5,
+        "last_syllable_rank": null,
+        "combined_frequency": "rare"
+      }
+    },
+    {
+      "id": "freq_017",
+      "name": "화서진",
+      "gender": "M",
+      "year": 2025,
+      "expected": {
+        "surname_rank": 154,
+        "first_syllable_rank": 3,
+        "last_syllable_rank": null,
+        "combined_frequency": "rare"
+      }
+    },
+    {
+      "id": "freq_018",
+      "name": "창서윤",
+      "gender": "F",
+      "year": 2020,
+      "expected": {
+        "surname_rank": 155,
+        "first_syllable_rank": 1,
+        "last_syllable_rank": null,
+        "combined_frequency": "rare"
+      }
+    },
+    {
+      "id": "freq_019",
+      "name": "방(龐)지훈",
+      "gender": "M",
+      "year": 1990,
+      "expected": {
+        "surname_rank": 156,
+        "first_syllable_rank": null,
+        "last_syllable_rank": 1,
+        "combined_frequency": "rare"
+      }
+    },
+    {
+      "id": "freq_020",
+      "name": "옹지원",
+      "gender": "F",
+      "year": 2015,
+      "expected": {
+        "surname_rank": 157,
+        "first_syllable_rank": null,
+        "last_syllable_rank": 2,
+        "combined_frequency": "rare"
+      }
+    },
+    {
+      "id": "freq_021",
+      "name": "위태풍",
+      "gender": "M",
+      "year": 2000,
+      "expected": {
+        "surname_rank": 158,
+        "first_syllable_rank": 500,
+        "last_syllable_rank": null,
+        "combined_frequency": "rare"
+      }
+    },
+    {
+      "id": "freq_022",
+      "name": "승아름",
+      "gender": "F",
+      "year": 1980,
+      "expected": {
+        "surname_rank": 159,
+        "first_syllable_rank": 1,
+        "last_syllable_rank": null,
+        "combined_frequency": "rare"
+      }
+    },
+    {
+      "id": "freq_023",
+      "name": "순슬기",
+      "gender": "F",
+      "year": 1990,
+      "expected": {
+        "surname_rank": 160,
+        "first_syllable_rank": null,
+        "last_syllable_rank": 2,
+        "combined_frequency": "rare"
+      }
+    },
+    {
+      "id": "freq_024",
+      "name": "김탁구",
+      "gender": "M",
+      "year": 1990,
+      "expected": {
+        "surname_rank": 1,
+        "first_syllable_rank": 300,
+        "last_syllable_rank": null,
+        "combined_frequency": "uncommon"
+      }
+    },
+    {
+      "id": "freq_025",
+      "name": "이삼순",
+      "gender": "F",
+      "year": 1970,
+      "expected": {
+        "surname_rank": 2,
+        "first_syllable_rank": null,
+        "last_syllable_rank": 150,
+        "combined_frequency": "uncommon"
+      }
+    },
+    {
+      "id": "freq_026",
+      "name": "박을룡",
+      "gender": "M",
+      "year": 1980,
+      "expected": {
+        "surname_rank": 3,
+        "first_syllable_rank": 400,
+        "last_syllable_rank": null,
+        "combined_frequency": "uncommon"
+      }
+    },
+    {
+      "id": "freq_027",
+      "name": "최갑돌",
+      "gender": "M",
+      "year": 1960,
+      "expected": {
+        "surname_rank": 4,
+        "first_syllable_rank": null,
+        "last_syllable_rank": 200,
+        "combined_frequency": "uncommon"
+      }
+    },
+    {
+      "id": "freq_028",
+      "name": "정마리",
+      "gender": "F",
+      "year": 2020,
+      "expected": {
+        "surname_rank": 5,
+        "first_syllable_rank": 50,
+        "last_syllable_rank": null,
+        "combined_frequency": "uncommon"
+      }
+    },
+    {
+      "id": "freq_029",
+      "name": "강산해",
+      "gender": "M",
+      "year": 2010,
+      "expected": {
+        "surname_rank": 6,
+        "first_syllable_rank": null,
+        "last_syllable_rank": 80,
+        "combined_frequency": "uncommon"
+      }
+    },
+    {
+      "id": "freq_030",
+      "name": "임하늘",
+      "gender": "M",
+      "year": 2000,
+      "expected": {
+        "surname_rank": 10,
+        "first_syllable_rank": 2,
+        "last_syllable_rank": null,
+        "combined_frequency": "common"
+      }
+    }
+  ]
+}

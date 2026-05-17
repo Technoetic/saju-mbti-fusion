@@ -27,6 +27,7 @@ last_updated: 2026-05-17
 | 2026-05-17 | [[face-golden-set-synthesis]] (관상 골든셋 합성 사양) | 딥리서치 | 🟡 ADR-018 정책·사양만 (실제 생성은 DEFER, 보고서 자체 권고) — `/squeeze-report` 첫 사용 |
 | 2026-05-17 | [[resource-ohaeng-kci-mapping]] (자원오행 5001자 매핑 조사) | 딥리서치 | 🟡 94자 본문화 (ADR-027) — 보고서 표제 5001자 vs 실 94자 정직 명시 + 옵션 A 보존 + 충돌 6건 |
 | 2026-05-17 | [[korean-phonetic-rules-architecture]] (한국어 표준발음법 전산 매핑) | 딥리서치 | 🟡 Priority 1·2 본문화 (ADR-028) — 7 음운 변동 함수 + 30쌍 회귀 14/30 PASS, 16 known-limitation |
+| 2026-05-17 | [[korean-name-frequency-statistics]] (한국 성씨·인명 빈도 통계) | 딥리서치 | 🟡 ADR-029 본문화 — 15 성씨 + name_uniqueness.py + 30쌍 회귀 12 PASS, 18 known-limitation (통계청 KOSIS 전수 추출 DEFER) |
 
 ## 대기 중인 보고서
 
