@@ -49,7 +49,7 @@ Session Handoff 정신 — "Needs Human Review" 명시 — 을 분류 라벨에 
 | 항목 | 노트 | 우선도 | 딥리서치 프롬프트 |
 |---|---|---|---|
 | ✅ A8 Freud v2 완료 (ADR-023, 회귀 26 PASS) | [[../done/dream-a8-freud-v2]] | done | (사용자 의도 삭제) |
-| A13 사회적 무의식 v3 — DB 클러스터링 (운영 데이터 누적 후) | (새 항목) | 낮음 | [[../templates/PROMPT_social-unconscious-v3]] |
+| 🟡 A13 사회적 무의식 v3 — **신규 보고서 도착 대기 처리** (사용자 placed 보고서) | (사용자 placed 보고서) | 낮음 | (사용자 보고서, PROMPT 삭제) |
 | ✅ B6 DreamNet v4 완료 (ADR-021, 회귀 17 PASS) | [[../done/dream-b6-dreamnet-v4]] | done | (사용자 의도 삭제) |
 
 > ✅ §1 가족 서열 상대 불용한자 — **완료** (ADR-010 사실성 분리 적용) → [[../done/name-phase3-sibling-preference]]
