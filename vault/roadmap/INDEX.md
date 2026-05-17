@@ -33,7 +33,7 @@ Session Handoff 정신 — "Needs Human Review" 명시 — 을 분류 라벨에 
 | 항목 | 노트 | 우선도 | 딥리서치 프롬프트 |
 |---|---|---|---|
 | ✅ 관상 5형 결정론 분류 완료 (ADR-022, 회귀 18 PASS) | [[../done/face-shape-5형-classifier]] | done | (사용자 의도 삭제) |
-| 손금 4선 결정론 점수 (palm_scoring.py 신설, palm-reading-app C1·C2 DEFER) | [[../reports/palm-reading-app]] | **높음** | (사용자 의도 삭제) |
+| ✅ 손금 4대 선 + 금성대 결정론 점수 완료 (ADR-030, 회귀 21 PASS / 120/120 라벨 100%) | [[../done/palm-scoring-deterministic]] | done | — |
 | 십이운성 옵션 C (engine/saju/ 신살 5종 외 결손) | (새 항목) | 중 | (사용자 의도 삭제) |
 | 🟡 한국 성씨·인명 빈도 — **부분 완료** (ADR-029 본문화, 15 성씨 + 30쌍 회귀 12 PASS) | [[../reports/korean-name-frequency-statistics]] | done (부분) | — |
 | 통계청 KOSIS 300위 전수 추출 + 한자 동음이의 + 음절 미인기 결합 보정 (ADR-029 18 known-limitation 해소) | [[../reports/korean-name-frequency-statistics]] | 중 | [[../templates/PROMPT_korean-surname-kosis-300]] |
