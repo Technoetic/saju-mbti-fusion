@@ -17,8 +17,16 @@ venv/
 node_modules/
 web/node_modules/
 
-# Runtime cache
+# Runtime cache + 디버그 출력 (Playwright 스크린샷, 옛 tarot 디버그 등 빌드 무관)
 step_archive/
+tarot_*.png
+tarot_*.json
+
+# 외부 딥리서치 보고서 원본 (프로젝트 루트로 받은 .md) — vault/reports/ 본문화 후 사용
+# squeeze-report로 가치 추출 후 vault/reports/<주제>.md 영속화. 원본은 commit X.
+/Export.md
+/[가-힣]*보고서*.md
+/[가-힣]*분석*.md
 
 # 원본 wav/mp4 백업 (다운샘플링 전) — git에 안 올림
 *.wav.original
