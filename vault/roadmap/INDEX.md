@@ -39,20 +39,21 @@ Session Handoff 정신 — "Needs Human Review" 명시 — 을 분류 라벨에 
 
 ## 🟡 정책 결정 필요 (2건)
 
-| 항목 | 노트 | 비고 |
-|---|---|---|
-| §6 법원 절차 단순 안내 (법무 검토 후) | [[legaltech-info-only]] | ADR-006 후속 |
-| 결제·SaaS 약관·면책 | [[saas-terms-disclaimer]] | 운영 시작 전 필수 |
+| 항목 | 노트 | 비고 | 딥리서치 프롬프트 |
+|---|---|---|---|
+| §6 법원 절차 단순 안내 (법무 검토 후) | [[legaltech-info-only]] | ADR-006 후속 | [[../templates/PROMPT_saas-legal-compliance]] |
+| 결제·SaaS 약관·면책 | [[saas-terms-disclaimer]] | 운영 시작 전 필수 | [[../templates/PROMPT_saas-legal-compliance]] |
 
 ## 🔵 사업 단계 (5건)
 
-| 항목 | 노트 | 시점 |
-|---|---|---|
-| Stripe/Toss 결제 통합 | [[payment-integration]] | SaaS 본격 시작 |
-| 사용자 인증·계정 시스템 | [[auth-system]] | 결제 전 |
-| 가격·요금제 결정 | [[pricing-tiers]] | 결제 전 |
-| 마케팅 페이지 | [[marketing-landing]] | 운영 시작 |
-| 운영 모니터링·로그 강화 | [[ops-monitoring]] | 운영 시작 |
+| 항목 | 노트 | 시점 | 딥리서치 프롬프트 |
+|---|---|---|---|
+| Stripe/Toss 결제 통합 | [[payment-integration]] | SaaS 본격 시작 | - |
+| 사용자 인증·계정 시스템 | [[auth-system]] | 결제 전 | - |
+| 가격·요금제 결정 | [[pricing-tiers]] | 결제 전 | - |
+| 마케팅 페이지 | [[marketing-landing]] | 운영 시작 | - |
+| 운영 모니터링·로그 강화 | [[ops-monitoring]] | 운영 시작 | [[../templates/PROMPT_incident-playbook]] |
+| LLM 의존성 리스크 평가 | (운영 1-3개월 후) | 트래픽 누적 후 | [[../templates/PROMPT_llm-dependency-risk]] |
 
 ## ⚪ 기술 부채 (3건)
 
