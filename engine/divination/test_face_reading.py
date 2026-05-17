@@ -1495,121 +1495,173 @@ def test_build_user_text_enforces_objective_description():
 # ─────────────────────────────────────────────────────────────────────────────
 
 
-def test_stage1_system_forbids_persona_and_fate_words():
-    """Stage 1 시스템 프롬프트는 페르소나 어휘와 운명 매핑을 명시 금지."""
+# ─────────────────────────────────────────────────────────────────────────────
+# Phase 19 — Opus 순수 해부학 명칭 (학파 용어 제거)
+#
+# 사용자 결정 (2026-05-17): Opus는 사진을 보고 해부학 명칭(이마·눈썹·눈·코·
+# 입·턱·뺨·광대뼈)만으로 JSON 묘사. 12궁·5형·삼정 학파 명칭은 결정론 점수
+# 출처(MediaPipe + ADR-004/022)에서만 Stage 2로 흘러감.
+# ADR-005 Supplement 4.
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+def test_stage1_system_forbids_physiognomy_school_terms():
+    """Stage 1 시스템 프롬프트는 학파 용어를 명시 금지해야 한다."""
     from engine.divination.face_reading import _STAGE1_OBJECTIVE_SYSTEM
     s = _STAGE1_OBJECTIVE_SYSTEM
     # JSON 출력 강제
     assert "JSON" in s
-    # 운명 매핑 금지
-    assert "운명" in s
-    assert "학문복" in s and "재물복" in s
-    assert "마의상법" in s
+    # 학파 용어 금지 명시 — 삼정·12궁·5형 등
+    for term in ["삼정", "상정", "중정", "하정", "12궁", "명궁", "관록궁",
+                 "재백궁", "5형", "목형", "토형", "마의상법"]:
+        assert term in s, f"Stage 1 금지 목록에 학파 용어 누락: {term}"
     # 페르소나 금지
-    assert "허허" in s and "이 늙은이" in s and "운학 도사" in s
+    assert "허허" in s and "이 늙은이" in s
     # ADR-010 인용
     assert "ADR-010" in s
 
 
-def test_stage1_system_defines_json_schema_fields():
-    """Stage 1 시스템 프롬프트는 7개 핵심 JSON 필드를 정의해야 한다."""
+def test_stage1_system_defines_anatomical_schema_fields():
+    """Stage 1 시스템 프롬프트는 순수 해부학 JSON 필드를 정의해야 한다."""
     from engine.divination.face_reading import _STAGE1_OBJECTIVE_SYSTEM
     s = _STAGE1_OBJECTIVE_SYSTEM
     for field in [
-        "overall_impression",
-        "sangjeong_forehead",
-        "jungjeong_eyebrow_eye_nose",
-        "hajeong_mouth_chin",
-        "distinctive_feature",
-        "deterministic_scores_cited",
-        "photo_quality_note",
+        "face_outline", "forehead", "eyebrow", "eye", "nose",
+        "mouth", "chin", "cheek_zygomatic", "complexion",
+        "distinctive_feature", "photo_quality_note",
     ]:
-        assert field in s, f"Stage 1 schema 누락 필드: {field}"
+        assert field in s, f"Stage 1 해부학 스키마 누락 필드: {field}"
 
 
-def test_stage2_persona_system_enforces_no_new_facts():
-    """Stage 2 시스템 프롬프트는 JSON에 없는 시각 사실 추가를 금지해야 한다."""
+def test_stage1_system_forbids_school_field_names():
+    """Stage 1 스키마에 학파 명칭 필드(sangjeong/jungjeong/hajeong)가 없어야 한다."""
+    from engine.divination.face_reading import _STAGE1_OBJECTIVE_SYSTEM
+    s = _STAGE1_OBJECTIVE_SYSTEM
+    # Phase 18 학파 필드명이 스키마에서 제거됨
+    # (단, 금지 목록 명시 절에는 "삼정" 단어 자체는 존재 — 그건 OK)
+    # 스키마 JSON 정의 부분에서만 검증
+    schema_section = s.split("OUTPUT JSON SCHEMA")[1] if "OUTPUT JSON SCHEMA" in s else s
+    # 스키마 부분에 학파 필드명 미포함
+    assert "sangjeong_forehead" not in schema_section
+    assert "jungjeong_eyebrow_eye_nose" not in schema_section
+    assert "hajeong_mouth_chin" not in schema_section
+    assert "deterministic_scores_cited" not in schema_section
+
+
+def test_stage2_persona_system_enforces_school_term_from_deterministic_only():
+    """Stage 2 시스템 프롬프트는 학파 명칭을 결정론 출처에서만 사용 강제."""
     from engine.divination.face_reading import _STAGE2_PERSONA_SYSTEM
     s = _STAGE2_PERSONA_SYSTEM
     # 사진 미열람 명시
     assert "사진" in s and "보지 못" in s
     # 새 사실 추가 금지
-    assert "새 시각 사실" in s and "추가하지 말" in s
-    # 페르소나 어조 명시
+    assert "새 시각 사실" in s and "추가" in s
+    # 학파 명칭 결정론 출처만 사용 강제
+    assert "결정론" in s
+    assert "사전학습으로" in s and "끌어오지" in s
+    # 페르소나 어조
     assert "운학 도사" in s and "허허" in s
     # 운명 매핑 금지
     assert "운명" in s and "학문복" in s and "재물복" in s
 
 
-def test_build_stage1_user_text_omits_persona():
-    """Stage 1 user text는 페르소나 어조 어휘를 포함하지 않아야 한다."""
+def test_build_stage1_user_text_omits_persona_and_deterministic_scores():
+    """Stage 1 user text는 페르소나도 결정론 점수도 미주입."""
     from engine.divination.face_reading import _build_stage1_user_text
-    palace = {
-        "samjeong": {"sang": {"label_ko": "상정", "score": 0.81}},
-        "top_palace": "관록궁",
-    }
-    shape = {"shape_type": "토형", "morphological_name": "균형형"}
-    t = _build_stage1_user_text(30, "남성", "재물운 봐주세요", palace, shape)
-    # 페르소나 어조 어휘 미포함 (영문 + 결정론 점수만)
+    t = _build_stage1_user_text(30, "남성", "재물운 봐주세요")
+    # 페르소나 어조 어휘 미포함
     assert "허허" not in t
     assert "이 늙은이" not in t
-    # 결정론 점수 인용
-    assert "토형" in t
-    assert "관록궁" in t
+    # 결정론 점수 / 학파 명칭 미포함 (Phase 19 핵심 변경)
+    assert "토형" not in t
+    assert "관록궁" not in t
+    assert "삼정" not in t
     # 사용자 질문은 전달하되 운명 해석 금지 경고 포함
     assert "재물운" in t and "do NOT interpret" in t
+    # 해부학 명칭 사용 지시 명시
+    assert "anatomical" in t.lower() or "이마" in t
 
 
-def test_stage1_call_parses_json_response(monkeypatch):
-    """_call_stage1_objective는 LLM JSON 응답을 dict로 파싱한다."""
+def test_stage1_call_parses_anatomical_json(monkeypatch):
+    """_call_stage1_objective는 해부학 JSON 응답을 dict로 파싱한다."""
     from engine.divination import face_reading
+    import json as _json
     sample = {
-        "overall_impression": {"shape": "둥근", "balance": "양호", "complexion": "맑은"},
-        "sangjeong_forehead": {"width": "넓은", "shape": "평평한", "wrinkles": "옅은"},
-        "jungjeong_eyebrow_eye_nose": {"eyebrow": "짙은", "eye": "또렷한", "nose": "곧은"},
-        "hajeong_mouth_chin": {"mouth": "두툼한", "chin": "둥근"},
+        "face_outline": {"shape": "둥근", "width_height_balance": "균형", "left_right_symmetry": "양호"},
+        "forehead": {"width": "넓은", "shape": "평평한", "wrinkles": "옅은"},
+        "eyebrow": {"thickness": "짙은", "length": "긴", "shape": "곧은"},
+        "eye": {"size": "보통", "shape": "타원형", "gaze_intensity": "또렷한", "clarity": "맑은"},
+        "nose": {"bridge": "곧은", "nostril_wing": "두툼한", "tip": "둥근"},
+        "mouth": {"thickness": "두툼한", "corner": "올라간"},
+        "chin": {"shape": "둥근", "fullness": "적당한"},
+        "cheek_zygomatic": {"prominence": "보통", "fullness": "살 적당"},
+        "complexion": {"tone": "밝은", "color_cast": "맑은"},
         "distinctive_feature": "또렷한 눈빛",
-        "deterministic_scores_cited": {
-            "top_palace": "관록궁", "weakest_palace": None,
-            "face_shape": "토형", "shen_qi": None,
-        },
         "photo_quality_note": "정면·조명 양호",
     }
-    import json as _json
     monkeypatch.setattr(
         face_reading, "_call_vision",
         lambda *a, **k: _json.dumps(sample, ensure_ascii=False),
     )
     result = face_reading._call_stage1_objective("user_text", "dummy_b64")
     assert isinstance(result, dict)
-    assert result["overall_impression"]["shape"] == "둥근"
-    assert result["deterministic_scores_cited"]["face_shape"] == "토형"
+    assert result["face_outline"]["shape"] == "둥근"
+    assert result["eye"]["gaze_intensity"] == "또렷한"
 
 
 def test_stage1_call_strips_code_fence(monkeypatch):
     """LLM이 ```json ... ``` 펜스로 감싸도 정상 파싱."""
     from engine.divination import face_reading
-    fenced = '```json\n{"overall_impression": {"shape": "X"}}\n```'
+    fenced = '```json\n{"face_outline": {"shape": "X"}}\n```'
     monkeypatch.setattr(face_reading, "_call_vision", lambda *a, **k: fenced)
     result = face_reading._call_stage1_objective("u", "i")
-    assert result["overall_impression"]["shape"] == "X"
+    assert result["face_outline"]["shape"] == "X"
 
 
-def test_stage2_render_template_fallback_uses_only_json_facts():
-    """LLM 두 단계 모두 실패 시 _render_persona_template는 JSON 사실만 사용."""
+def test_build_deterministic_scores_summary_collects_school_labels():
+    """결정론 점수 요약은 12궁·5형 명칭을 결정론 출처에서 수집한다."""
+    from engine.divination.face_reading import _build_deterministic_scores_summary
+    palace = {
+        "samjeong": {"sang": {"label_ko": "상정", "score": 0.81}},
+        "top_palace": "관록궁", "weakest_palace": "재백궁",
+        "shen_score": 0.75, "qi_score": 0.62,
+    }
+    shape = {"shape_type": "토형", "morphological_name": "균형형"}
+    out = _build_deterministic_scores_summary(palace, shape)
+    assert out["face_shape"]["shape"] == "토형"
+    assert out["top_palace"] == "관록궁"
+    assert out["weakest_palace"] == "재백궁"
+    assert out["samjeong"]["상정"] == 0.81
+    assert out["shen_qi"]["shen"] == 0.75
+
+
+def test_render_persona_template_uses_anatomical_schema():
+    """폴백 템플릿은 해부학 JSON + 결정론 점수 두 가지를 사용한다."""
     from engine.divination.face_reading import _render_persona_template
-    obj = {
-        "overall_impression": {"shape": "각진", "balance": "약간 비대칭", "complexion": "맑은"},
-        "sangjeong_forehead": {"width": "넓은", "shape": "평평한", "wrinkles": "없음"},
-        "jungjeong_eyebrow_eye_nose": {"eyebrow": "짙은", "eye": "또렷한", "nose": "곧은"},
-        "hajeong_mouth_chin": {"mouth": "두툼한", "chin": "각진"},
+    anat = {
+        "face_outline": {"shape": "각진", "width_height_balance": "균형", "left_right_symmetry": "약간 비대칭"},
+        "forehead": {"width": "넓은", "shape": "평평한", "wrinkles": "없음"},
+        "eyebrow": {"thickness": "짙은", "length": "긴", "shape": "곧은"},
+        "eye": {"size": "보통", "shape": "타원형", "gaze_intensity": "또렷한", "clarity": "맑은"},
+        "nose": {"bridge": "곧은", "nostril_wing": "두툼한", "tip": "둥근"},
+        "mouth": {"thickness": "두툼한", "corner": "올라간"},
+        "chin": {"shape": "각진", "fullness": "적당한"},
+        "cheek_zygomatic": {"prominence": "보통", "fullness": "살 적당"},
+        "complexion": {"tone": "밝은", "color_cast": "맑은"},
         "distinctive_feature": "또렷한 눈빛",
         "photo_quality_note": "정면·조명 양호",
     }
-    text = _render_persona_template(obj)
-    # JSON 사실 인용
+    scores = {
+        "face_shape": {"shape": "토형", "morphological_name": "균형형"},
+        "top_palace": "관록궁",
+    }
+    text = _render_persona_template(anat, scores)
+    # 해부학 사실 인용
     assert "각진" in text
     assert "또렷한 눈빛" in text
+    # 결정론 점수 출처의 학파 명칭 인용 가능
+    assert "토형" in text
+    assert "관록궁" in text
     # 페르소나 어조
     assert "허허" in text or "이 늙은이" in text
     # 운명 매핑 어휘 미주입
@@ -1617,35 +1669,35 @@ def test_stage2_render_template_fallback_uses_only_json_facts():
         assert forbidden not in text, f"폴백 템플릿에 운명 어휘 주입: {forbidden}"
 
 
-def test_generate_face_reading_emits_objective_json(monkeypatch, tmp_path):
-    """2단계 파이프라인 결과 응답 dict에 objective_json 필드 포함."""
+def test_generate_face_reading_emits_anatomical_description_and_scores(monkeypatch, tmp_path):
+    """응답 dict에 anatomical_description + deterministic_scores_summary 포함."""
     from engine.divination import face_reading
     from engine.safety import file_integrity
     import json as _json
 
     monkeypatch.setattr(face_reading, "_CACHE_DIR", tmp_path)
 
-    sample_json = {
-        "overall_impression": {"shape": "둥근", "balance": "양호", "complexion": "맑은"},
-        "sangjeong_forehead": {"width": "넓은", "shape": "평평한", "wrinkles": "옅은"},
-        "jungjeong_eyebrow_eye_nose": {"eyebrow": "짙은", "eye": "또렷한", "nose": "곧은"},
-        "hajeong_mouth_chin": {"mouth": "두툼한", "chin": "둥근"},
+    sample = {
+        "face_outline": {"shape": "둥근", "width_height_balance": "균형", "left_right_symmetry": "양호"},
+        "forehead": {"width": "넓은", "shape": "평평한", "wrinkles": "옅은"},
+        "eyebrow": {"thickness": "짙은", "length": "긴", "shape": "곧은"},
+        "eye": {"size": "보통", "shape": "타원형", "gaze_intensity": "또렷한", "clarity": "맑은"},
+        "nose": {"bridge": "곧은", "nostril_wing": "두툼한", "tip": "둥근"},
+        "mouth": {"thickness": "두툼한", "corner": "올라간"},
+        "chin": {"shape": "둥근", "fullness": "적당한"},
+        "cheek_zygomatic": {"prominence": "보통", "fullness": "살 적당"},
+        "complexion": {"tone": "밝은", "color_cast": "맑은"},
         "distinctive_feature": "또렷한 눈빛",
-        "deterministic_scores_cited": {
-            "top_palace": None, "weakest_palace": None,
-            "face_shape": None, "shen_qi": None,
-        },
         "photo_quality_note": "정면·조명 양호",
     }
     monkeypatch.setattr(
         face_reading, "_call_vision",
-        lambda *a, **k: _json.dumps(sample_json, ensure_ascii=False),
+        lambda *a, **k: _json.dumps(sample, ensure_ascii=False),
     )
     monkeypatch.setattr(
         face_reading, "_call_stage2_persona",
-        lambda obj, *a, **k: f"허허, 이 늙은이가 그대의 상을 보았네. {obj['distinctive_feature']}.",
+        lambda anat, scores, *a, **k: f"허허, {anat['distinctive_feature']}이로구먼.",
     )
-
     from types import SimpleNamespace
     monkeypatch.setattr(
         file_integrity, "validate_image_base64",
@@ -1655,15 +1707,17 @@ def test_generate_face_reading_emits_objective_json(monkeypatch, tmp_path):
     result = face_reading.generate_face_reading(
         image_b64="dummy_b64_payload", age=30, gender="남성",
     )
-    # objective_json 필드 응답 노출 (ADR-010 검증 가능성)
-    assert "objective_json" in result
-    assert result["objective_json"]["distinctive_feature"] == "또렷한 눈빛"
+    # Phase 19 — 응답 dict 신규 필드
+    assert "anatomical_description" in result
+    assert result["anatomical_description"]["face_outline"]["shape"] == "둥근"
+    assert result["anatomical_description"]["distinctive_feature"] == "또렷한 눈빛"
+    assert "deterministic_scores_summary" in result
     # 본문은 Stage 2 결과
     assert "허허" in result["text"]
 
 
 def test_stage2_persona_fallback_to_template_when_both_llm_fail(monkeypatch):
-    """Bizrouter + Opus SDK 모두 실패 시 결정론 템플릿 폴백."""
+    """Bizrouter + Opus SDK 모두 실패 시 결정론 템플릿 폴백 (해부학 스키마)."""
     from engine.divination import face_reading
 
     monkeypatch.setattr(face_reading, "_bizrouter_enabled", lambda: True)
@@ -1684,15 +1738,21 @@ def test_stage2_persona_fallback_to_template_when_both_llm_fail(monkeypatch):
     monkeypatch.setattr(face_reading, "_bizrouter_client", lambda: _FailingClient())
     monkeypatch.setattr(face_reading, "_anthropic_client", lambda: _FailingAnthropic())
 
-    obj = {
-        "overall_impression": {"shape": "둥근", "balance": "양호", "complexion": "맑은"},
-        "sangjeong_forehead": {"width": "넓은", "shape": "평평한", "wrinkles": "옅은"},
-        "jungjeong_eyebrow_eye_nose": {"eyebrow": "짙은", "eye": "또렷한", "nose": "곧은"},
-        "hajeong_mouth_chin": {"mouth": "두툼한", "chin": "둥근"},
+    anat = {
+        "face_outline": {"shape": "둥근", "width_height_balance": "균형", "left_right_symmetry": "양호"},
+        "forehead": {"width": "넓은", "shape": "평평한", "wrinkles": "옅은"},
+        "eyebrow": {"thickness": "짙은", "length": "긴", "shape": "곧은"},
+        "eye": {"size": "보통", "shape": "타원형", "gaze_intensity": "또렷한", "clarity": "맑은"},
+        "nose": {"bridge": "곧은", "nostril_wing": "두툼한", "tip": "둥근"},
+        "mouth": {"thickness": "두툼한", "corner": "올라간"},
+        "chin": {"shape": "둥근", "fullness": "적당한"},
+        "cheek_zygomatic": {"prominence": "보통", "fullness": "살 적당"},
+        "complexion": {"tone": "밝은", "color_cast": "맑은"},
         "distinctive_feature": "또렷한 눈빛",
         "photo_quality_note": "정면·조명 양호",
     }
-    text = face_reading._call_stage2_persona(obj, 30, "남성", None)
-    # 결정론 템플릿 결과 — 페르소나 어조 포함 + JSON 사실 인용
+    scores = {"face_shape": {"shape": "토형", "morphological_name": "균형형"}}
+    text = face_reading._call_stage2_persona(anat, scores, 30, "남성", None)
+    # 결정론 템플릿 결과 — 페르소나 어조 + 해부학 사실 인용
     assert "허허" in text or "이 늙은이" in text
     assert "또렷한 눈빛" in text
