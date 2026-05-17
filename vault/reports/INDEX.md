@@ -15,6 +15,13 @@ last_updated: 2026-05-17
 | 2026-05-15 | [[saju-app-spec]] (작명 보고서) | 외부 작성 | §1~§5 본문화 완료, §6 거부, §3 옵션 A 채택 |
 | 2026-05-17 | [[name-sibling-bulyong]] (가족 서열 상대 불용한자) | 딥리서치 | ✅ 본문화 완료 (ADR-010 적용) → [[../done/name-phase3-sibling-preference]] |
 | 2026-05-17 | [[saas-claude-obsidian-methodology]] (Claude Code + Obsidian 방법론) | 딥리서치 | ✅ 검증 — 본 프로젝트가 이미 권장 구조 채택 완료 (ADR-007~010) |
+| 2026-05-17 | [[input-guardrails]] (입력 가드레일 7계층) | 딥리서치 | ✅ 검증 — 70% 이미 구현, L1 파일 무결성 + Laplacian blur 추가 가치 |
+| 2026-05-17 | [[llm-token-caching]] (LLM 캐싱 전략) | 딥리서치 | ✅ 검증 — Anthropic prompt caching 이미 사용. 시맨틱 캐싱 ROI 낮음 |
+| 2026-05-17 | [[knowledge-graph-non-rag]] (Neo4j + NL2GQL) | 딥리서치 | ⚪ Neo4j 도입 보류 유지 (ADR-007 재확인) — 본 프로젝트 RAG 미사용 |
+| 2026-05-17 | [[saju-mbti-correlation]] (사주-MBTI 연관성) | 딥리서치 | 🔴 **거부** — 인용 검증 불가 + ADR-002·010 위반 위험 |
+| 2026-05-17 | [[saju-mbti-ml-model]] (사주-MBTI ML 모델) | 딥리서치 | 🔴 **거부** — 위 보고서 거부 + 학습 데이터 부재 + ADR 다수 위반 |
+| 2026-05-17 | [[face-image-generation]] (Gemini Flash Image 길흉상) | 딥리서치 | 🟡 내부 테스트 한정 — 사용자 노출 금지 |
+| 2026-05-17 | [[palm-reading-app]] (손금 앱 도메인·아키텍처) | 딥리서치 | 🟡 palm_reading.py 이미 인과 표현 차단. 한의학 손톱 병리 거부 |
 
 ## 대기 중인 보고서
 
