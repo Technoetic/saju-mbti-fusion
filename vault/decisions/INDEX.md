@@ -41,6 +41,7 @@ last_updated: 2026-05-17
 | ADR-029 | [[ADR-029-korean-name-uniqueness]] | accepted | 2026-05-17 |
 | ADR-030 | [[ADR-030-palm-scoring-deterministic]] | accepted | 2026-05-17 |
 | ADR-031 | [[ADR-031-saju-twelve-stages]] | accepted | 2026-05-17 |
+| ADR-032 | [[ADR-032-korean-phonetic-priority-3]] | accepted | 2026-05-17 |
 
 ## 원칙
 

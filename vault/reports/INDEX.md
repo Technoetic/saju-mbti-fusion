@@ -30,6 +30,7 @@ last_updated: 2026-05-17
 | 2026-05-17 | [[korean-name-frequency-statistics]] (한국 성씨·인명 빈도 통계) | 딥리서치 | 🟡 ADR-029 본문화 — 15 성씨 + name_uniqueness.py + 30쌍 회귀 12 PASS, 18 known-limitation (통계청 KOSIS 전수 추출 DEFER) |
 | 2026-05-17 | [[palm-scoring-deterministic-engine]] (손금 4대 선 결정론 점수 엔진) | 딥리서치 | ✅ ADR-030 본문화 — 5 라인 palm_scoring.py + 30쌍 회귀 120/120 라벨 100% (U-Net REJECT) |
 | 2026-05-17 | [[saju-twelve-stages-jangsaeng]] (사주 십이운성 결정론 매핑) | 딥리서치 | ✅ ADR-031 본문화 — 120 셀 (자평진전) + 17 회귀 PASS + ADR-015 옵션 B 두 번째 적용 |
+| 2026-05-17 | [[korean-phonetic-priority-3]] (한국어 표준발음법 Priority 3) | 딥리서치 | 🟡 ADR-032 본문화 — phonetic_delta_score_v2 + 4 신규 함수 + 30쌍 회귀 10/30 PASS, 20 known-limitation |
 
 ## 대기 중인 보고서
 

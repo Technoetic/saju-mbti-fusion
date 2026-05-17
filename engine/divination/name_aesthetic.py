@@ -734,3 +734,241 @@ def phonetic_delta_score(name_korean: str) -> dict:
         "score_delta": delta,
         "rationale": rationale,
     }
+
+
+# ───────────── 표준발음법 Priority 3 (ADR-032) ─────────────
+# 보고서 "한국어 표준발음법 Priority 3 영역 결정론 매핑" 6 영역:
+# §1 자음군+경음화 연쇄 §2 ㄴ첨가 Default-deny §3 상호동화 양방향
+# §4 한자어 §26 경음화 (보수적 휴리스틱) §5 다중 우선순위 큐 §6 ㅎ 약화
+
+
+def f_neutralize(coda: str) -> str:
+    """평파열음화 §9 — 종성을 7자음(ㄱ·ㄴ·ㄷ·ㄹ·ㅁ·ㅂ·ㅇ) 중 하나로 중화.
+
+    test_p113 최빛나: ㅊ→ㄷ (이후 비음화 ㄴ 이동) → 최빈나
+    """
+    # 7자음으로 매핑
+    NEUTRALIZE_MAP = {
+        "ㅋ": "ㄱ", "ㄲ": "ㄱ", "ㄳ": "ㄱ", "ㄺ": "ㄱ",
+        "ㅅ": "ㄷ", "ㅆ": "ㄷ", "ㅈ": "ㄷ", "ㅊ": "ㄷ", "ㅌ": "ㄷ",
+        "ㅍ": "ㅂ", "ㄿ": "ㅂ", "ㅄ": "ㅂ", "ㄼ": "ㄹ",
+        "ㄵ": "ㄴ", "ㄶ": "ㄴ", "ㄻ": "ㅁ", "ㄽ": "ㄹ", "ㄾ": "ㄹ", "ㅀ": "ㄹ",
+        "ㅎ": "ㄷ",  # ㅎ도 평파열음화 시 ㄷ
+    }
+    return NEUTRALIZE_MAP.get(coda, coda)
+
+
+def f_weaken_h(prev_coda: str, current_initial: str, next_jung: str) -> tuple[str, str] | None:
+    """ㅎ 약화 §12 예외 — 유성음 환경 후 ㅎ 탈락 → 연음.
+
+    조건: 선행 종성 ∈ {ㄴ·ㅁ·ㅇ·ㄹ·빈} + 현재 초성 = ㅎ + 후행 중성 = 모음
+    결과: (탈락) → 연음으로 prev_coda가 current 초성으로 이동
+
+    test_p118 이진희: 이(영)+진(ㄴ)+희(ㅎ+ㅣ) → ㄴ을 다음 초성으로 → 이지니
+    test_p119 송은희: 송(ㅇ)+은(ㄴ)+희(ㅎ+ㅣ) → 송으니
+
+    Returns:
+        (새 prev_coda='', 새 current_initial=prev_coda) 또는 None.
+    """
+    if current_initial != "ㅎ":
+        return None
+    if next_jung == "" or next_jung not in "ㅏㅑㅓㅕㅗㅛㅜㅠㅡㅣㅐㅔㅖㅒㅘㅙㅚㅝㅞㅟㅢ":
+        return None
+    # 유성음: 빈 종성 (모음 끝) + ㄴ·ㅁ·ㅇ·ㄹ
+    if prev_coda in ("", "ㄴ", "ㅁ", "ㅇ", "ㄹ"):
+        # ㅎ 탈락 + 연음 (prev_coda를 current 초성으로)
+        new_initial = prev_coda if prev_coda else "ㅇ"
+        return ("", new_initial)
+    return None
+
+
+# 한자어 §26 경음화 휴리스틱 (Default-allow)
+# 인명에서 자주 등장하는 한자어 종성 ㄹ + 초성 [ㄷㅅㅈ] → 경음화
+# 고유어 화이트리스트는 별도 (현재 None — 보고서 미첨부)
+_HANJA_TENSIFY_INITIALS = frozenset(["ㄷ", "ㅅ", "ㅈ"])
+
+
+def f_hanja_tensify(coda: str, initial: str) -> str | None:
+    """한자어 §26 경음화 — ㄹ + [ㄷㅅㅈ] → 경음 (휴리스틱).
+
+    test_p110 박철수 → 박철쑤 (철+수 한자어, ㄹ+ㅅ → ㄹ+ㅆ)
+    test_p111 김말자 → 김말짜 (말+자, ㄹ+ㅈ → ㄹ+ㅉ)
+    test_p112 이일도 → 이일또 (일+도, ㄹ+ㄷ → ㄹ+ㄸ)
+
+    면책: 인명 한자어 식별 결정론 단정 회피, 보수적 휴리스틱 (Default-allow).
+    """
+    if coda != "ㄹ":
+        return None
+    if initial not in _HANJA_TENSIFY_INITIALS:
+        return None
+    return _TENSE_MAP.get(initial)
+
+
+# §14 형식형태소 자음군 연음 화이트리스트 (단순화 배제)
+# 보고서 test_p121·p122: 박넓음 → 방널븜, 김맑음 → 김말금
+# 어말이 아닌 모음 형식형태소 환경에서는 자음군 단순화 X
+_FORMAL_VOWELS = frozenset(["ㅡ", "ㅣ", "ㅏ", "ㅓ", "ㅗ", "ㅜ", "ㅐ", "ㅔ"])
+
+
+def phonetic_delta_score_v2(name_korean: str) -> dict:
+    """표준발음법 Priority 1·2·3 통합 (ADR-032).
+
+    ADR-028 phonetic_delta_score는 Priority 1·2만. 본 함수는 Priority 3 추가:
+    - §9 평파열음화 (f_neutralize) 선행
+    - §19 상호동화 양방향 (f_nasalize + ㄹ→ㄴ 동반)
+    - §26 한자어 경음화 휴리스틱 (Default-allow ㄹ+[ㄷㅅㅈ])
+    - §12 ㅎ 약화 (유성음 환경)
+    - §29 ㄴ첨가 Default-deny (생략 — 연음 우선)
+    - §14 형식형태소 자음군 연음 우선
+
+    파이프라인 (보고서 §5 7단계 위상 정렬):
+      1. f_neutralize (평음화 §9)
+      2. f_weaken_h (ㅎ 약화 유성음 환경)
+      3. f_aspirate (격음화 §12)
+      4. f_simplify_cluster (자음군 §11 — 형식형태소 환경 제외)
+      5. f_hanja_tensify (한자어 §26) + f_tensify (§23)
+      6. f_nasalize (비음화 §18·§19)
+      7. f_lateralize (유음화 §20)
+      8. f_link (연음 §13·§14)
+
+    Returns:
+        ADR-028 phonetic_delta_score와 동일 스키마.
+    """
+    syllables = [c for c in name_korean if "가" <= c <= "힣"]
+    applied_rules: list[str] = []
+    delta = 0
+
+    if len(syllables) < 2:
+        return {
+            "input_name": name_korean,
+            "expected_phonetic": name_korean,
+            "applied_rules": [],
+            "score_delta": 0,
+            "rationale": (
+                f"'{name_korean}'은 음운 변동 분석 대상 음절 부족. "
+                f"※ {DISCLAIMER_KO}"
+            ),
+        }
+
+    decomps: list[list[str]] = []
+    for s in syllables:
+        d = _decompose_jamo(s)
+        if d is None:
+            return {
+                "input_name": name_korean,
+                "expected_phonetic": name_korean,
+                "applied_rules": [],
+                "score_delta": 0,
+                "rationale": f"'{name_korean}' 분해 실패. ※ {DISCLAIMER_KO}",
+            }
+        decomps.append([d[0], d[1], d[2]])
+
+    # 음운 변동 적용 — 경계별 좌→우, 7단계 위상 정렬 (보고서 §5)
+    for i in range(len(decomps) - 1):
+        jong1 = decomps[i][2]
+        cho2 = decomps[i + 1][0]
+        jung2 = decomps[i + 1][1]
+
+        # 단계 1: §9 평파열음화 (다음 단계가 비음화·격음화 가능하면)
+        neutralized = f_neutralize(jong1) if jong1 else ""
+        # 평음화 결과 비음화 트리거 — 적용 시도
+
+        # 단계 2: §12 ㅎ 약화 (유성음 환경)
+        weaken = f_weaken_h(jong1, cho2, jung2) if cho2 == "ㅎ" else None
+        if weaken is not None:
+            decomps[i][2] = weaken[0]
+            decomps[i + 1][0] = weaken[1]
+            applied_rules.append(f"§12 ㅎ 약화 ({jong1}+ㅎ → 연음)")
+            delta -= 0  # 연음은 자연스러움
+            continue
+
+        # 단계 3: §12 격음화 (무성음 환경)
+        aspirate = f_aspirate(jong1, cho2)
+        if aspirate is not None:
+            decomps[i][2] = aspirate[0]
+            decomps[i + 1][0] = aspirate[1]
+            applied_rules.append(f"§12 격음화 ({jong1}+{cho2}→{aspirate[1]})")
+            delta -= 1
+            continue
+
+        # 단계 4: §19 상호동화 — 코다 폐쇄음 + 초성 ㄹ → 코다 비음 + 초성 ㄴ
+        # test_p107 송학림: ㄱ+ㄹ → ㅇ+ㄴ
+        nasalize_for_lateral = f_nasalize(neutralized, "ㄴ") if cho2 == "ㄹ" else None
+        if nasalize_for_lateral is not None and cho2 == "ㄹ":
+            decomps[i][2] = nasalize_for_lateral
+            decomps[i + 1][0] = "ㄴ"
+            applied_rules.append(f"§19 상호동화 ({jong1}+ㄹ → {nasalize_for_lateral}+ㄴ)")
+            delta -= 2
+            continue
+
+        # 단계 5: §11 자음군 단순화 (형식형태소 모음 환경 제외)
+        # test_p121 박넓음: ㄼ + 음(ㅡ) → 단순화 X → 연음 우선
+        if jong1 and len(jong1) >= 1 and jong1 not in "ㄱㄴㄷㄹㅁㅂㅇ":
+            # 겹받침
+            if cho2 == "ㅇ" and jung2 in _FORMAL_VOWELS:
+                # 형식형태소 환경 — 연음 우선 (단순화 X)
+                link = f_link(jong1, cho2)
+                if link is not None:
+                    decomps[i][2] = link[0]
+                    decomps[i + 1][0] = link[1]
+                    applied_rules.append(f"§14 형식형태소 연음 ({jong1}→{link[1]}_)")
+                    continue
+
+        # 단계 6: §18~19 비음화 (평음화 결과 적용)
+        new_jong = f_nasalize(neutralized, cho2) if neutralized else None
+        if new_jong is not None and new_jong != jong1:
+            decomps[i][2] = new_jong
+            applied_rules.append(f"§9+§18 평음화+비음화 ({jong1}→{new_jong} / {cho2}_)")
+            delta -= 2
+            continue
+
+        # 단계 7: §20 유음화
+        lateral = f_lateralize(jong1, cho2)
+        if lateral is not None:
+            decomps[i][2] = lateral[0]
+            decomps[i + 1][0] = lateral[1]
+            applied_rules.append(f"§20 유음화 ({jong1}+{cho2}→ㄹㄹ)")
+            delta -= 1
+            continue
+
+        # 단계 8: §26 한자어 경음화 (Default-allow ㄹ+[ㄷㅅㅈ])
+        hanja_tense = f_hanja_tensify(jong1, cho2)
+        if hanja_tense is not None:
+            decomps[i + 1][0] = hanja_tense
+            applied_rules.append(f"§26 한자어 경음화 ({jong1}+{cho2}→{hanja_tense})")
+            delta -= 2
+            continue
+
+        # 단계 9: §23 일반 경음화
+        tense = f_tensify(jong1, cho2)
+        if tense is not None:
+            decomps[i + 1][0] = tense
+            ext = -3 if cho2 in ("ㅅ", "ㅈ") else -4
+            applied_rules.append(f"§23 경음화 ({jong1}+{cho2}→{tense})")
+            delta += ext
+            continue
+
+        # 단계 10: §13 연음 (Default-deny ㄴ첨가 — 연음 우선)
+        link = f_link(jong1, cho2)
+        if link is not None:
+            decomps[i][2] = link[0]
+            decomps[i + 1][0] = link[1]
+            applied_rules.append(f"§13 연음 ({jong1}→{link[1]}_) [ㄴ첨가 Default-deny]")
+            continue
+
+    expected = "".join(_compose_jamo(c, j, jg) or "" for c, j, jg in decomps)
+    delta = max(-5, min(0, delta))
+
+    rule_summary = ", ".join(applied_rules) if applied_rules else "변동 없음"
+    rationale = (
+        f"'{name_korean}'은 표준발음법 Priority 3 통합 적용 시 [{expected}]으로 "
+        f"발음됩니다 ({rule_summary}). "
+        f"※ {DISCLAIMER_KO}"
+    )
+    return {
+        "input_name": name_korean,
+        "expected_phonetic": expected,
+        "applied_rules": applied_rules,
+        "score_delta": delta,
+        "rationale": rationale,
+    }

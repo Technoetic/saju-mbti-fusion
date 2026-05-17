@@ -591,3 +591,160 @@ def test_phonetic_delta_score_combination_compatible():
     assert "score" in r1
     assert "score_delta" in r2
     # 두 함수 모두 정상 작동, 스케일 독립
+
+
+# ───────────── 표준발음법 Priority 3 (ADR-032) ─────────────
+
+
+def test_f_neutralize_basic():
+    """평파열음화 §9 — 7자음 매핑."""
+    from engine.divination.name_aesthetic import f_neutralize
+    assert f_neutralize("ㅋ") == "ㄱ"
+    assert f_neutralize("ㄲ") == "ㄱ"
+    assert f_neutralize("ㅅ") == "ㄷ"
+    assert f_neutralize("ㅊ") == "ㄷ"
+    assert f_neutralize("ㅍ") == "ㅂ"
+    # 단순 7자음은 그대로
+    assert f_neutralize("ㄱ") == "ㄱ"
+    assert f_neutralize("ㄴ") == "ㄴ"
+
+
+def test_f_weaken_h_voiced_environment():
+    """ㅎ 약화 §12 예외 — 유성음 환경에서 ㅎ 탈락 + 연음."""
+    from engine.divination.name_aesthetic import f_weaken_h
+    # 이진희: ㄴ + ㅎ + ㅣ → 탈락 + 연음
+    assert f_weaken_h("ㄴ", "ㅎ", "ㅣ") == ("", "ㄴ")
+    # 송은희: ㄴ + ㅎ + ㅣ → 탈락
+    assert f_weaken_h("ㄴ", "ㅎ", "ㅣ") == ("", "ㄴ")
+    # 빈 종성 + ㅎ + 모음 → 탈락
+    assert f_weaken_h("", "ㅎ", "ㅏ") == ("", "ㅇ")
+
+
+def test_f_weaken_h_voiceless_environment():
+    """ㅎ 약화 §12 예외 — 무성음 환경은 격음화 (탈락 X)."""
+    from engine.divination.name_aesthetic import f_weaken_h
+    # 박국희: ㄱ + ㅎ → 격음화 (f_aspirate 처리, f_weaken_h는 None)
+    assert f_weaken_h("ㄱ", "ㅎ", "ㅣ") is None
+    # 초성이 ㅎ 아니면 None
+    assert f_weaken_h("ㄴ", "ㄱ", "ㅏ") is None
+
+
+def test_f_hanja_tensify():
+    """한자어 §26 경음화 — ㄹ + [ㄷㅅㅈ] → 경음 (Default-allow)."""
+    from engine.divination.name_aesthetic import f_hanja_tensify
+    # 박철수: ㄹ + ㅅ → ㄹ + ㅆ
+    assert f_hanja_tensify("ㄹ", "ㅅ") == "ㅆ"
+    # 김말자: ㄹ + ㅈ → ㄹ + ㅉ
+    assert f_hanja_tensify("ㄹ", "ㅈ") == "ㅉ"
+    # 이일도: ㄹ + ㄷ → ㄹ + ㄸ
+    assert f_hanja_tensify("ㄹ", "ㄷ") == "ㄸ"
+    # ㄹ 외 종성은 None
+    assert f_hanja_tensify("ㄱ", "ㅅ") is None
+    # 비대상 초성
+    assert f_hanja_tensify("ㄹ", "ㄱ") is None
+
+
+def test_phonetic_delta_score_v2_schema():
+    """phonetic_delta_score_v2 반환 스키마."""
+    from engine.divination.name_aesthetic import phonetic_delta_score_v2
+    r = phonetic_delta_score_v2("박철수")
+    assert "input_name" in r
+    assert "expected_phonetic" in r
+    assert "applied_rules" in r
+    assert "score_delta" in r
+    assert "rationale" in r
+
+
+def _load_priority_3_regression():
+    """data/korean_phonetic_priority_3_regression.json 로드."""
+    import json
+    from pathlib import Path
+    p = Path(__file__).resolve().parent.parent.parent / "data" / "korean_phonetic_priority_3_regression.json"
+    with open(p, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+def test_priority_3_regression_data_loads():
+    """보고서 §8 30쌍 회귀 데이터 로드 검증."""
+    data = _load_priority_3_regression()
+    assert data["adr"] == "ADR-032"
+    assert len(data["tests"]) == 30
+    for t in data["tests"]:
+        assert "id" in t and t["id"].startswith("test_p1")
+        assert "input_name" in t
+        assert "expected_phonetic" in t
+
+
+# Priority 3 통과 10쌍 (한자어 §26 + 보수적 연음 + 평음화+비음화 + 형식형태소)
+_PRIORITY_3_PASSING = frozenset([
+    "test_p103",  # 박영진 → 바경진 (보수적 연음)
+    "test_p104",  # 김유리 → 기뮤리 (보수적 연음)
+    "test_p110",  # 박철수 → 박철쑤 (한자어 §26)
+    "test_p111",  # 김말자 → 김말짜 (한자어 §26)
+    "test_p112",  # 이일도 → 이일또 (한자어 §26)
+    "test_p113",  # 최빛나 → 최빈나 (§9+§18)
+    "test_p121",  # 박넓음 → 방널븜 (형식형태소 §14)
+    "test_p122",  # 김맑음 → 김말금 (형식형태소 §14)
+    "test_p128",  # 오백로 → 오뱅노 (비음화+상호동화)
+    "test_p130",  # 정십리 → 정심니 (비음화+상호동화)
+])
+
+
+def test_priority_3_regression_passing():
+    """본 시스템 Priority 3 통과 10/30 PASS."""
+    from engine.divination.name_aesthetic import phonetic_delta_score_v2
+    data = _load_priority_3_regression()
+    for t in data["tests"]:
+        if t["id"] in _PRIORITY_3_PASSING:
+            r = phonetic_delta_score_v2(t["input_name"])
+            assert r["expected_phonetic"] == t["expected_phonetic"], (
+                f"{t['id']}: {t['input_name']} expected={t['expected_phonetic']!r} "
+                f"got={r['expected_phonetic']!r}"
+            )
+
+
+def test_priority_3_regression_known_limitations():
+    """20/30 known-limitation — 다중 음운 변동 연쇄·ㅢ 모음 변동·격음화 변형.
+
+    보고서 §5 위상 정렬은 7단계 명시했으나 실제 구현은 단순 적용. 향후 별도
+    ADR로 확장 가능. 모든 미통과 영역도 결정론 보장.
+    """
+    from engine.divination.name_aesthetic import phonetic_delta_score_v2
+    data = _load_priority_3_regression()
+    not_passing = [t for t in data["tests"] if t["id"] not in _PRIORITY_3_PASSING]
+    assert len(not_passing) == 20
+    for t in not_passing:
+        r1 = phonetic_delta_score_v2(t["input_name"])
+        r2 = phonetic_delta_score_v2(t["input_name"])
+        # 결정론 보장
+        assert r1["expected_phonetic"] == r2["expected_phonetic"]
+
+
+def test_priority_3_v2_deterministic():
+    """phonetic_delta_score_v2 결정론."""
+    from engine.divination.name_aesthetic import phonetic_delta_score_v2
+    for name in ["박철수", "이진희", "최빛나", "박넓음"]:
+        r1 = phonetic_delta_score_v2(name)
+        r2 = phonetic_delta_score_v2(name)
+        assert r1 == r2
+
+
+def test_priority_3_disclaimer():
+    """v2 rationale에 면책 자동 포함."""
+    from engine.divination.name_aesthetic import phonetic_delta_score_v2, DISCLAIMER_KO
+    r = phonetic_delta_score_v2("박철수")
+    assert DISCLAIMER_KO in r["rationale"]
+
+
+def test_priority_3_v1_v2_independent():
+    """ADR-028 phonetic_delta_score와 ADR-032 v2 독립 호출."""
+    from engine.divination.name_aesthetic import (
+        phonetic_delta_score, phonetic_delta_score_v2,
+    )
+    r1 = phonetic_delta_score("박철수")
+    r2 = phonetic_delta_score_v2("박철수")
+    # v1과 v2 모두 정상
+    assert "expected_phonetic" in r1
+    assert "expected_phonetic" in r2
+    # v2가 v1보다 한자어 §26 정확
+    assert r2["expected_phonetic"] == "박철쑤"

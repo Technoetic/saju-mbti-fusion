@@ -13,6 +13,7 @@ last_updated: 2026-05-17
 | 일자 | 작업 | 모듈 | 회귀 | 보고서 § |
 |---|---|---|---|---|
 | 2026-05-17 | 한국 성씨·인명 빈도 결정론 분석 — 동명이인 회피 객관 라벨 (통계청 + 대법원 공공누리 제1유형) | name_uniqueness.py (6 API) + data/korean_surname_frequency.json + regression.json | 21 (12 PASS + 18 known-limitation) | 보고서 §3·§5·§6·§7 |
+| 2026-05-17 | 표준발음법 Priority 3 — ㅎ 약화·한자어 §26·평음화 §9·형식형태소 §14·상호동화 §19 (phonetic_delta_score_v2) | name_aesthetic.py (4 신규) + data/korean_phonetic_priority_3_regression.json | 70 (59+11) | 보고서 §1~§8 |
 | 2026-05-17 | 표준발음법 §10~§30 Priority 1·2 음운 변동 — 비음화·유음화·격음화·경음화·연음·자음군 단순화 (옵션 b 별도 함수) | name_aesthetic.py (8 신규) + data/korean_phonetic_rules.json | 59 (34+25) | 보고서 §2~§6 |
 | 2026-05-17 | 자원오행 옵션 C KCI 학설 매핑 94자 본문화 (옵션 A 보존 + 충돌 6건 명시) | name_unihan.py (5 API 신규) | 28 (15+13) | KCI 학설 |
 | 2026-05-17 | 가족 서열 한자 선호 모듈 (ADR-010 사실성 분리) | name_sibling_preference.py | 20 | §1 (별도 보고서) |
