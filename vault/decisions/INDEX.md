@@ -2,7 +2,7 @@
 type: index
 section: decisions
 last_updated: 2026-05-17
-note: ADR-005 Supplement 3 (Phase 18 2단계 파이프라인 Opus JSON + Gemini 사극) 추가
+note: ADR-005 Supplement 4 (Phase 19 Stage 1 순수 해부학 명칭) 추가
 ---
 
 # 의사결정 (ADR) 인덱스
@@ -52,6 +52,7 @@ note: ADR-005 Supplement 3 (Phase 18 2단계 파이프라인 Opus JSON + Gemini 
 | ADR-005 | [[ADR-005-supplement-multimodal-4-signal]] — Phase 12 4중 신호 멀티모달 | accepted | 2026-05-18 |
 | ADR-005 | [[ADR-005-supplement-2-objective-vision-only]] — Phase 17 Opus 시각 객관 묘사 한정 | accepted | 2026-05-17 |
 | ADR-005 | [[ADR-005-supplement-3-two-stage-pipeline]] — Phase 18 2단계 (Opus JSON + Gemini 사극) | accepted | 2026-05-17 |
+| ADR-005 | [[ADR-005-supplement-4-pure-anatomical-stage1]] — Phase 19 Stage 1 순수 해부학 명칭 | accepted | 2026-05-17 |
 
 ## 원칙
 

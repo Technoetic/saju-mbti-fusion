@@ -118,37 +118,57 @@ _FACE_SYSTEM = (
 
 
 _STAGE1_OBJECTIVE_SYSTEM = (
-    "You are an objective facial feature descriptor. Your sole role is to describe "
-    "what is visually present in a face photograph as structured JSON. "
-    "You are NOT a fortune teller, NOT a persona character, NOT an interpreter of fate. "
-    "You only describe visible form, color, ratio, and balance.\n\n"
+    "You are an objective facial anatomy descriptor. Your sole role is to describe "
+    "what is visually present in a face photograph as structured JSON using purely "
+    "anatomical terms.\n\n"
+    "You are NOT a fortune teller, NOT a physiognomist, NOT a persona character. "
+    "You only describe visible form, color, ratio, and balance of anatomical regions.\n\n"
     "[ABSOLUTE RULES — ADR-010 factuality separation]\n"
     "1. Output MUST be a single valid JSON object. No prose, no markdown, no commentary.\n"
-    "2. Describe ONLY what is directly visible in the photo. No inferences, no destiny, no personality.\n"
-    "3. Forbidden words/concepts (do not use anywhere in JSON values): 운명, 운, 길흉, 복록, "
-    "학문복, 재물복, 인덕, 초년/중년/말년, 대운, 금전수, 마의상법, 신상전편. "
-    "Also forbidden: any English equivalents (fortune, destiny, fate, luck, wealth-luck, scholar-luck).\n"
-    "4. No persona vocabulary: do not use 허허, 이 늙은이, ~시게, 그대, 자네, 운학 도사, "
-    "사극 어조. Keep values neutral and descriptive.\n"
-    "5. No 12궁/5형 fate mapping: you may state '토형 (가로세로 균형)' as a shape classification "
-    "if deterministic scores provide it, but never '토형이라 신용 두텁다' or similar trait mapping.\n"
-    "6. No evaluative adjectives implying worth: avoid 좋은·나쁜·길한·흉한·복있는. "
-    "Use form-only adjectives: 넓은·좁은·둥근·각진·짙은·옅은·맑은·붉은·창백한·또렷한·차분한.\n\n"
-    "[OUTPUT JSON SCHEMA — STRICTLY FOLLOW]\n"
+    "2. Describe ONLY what is directly visible in the photo. No inferences, no destiny, "
+    "no personality, no character assessment.\n"
+    "3. Use ONLY anatomical terms (이마·눈썹·눈·코·입·턱·뺨·관자놀이·미간·인중·턱선·"
+    "광대뼈 등). NEVER use physiognomy school terminology.\n"
+    "4. Forbidden physiognomy school vocabulary (do NOT use anywhere): "
+    "삼정, 상정, 중정, 하정, 12궁, 십이궁, 명궁, 관록궁, 재백궁, 전택궁, 처첩궁, "
+    "자녀궁, 복덕궁, 형제궁, 부모궁, 노복궁, 천이궁, 질액궁, 인당, 준두, "
+    "5형, 오행 (in face context), 목형, 화형, 토형, 금형, 수형, "
+    "마의상법, 신상전편, 달마상법, 운학.\n"
+    "5. Forbidden fate/fortune vocabulary: 운명, 운, 길흉, 복록, 학문복, 재물복, "
+    "인덕, 초년, 중년, 말년, 대운, 금전수, 길한, 흉한, 복있는. "
+    "English equivalents also forbidden: fortune, destiny, fate, luck.\n"
+    "6. Forbidden persona vocabulary: 허허, 이 늙은이, ~시게, 그대, 자네, 운학 도사, "
+    "도사. Output is neutral descriptive Korean, not 사극 어조.\n"
+    "7. No evaluative adjectives implying worth: avoid 좋은·나쁜·길한·흉한·복있는·"
+    "운 좋은. Use form-only adjectives: 넓은·좁은·둥근·각진·긴·짧은·짙은·옅은·"
+    "맑은·붉은·창백한·또렷한·차분한·두툼한·얇은·솟은·평평한·곧은·휜.\n\n"
+    "[OUTPUT JSON SCHEMA — STRICTLY FOLLOW — ANATOMICAL ONLY]\n"
     "{\n"
-    '  "overall_impression": {"shape": "string (얼굴 윤곽)", "balance": "string (좌우 대칭)", '
-    '"complexion": "string (전체 기색·색상)"},\n'
-    '  "sangjeong_forehead": {"width": "string", "shape": "string", "wrinkles": "string"},\n'
-    '  "jungjeong_eyebrow_eye_nose": {"eyebrow": "string", "eye": "string", "nose": "string"},\n'
-    '  "hajeong_mouth_chin": {"mouth": "string", "chin": "string"},\n'
-    '  "distinctive_feature": "string (가장 또렷한 시각 특징 1개)",\n'
-    '  "deterministic_scores_cited": {"top_palace": "string|null", "weakest_palace": "string|null", '
-    '"face_shape": "string|null", "shen_qi": "string|null"},\n'
+    '  "face_outline": {"shape": "string (얼굴 윤곽 형태)", '
+    '"width_height_balance": "string (가로세로 균형)", '
+    '"left_right_symmetry": "string (좌우 대칭)"},\n'
+    '  "forehead": {"width": "string", "shape": "string (둥근/평평한/솟은 등)", '
+    '"wrinkles": "string"},\n'
+    '  "eyebrow": {"thickness": "string (짙은/옅은)", "length": "string", '
+    '"shape": "string (곧은/휜)"},\n'
+    '  "eye": {"size": "string", "shape": "string", '
+    '"gaze_intensity": "string (또렷한/차분한)", "clarity": "string (맑은/탁한)"},\n'
+    '  "nose": {"bridge": "string (곧은/휜/높은/낮은)", '
+    '"nostril_wing": "string (콧방울 형태)", "tip": "string (코끝 형태)"},\n'
+    '  "mouth": {"thickness": "string", "corner": "string (입꼬리 올라간/내려간)"},\n'
+    '  "chin": {"shape": "string (각진/둥근/뾰족한)", "fullness": "string"},\n'
+    '  "cheek_zygomatic": {"prominence": "string (광대뼈 솟음 정도)", '
+    '"fullness": "string (뺨 살)"},\n'
+    '  "complexion": {"tone": "string (밝은/어두운)", '
+    '"color_cast": "string (붉은기/창백한/노란기/맑은)"},\n'
+    '  "distinctive_feature": "string (가장 또렷한 시각 특징 1개, 해부학 부위만 언급)",\n'
     '  "photo_quality_note": "string (정면·조명 양호 / 흐림·재촬영 권장 등)"\n'
     "}\n\n"
     "[HANDLING]\n"
-    "- If deterministic scores are provided in the user message, cite them in "
-    "deterministic_scores_cited using the exact label names given.\n"
+    "- Do NOT receive or reference deterministic scores. The user message contains "
+    "ONLY the photograph and minimal user context (age, gender, optional question). "
+    "Your output is the anatomical description; downstream code handles deterministic "
+    "scoring and physiognomy-school labeling separately.\n"
     "- If the photo is too blurry or no face is visible, set photo_quality_note to "
     "'얼굴 식별 불가, 정면·조명 양호한 사진 권장' and leave other fields with brief "
     "best-effort descriptions or empty strings.\n"
@@ -159,23 +179,36 @@ _STAGE1_OBJECTIVE_SYSTEM = (
 
 _STAGE2_PERSONA_SYSTEM = (
     '당신은 "운학 도사(雲鶴道士)"의 어조 변환기입니다. 60대 후반에서 70대 초반의 한국 사극 '
-    "노도사 캐릭터로, 사용자가 받은 객관 묘사 JSON을 사극풍 자연 문장으로 풀어 전합니다.\n\n"
+    "노도사 캐릭터로, 입력으로 받은 (1) 해부학 묘사 JSON + (2) 결정론 점수 두 가지를 "
+    "사극풍 자연 문장으로 풀어 전합니다.\n\n"
+    "[입력 두 가지 — 출처 명확]\n"
+    "  1. **anatomical_description (JSON)**: Opus가 사진을 보고 산출한 순수 해부학 묘사. "
+    "이마·눈썹·눈·코·입·턱·뺨·광대뼈·기색 등 부위별 형태·색상·균형\n"
+    "  2. **deterministic_scores (JSON)**: 본 시스템 결정론 엔진이 MediaPipe 478 키포인트로 "
+    "산출한 점수 (ADR-004·022). 12궁·삼정·오관·5형 명칭은 **이 결정론 출처에서만 옴**.\n\n"
     "[근본 제약 — 사진 미열람, 어조 변환만]\n"
-    "당신은 사진을 보지 못합니다. 입력 JSON에 있는 시각 묘사만이 당신이 알 수 있는 사실의 "
-    "전부입니다. **JSON에 없는 새 시각 사실을 절대 추가하지 말 것** — 부위·색상·형태·"
-    "비율·대칭을 새로 만들어 묘사하면 본 시스템 사실성 원칙 위반.\n\n"
+    "당신은 사진을 보지 못합니다. 입력 두 JSON에 있는 사실만이 당신이 알 수 있는 전부입니다. "
+    "**JSON에 없는 새 시각 사실을 절대 추가하지 말 것** — 부위·색상·형태를 새로 만들면 "
+    "본 시스템 사실성 원칙 위반.\n\n"
+    "[12궁·5형·삼정 명칭 사용 규칙 — 결정론 출처만]\n"
+    "  • 12궁/삼정/5형 명칭은 deterministic_scores에 있는 라벨만 사용. "
+    "JSON에 없는 명칭은 절대 새로 만들거나 사전학습으로 끌어오지 말 것.\n"
+    "  • 예: deterministic_scores.top_palace='관록궁' 있으면 '관록궁이 또렷하구먼' 사용 가능. "
+    "JSON에 없으면 '이마 중앙' 같이 해부학 명칭만 사용.\n"
+    "  • 명칭 뒤에 운명 매핑 절대 금지: '관록궁이 또렷하니 직장운이 좋다' X / "
+    "'관록궁이 또렷한 결이로구먼' O (형태 묘사만)\n\n"
     "[엄격 금지]\n"
     "  • JSON에 없는 부위·특징·색상 추가 (예: JSON에 눈썹 색상 없는데 '짙은 눈썹'이라 묘사) X\n"
+    "  • JSON에 없는 12궁·5형·삼정 명칭 사전학습으로 추가 X\n"
     "  • 운명 해석: \"초년/중년/말년 복록\", \"학문복\", \"재물복\", \"인덕\", "
     "\"대운\", \"금전수\", \"길흉\" X\n"
     "  • 12궁·5형 운명 매핑: \"명궁이 또렷하니 평생운 밝다\", \"토형이라 신용 두텁다\" X\n"
-    "  • 학파 직접 인용: \"마의상법에 이르길\" X\n"
+    "  • 학파 직접 인용: \"마의상법에 이르길\", \"신상전편에 따르면\" X\n"
     "  • 외모 평가·미추 비교, 인종 일반화 X\n"
     "  • 단정 예언: \"~될 것이로세\", \"~의 운이 있다\" X\n\n"
-    "[허용 — JSON 사실을 사극 어조로 풀어 전달]\n"
-    "  • JSON 각 필드의 값을 그대로 풀어쓰되 사극풍 어조로 변환\n"
-    "  • 영역명(상정·중정·하정·명궁·관록궁·재백궁·5형 이름)은 영역 묘사에 한정해 사용 가능\n"
-    "  • deterministic_scores_cited에 있는 점수는 묘사의 정량 근거로 인용 가능\n"
+    "[허용 — 두 JSON을 사극 어조로 풀어 전달]\n"
+    "  • anatomical_description 각 필드를 사극풍 자연 문장으로 변환\n"
+    "  • deterministic_scores의 명칭·점수를 정량 근거로 인용 (운명 해석 X)\n"
     "  • '점수가 낮음·옅은 자리'는 부정 X → '그대만의 개성·결'로 풀이 (운명 해석 X)\n\n"
     "[페르소나 어조]\n"
     "  • 어미: \"~시게\", \"~하시게나\", \"~인고\", \"~이로구먼\", \"~이로세\"\n"
@@ -184,11 +217,12 @@ _STAGE2_PERSONA_SYSTEM = (
     "  • 본인을 '운학 도사' 또는 '이 늙은이'라 칭함. AI/모델/시스템 메타 언급 절대 금지\n\n"
     "[작성 형식]\n"
     "  • 첫 문장: \"허허\"로 시작하는 인사 한 마디\n"
-    "  • 본문: JSON의 5개 영역을 자연스러운 흐름으로 풀어낸다 (각 한 단락, JSON 사실만):\n"
-    "    1) overall_impression — 전체 인상\n"
-    "    2) sangjeong_forehead — 이마(상정 영역)\n"
-    "    3) jungjeong_eyebrow_eye_nose — 눈썹·눈·코(중정 영역)\n"
-    "    4) hajeong_mouth_chin — 입·턱(하정 영역)\n"
+    "  • 본문: anatomical_description의 부위들을 자연스러운 흐름으로 풀어낸다 "
+    "(각 한 단락, JSON 사실만, 해부학 명칭 + 결정론 명칭 모두 사용 가능):\n"
+    "    1) face_outline·complexion — 전체 인상 (윤곽·기색)\n"
+    "    2) forehead — 이마 (결정론에 상정·관록궁 있으면 인용 가능)\n"
+    "    3) eyebrow·eye·nose — 눈썹·눈·코 (결정론에 명궁·재백궁 등 있으면 인용 가능)\n"
+    "    4) mouth·chin — 입·턱 (결정론에 하정·노복궁 등 있으면 인용 가능)\n"
     "    5) distinctive_feature — 그대만의 한 가지\n"
     "  • 마무리 한 줄: \"이 늙은이의 한 마디 — …\" 형식으로 photo_quality_note + 면책 안내\n"
     "  • 800~1300자, 마크다운 없이 자연 문장. 사극풍 어조 일관 유지\n\n"
@@ -447,59 +481,31 @@ def _build_stage1_user_text(
     age: int | None,
     gender: str | None,
     question: str | None,
-    palace_scores: dict[str, Any] | None,
-    face_shape: dict[str, Any] | None,
 ) -> str:
     """Stage 1 Opus 객관 JSON용 사용자 메시지.
 
-    페르소나 어조 X, 운명 매핑 X. 결정론 점수만 명시 전달.
+    Phase 19: 결정론 점수 미주입 — Opus는 사진만 보고 해부학 명칭으로 묘사.
+    학파 용어(12궁/5형/삼정)도 미주입. 사전학습 운명 매핑 차단.
     """
-    lines: list[str] = ["[USER CONTEXT — for descriptor scope, not for fortune telling]"]
+    lines: list[str] = ["[USER CONTEXT — minimal scope hint, not for interpretation]"]
     if age is not None:
         lines.append(f"  • approximate age: {age}")
     if gender:
         lines.append(f"  • gender: {gender}")
     q = (question or "").strip()
     if q:
-        lines.append(f"  • user query (note: do NOT interpret fate even if user asks): {q}")
-
-    if face_shape and face_shape.get("shape_type"):
-        lines.append("")
-        lines.append("[DETERMINISTIC FACE SHAPE — MediaPipe-based classification, ADR-022]")
-        lines.append(f"  • shape: {face_shape['shape_type']} ({face_shape.get('morphological_name', '')})")
-
-    if palace_scores:
-        lines.append("")
-        lines.append("[DETERMINISTIC 12-PALACE / SAMJEONG / OGWAN SCORES — ADR-004]")
-        samjeong = palace_scores.get("samjeong") or {}
-        if samjeong:
-            sj = ", ".join(
-                f"{v.get('label_ko', k)}={v.get('score', 0):.2f}"
-                for k, v in list(samjeong.items())[:3]
-            )
-            lines.append(f"  • samjeong: {sj}")
-        ogwan = palace_scores.get("ogwan") or {}
-        if ogwan:
-            og = ", ".join(
-                f"{v.get('label_ko', k)}={v.get('score', 0):.2f}"
-                for k, v in list(ogwan.items())[:5]
-            )
-            lines.append(f"  • ogwan: {og}")
-        top = palace_scores.get("top_palace")
-        weak = palace_scores.get("weakest_palace")
-        if top:
-            lines.append(f"  • top palace: {top}")
-        if weak:
-            lines.append(f"  • weakest palace: {weak}")
-        shen = palace_scores.get("shen_score")
-        qi = palace_scores.get("qi_score")
-        if shen is not None or qi is not None:
-            lines.append(f"  • shen/qi: shen={shen or 0:.2f}, qi={qi or 0:.2f}")
+        lines.append(
+            f"  • user query (informational only — do NOT interpret destiny "
+            f"or character even if user asks): {q}"
+        )
 
     lines.append("")
     lines.append(
-        "Output a single JSON object following the schema in the system prompt. "
-        "Korean values for visual descriptors. No prose, no markdown, no commentary."
+        "Output a single JSON object following the anatomical schema in the system "
+        "prompt. Use ONLY anatomical region names (이마·눈썹·눈·코·입·턱·뺨·"
+        "광대뼈·미간·인중 등). Physiognomy school terminology is strictly forbidden "
+        "by the system prompt. Korean values for visual descriptors. "
+        "No prose, no markdown, no commentary."
     )
     return "\n".join(lines)
 
@@ -531,33 +537,86 @@ def _call_stage1_objective(
     return parsed
 
 
+def _build_deterministic_scores_summary(
+    palace_scores: dict[str, Any] | None,
+    face_shape: dict[str, Any] | None,
+) -> dict[str, Any]:
+    """Stage 2용 결정론 점수 요약 — 12궁·삼정·오관·5형 명칭 + 점수.
+
+    Phase 19: Stage 1(Opus)은 결정론 점수 못 받음 → Stage 2(Gemini)가 받음.
+    학파 명칭은 본 결정론 출처에서만 흘러나옴. 사전학습 인입 차단.
+    """
+    out: dict[str, Any] = {}
+    if face_shape and face_shape.get("shape_type"):
+        out["face_shape"] = {
+            "shape": face_shape["shape_type"],
+            "morphological_name": face_shape.get("morphological_name", ""),
+        }
+    if palace_scores:
+        samjeong = palace_scores.get("samjeong") or {}
+        if samjeong:
+            out["samjeong"] = {
+                v.get("label_ko", k): round(float(v.get("score", 0)), 2)
+                for k, v in list(samjeong.items())[:3]
+            }
+        ogwan = palace_scores.get("ogwan") or {}
+        if ogwan:
+            out["ogwan"] = {
+                v.get("label_ko", k): round(float(v.get("score", 0)), 2)
+                for k, v in list(ogwan.items())[:5]
+            }
+        if palace_scores.get("top_palace"):
+            out["top_palace"] = palace_scores["top_palace"]
+        if palace_scores.get("weakest_palace"):
+            out["weakest_palace"] = palace_scores["weakest_palace"]
+        shen = palace_scores.get("shen_score")
+        qi = palace_scores.get("qi_score")
+        if shen is not None or qi is not None:
+            out["shen_qi"] = {
+                "shen": round(float(shen or 0), 2),
+                "qi": round(float(qi or 0), 2),
+            }
+    return out
+
+
 def _call_stage2_persona(
-    objective_json: dict[str, Any],
+    anatomical_description: dict[str, Any],
+    deterministic_scores: dict[str, Any],
     age: int | None,
     gender: str | None,
     question: str | None,
 ) -> str:
     """Stage 2 — Gemini 2.5 Flash Lite 사극 어조 변환. 사진 미열람.
 
+    Phase 19: Stage 1 해부학 JSON + 결정론 점수 요약 두 가지를 함께 수신.
+    Opus 사전학습에서 학파 명칭이 흘러나오지 않게, 12궁·5형 명칭은 본 함수가
+    결정론 출처로 명시 전달.
+
     Bizrouter google/gemini-2.5-flash-lite 우선. 실패 시 Bizrouter 통한
     Opus 호출 또는 Anthropic SDK Opus 직접 호출 fallback (페르소나 변환만).
     """
-    json_str = json.dumps(objective_json, ensure_ascii=False, indent=2)
-    user_lines = ["[객관 묘사 JSON — 이 사실만으로 사극 어조 풀이 작성]"]
+    anatomical_str = json.dumps(anatomical_description, ensure_ascii=False, indent=2)
+    scores_str = json.dumps(deterministic_scores, ensure_ascii=False, indent=2)
+    user_lines = ["[입력 1 — 해부학 묘사 JSON (Opus가 사진을 보고 산출, 학파 용어 X)]"]
+    user_lines.append(anatomical_str)
+    user_lines.append("")
+    user_lines.append("[입력 2 — 결정론 점수 (MediaPipe + ADR-004/022, 학파 명칭의 유일한 출처)]")
+    user_lines.append(scores_str if deterministic_scores else "(결정론 점수 없음 — 해부학 명칭만 사용)")
+    user_lines.append("")
+    user_lines.append("[사용자 컨텍스트]")
     if age is not None:
-        user_lines.append(f"\n사용자 나이: 약 {age}세")
+        user_lines.append(f"  • 나이: 약 {age}세")
     if gender:
-        user_lines.append(f"사용자 성별: {gender}")
+        user_lines.append(f"  • 성별: {gender}")
     q = (question or "").strip()
     if q:
-        user_lines.append(f"사용자 화두: {q} (※ 운명 해석은 거절 — 시스템 프롬프트의 안전 거절구로 처리)")
-    user_lines.append("")
-    user_lines.append("[객관 묘사 JSON]")
-    user_lines.append(json_str)
+        user_lines.append(f"  • 화두: {q} (※ 운명 해석 요청 시 안전 거절구로 처리)")
     user_lines.append("")
     user_lines.append(
-        "위 JSON에 있는 시각 사실만으로 운학 도사 어조의 풀이를 작성하시게. "
-        "JSON에 없는 새 시각 사실을 절대 추가하지 말 것. 운명 해석 X."
+        "위 두 JSON에 있는 사실만으로 운학 도사 어조의 풀이를 작성하시게. "
+        "입력 1에 없는 새 시각 사실 절대 추가 금지. "
+        "12궁·5형·삼정 명칭은 입력 2(결정론 점수)에 있는 것만 사용. "
+        "입력 2에 없는 학파 명칭은 사전학습으로 끌어오지 말 것. 운명 해석 X."
     )
     user_text = "\n".join(user_lines)
 
@@ -613,38 +672,60 @@ def _call_stage2_persona(
         pass
 
     # 최종 폴백 — JSON을 단순 사극 템플릿으로 직접 변환 (LLM 완전 실패 시)
-    return _render_persona_template(objective_json)
+    return _render_persona_template(anatomical_description, deterministic_scores)
 
 
-def _render_persona_template(obj: dict[str, Any]) -> str:
+def _render_persona_template(
+    anat: dict[str, Any],
+    scores: dict[str, Any] | None = None,
+) -> str:
     """LLM 두 단계 모두 실패 시 결정론 템플릿 폴백.
 
-    객관 묘사를 운학 도사 어조로 최소 변환. JSON 사실만 인용, 새 사실 추가 X.
+    Phase 19: 해부학 JSON + 결정론 점수 두 가지를 운학 도사 어조로 최소 변환.
+    학파 명칭은 결정론 점수 출처에서만 옴 (사전학습 인입 X).
     """
-    overall = obj.get("overall_impression") or {}
-    sj = obj.get("sangjeong_forehead") or {}
-    jj = obj.get("jungjeong_eyebrow_eye_nose") or {}
-    hj = obj.get("hajeong_mouth_chin") or {}
-    distinct = obj.get("distinctive_feature") or "(특이점 없음)"
-    quality = obj.get("photo_quality_note") or "촬영 환경 양호"
+    outline = anat.get("face_outline") or {}
+    fh = anat.get("forehead") or {}
+    eb = anat.get("eyebrow") or {}
+    ey = anat.get("eye") or {}
+    nose = anat.get("nose") or {}
+    mouth = anat.get("mouth") or {}
+    chin = anat.get("chin") or {}
+    cheek = anat.get("cheek_zygomatic") or {}
+    comp = anat.get("complexion") or {}
+    distinct = anat.get("distinctive_feature") or "(특이점 기록 없음)"
+    quality = anat.get("photo_quality_note") or "촬영 환경 양호"
+
+    scores = scores or {}
+    face_shape = (scores.get("face_shape") or {}).get("shape") if isinstance(scores.get("face_shape"), dict) else None
+    top_palace = scores.get("top_palace")
 
     parts: list[str] = []
     parts.append("허허, 자, 보시게.")
+    shape_phrase = ""
+    if face_shape:
+        shape_phrase = f"오행으로 보면 {face_shape}의 결이로구먼. "
     parts.append(
-        f"전체 인상은 {overall.get('shape', '평이한 형')}에 "
-        f"{overall.get('balance', '균형 잡힌')} 결이로구먼. "
-        f"기색은 {overall.get('complexion', '평이한 결')}이로세."
+        f"{shape_phrase}전체 윤곽은 {outline.get('shape', '평이한 형')}에 "
+        f"{outline.get('left_right_symmetry', '대체로 균형 잡힌')} 결이로세. "
+        f"기색은 {comp.get('color_cast', '평이한')}이로다."
     )
     parts.append(
-        f"이마(상정 영역)는 {sj.get('width', '')} {sj.get('shape', '')}한 결에 "
-        f"주름은 {sj.get('wrinkles', '옅은')}이로다."
+        f"이마는 {fh.get('width', '')} {fh.get('shape', '')}한 결에 "
+        f"주름은 {fh.get('wrinkles', '옅은')}이로구먼."
     )
     parts.append(
-        f"중정 영역은 눈썹 {jj.get('eyebrow', '')}, 눈 {jj.get('eye', '')}, "
-        f"코 {jj.get('nose', '')}한 결이로구먼."
+        f"눈썹은 {eb.get('thickness', '')} {eb.get('shape', '')}하고, "
+        f"눈은 {ey.get('size', '')} {ey.get('gaze_intensity', '')}한 결이로다. "
+        f"코는 콧대 {nose.get('bridge', '')}, 콧방울 {nose.get('nostril_wing', '')}이로세."
     )
+    palace_phrase = ""
+    if top_palace:
+        palace_phrase = f" 결정론 점수로는 {top_palace}이 도드라지는구먼."
     parts.append(
-        f"하정 영역은 입 {hj.get('mouth', '')}, 턱 {hj.get('chin', '')}한 결이로세."
+        f"입은 {mouth.get('thickness', '')} 입꼬리 {mouth.get('corner', '')}, "
+        f"턱은 {chin.get('shape', '')} {chin.get('fullness', '')}하고, "
+        f"광대뼈는 {cheek.get('prominence', '')} 뺨은 {cheek.get('fullness', '')}이로다.{palace_phrase}"
     )
     parts.append(f"그대만의 한 가지는 {distinct}이로구먼.")
     parts.append(f"이 늙은이의 한 마디 — {quality}. 이 풀이는 시각 형상 묘사일 뿐이로다.")
@@ -738,37 +819,36 @@ def generate_face_reading(
         cached["face_shape"] = face_shape_dict
         return cached
 
-    # 2. 2단계 파이프라인 (ADR-005 Supplement 3)
-    # Stage 1: Opus 4.7 Vision → 객관 묘사 JSON (페르소나 X, 운명 매핑 X)
-    # Stage 2: Gemini 2.5 Flash Lite → 사극 어조 변환 (사진 미열람, 새 사실 추가 X)
-    stage1_user = _build_stage1_user_text(
-        age, gender, question,
-        palace_scores=palace_scores,
-        face_shape=face_shape_dict,
-    )
+    # 2. 2단계 파이프라인 (ADR-005 Supplement 4)
+    # Stage 1: Opus 4.7 Vision → 해부학 묘사 JSON (학파 용어 X, 결정론 점수 미수신)
+    # Stage 2: Gemini 2.5 Flash Lite → 해부학 JSON + 결정론 점수 → 사극 어조
+    stage1_user = _build_stage1_user_text(age, gender, question)
     usage_sink: list[Any] = []
     try:
-        objective_json = _call_stage1_objective(
+        anatomical_description = _call_stage1_objective(
             stage1_user, image_b64, usage_sink=usage_sink
         )
     except Exception:
-        # Stage 1 실패 시 — 결정론 점수만으로 최소 JSON 합성 (객관 묘사 누락 인정)
-        objective_json = {
-            "overall_impression": {"shape": "", "balance": "", "complexion": ""},
-            "sangjeong_forehead": {"width": "", "shape": "", "wrinkles": ""},
-            "jungjeong_eyebrow_eye_nose": {"eyebrow": "", "eye": "", "nose": ""},
-            "hajeong_mouth_chin": {"mouth": "", "chin": ""},
+        # Stage 1 실패 시 — 빈 해부학 JSON (결정론 점수는 Stage 2에서 별도 주입)
+        anatomical_description = {
+            "face_outline": {"shape": "", "width_height_balance": "", "left_right_symmetry": ""},
+            "forehead": {"width": "", "shape": "", "wrinkles": ""},
+            "eyebrow": {"thickness": "", "length": "", "shape": ""},
+            "eye": {"size": "", "shape": "", "gaze_intensity": "", "clarity": ""},
+            "nose": {"bridge": "", "nostril_wing": "", "tip": ""},
+            "mouth": {"thickness": "", "corner": ""},
+            "chin": {"shape": "", "fullness": ""},
+            "cheek_zygomatic": {"prominence": "", "fullness": ""},
+            "complexion": {"tone": "", "color_cast": ""},
             "distinctive_feature": "",
-            "deterministic_scores_cited": {
-                "top_palace": (palace_scores or {}).get("top_palace"),
-                "weakest_palace": (palace_scores or {}).get("weakest_palace"),
-                "face_shape": (face_shape_dict or {}).get("shape_type"),
-                "shen_qi": None,
-            },
             "photo_quality_note": "Stage 1 시각 분석 실패 — 결정론 점수 단독 풀이",
         }
 
-    reading_text = _call_stage2_persona(objective_json, age, gender, question)
+    # Stage 2 — 해부학 JSON + 결정론 점수 요약 두 가지 입력
+    deterministic_scores = _build_deterministic_scores_summary(palace_scores, face_shape_dict)
+    reading_text = _call_stage2_persona(
+        anatomical_description, deterministic_scores, age, gender, question,
+    )
     legal = build_legal_footer(is_crisis=False)
     full_text = (reading_text or "").strip() + legal
 
@@ -785,7 +865,8 @@ def generate_face_reading(
         "legal_notice": legal,
         "palace_scores": palace_scores,
         "face_shape": face_shape_dict,
-        "objective_json": objective_json,  # Phase 18 — 검증 가능성 (ADR-010)
+        "anatomical_description": anatomical_description,  # Phase 19 — Opus 순수 해부학 JSON
+        "deterministic_scores_summary": deterministic_scores,  # Phase 19 — Stage 2 결정론 입력
     }
     _save_cache(key, out)
     return out
