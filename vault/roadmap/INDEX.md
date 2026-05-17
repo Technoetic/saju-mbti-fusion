@@ -26,7 +26,7 @@ Session Handoff 정신 — "Needs Human Review" 명시 — 을 분류 라벨에 
 
 → 새 세션에서 AI가 작업 시작 시 ⚪부터 검토하면 사용자 개입 없이 진행 가능.
 
-## 🟢 외부 입력 대기 (본문화 완료 12건 포함: ADR-020~031)
+## 🟢 외부 입력 대기 (본문화 완료 13건 포함: ADR-020~032)
 
 ### 작명·관상·사주·손금 도메인
 
@@ -36,7 +36,7 @@ Session Handoff 정신 — "Needs Human Review" 명시 — 을 분류 라벨에 
 | ✅ 손금 4대 선 + 금성대 결정론 점수 완료 (ADR-030, 회귀 21 PASS / 120/120 라벨 100%) | [[../done/palm-scoring-deterministic]] | done | — |
 | ✅ 사주 십이운성 결정론 매핑 완료 (ADR-031, 120 셀 자평진전 + 17 회귀 PASS) | [[../done/saju-twelve-stages]] | done | — |
 | 🟡 한국 성씨·인명 빈도 — **부분 완료** (ADR-029 본문화, 15 성씨 + 30쌍 회귀 12 PASS) | [[../reports/korean-name-frequency-statistics]] | done (부분) | — |
-| 통계청 KOSIS 300위 전수 추출 + 한자 동음이의 + 음절 미인기 결합 보정 (ADR-029 18 known-limitation 해소) | [[../reports/korean-name-frequency-statistics]] | 중 | [[../templates/PROMPT_korean-surname-kosis-300]] |
+| 🟡 통계청 KOSIS 300위 추출 — **신규 보고서 도착 대기 처리** (사용자 placed 보고서) | (사용자 placed 보고서) | 중 | (사용자 보고서, PROMPT 삭제) |
 | ✅ 한국 화투 48매 결정론 점패 엔진 완료 (ADR-025, 회귀 30 PASS, 핵심 6패) | [[../done/hwapae-korean-deterministic]] | done | (사용자 의도 삭제) |
 | ✅ §4 인명용 한자 9389자 → 9932자 본문화 완료 (ADR-026, scourt API 직접 추출) | [[../done/hanja-9389-scourt-api]] | done | (사용자 의도 삭제) |
 | ✅ 궁합 MBTI 16×16 매트릭스 v2 완료 (ADR-024, 회귀 29 PASS) | [[../done/saju-mbti-compat-v2]] | done | (사용자 의도 삭제) |
