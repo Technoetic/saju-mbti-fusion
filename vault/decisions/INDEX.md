@@ -37,6 +37,7 @@ last_updated: 2026-05-17
 | ADR-025 | [[ADR-025-hwapae-korean-deterministic]] | accepted | 2026-05-17 |
 | ADR-026 | [[ADR-026-hanja-9389-scourt-api]] | accepted | 2026-05-17 |
 | ADR-027 | [[ADR-027-resource-ohaeng-kci-option-c]] | accepted | 2026-05-17 |
+| ADR-028 | [[ADR-028-korean-phonetic-rules-priority-1-2]] | accepted | 2026-05-17 |
 
 ## 원칙
 

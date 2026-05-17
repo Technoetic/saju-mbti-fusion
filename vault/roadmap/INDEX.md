@@ -41,7 +41,7 @@ Session Handoff 정신 — "Needs Human Review" 명시 — 을 분류 라벨에 
 | ✅ 궁합 MBTI 16×16 매트릭스 v2 완료 (ADR-024, 회귀 29 PASS) | [[../done/saju-mbti-compat-v2]] | done | (사용자 의도 삭제) |
 | 🟡 §4 자원오행 5001자 — **부분 완료** (ADR-027, KCI 94자 본문화) | [[../reports/resource-ohaeng-kci-mapping]] | 중 | (잔여 작업: 아래) |
 | 신규 1,407자 부수 + KCI 자원오행 매핑 (ADR-027 잔여 영역 해소) | [[../reports/resource-ohaeng-kci-mapping]] | **높음** | [[../templates/PROMPT_hanja-1407-radical-ohaeng]] |
-| 🟡 §5 음운 결합 규칙 — **신규 보고서 도착 대기 처리** | (사용자 placed 보고서) | 중 | (사용자 보고서) |
+| 🟡 §5 음운 결합 규칙 — **부분 완료** (ADR-028 Priority 1·2 본문화, 회귀 14/30 PASS) | [[../reports/korean-phonetic-rules-architecture]] | done (P1·2) | (Priority 3 별도 ADR 후보) |
 
 ### 꿈해석 멀티에이전트 (engine/agents/ TODO 명시 영역)
 
