@@ -53,6 +53,16 @@ _FACE_SYSTEM = (
     "중정(中停 · 눈썹부터 코끝, 중년·기개), 하정(下停 · 인중부터 턱, 말년·복록). "
     "또한 오관(五官 · 눈썹·눈·귀·코·입)과 십이궁(十二宮)을 살피지. "
     "기색(氣色)과 신(神 · 눈빛) 도 빼놓을 수 없네.\n\n"
+    "[결정론 점수와 사진의 역할 분담 — ADR-004·022 정합]\n"
+    "  • 유저 메시지에 [얼굴 구조 분류] / [십이궁·삼정·오관 결정론 점수] 가 포함되면 "
+    "비율·대칭·구조의 정량 측정 결과로 풀이의 근거로 인용한다.\n"
+    "  • 점수가 높음 = 표준 비율에 부합. 점수가 낮음 = 표준에서 벗어남 — 결코 부정 표현 X, "
+    "그대만의 개성·결로 해석.\n"
+    "  • 5형 분류(목·화·토·금·수)는 첫 문단 '전체 인상'에 자연스럽게 녹여 인용 — "
+    "단 '학파 채택 강요' 표현 X (예: '~형이라 단정' X, '~의 결이 보이는구먼' O).\n"
+    "  • 사진은 키포인트로 환원 불가능한 정성 정보 — 기색(氣色)·신(神 눈빛)·표정·전체 인상은 "
+    "시각으로 직접 살피시게.\n"
+    "  • 결정론 점수와 시각 인상이 충돌하면 둘 다 명시 (예: '비율은 X 이로되, 기색은 Y 한 결').\n\n"
     "[작성 형식]\n"
     "  • 첫 문장: \"허허\"로 시작하는 인사 한 마디.\n"
     "  • 본문: 다음 다섯 자리를 자연스러운 흐름으로 풀어낸다 (각 한 단락):\n"
@@ -109,8 +119,19 @@ def _save_cache(key: str, data: dict[str, Any]) -> None:
         pass
 
 
-def _build_user_text(age: int | None, gender: str | None, question: str | None) -> str:
-    """이미지와 함께 보낼 텍스트 부분."""
+def _build_user_text(
+    age: int | None,
+    gender: str | None,
+    question: str | None,
+    palace_scores: dict[str, Any] | None = None,
+    face_shape: dict[str, Any] | None = None,
+) -> str:
+    """이미지와 함께 보낼 텍스트 부분 — 사진 + 결정론 점수 4중 신호 통합.
+
+    Args:
+        palace_scores: face_scoring report_to_dict() — 12궁·삼정·오관 결정론 점수
+        face_shape: face_shape FaceShapeResult asdict — 오행 5형 분류
+    """
     lines = ["[그대의 정보]"]
     if age is not None:
         lines.append(f"  • 나이: 약 {age}세")
@@ -118,9 +139,50 @@ def _build_user_text(age: int | None, gender: str | None, question: str | None) 
         lines.append(f"  • 성별: {gender}")
     q = (question or "").strip()
     lines.append(f"  • 화두: {q if q else '(특별한 화두 없이 전체 상을 봐주십시오)'}")
+
+    # 결정론 점수 — 5형 (얼굴 구조 본바탕, ADR-022)
+    if face_shape and face_shape.get("shape_type"):
+        lines.append("")
+        lines.append("[얼굴 구조 분류 — MediaPipe 키포인트 기반 결정론, ADR-022]")
+        lines.append(f"  • 오행 5형: {face_shape['shape_type']} ({face_shape.get('morphological_name', '')})")
+        criteria = face_shape.get("matched_criteria") or []
+        if criteria:
+            lines.append(f"  • 통과 임계값: {', '.join(str(c) for c in criteria[:3])}")
+
+    # 결정론 점수 — 12궁·삼정·오관 (ADR-004)
+    if palace_scores:
+        lines.append("")
+        lines.append("[십이궁·삼정·오관 결정론 점수 — MediaPipe 478 키포인트 비율·대칭, ADR-004]")
+        samjeong = palace_scores.get("samjeong") or {}
+        if samjeong:
+            sj_line = ", ".join(
+                f"{v.get('label_ko', k)} {v.get('score', 0):.2f}"
+                for k, v in list(samjeong.items())[:3]
+            )
+            lines.append(f"  • 삼정: {sj_line}")
+        ogwan = palace_scores.get("ogwan") or {}
+        if ogwan:
+            og_line = ", ".join(
+                f"{v.get('label_ko', k)} {v.get('score', 0):.2f}"
+                for k, v in list(ogwan.items())[:5]
+            )
+            lines.append(f"  • 오관: {og_line}")
+        top = palace_scores.get("top_palace")
+        weak = palace_scores.get("weakest_palace")
+        if top:
+            lines.append(f"  • 가장 또렷한 자리: {top}")
+        if weak:
+            lines.append(f"  • 가장 옅은 자리: {weak} (※ 부정 표현 X, 개성으로 해석)")
+        shen = palace_scores.get("shen_score")
+        qi = palace_scores.get("qi_score")
+        if shen is not None or qi is not None:
+            lines.append(f"  • 신(神)·기(氣) 정량: 신 {shen or 0:.2f}, 기 {qi or 0:.2f}")
+
     lines.append("")
     lines.append(
-        "위 사진을 보고 운학 도사의 어조로 관상 풀이를 해주시게나. "
+        "위 사진과 결정론 점수를 함께 참조하여 운학 도사의 어조로 관상 풀이를 해주시게나. "
+        "결정론 점수는 비율·대칭·구조의 측정 결과 — 풀이의 근거로 인용하되, "
+        "사진의 기색(氣色)·신(神 눈빛)·표정 같은 정성 정보는 시각으로 직접 살피시게. "
         "전체 인상 → 상정(이마) → 중정(눈·코) → 하정(입·턱) → 그대만의 한 가지 → 한 마디 권유 의 "
         "흐름으로 자연스럽게 풀어주시게."
     )
@@ -318,12 +380,23 @@ def generate_face_reading(
             "prompt_cache_usage": None,
         }
 
-    # 키포인트 → 12궁 결정론 점수 (LLM 호출 전, 캐시와 무관하게 항상 산출)
+    # 키포인트 → 12궁·5형 결정론 점수 (LLM 호출 전, 캐시와 무관하게 항상 산출)
+    # ADR-004 (face_scoring) + ADR-022 (face_shape) 정합. 4중 신호 통합 풀이.
     from engine.divination.face_scoring import score_face, report_to_dict
     score_report = score_face(metrics)
     palace_scores = report_to_dict(score_report)
 
-    # 1. 캐시 — 같은 이미지+보조정보 24h 재사용 (메트릭은 캐시 키에 미포함, palace_scores만 재산출)
+    face_shape_dict: dict[str, Any] | None = None
+    if metrics:
+        try:
+            from dataclasses import asdict
+            from engine.divination.face_shape import classify_face_shape
+            shape_result = classify_face_shape(metrics)
+            face_shape_dict = asdict(shape_result)
+        except Exception:
+            face_shape_dict = None
+
+    # 1. 캐시 — 같은 이미지+보조정보 24h 재사용 (메트릭은 캐시 키에 미포함, 결정론은 항상 재산출)
     key = _hash_payload(image_b64, age, gender, question)
     cached = _load_cache(key)
     if cached is not None:
@@ -331,12 +404,18 @@ def generate_face_reading(
         cached.setdefault("legal_notice", None)
         cached.setdefault("prompt_cache_usage", None)
         cached["text"] = cached.get("text", "") + ""
-        # palace_scores는 결정론이므로 항상 최신 재산출 (캐시 본문 그대로 + 점수만 갱신)
+        # palace_scores·face_shape는 결정론이므로 항상 최신 재산출 (캐시 본문 그대로 + 점수만 갱신)
         cached["palace_scores"] = palace_scores
+        cached["face_shape"] = face_shape_dict
         return cached
 
     # 2. LLM 호출 — ADR-013 prompt cache telemetry sink 동반
-    user_text = _build_user_text(age, gender, question)
+    # 4중 신호: 사진 + age/gender/question + palace_scores + face_shape
+    user_text = _build_user_text(
+        age, gender, question,
+        palace_scores=palace_scores,
+        face_shape=face_shape_dict,
+    )
     usage_sink: list[Any] = []
     text = _call_vision(_FACE_SYSTEM, user_text, image_b64, usage_sink=usage_sink)
     legal = build_legal_footer(is_crisis=False)
@@ -354,6 +433,7 @@ def generate_face_reading(
         "crisis_alert": None,
         "legal_notice": legal,
         "palace_scores": palace_scores,
+        "face_shape": face_shape_dict,
     }
     _save_cache(key, out)
     return out
