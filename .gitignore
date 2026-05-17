@@ -21,6 +21,12 @@ web/node_modules/
 step_archive/
 tarot_*.png
 tarot_*.json
+inspect_tarot*.js
+
+# web/ 잘못 추적된 Node 잔재 (FastAPI/Python 백엔드라 Node 의존성 0)
+web/package.json
+web/package-lock.json
+web/node_modules/
 
 # 외부 딥리서치 보고서 원본 (프로젝트 루트로 받은 .md) — vault/reports/ 본문화 후 사용
 # squeeze-report로 가치 추출 후 vault/reports/<주제>.md 영속화. 원본은 commit X.
