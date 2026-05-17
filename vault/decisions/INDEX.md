@@ -23,6 +23,7 @@ last_updated: 2026-05-17
 | ADR-011 | [[ADR-011-l1-file-integrity]] | accepted | 2026-05-17 |
 | ADR-012 | [[ADR-012-tool-read-deny]] | accepted | 2026-05-17 |
 | ADR-013 | [[ADR-013-prompt-cache-telemetry]] | accepted | 2026-05-17 |
+| ADR-014 | [[ADR-014-saju-mbti-prediction-exception]] | accepted | 2026-05-17 |
 
 ## 원칙
 

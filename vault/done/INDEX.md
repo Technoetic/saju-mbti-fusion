@@ -59,3 +59,4 @@ last_updated: 2026-05-17
 | 2026-05-17 | Claude Code Read 권한 거부 — 토큰 낭비 방지 | ADR-012 / [[tool-read-deny]] |
 | 2026-05-17 | Roadmap에 AI vs Human 분담 라벨 명시 | ADR-008 supplement / [[roadmap-human-review-labels]] |
 | 2026-05-17 | Anthropic prompt cache 적중률 측정 인프라 (L2) | ADR-013 / [[prompt-cache-telemetry]] |
+| 2026-05-17 | 사주 → MBTI 4축 경향성 추정 (예외 결정) | ADR-014 / [[saju-mbti-prediction]] |

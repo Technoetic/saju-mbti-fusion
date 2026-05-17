@@ -4,7 +4,9 @@ status: received_with_caveats
 date: 2026-05-17
 source: deepresearch
 domain: saju
-applied_to: []
+applied_to:
+  - 사주→MBTI 4축 경향성 매핑 → ADR-014 + engine/divination/saju_mbti_predictor.py (2026-05-17, 사용자 명시 예외)
+  - 단, 보고서 권장 학설 매핑(식상=NF 등) 채택은 거부 유지 — 본 시스템 자체 매핑만 적용
 neo4j_synced: false
 factuality: high_risk
 related:
