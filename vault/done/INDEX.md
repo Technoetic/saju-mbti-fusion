@@ -60,3 +60,4 @@ last_updated: 2026-05-17
 | 2026-05-17 | Roadmap에 AI vs Human 분담 라벨 명시 | ADR-008 supplement / [[roadmap-human-review-labels]] |
 | 2026-05-17 | Anthropic prompt cache 적중률 측정 인프라 (L2) | ADR-013 / [[prompt-cache-telemetry]] |
 | 2026-05-17 | 사주 → MBTI 4축 경향성 추정 (예외 결정) | ADR-014 / [[saju-mbti-prediction]] |
+| 2026-05-17 | 사주 용신 옵션 B — 이재승 계량화 억부론 (KCI 검증) | ADR-015 / [[saju-option-B-eokbu]] |

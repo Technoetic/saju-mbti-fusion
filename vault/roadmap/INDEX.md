@@ -26,15 +26,15 @@ Session Handoff 정신 — "Needs Human Review" 명시 — 을 분류 라벨에 
 
 → 새 세션에서 AI가 작업 시작 시 ⚪부터 검토하면 사용자 개입 없이 진행 가능.
 
-## 🟢 외부 입력 대기 (3건)
+## 🟢 외부 입력 대기 (2건)
 
 | 항목 | 노트 | 우선도 | 딥리서치 프롬프트 |
 |---|---|---|---|
-| §3 용신 학파 옵션 B (단일 학파 채택) | [[saju-option-B-school]] | 중 | [[../templates/PROMPT_saju-option-B]] |
 | §4 자원오행 5001자 수동 매핑 | [[ohaeng-manual-5001]] | 낮음 | [[../templates/PROMPT_ohaeng-manual-5001]] |
 | §5 어감·선호도 데이터 수집 | [[name-aesthetic-survey]] | 낮음 | [[../templates/PROMPT_aesthetic-survey]] |
 
 > ✅ §1 가족 서열 상대 불용한자 — **완료** (ADR-010 사실성 분리 적용) → [[../done/name-phase3-sibling-preference]]
+> ✅ §3 용신 학파 옵션 B — **완료** (이재승 2019 계량화 억부론, KCI 검증) → [[../done/saju-option-B-eokbu]]
 
 ## 🟡 정책 결정 필요 (2건)
 
