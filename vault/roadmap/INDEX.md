@@ -26,7 +26,9 @@ Session Handoff 정신 — "Needs Human Review" 명시 — 을 분류 라벨에 
 
 → 새 세션에서 AI가 작업 시작 시 ⚪부터 검토하면 사용자 개입 없이 진행 가능.
 
-## 🟢 외부 입력 대기 (6건)
+## 🟢 외부 입력 대기 (9건)
+
+### 작명·관상·사주 도메인
 
 | 항목 | 노트 | 우선도 | 딥리서치 프롬프트 |
 |---|---|---|---|
@@ -35,8 +37,17 @@ Session Handoff 정신 — "Needs Human Review" 명시 — 을 분류 라벨에 
 | 한국 성씨·인명 빈도 (name_uniqueness.py 신설) | (새 항목) | 중 | [[../templates/PROMPT_korean-surname-frequency]] |
 | 화패 48패 결정론 카드 의미 (hwapae.py 보강) | (새 항목) | 중 | [[../templates/PROMPT_hwapae-card-meanings]] |
 | 한국어 표준발음법 §1~§30 작명 적용 (name_aesthetic.py 보강) | (새 항목) | 중 | [[../templates/PROMPT_korean-phonetic-rules]] |
+| §4 인명용 한자 9389자 추가 (saju-app-spec C1 DEFER) | [[../reports/saju-app-spec]] | 중 | 대법원 공식 출처 확보 후 재호출 |
 | §4 자원오행 5001자 수동 매핑 | [[ohaeng-manual-5001]] | 낮음 | [[../templates/PROMPT_ohaeng-manual-5001]] |
 | §5 음운 결합 규칙 (어감 §1 영역) | [[name-aesthetic-survey]] | 낮음 | [[../templates/PROMPT_aesthetic-survey]] |
+
+### 꿈해석 멀티에이전트 (engine/agents/ TODO 명시 영역)
+
+| 항목 | 노트 | 우선도 | 딥리서치 프롬프트 |
+|---|---|---|---|
+| A8 Freud v2 — 4기제·상징 결정론 매핑 (현재 v1 페르소나만) | (새 항목) | 중 | [[../templates/PROMPT_freud-classical-v2]] |
+| A13 사회적 무의식 v3 — DB 클러스터링 (운영 데이터 누적 후) | (새 항목) | 낮음 | [[../templates/PROMPT_social-unconscious-v3]] |
+| B6 DreamNet v4 — 멀티모달 통합 (운영 데이터 누적 후) | (새 항목) | 낮음 | [[../templates/PROMPT_dreamnet-multimodal-v4]] |
 
 > ✅ §1 가족 서열 상대 불용한자 — **완료** (ADR-010 사실성 분리 적용) → [[../done/name-phase3-sibling-preference]]
 > ✅ §3 용신 학파 옵션 B — **완료** (이재승 2019 계량화 억부론, KCI 검증) → [[../done/saju-option-B-eokbu]]
