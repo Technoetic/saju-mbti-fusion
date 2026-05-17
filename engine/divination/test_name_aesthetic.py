@@ -224,3 +224,71 @@ def test_phonetic_deterministic():
     r2 = phonetic_combination_score("선영")
     assert r1["score"] == r2["score"]
     assert r1["smooth_count"] == r2["smooth_count"]
+
+
+# ─────────────────────────── 위치별 음절 (보고서 §2 본문 명시) ───────────────────────────
+
+
+def test_male_top_end_syllable_is_jun():
+    """남자 끝 음절 1위는 보고서 §2 본문 명시대로 '준'."""
+    from engine.divination.name_aesthetic import get_top_positional_syllables
+    top = get_top_positional_syllables("male", "end", 1)
+    assert top[0][0] == "준"
+
+
+def test_female_top_end_syllables():
+    """여자 끝 음절 상위 2개 — '아', '윤' (보고서 §2 본문 명시)."""
+    from engine.divination.name_aesthetic import get_top_positional_syllables
+    top = get_top_positional_syllables("female", "end", 2)
+    top_syllables = {item[0] for item in top}
+    assert top_syllables == {"아", "윤"}
+
+
+def test_position_match_jun_ending():
+    """'이준' (준으로 끝남) → 끝 음절 점수 1.0 (남자 끝 1위)."""
+    from engine.divination.name_aesthetic import position_match_score
+    r = position_match_score("이준", gender="male")
+    assert r["end_syllable"] == "준"
+    assert r["end_score"] == 1.0
+
+
+def test_position_match_uncommon():
+    """비인기 시작·끝 음절 → 낮은 점수."""
+    from engine.divination.name_aesthetic import position_match_score
+    r = position_match_score("괴짜", gender="male")
+    assert r["combined_score"] < 0.3
+
+
+def test_position_match_single_syllable():
+    """1음절 → 위치 평가 불가."""
+    from engine.divination.name_aesthetic import position_match_score
+    r = position_match_score("준", gender="male")
+    assert r["combined_score"] == 0.0
+
+
+def test_position_score_normalized():
+    """위치 점수 모두 [0.0, 1.0]."""
+    from engine.divination.name_aesthetic import position_match_score
+    for name in ["이준", "서아", "박파", "괴짜"]:
+        for gender in ["male", "female"]:
+            r = position_match_score(name, gender=gender)
+            assert 0.0 <= r["start_score"] <= 1.0
+            assert 0.0 <= r["end_score"] <= 1.0
+            assert 0.0 <= r["combined_score"] <= 1.0
+
+
+def test_position_rationale_includes_disclaimer():
+    """위치 점수 출력 면책 의무."""
+    from engine.divination.name_aesthetic import position_match_score
+    r = position_match_score("이준", gender="male")
+    assert "추천 정렬 가점" in r["rationale"]
+    assert "절대 기준이 아닙니다" in r["rationale"]
+
+
+def test_position_match_gender_split():
+    """'이준' (남자 끝 1위) vs '이준' (여자 분류) — 남자 점수 ↑."""
+    from engine.divination.name_aesthetic import position_match_score
+    male_r = position_match_score("이준", gender="male")
+    female_r = position_match_score("이준", gender="female")
+    # '준'은 여자 끝 음절 통계에 없음
+    assert male_r["end_score"] > female_r["end_score"]
