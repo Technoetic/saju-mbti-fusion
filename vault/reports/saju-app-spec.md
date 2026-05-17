@@ -38,7 +38,7 @@ file: "../../../작명 및 개명 특화 애플리케이션 개발을 위한 성
 ### 🟡 보류
 - §3 용신 학파별 도출 → [[../decisions/ADR-002-saju-option-A]] (단순 분포 채택)
 - §4 9389자 - 8525자 = 864자 부족
-- §1 가족 서열 → [[../roadmap/gamily-hierarchy-bulyong]] 대기
+- §1 가족 서열 → 완료 (별도 딥리서치 보고서 + ADR-010 사실성 분리 적용) → [[../done/name-phase3-sibling-preference]]
 
 ### ⛔ 거부
 - §6 법원 신청서 자동 생성 → [[../decisions/ADR-006-legaltech-rejected]]

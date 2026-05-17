@@ -54,3 +54,65 @@ git add data/korean_hanja_unihan.json && git commit && git push
 - DB: 현재 없음 (stateless API)
 - 캐시: `step_archive/face_reading_cache/` — Railway volume
 - 한자 풀: Docker image에 내장 (재배포로 복원)
+
+## Obsidian CLI (1.12+)
+
+본 vault는 Obsidian CLI로 자동 탐색·갱신. 앱이 실행 중일 때만 동작.
+
+### 설치
+- Obsidian 1.12.7 설치 (`D:\Program Files\Obsidian\`)
+- Settings → General → 고급 → "명령줄 인터페이스" 토글 ON
+- "Register CLI" 클릭 → PATH 등록 (미클릭 시 alias 사용)
+
+### 기본 사용
+```bash
+# 명령은 모두 vault=vault 로 본 프로젝트 vault 지정
+OBS="D:/Program Files/Obsidian/Obsidian.com"
+
+# 또는 alias (bashrc 등록됨)
+alias obsidian='"D:/Program Files/Obsidian/Obsidian.com"'
+alias ob-vault='"D:/Program Files/Obsidian/Obsidian.com" vault=vault'
+```
+
+### AI 자동화 명령 (개발 중 사용)
+
+| 명령 | 용도 |
+|---|---|
+| `ob-vault files sort=modified limit=10` | 최근 수정된 노트 10개 |
+| `ob-vault search query="키워드"` | 키워드 검색 (전체 vault) |
+| `ob-vault read path="decisions/ADR-009-hook-cleanup.md"` | 노트 본문 읽기 |
+| `ob-vault backlinks file=ADR-007 counts` | 백링크 + 카운트 |
+| `ob-vault unresolved` | 깨진 백링크 목록 |
+| `ob-vault tags counts` | 태그 통계 |
+| `ob-vault append file=INDEX content="내용"` | 노트 끝 추가 |
+
+### 새 작업 시 AI 점검 워크플로 (CLAUDE.md §1 보강)
+
+```bash
+ob-vault read path="roadmap/INDEX.md"      # 1. 다음 작업 후보
+ob-vault search query="해당 주제 키워드"     # 2. 기존 결정·작업 검색
+ob-vault unresolved                         # 3. 누락 노트 확인
+```
+
+## Claude Code Hook 정책 (ADR-009)
+
+본 프로젝트는 step harness 시스템을 사용하지 않음. `.claude/settings.json`은
+`destructive-guard.ps1`만 유지 (PreToolUse / Bash).
+
+### 활성 hook
+- `destructive-guard.ps1`: rm -rf, git reset --hard, git push --force 차단
+
+### 비활성화된 hook (.claude/hooks/ 폴더에 파일은 존재, settings.json에서 등록 해제)
+- step-progress-loader / writer / auto-continue
+- session-start
+- step-dependency-gate
+- mx-tag-validator
+- spec-generator
+- trust5-validator
+- task-metrics
+- lsp-autofix
+
+### 새 hook 추가 시
+1. 새 ADR 작성 (ADR-009 superseded_by 또는 추가 ADR)
+2. settings.json 수정
+3. 본 runbook 갱신

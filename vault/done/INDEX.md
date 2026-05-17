@@ -12,13 +12,14 @@ last_updated: 2026-05-17
 
 | 일자 | 작업 | 모듈 | 회귀 | 보고서 § |
 |---|---|---|---|---|
+| 2026-05-17 | 가족 서열 한자 선호 모듈 (ADR-010 사실성 분리) | name_sibling_preference.py | 20 | §1 (별도 보고서) |
 | 2026-05-17 | 인명용 한자 풀 8525자 확장 (Unihan) | name_unihan.py | 15 | §4 |
 | 2026-05-17 | 사주 → 추천 자원오행 (옵션 A) | name_saju_ohaeng.py | 13 | §3 |
 | 2026-05-17 | 81수 라벨 1~81 완성 + 종성 발음오행 + 한자 풀 1200 + 개명 트랙 | name_scoring·baleum·hangul_hanja·gaemyeong | 34 | §2·§3·§4·§5-A |
 | 2026-05-17 | 두음법칙·음양·발음오행·개자 트랙 | name_dueum·eumyang·baleum·gaeja | 67 | §3·§4·§5-B |
 | 2026-05-17 | 불용한자·강희자전 원획수·81수리 4격 | name_bulyong·strokes·scoring | 60 | §1·§2 |
 
-→ 자세히: [[name-phase1-bulyong-strokes-scoring]] / [[name-phase2-saju-unihan]]
+→ 자세히: [[name-phase1-bulyong-strokes-scoring]] / [[name-phase2-saju-unihan]] / [[name-phase3-sibling-preference]]
 
 ## 관상 도메인
 
@@ -46,3 +47,11 @@ last_updated: 2026-05-17
 - Railway 배포 + CI/CD GitHub Actions
 - Docker 이미지 + data/ 폴더 포함 (8525자 JSON 라이브 로드)
 - conftest.py로 단위 테스트 일시 skip (다른 컴 동기화 PR 대기 중)
+
+## 메타·AI 협업
+
+| 일자 | 작업 | 관련 |
+|---|---|---|
+| 2026-05-17 | Obsidian Vault 도입 (25개 파일) | ADR-007 |
+| 2026-05-17 | CLAUDE.md 프로젝트 전용 분리 | ADR-008 |
+| 2026-05-17 | Hook 정리 — destructive-guard만 유지 | ADR-009 / [[hook-cleanup]] |

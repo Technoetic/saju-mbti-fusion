@@ -13,6 +13,7 @@ last_updated: 2026-05-17
 | 일자 | 제목 | 출처 | 반영 상태 |
 |---|---|---|---|
 | 2026-05-15 | [[saju-app-spec]] (작명 보고서) | 외부 작성 | §1~§5 본문화 완료, §6 거부, §3 옵션 A 채택 |
+| 2026-05-17 | [[name-sibling-bulyong]] (가족 서열 상대 불용한자) | 딥리서치 | 수신 — 본문화 대기 (ADR-010 예정) |
 
 ## 대기 중인 보고서
 
@@ -20,9 +21,10 @@ last_updated: 2026-05-17
 
 | 항목 | 노트 |
 |---|---|
-| §1 가족 서열 상대 불용 | [[../roadmap/gamily-hierarchy-bulyong]] |
 | §3 용신 학파 옵션 B | [[../roadmap/saju-option-B-school]] |
 | 자원오행 5001자 | [[../roadmap/ohaeng-manual-5001]] |
+
+✅ §1 가족 서열 상대 불용 — 완료 ([[name-sibling-bulyong]] 보고서 → ADR-010 사실성 분리 적용 → [[../done/name-phase3-sibling-preference]])
 
 ## 보고서 받는 절차
 
