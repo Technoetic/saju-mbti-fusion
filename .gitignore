@@ -39,6 +39,12 @@ desktop.ini
 data/unihan/Unihan.zip
 data/unihan/*.txt
 
+# 런타임 SQLite DB (사용자 데이터·로그) — Railway volume에서 운영
+data/app.db
+data/app.db-journal
+data/app.db-wal
+data/app.db-shm
+
 # Obsidian Vault 설정 (개인 워크스페이스만, 노트는 commit)
 vault/.obsidian/workspace*.json
 vault/.obsidian/graph.json
