@@ -2,7 +2,7 @@
 type: index
 section: roadmap
 last_updated: 2026-05-17
-note: 관상 도메인 결손 5건 식별 + HIGH 2건 PROMPT 페어 영속화 (PROMPT_physiognomy-knowledge-db, PROMPT_facial-feature-classification)
+note: ADR-034 Phase 1 (입꼬리) 본문화 완료 + Phase 2 PROMPT 페어 신규 영속화 (코·눈·턱 μ·σ·N)
 ---
 
 # 로드맵 — 앞으로 할 작업
@@ -38,7 +38,8 @@ Session Handoff 정신 — "Needs Human Review" 명시 — 을 분류 라벨에 
 | ✅ 사주 십이운성 결정론 매핑 완료 (ADR-031, 120 셀 자평진전 + 17 회귀 PASS) | [[../done/saju-twelve-stages]] | done | — |
 | 🟡 한국 성씨·인명 빈도 — **부분 완료** (ADR-029 본문화, 15 성씨 + 30쌍 회귀 12 PASS) | [[../reports/korean-name-frequency-statistics]] | done (부분) | — |
 | 🟢 관상학 통설 코드 DB (30+ 항목, Stage 2 인용 출처) — **딥리서치 대기** (옵션 C 정합) | [[../templates/PROMPT_physiognomy-knowledge-db]] | 높음 | [[../templates/PROMPT_physiognomy-knowledge-db]] |
-| 🟢 부위별 형상 결정론 분류 (코·눈썹·눈·입·귀·턱) — **딥리서치 대기** (ADR-022 부위 확장) | [[../templates/PROMPT_facial-feature-classification]] | 높음 | [[../templates/PROMPT_facial-feature-classification]] |
+| 🟡 부위별 형상 결정론 분류 Phase 1 (입꼬리) — **완료** (ADR-034, 회귀 18 PASS, classify_mouth_corner) | [[../done/facial-feature-mouth-corner-phase1]] | done | — |
+| 🟢 부위별 형상 결정론 분류 Phase 2 (코·눈·턱 μ·σ·N) — **딥리서치 대기** (Phase 1 DEFER 4건 잠금 해제) | [[../templates/PROMPT_facial-feature-classification-phase2]] | 높음 | [[../templates/PROMPT_facial-feature-classification-phase2]] |
 | 🟡 12궁 영역 좌표 매핑 (MediaPipe → 영역 bounding) — **결손 식별** (UI 12궁 오버레이용) | (PROMPT 미작성, 운영 데이터 후) | 중 | — |
 | 🟡 EU AI Act / 한국 개인정보법 관상 SaaS 의무 — **결손 식별** (운영 전 필수) | (PROMPT_saas-legal-compliance 정합) | 중 | [[../templates/PROMPT_saas-legal-compliance]] |
 | 🟡 관상 골든셋 데이터 (학파 통설 vs 결정론 일치도) — **결손 식별** (ADR-018 정합, post_traffic) | (운영 데이터 후) | 낮음 | — |
