@@ -32,6 +32,7 @@ Session Handoff 정신 — "Needs Human Review" 명시 — 을 분류 라벨에 
 |---|---|---|---|
 | §4 자원오행 5001자 수동 매핑 | [[ohaeng-manual-5001]] | 낮음 | [[../templates/PROMPT_ohaeng-manual-5001]] |
 | §5 음운 결합 규칙 (어감 §1 영역) | [[name-aesthetic-survey]] | 낮음 | [[../templates/PROMPT_aesthetic-survey]] |
+| 화패 48패 결정론 카드 의미 (engine/divination/hwapae.py 결손 보강) | (새 항목) | 중 | [[../templates/PROMPT_hwapae-card-meanings]] |
 
 > ✅ §1 가족 서열 상대 불용한자 — **완료** (ADR-010 사실성 분리 적용) → [[../done/name-phase3-sibling-preference]]
 > ✅ §3 용신 학파 옵션 B — **완료** (이재승 2019 계량화 억부론, KCI 검증) → [[../done/saju-option-B-eokbu]]
