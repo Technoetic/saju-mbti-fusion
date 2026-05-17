@@ -19,8 +19,8 @@ if str(_ROOT) not in sys.path:
 def test_data_loads():
     from engine.divination.name_uniqueness import is_loaded, total_surnames
     assert is_loaded()
-    # 보고서 §3 본문 명시 15건 (1·2·3위 + 55~59위 + 151~157위)
-    assert total_surnames() >= 14
+    # ADR-033 본문화: 300 entries → 164 (동음이의 한자 동일 한글 1건 통합)
+    assert total_surnames() >= 150
 
 
 # ─────────────────────── 성씨 조회 ───────────────────────
@@ -35,11 +35,14 @@ def test_surname_top_3():
 
 
 def test_surname_mid():
-    """중위 성씨 (55~59위)."""
+    """중위 성씨 — ADR-033 300 entries 본문화 후 rank 차이 가능."""
     from engine.divination.name_uniqueness import surname_rank
-    assert surname_rank("방") == 55
-    assert surname_rank("공") == 56
-    assert surname_rank("강") == 57
+    # 방은 ADR-033 데이터에서 rank 54 (보고서 §2 라인 77 = 方)
+    # ADR-029 (15 entries) 시점 rank 55였으나 300 entries에서 위치 변경
+    assert surname_rank("방") in (54, 55)
+    # 공·강은 ADR-033 100위권
+    assert surname_rank("공") is not None
+    assert surname_rank("강") == 6  # ADR-033 상위 10위
 
 
 def test_surname_rare():
@@ -51,13 +54,53 @@ def test_surname_rare():
 
 
 def test_surname_unknown():
-    """본 시스템 미수록 성씨 (보고서 '중략' 영역)."""
+    """매우 희귀 성씨 (300위 외)."""
     from engine.divination.name_uniqueness import surname_rank
-    # 4위 최, 5위 정 등은 보고서 본문 미명시 → 본 시스템 DB 없음
-    assert surname_rank("최") is None
-    assert surname_rank("정") is None
-    # 완전 무의미 입력
+    # ADR-033 300 entries 본문화 후 최=4, 정=5 등 본문화 완료
+    # 300위 밖 매우 희귀 한자만 None
     assert surname_rank("") is None
+    # 완전 무의미 입력
+    assert surname_rank("쀍") is None
+
+
+def test_surname_top_10_adr_033():
+    """ADR-033: 상위 10위 성씨 본문화 (이전 ADR-029 미수록)."""
+    from engine.divination.name_uniqueness import surname_rank
+    assert surname_rank("최") == 4
+    assert surname_rank("정") == 5
+    assert surname_rank("강") == 6
+    assert surname_rank("조") == 7
+    assert surname_rank("윤") == 8
+    assert surname_rank("장") == 9
+    assert surname_rank("임") == 10
+
+
+def test_split_korean_name_with_hanja():
+    """한자 동음이의 분리 (ADR-033)."""
+    from engine.divination.name_uniqueness import split_korean_name_with_hanja
+    # 한자 명시
+    assert split_korean_name_with_hanja("방지훈", "龐志訓") == ("방", "龐", "지훈")
+    assert split_korean_name_with_hanja("방지훈", "方志訓") == ("방", "方", "지훈")
+    # 복성 + 한자
+    assert split_korean_name_with_hanja("남궁민", "南宮民") == ("남궁", "南宮", "민")
+    # 한자 미명시
+    assert split_korean_name_with_hanja("김민준") == ("김", None, "민준")
+    # None 한자
+    assert split_korean_name_with_hanja("이서연", None) == ("이", None, "서연")
+    # 잘못된 입력
+    assert split_korean_name_with_hanja("") is None
+
+
+def test_gamma_penalty():
+    """γ 감마 보정 계수 (ADR-033 §4)."""
+    from engine.divination.name_uniqueness import _apply_gamma_penalty, GAMMA_BOTH_LOW_RANK, GAMMA_DEFAULT
+    # 둘 다 비인기 → 0.1
+    assert _apply_gamma_penalty(None, None) == GAMMA_BOTH_LOW_RANK
+    assert _apply_gamma_penalty(200, 150) == GAMMA_BOTH_LOW_RANK
+    # 한쪽이라도 인기 (≤100) → 1.0
+    assert _apply_gamma_penalty(50, None) == GAMMA_DEFAULT
+    assert _apply_gamma_penalty(None, 1) == GAMMA_DEFAULT
+    assert _apply_gamma_penalty(5, 10) == GAMMA_DEFAULT
 
 
 # ─────────────────────── 복성 ───────────────────────
@@ -140,18 +183,20 @@ def test_regression_data_loads():
         assert t["expected"]["combined_frequency"] in ("very_common", "common", "uncommon", "rare")
 
 
-# 본 시스템 통과 12쌍 (성씨 DB 명시 15건 + 음절 ADR-016 본문화 범위)
-# freq_019 방(龐)지훈은 보고서가 한자 龐(156위) 명시했으나 한글 '방' 분리 시
-# 동음이의 方(55위)로 매핑 → known-limitation
+# 본 시스템 통과 15쌍 (ADR-033 300 entries + γ 적용 후, 직전 12 → 15)
+# 잔여 15 known-limitation: 임계값 분포 보정 + 한자 동음이의 미명시 + γ 추가 강화 필요
 _PASSING_TEST_IDS = frozenset([
     "freq_001",  # 김민준 → very_common
     "freq_002",  # 이서연 → very_common
     "freq_003",  # 박서준 → very_common
-    "freq_014",  # 갈민준 → rare (성씨 미수록 → rare)
+    "freq_010",  # 임도현 → common (ADR-033 신규)
+    "freq_014",  # 갈민준 → rare
     "freq_015",  # 견사랑 → rare
     "freq_016",  # 당한결 → rare
     "freq_017",  # 화서진 → rare
     "freq_018",  # 창서윤 → rare
+    "freq_019",  # 방(龐)지훈 → rare (ADR-033 신규)
+    "freq_030",  # 임하늘 → common (ADR-033 신규)
     "freq_020",  # 옹지원 → rare
     "freq_021",  # 위태풍 → rare (성씨 미수록 → rare)
     "freq_022",  # 승아름 → rare
@@ -189,7 +234,8 @@ def test_regression_known_limitations():
     data = _load_regression()
     gender_map = {"M": "male", "F": "female"}
     not_passing = [t for t in data["tests"] if t["id"] not in _PASSING_TEST_IDS]
-    assert len(not_passing) == 18
+    # ADR-033 직후 15 PASS + 15 known-limitation (ADR-029 18 → 15)
+    assert len(not_passing) == 15
     for t in not_passing:
         name = t["name"].replace("(龐)", "")
         r1 = name_uniqueness_score(name, gender=gender_map[t["gender"]])

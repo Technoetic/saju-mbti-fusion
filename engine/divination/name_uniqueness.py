@@ -79,6 +79,7 @@ def _load_surname_db() -> dict[str, dict]:
     """data/korean_surname_frequency.json 로드.
 
     동음이의 성씨(예: 方·龐 둘 다 한글 '방') → 최상위(낮은 rank) 우선.
+    한자 명시 입력 시 _load_surname_db_by_hanja 별도 조회.
     """
     if not _SURNAME_PATH.exists():
         return {}
@@ -94,8 +95,30 @@ def _load_surname_db() -> dict[str, dict]:
     return out
 
 
-def _surname_info(surname: str) -> dict | None:
-    """단일 성씨의 본문 명시 데이터 (없으면 None)."""
+@lru_cache(maxsize=1)
+def _load_surname_db_by_hanja() -> dict[tuple[str, str], dict]:
+    """{(한글, 한자): info} 동음이의 분리 인덱스 (ADR-033).
+
+    동음이의 성씨 80여 종 구분 가능 (예: 방方 vs 방龐).
+    """
+    if not _SURNAME_PATH.exists():
+        return {}
+    raw = json.loads(_SURNAME_PATH.read_text(encoding="utf-8"))
+    surnames = raw.get("surnames", [])
+    return {(s["surname"], s["hanja"]): s for s in surnames if "hanja" in s}
+
+
+def _surname_info(surname: str, hanja: str | None = None) -> dict | None:
+    """단일 성씨의 본문 명시 데이터 (없으면 None).
+
+    Args:
+        surname: 한글 성씨
+        hanja: 한자 (선택). 명시 시 동음이의 정확 구분.
+    """
+    if hanja:
+        info = _load_surname_db_by_hanja().get((surname, hanja))
+        if info is not None:
+            return info
     return _load_surname_db().get(surname)
 
 
@@ -119,6 +142,74 @@ def split_korean_name(name: str) -> tuple[str, str] | None:
             return (prefix2, name[2:])
     # 단성 (1글자)
     return (name[0], name[1:])
+
+
+def split_korean_name_with_hanja(
+    name_kr: str,
+    hanja_name: str | None = None,
+) -> tuple[str, str | None, str] | None:
+    """한자 명시 한국어 성명 분리 (ADR-033).
+
+    동음이의 성씨 80여 종 정확 구분 가능 (방方 vs 방龐 등).
+
+    Args:
+        name_kr: 한글 성명 (필수)
+        hanja_name: 한자 성명 (선택, 명시 시 동음이의 정확 구분)
+
+    Returns:
+        (한글 성, 한자 성, 한글 이름) 또는 None.
+        한자 미명시 시 한자 성 = None.
+
+    Examples:
+        split_korean_name_with_hanja("방지훈", "龐志訓") == ("방", "龐", "지훈")
+        split_korean_name_with_hanja("방지훈", "方志訓") == ("방", "方", "지훈")
+        split_korean_name_with_hanja("방지훈", None) == ("방", None, "지훈")
+        split_korean_name_with_hanja("남궁민", "南宮民") == ("남궁", "南宮", "민")
+    """
+    split = split_korean_name(name_kr)
+    if split is None:
+        return None
+    surname_kr, given_kr = split
+
+    if hanja_name is None or len(hanja_name) < 2:
+        return (surname_kr, None, given_kr)
+
+    # 한자 성 길이 = 한글 성 길이 매칭
+    surname_hanja = hanja_name[:len(surname_kr)]
+    return (surname_kr, surname_hanja, given_kr)
+
+
+# ─────────────────────── γ 감마 보정 (ADR-033) ───────────────────────
+
+
+GAMMA_BOTH_LOW_RANK = 0.1  # 음절 둘 다 100위 외 → 보수적 1/10 보정
+GAMMA_DEFAULT = 1.0  # 정상 보정
+
+
+def _apply_gamma_penalty(
+    first_rank: int | None,
+    last_rank: int | None,
+    rank_threshold: int = 100,
+) -> float:
+    """γ 감마 보정 계수 (보고서 §4).
+
+    음절 빈도 통계에서 두 음절 모두 매우 비인기일 때 결합 확률을
+    보수적으로 1/10 감소 (보고서 §4 명시, 신지영 2014 학술 출처).
+
+    Args:
+        first_rank: 첫 음절 순위 (None 또는 매우 큰 값 = 비인기)
+        last_rank: 끝 음절 순위
+        rank_threshold: 비인기 임계 (기본 100위)
+
+    Returns:
+        γ ∈ {1.0, 0.1}
+    """
+    first_unpopular = first_rank is None or first_rank > rank_threshold
+    last_unpopular = last_rank is None or last_rank > rank_threshold
+
+    if first_unpopular and last_unpopular:
+        return GAMMA_BOTH_LOW_RANK
+    return GAMMA_DEFAULT
 
 
 # ─────────────────────── 빈도 라벨링 ───────────────────────
@@ -192,6 +283,11 @@ def _estimate_homonym_count(
     else:
         # 한쪽만 있으면 그 값 사용 (보고서 §6 freq_004 패턴: last만)
         joint_pct = max(fs_pct, ls_pct)
+
+    # γ 감마 보정 (ADR-033, 보고서 §4 신지영 2014)
+    # 음절 둘 다 100위 외 비인기 → joint_pct × 0.1 보수적 감소
+    gamma = _apply_gamma_penalty(first_rank, last_rank)
+    joint_pct *= gamma
 
     estimated = int(total_pop * (surname_pct / 100) * joint_pct)
     return max(estimated, 0)

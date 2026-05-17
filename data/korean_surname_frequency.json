@@ -1,117 +1,2412 @@
 {
   "source": "통계청 2015년 인구주택총조사 성씨·본관 편",
-  "license": "공공누리 제1유형 (출처표시 + 상업 사용 허가)",
+  "license": "공공누리 제1유형 (영리 사용 + 출처표시 필수)",
   "license_url": "https://www.kogl.or.kr/info/license.do",
-  "adr": "ADR-029",
-  "extracted_from": "보고서 §3.2 YAML 본문 명시 18건 (전체 표는 \"중략\")",
+  "adr": "ADR-033",
+  "extracted_from": "보고서 §2 라인 23-323 (300 entries 전수)",
   "extraction_date": "2026-05-17",
   "total_population_2015": 49705663,
-  "coverage_notes": "보고서 본문에 명시된 15건만 본문화 (1·2·3위 상위 + 55~59 중위 + 151~157 희귀). 잔여 ~285건은 통계청 KOSIS 직접 추출 별도 작업 (DEFER).",
+  "supersedes": "ADR-029 (15 entries → 300 entries)",
   "surnames": [
     {
       "rank": 1,
       "surname": "김",
       "hanja": "金",
-      "count": 9959154,
-      "pct": 21.5
+      "count": 10689959,
+      "pct": 21.5,
+      "source": "통계청 2015"
     },
     {
       "rank": 2,
       "surname": "이",
       "hanja": "李",
       "count": 7306828,
-      "pct": 14.7
+      "pct": 14.7,
+      "source": "통계청 2015"
     },
     {
       "rank": 3,
       "surname": "박",
       "hanja": "朴",
       "count": 4192074,
-      "pct": 8.4
+      "pct": 8.4,
+      "source": "통계청 2015"
     },
     {
-      "rank": 55,
+      "rank": 4,
+      "surname": "최",
+      "hanja": "崔",
+      "count": 2333927,
+      "pct": 4.7,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 5,
+      "surname": "정",
+      "hanja": "鄭",
+      "count": 2151879,
+      "pct": 4.3,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 6,
+      "surname": "강",
+      "hanja": "姜",
+      "count": 1176847,
+      "pct": 2.3,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 7,
+      "surname": "조",
+      "hanja": "趙",
+      "count": 1055567,
+      "pct": 2.1,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 8,
+      "surname": "윤",
+      "hanja": "尹",
+      "count": 1020547,
+      "pct": 2.05,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 9,
+      "surname": "장",
+      "hanja": "張",
+      "count": 992721,
+      "pct": 2.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 10,
+      "surname": "임",
+      "hanja": "林",
+      "count": 823921,
+      "pct": 1.65,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 11,
+      "surname": "한",
+      "hanja": "韓",
+      "count": 773404,
+      "pct": 1.55,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 12,
+      "surname": "오",
+      "hanja": "吳",
+      "count": 763281,
+      "pct": 1.53,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 13,
+      "surname": "서",
+      "hanja": "徐",
+      "count": 751704,
+      "pct": 1.5,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 14,
+      "surname": "신",
+      "hanja": "申",
+      "count": 741581,
+      "pct": 1.48,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 15,
+      "surname": "권",
+      "hanja": "權",
+      "count": 705941,
+      "pct": 1.41,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 16,
+      "surname": "황",
+      "hanja": "黃",
+      "count": 697171,
+      "pct": 1.39,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 17,
+      "surname": "안",
+      "hanja": "安",
+      "count": 685639,
+      "pct": 1.37,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 18,
+      "surname": "송",
+      "hanja": "宋",
+      "count": 683494,
+      "pct": 1.36,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 19,
+      "surname": "전",
+      "hanja": "全",
+      "count": 559110,
+      "pct": 1.11,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 20,
+      "surname": "홍",
+      "hanja": "洪",
+      "count": 558853,
+      "pct": 1.1,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 21,
+      "surname": "유",
+      "hanja": "柳",
+      "count": 478990,
+      "pct": 0.95,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 22,
+      "surname": "고",
+      "hanja": "高",
+      "count": 471396,
+      "pct": 0.94,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 23,
+      "surname": "문",
+      "hanja": "文",
+      "count": 464049,
+      "pct": 0.92,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 24,
+      "surname": "양",
+      "hanja": "梁",
+      "count": 460600,
+      "pct": 0.92,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 25,
+      "surname": "손",
+      "hanja": "孫",
+      "count": 457303,
+      "pct": 0.91,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 26,
+      "surname": "배",
+      "hanja": "裵",
+      "count": 400641,
+      "pct": 0.8,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 27,
+      "surname": "조",
+      "hanja": "曺",
+      "count": 398260,
+      "pct": 0.79,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 28,
+      "surname": "백",
+      "hanja": "白",
+      "count": 381986,
+      "pct": 0.76,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 29,
+      "surname": "허",
+      "hanja": "許",
+      "count": 326782,
+      "pct": 0.65,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 30,
+      "surname": "유",
+      "hanja": "劉",
+      "count": 302511,
+      "pct": 0.6,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 31,
+      "surname": "남",
+      "hanja": "南",
+      "count": 275648,
+      "pct": 0.55,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 32,
+      "surname": "심",
+      "hanja": "沈",
+      "count": 271749,
+      "pct": 0.54,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 33,
+      "surname": "노",
+      "hanja": "盧",
+      "count": 256229,
+      "pct": 0.51,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 34,
+      "surname": "정",
+      "hanja": "丁",
+      "count": 243803,
+      "pct": 0.48,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 35,
+      "surname": "하",
+      "hanja": "河",
+      "count": 230481,
+      "pct": 0.46,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 36,
+      "surname": "곽",
+      "hanja": "郭",
+      "count": 203188,
+      "pct": 0.4,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 37,
+      "surname": "성",
+      "hanja": "成",
+      "count": 199124,
+      "pct": 0.39,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 38,
+      "surname": "차",
+      "hanja": "車",
+      "count": 194782,
+      "pct": 0.38,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 39,
+      "surname": "주",
+      "hanja": "朱",
+      "count": 194766,
+      "pct": 0.38,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 40,
+      "surname": "우",
+      "hanja": "禹",
+      "count": 194713,
+      "pct": 0.38,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 41,
+      "surname": "구",
+      "hanja": "具",
+      "count": 193080,
+      "pct": 0.38,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 42,
+      "surname": "신",
+      "hanja": "辛",
+      "count": 192877,
+      "pct": 0.38,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 43,
+      "surname": "임",
+      "hanja": "任",
+      "count": 191261,
+      "pct": 0.38,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 44,
+      "surname": "전",
+      "hanja": "田",
+      "count": 186469,
+      "pct": 0.37,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 45,
+      "surname": "민",
+      "hanja": "閔",
+      "count": 171740,
+      "pct": 0.34,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 46,
+      "surname": "유",
+      "hanja": "兪",
+      "count": 167927,
+      "pct": 0.33,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 47,
+      "surname": "류",
+      "hanja": "柳",
+      "count": 163703,
+      "pct": 0.32,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 48,
+      "surname": "진",
+      "hanja": "陳",
+      "count": 157599,
+      "pct": 0.31,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 49,
+      "surname": "지",
+      "hanja": "池",
+      "count": 153491,
+      "pct": 0.3,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 50,
+      "surname": "엄",
+      "hanja": "嚴",
+      "count": 144425,
+      "pct": 0.28,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 51,
+      "surname": "채",
+      "hanja": "蔡",
+      "count": 131557,
+      "pct": 0.26,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 52,
+      "surname": "원",
+      "hanja": "元",
+      "count": 129522,
+      "pct": 0.25,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 53,
+      "surname": "천",
+      "hanja": "千",
+      "count": 121780,
+      "pct": 0.24,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 54,
       "surname": "방",
       "hanja": "方",
       "count": 94831,
-      "pct": 0.18
+      "pct": 0.1896,
+      "source": "통계청 2015"
     },
     {
-      "rank": 56,
+      "rank": 55,
       "surname": "공",
       "hanja": "孔",
       "count": 91869,
-      "pct": 0.18
+      "pct": 0.1837,
+      "source": "통계청 2015"
     },
     {
-      "rank": 57,
+      "rank": 56,
       "surname": "강",
       "hanja": "康",
       "count": 91625,
-      "pct": 0.18
+      "pct": 0.1832,
+      "source": "통계청 2015"
     },
     {
-      "rank": 58,
+      "rank": 57,
       "surname": "현",
       "hanja": "玄",
       "count": 88824,
-      "pct": 0.17
+      "pct": 0.1776,
+      "source": "통계청 2015"
     },
     {
-      "rank": 59,
+      "rank": 58,
       "surname": "함",
       "hanja": "咸",
       "count": 80659,
-      "pct": 0.16
+      "pct": 0.1613,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 59,
+      "surname": "변",
+      "hanja": "卞",
+      "count": 78156,
+      "pct": 0.1563,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 60,
+      "surname": "염",
+      "hanja": "廉",
+      "count": 69387,
+      "pct": 0.1387,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 61,
+      "surname": "양",
+      "hanja": "楊",
+      "count": 69101,
+      "pct": 0.1382,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 62,
+      "surname": "변",
+      "hanja": "邊",
+      "count": 60633,
+      "pct": 0.1212,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 63,
+      "surname": "여",
+      "hanja": "呂",
+      "count": 60522,
+      "pct": 0.121,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 64,
+      "surname": "추",
+      "hanja": "秋",
+      "count": 60483,
+      "pct": 0.1209,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 65,
+      "surname": "노",
+      "hanja": "魯",
+      "count": 58698,
+      "pct": 0.1173,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 66,
+      "surname": "도",
+      "hanja": "都",
+      "count": 57082,
+      "pct": 0.1141,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 67,
+      "surname": "소",
+      "hanja": "蘇",
+      "count": 52427,
+      "pct": 0.1048,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 68,
+      "surname": "신",
+      "hanja": "愼",
+      "count": 51865,
+      "pct": 0.1037,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 69,
+      "surname": "석",
+      "hanja": "石",
+      "count": 49203,
+      "pct": 0.0984,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 70,
+      "surname": "선우",
+      "hanja": "鮮于",
+      "count": 3584,
+      "pct": 0.0071,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 71,
+      "surname": "설",
+      "hanja": "薛",
+      "count": 42646,
+      "pct": 0.0852,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 72,
+      "surname": "마",
+      "hanja": "馬",
+      "count": 38936,
+      "pct": 0.0778,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 73,
+      "surname": "길",
+      "hanja": "吉",
+      "count": 38173,
+      "pct": 0.0763,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 74,
+      "surname": "주",
+      "hanja": "周",
+      "count": 37240,
+      "pct": 0.0744,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 75,
+      "surname": "연",
+      "hanja": "延",
+      "count": 34766,
+      "pct": 0.0695,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 76,
+      "surname": "방",
+      "hanja": "房",
+      "count": 33520,
+      "pct": 0.067,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 77,
+      "surname": "위",
+      "hanja": "魏",
+      "count": 31342,
+      "pct": 0.0626,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 78,
+      "surname": "표",
+      "hanja": "表",
+      "count": 30743,
+      "pct": 0.0614,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 79,
+      "surname": "명",
+      "hanja": "明",
+      "count": 29110,
+      "pct": 0.0582,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 80,
+      "surname": "기",
+      "hanja": "奇",
+      "count": 28829,
+      "pct": 0.0576,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 81,
+      "surname": "반",
+      "hanja": "潘",
+      "count": 28062,
+      "pct": 0.0561,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 82,
+      "surname": "왕",
+      "hanja": "王",
+      "count": 25565,
+      "pct": 0.0511,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 83,
+      "surname": "금",
+      "hanja": "琴",
+      "count": 25432,
+      "pct": 0.0508,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 84,
+      "surname": "옥",
+      "hanja": "玉",
+      "count": 25107,
+      "pct": 0.0502,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 85,
+      "surname": "육",
+      "hanja": "陸",
+      "count": 23455,
+      "pct": 0.0469,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 86,
+      "surname": "인",
+      "hanja": "印",
+      "count": 22363,
+      "pct": 0.0447,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 87,
+      "surname": "맹",
+      "hanja": "孟",
+      "count": 22028,
+      "pct": 0.044,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 88,
+      "surname": "제",
+      "hanja": "諸",
+      "count": 21976,
+      "pct": 0.0439,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 89,
+      "surname": "모",
+      "hanja": "牟",
+      "count": 21534,
+      "pct": 0.043,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 90,
+      "surname": "남궁",
+      "hanja": "南宮",
+      "count": 21308,
+      "pct": 0.0426,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 91,
+      "surname": "탁",
+      "hanja": "卓",
+      "count": 21099,
+      "pct": 0.0421,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 92,
+      "surname": "국",
+      "hanja": "鞠",
+      "count": 20547,
+      "pct": 0.041,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 93,
+      "surname": "여",
+      "hanja": "余",
+      "count": 20134,
+      "pct": 0.0402,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 94,
+      "surname": "진",
+      "hanja": "秦",
+      "count": 19301,
+      "pct": 0.0386,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 95,
+      "surname": "어",
+      "hanja": "魚",
+      "count": 18849,
+      "pct": 0.0376,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 96,
+      "surname": "은",
+      "hanja": "殷",
+      "count": 16894,
+      "pct": 0.0337,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 97,
+      "surname": "편",
+      "hanja": "片",
+      "count": 16609,
+      "pct": 0.0332,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 98,
+      "surname": "구",
+      "hanja": "丘",
+      "count": 15382,
+      "pct": 0.0307,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 99,
+      "surname": "용",
+      "hanja": "龍",
+      "count": 15276,
+      "pct": 0.0305,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 100,
+      "surname": "유",
+      "hanja": "庾",
+      "count": 13868,
+      "pct": 0.0277,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 101,
+      "surname": "예",
+      "hanja": "芮",
+      "count": 13568,
+      "pct": 0.0271,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 102,
+      "surname": "호",
+      "hanja": "扈",
+      "count": 4340,
+      "pct": 0.0086,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 103,
+      "surname": "봉",
+      "hanja": "奉",
+      "count": 12927,
+      "pct": 0.0258,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 104,
+      "surname": "사",
+      "hanja": "史",
+      "count": 10730,
+      "pct": 0.0214,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 105,
+      "surname": "부",
+      "hanja": "夫",
+      "count": 10536,
+      "pct": 0.021,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 106,
+      "surname": "황보",
+      "hanja": "皇甫",
+      "count": 10383,
+      "pct": 0.0207,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 107,
+      "surname": "가",
+      "hanja": "賈",
+      "count": 9936,
+      "pct": 0.0198,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 108,
+      "surname": "복",
+      "hanja": "卜",
+      "count": 9494,
+      "pct": 0.0189,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 109,
+      "surname": "태",
+      "hanja": "太",
+      "count": 9063,
+      "pct": 0.0181,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 110,
+      "surname": "목",
+      "hanja": "睦",
+      "count": 8769,
+      "pct": 0.0175,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 111,
+      "surname": "진",
+      "hanja": "晉",
+      "count": 7688,
+      "pct": 0.0153,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 112,
+      "surname": "형",
+      "hanja": "邢",
+      "count": 7239,
+      "pct": 0.0144,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 113,
+      "surname": "사공",
+      "hanja": "司空",
+      "count": 4439,
+      "pct": 0.0088,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 114,
+      "surname": "빈",
+      "hanja": "賓",
+      "count": 5593,
+      "pct": 0.0111,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 115,
+      "surname": "최",
+      "hanja": "催",
+      "count": 6582,
+      "pct": 0.0131,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 116,
+      "surname": "감",
+      "hanja": "甘",
+      "count": 6024,
+      "pct": 0.012,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 117,
+      "surname": "제갈",
+      "hanja": "諸葛",
+      "count": 5655,
+      "pct": 0.0113,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 118,
+      "surname": "은",
+      "hanja": "恩",
+      "count": 5576,
+      "pct": 0.0111,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 119,
+      "surname": "설",
+      "hanja": "偰",
+      "count": 2937,
+      "pct": 0.0058,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 120,
+      "surname": "음",
+      "hanja": "陰",
+      "count": 5604,
+      "pct": 0.0112,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 121,
+      "surname": "좌",
+      "hanja": "左",
+      "count": 3378,
+      "pct": 0.0067,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 122,
+      "surname": "동",
+      "hanja": "董",
+      "count": 5462,
+      "pct": 0.0109,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 123,
+      "surname": "장",
+      "hanja": "章",
+      "count": 5764,
+      "pct": 0.0115,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 124,
+      "surname": "하",
+      "hanja": "夏",
+      "count": 2475,
+      "pct": 0.0049,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 125,
+      "surname": "노",
+      "hanja": "路",
+      "count": 223,
+      "pct": 0.0004,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 126,
+      "surname": "구",
+      "hanja": "邱",
+      "count": 3845,
+      "pct": 0.0076,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 127,
+      "surname": "반",
+      "hanja": "班",
+      "count": 161,
+      "pct": 0.0003,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 128,
+      "surname": "백",
+      "hanja": "百",
+      "count": 313,
+      "pct": 0.0006,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 129,
+      "surname": "갈",
+      "hanja": "葛",
+      "count": 2086,
+      "pct": 0.0041,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 130,
+      "surname": "돈",
+      "hanja": "頓",
+      "count": 117,
+      "pct": 0.0002,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 131,
+      "surname": "경",
+      "hanja": "慶",
+      "count": 13028,
+      "pct": 0.026,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 132,
+      "surname": "승",
+      "hanja": "承",
+      "count": 3304,
+      "pct": 0.0066,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 133,
+      "surname": "공",
+      "hanja": "公",
+      "count": 3323,
+      "pct": 0.0066,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 134,
+      "surname": "선",
+      "hanja": "宣",
+      "count": 4268,
+      "pct": 0.0085,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 135,
+      "surname": "석",
+      "hanja": "昔",
+      "count": 1053,
+      "pct": 0.0021,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 136,
+      "surname": "황",
+      "hanja": "皇",
+      "count": 232,
+      "pct": 0.0004,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 137,
+      "surname": "정",
+      "hanja": "程",
+      "count": 1162,
+      "pct": 0.0023,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 138,
+      "surname": "양",
+      "hanja": "襄",
+      "count": 823,
+      "pct": 0.0016,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 139,
+      "surname": "장",
+      "hanja": "蔣",
+      "count": 2150,
+      "pct": 0.0043,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 140,
+      "surname": "조",
+      "hanja": "調",
+      "count": 146,
+      "pct": 0.0002,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 141,
+      "surname": "초",
+      "hanja": "楚",
+      "count": 200,
+      "pct": 0.0004,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 142,
+      "surname": "종",
+      "hanja": "鍾",
+      "count": 621,
+      "pct": 0.0012,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 143,
+      "surname": "단",
+      "hanja": "段",
+      "count": 1612,
+      "pct": 0.0032,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 144,
+      "surname": "호",
+      "hanja": "胡",
+      "count": 1475,
+      "pct": 0.0029,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 145,
+      "surname": "독고",
+      "hanja": "獨孤",
+      "count": 877,
+      "pct": 0.0017,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 146,
+      "surname": "신",
+      "hanja": "莘",
+      "count": 138,
+      "pct": 0.0002,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 147,
+      "surname": "원",
+      "hanja": "袁",
+      "count": 1104,
+      "pct": 0.0022,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 148,
+      "surname": "송",
+      "hanja": "松",
+      "count": 18,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 149,
+      "surname": "추",
+      "hanja": "鄒",
+      "count": 64,
+      "pct": 0.0001,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 150,
+      "surname": "점",
+      "hanja": "占",
+      "count": 158,
+      "pct": 0.0003,
+      "source": "통계청 2015"
     },
     {
       "rank": 151,
       "surname": "견",
       "hanja": "甄",
       "count": 1251,
-      "pct": 0.0025
+      "pct": 0.0025,
+      "source": "통계청 2015"
     },
     {
       "rank": 152,
       "surname": "당",
       "hanja": "唐",
       "count": 1146,
-      "pct": 0.0022
+      "pct": 0.0022,
+      "source": "통계청 2015"
     },
     {
       "rank": 153,
       "surname": "도",
       "hanja": "陶",
       "count": 1037,
-      "pct": 0.002
+      "pct": 0.002,
+      "source": "통계청 2015"
     },
     {
       "rank": 154,
       "surname": "화",
       "hanja": "化",
       "count": 915,
-      "pct": 0.0018
+      "pct": 0.0018,
+      "source": "통계청 2015"
     },
     {
       "rank": 155,
       "surname": "창",
       "hanja": "昌",
       "count": 908,
-      "pct": 0.0018
+      "pct": 0.0018,
+      "source": "통계청 2015"
     },
     {
       "rank": 156,
       "surname": "방",
       "hanja": "龐",
       "count": 893,
-      "pct": 0.0017
+      "pct": 0.0017,
+      "source": "통계청 2015"
     },
     {
       "rank": 157,
       "surname": "옹",
       "hanja": "邕",
       "count": 837,
-      "pct": 0.0016
+      "pct": 0.0016,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 158,
+      "surname": "위",
+      "hanja": "韋",
+      "count": 834,
+      "pct": 0.0016,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 159,
+      "surname": "승",
+      "hanja": "昇",
+      "count": 811,
+      "pct": 0.0016,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 160,
+      "surname": "순",
+      "hanja": "荀",
+      "count": 791,
+      "pct": 0.0015,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 161,
+      "surname": "강",
+      "hanja": "強",
+      "count": 770,
+      "pct": 0.0015,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 162,
+      "surname": "시",
+      "hanja": "施",
+      "count": 2235,
+      "pct": 0.0044,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 163,
+      "surname": "시",
+      "hanja": "柴",
+      "count": 2143,
+      "pct": 0.0042,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 164,
+      "surname": "강",
+      "hanja": "剛",
+      "count": 54,
+      "pct": 0.0001,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 165,
+      "surname": "동방",
+      "hanja": "東方",
+      "count": 180,
+      "pct": 0.0003,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 166,
+      "surname": "나",
+      "hanja": "羅",
+      "count": 160,
+      "pct": 0.0003,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 167,
+      "surname": "아",
+      "hanja": "阿",
+      "count": 529,
+      "pct": 0.001,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 168,
+      "surname": "종",
+      "hanja": "宗",
+      "count": 125,
+      "pct": 0.0002,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 169,
+      "surname": "어",
+      "hanja": "漁",
+      "count": 21,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 170,
+      "surname": "견",
+      "hanja": "堅",
+      "count": 452,
+      "pct": 0.0009,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 171,
+      "surname": "백",
+      "hanja": "伯",
+      "count": 11,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 172,
+      "surname": "서",
+      "hanja": "西",
+      "count": 112,
+      "pct": 0.0002,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 173,
+      "surname": "포",
+      "hanja": "包",
+      "count": 57,
+      "pct": 0.0001,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 174,
+      "surname": "운",
+      "hanja": "雲",
+      "count": 97,
+      "pct": 0.0001,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 175,
+      "surname": "필",
+      "hanja": "弼",
+      "count": 121,
+      "pct": 0.0002,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 176,
+      "surname": "구",
+      "hanja": "狗",
+      "count": 10,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 177,
+      "surname": "해",
+      "hanja": "海",
+      "count": 146,
+      "pct": 0.0002,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 178,
+      "surname": "요",
+      "hanja": "姚",
+      "count": 29,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 179,
+      "surname": "연",
+      "hanja": "燕",
+      "count": 14,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 180,
+      "surname": "호",
+      "hanja": "浩",
+      "count": 26,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 181,
+      "surname": "수",
+      "hanja": "水",
+      "count": 147,
+      "pct": 0.0002,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 182,
+      "surname": "풍",
+      "hanja": "馮",
+      "count": 651,
+      "pct": 0.0013,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 183,
+      "surname": "초",
+      "hanja": "肖",
+      "count": 76,
+      "pct": 0.0001,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 184,
+      "surname": "관",
+      "hanja": "管",
+      "count": 13,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 185,
+      "surname": "매",
+      "hanja": "梅",
+      "count": 201,
+      "pct": 0.0004,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 186,
+      "surname": "곡",
+      "hanja": "曲",
+      "count": 14,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 187,
+      "surname": "만",
+      "hanja": "萬",
+      "count": 124,
+      "pct": 0.0002,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 188,
+      "surname": "판",
+      "hanja": "判",
+      "count": 278,
+      "pct": 0.0005,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 189,
+      "surname": "강",
+      "hanja": "江",
+      "count": 23,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 190,
+      "surname": "섭",
+      "hanja": "葉",
+      "count": 574,
+      "pct": 0.0011,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 191,
+      "surname": "소",
+      "hanja": "邵",
+      "count": 25,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 192,
+      "surname": "망절",
+      "hanja": "網切",
+      "count": 8,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 193,
+      "surname": "개",
+      "hanja": "介",
+      "count": 13,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 194,
+      "surname": "장",
+      "hanja": "莊",
+      "count": 134,
+      "pct": 0.0002,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 195,
+      "surname": "순",
+      "hanja": "舜",
+      "count": 14,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 196,
+      "surname": "제",
+      "hanja": "齊",
+      "count": 10,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 197,
+      "surname": "학",
+      "hanja": "學",
+      "count": 15,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 198,
+      "surname": "돈",
+      "hanja": "敦",
+      "count": 12,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 199,
+      "surname": "야",
+      "hanja": "夜",
+      "count": 77,
+      "pct": 0.0001,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 200,
+      "surname": "무",
+      "hanja": "武",
+      "count": 25,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 201,
+      "surname": "비",
+      "hanja": "丕",
+      "count": 16,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 202,
+      "surname": "군",
+      "hanja": "君",
+      "count": 46,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 203,
+      "surname": "선",
+      "hanja": "善",
+      "count": 18,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 204,
+      "surname": "우",
+      "hanja": "宇",
+      "count": 5,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 205,
+      "surname": "평",
+      "hanja": "平",
+      "count": 515,
+      "pct": 0.001,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 206,
+      "surname": "금",
+      "hanja": "金",
+      "count": 14,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 207,
+      "surname": "별",
+      "hanja": "別",
+      "count": 6,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 208,
+      "surname": "묘",
+      "hanja": "苗",
+      "count": 21,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 209,
+      "surname": "영",
+      "hanja": "影",
+      "count": 10,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 210,
+      "surname": "비",
+      "hanja": "秘",
+      "count": 15,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 211,
+      "surname": "순",
+      "hanja": "淳",
+      "count": 121,
+      "pct": 0.0002,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 212,
+      "surname": "삼",
+      "hanja": "森",
+      "count": 33,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 213,
+      "surname": "도",
+      "hanja": "道",
+      "count": 35,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 214,
+      "surname": "우",
+      "hanja": "于",
+      "count": 48,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 215,
+      "surname": "신",
+      "hanja": "信",
+      "count": 13,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 216,
+      "surname": "내",
+      "hanja": "乃",
+      "count": 370,
+      "pct": 0.0007,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 217,
+      "surname": "춘",
+      "hanja": "椿",
+      "count": 7,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 218,
+      "surname": "근",
+      "hanja": "斤",
+      "count": 170,
+      "pct": 0.0003,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 219,
+      "surname": "사",
+      "hanja": "舍",
+      "count": 12,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 220,
+      "surname": "종",
+      "hanja": "宗",
+      "count": 125,
+      "pct": 0.0002,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 221,
+      "surname": "난",
+      "hanja": "欒",
+      "count": 8,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 222,
+      "surname": "대",
+      "hanja": "大",
+      "count": 606,
+      "pct": 0.0012,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 223,
+      "surname": "은",
+      "hanja": "銀",
+      "count": 12,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 224,
+      "surname": "단",
+      "hanja": "單",
+      "count": 164,
+      "pct": 0.0003,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 225,
+      "surname": "초",
+      "hanja": "初",
+      "count": 36,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 226,
+      "surname": "환",
+      "hanja": "桓",
+      "count": 157,
+      "pct": 0.0003,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 227,
+      "surname": "교",
+      "hanja": "橋",
+      "count": 16,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 228,
+      "surname": "목",
+      "hanja": "木",
+      "count": 27,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 229,
+      "surname": "원",
+      "hanja": "苑",
+      "count": 10,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 230,
+      "surname": "상",
+      "hanja": "尙",
+      "count": 2376,
+      "pct": 0.0047,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 231,
+      "surname": "여",
+      "hanja": "汝",
+      "count": 358,
+      "pct": 0.0007,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 232,
+      "surname": "제",
+      "hanja": "祭",
+      "count": 11,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 233,
+      "surname": "국",
+      "hanja": "國",
+      "count": 37,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 234,
+      "surname": "빙",
+      "hanja": "氷",
+      "count": 763,
+      "pct": 0.0015,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 235,
+      "surname": "단",
+      "hanja": "端",
+      "count": 9,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 236,
+      "surname": "우",
+      "hanja": "偶",
+      "count": 8,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 237,
+      "surname": "수",
+      "hanja": "洙",
+      "count": 72,
+      "pct": 0.0001,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 238,
+      "surname": "인",
+      "hanja": "人",
+      "count": 9,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 239,
+      "surname": "자",
+      "hanja": "慈",
+      "count": 14,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 240,
+      "surname": "보",
+      "hanja": "保",
+      "count": 16,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 241,
+      "surname": "애",
+      "hanja": "艾",
+      "count": 24,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 242,
+      "surname": "설",
+      "hanja": "雪",
+      "count": 20,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 243,
+      "surname": "사",
+      "hanja": "謝",
+      "count": 48,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 244,
+      "surname": "호",
+      "hanja": "虎",
+      "count": 12,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 245,
+      "surname": "수",
+      "hanja": "隋",
+      "count": 12,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 246,
+      "surname": "양",
+      "hanja": "陽",
+      "count": 11,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 247,
+      "surname": "뇌",
+      "hanja": "雷",
+      "count": 11,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 248,
+      "surname": "구",
+      "hanja": "仇",
+      "count": 12,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 249,
+      "surname": "후",
+      "hanja": "候",
+      "count": 6,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 250,
+      "surname": "내",
+      "hanja": "奈",
+      "count": 14,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 251,
+      "surname": "로",
+      "hanja": "路",
+      "count": 5,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 252,
+      "surname": "망",
+      "hanja": "網",
+      "count": 5,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 253,
+      "surname": "비",
+      "hanja": "斐",
+      "count": 7,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 254,
+      "surname": "소",
+      "hanja": "蕭",
+      "count": 15,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 255,
+      "surname": "연",
+      "hanja": "連",
+      "count": 59,
+      "pct": 0.0001,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 256,
+      "surname": "종",
+      "hanja": "種",
+      "count": 8,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 257,
+      "surname": "지",
+      "hanja": "智",
+      "count": 10,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 258,
+      "surname": "진",
+      "hanja": "眞",
+      "count": 7,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 259,
+      "surname": "천",
+      "hanja": "天",
+      "count": 141,
+      "pct": 0.0002,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 260,
+      "surname": "초",
+      "hanja": "焦",
+      "count": 12,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 261,
+      "surname": "추",
+      "hanja": "秋",
+      "count": 7,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 262,
+      "surname": "탁",
+      "hanja": "濯",
+      "count": 5,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 263,
+      "surname": "판",
+      "hanja": "板",
+      "count": 6,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 264,
+      "surname": "편",
+      "hanja": "扁",
+      "count": 6,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 265,
+      "surname": "표",
+      "hanja": "瓢",
+      "count": 8,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 266,
+      "surname": "피",
+      "hanja": "皮",
+      "count": 6303,
+      "pct": 0.0126,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 267,
+      "surname": "필",
+      "hanja": "畢",
+      "count": 14,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 268,
+      "surname": "하",
+      "hanja": "何",
+      "count": 15,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 269,
+      "surname": "한",
+      "hanja": "漢",
+      "count": 14,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 270,
+      "surname": "해",
+      "hanja": "解",
+      "count": 6,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 271,
+      "surname": "화",
+      "hanja": "花",
+      "count": 13,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 272,
+      "surname": "황",
+      "hanja": "荒",
+      "count": 5,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 273,
+      "surname": "황",
+      "hanja": "況",
+      "count": 6,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 274,
+      "surname": "가",
+      "hanja": "價",
+      "count": 5,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 275,
+      "surname": "간",
+      "hanja": "簡",
+      "count": 2429,
+      "pct": 0.0048,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 276,
+      "surname": "간",
+      "hanja": "間",
+      "count": 6,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 277,
+      "surname": "강",
+      "hanja": "强",
+      "count": 6,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 278,
+      "surname": "견",
+      "hanja": "見",
+      "count": 5,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 279,
+      "surname": "고",
+      "hanja": "顧",
+      "count": 7,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 280,
+      "surname": "공",
+      "hanja": "龔",
+      "count": 6,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 281,
+      "surname": "관",
+      "hanja": "關",
+      "count": 5,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 282,
+      "surname": "교",
+      "hanja": "喬",
+      "count": 5,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 283,
+      "surname": "구",
+      "hanja": "區",
+      "count": 6,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 284,
+      "surname": "국",
+      "hanja": "菊",
+      "count": 5,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 285,
+      "surname": "규",
+      "hanja": "奎",
+      "count": 6,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 286,
+      "surname": "근",
+      "hanja": "根",
+      "count": 5,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 287,
+      "surname": "금",
+      "hanja": "禁",
+      "count": 5,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 288,
+      "surname": "기",
+      "hanja": "箕",
+      "count": 429,
+      "pct": 0.0008,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 289,
+      "surname": "기",
+      "hanja": "紀",
+      "count": 6,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 290,
+      "surname": "나",
+      "hanja": "那",
+      "count": 5,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 291,
+      "surname": "노",
+      "hanja": "老",
+      "count": 6,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 292,
+      "surname": "뇌",
+      "hanja": "賴",
+      "count": 5,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 293,
+      "surname": "당",
+      "hanja": "堂",
+      "count": 5,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 294,
+      "surname": "대",
+      "hanja": "代",
+      "count": 6,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 295,
+      "surname": "망",
+      "hanja": "網",
+      "count": 5,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 296,
+      "surname": "마",
+      "hanja": "麻",
+      "count": 5,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 297,
+      "surname": "만",
+      "hanja": "曼",
+      "count": 5,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 298,
+      "surname": "모",
+      "hanja": "毛",
+      "count": 879,
+      "pct": 0.0017,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 299,
+      "surname": "묘",
+      "hanja": "卯",
+      "count": 5,
+      "pct": 0.0,
+      "source": "통계청 2015"
+    },
+    {
+      "rank": 300,
+      "surname": "단",
+      "hanja": "端",
+      "count": 9,
+      "pct": 0.0,
+      "source": "통계청 2015"
     }
   ]
 }

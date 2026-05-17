@@ -32,6 +32,7 @@ last_updated: 2026-05-17
 | 2026-05-17 | [[saju-twelve-stages-jangsaeng]] (사주 십이운성 결정론 매핑) | 딥리서치 | ✅ ADR-031 본문화 — 120 셀 (자평진전) + 17 회귀 PASS + ADR-015 옵션 B 두 번째 적용 |
 | 2026-05-17 | [[korean-phonetic-priority-3]] (한국어 표준발음법 Priority 3) | 딥리서치 | 🟡 ADR-032 본문화 — phonetic_delta_score_v2 + 4 신규 함수 + 30쌍 회귀 10/30 PASS, 20 known-limitation |
 | 2026-05-17 | [[saju-mbti-calibration-virtual-data]] (사주-MBTI 임계값 보정 — 가상 데이터) | 딥리서치 | 🔴 **영구 거부** — 보고서 자체 "가상 데이터" 명시 (라인 57·61·70). ADR-014 임계값 유지. 본문화 가치 0 (ADR-017 첫 ZERO 사례) |
+| 2026-05-17 | [[korean-surname-300-algorithm-extension]] (한국 성씨 300위 + 한자 + γ) | 딥리서치 | ✅ ADR-033 본문화 — 300 entries + split_with_hanja + γ 보정 + 24 회귀 PASS (15/30 보고서 회귀, ADR-029 supersede) |
 
 ## 대기 중인 보고서
 
