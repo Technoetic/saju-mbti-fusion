@@ -424,3 +424,313 @@ def _build_phonetic_rationale(name: str, score: float, smooth: int, awkward: int
         f"(자연 결합 {smooth}건, 어색 결합 {awkward}건). "
         f"※ {DISCLAIMER_KO}"
     )
+
+
+# ─────────────── 표준발음법 §10~§30 음운 변동 (ADR-028) ───────────────
+# 국립국어원 표준발음법 + 보고서 §2 매핑 표 (라인 22-36).
+# 결정론 자모 분리 + 조건 제어 매핑.
+
+# 조음 위치 분류 — 비음화 §18~§19 동화 표적
+# 연구개음(velar) → ㅇ / 치조음(alveolar) → ㄴ / 양순음(bilabial) → ㅁ
+_CODA_VELAR = frozenset(["ㄱ", "ㄲ", "ㅋ", "ㄳ", "ㄺ"])
+_CODA_ALVEOLAR = frozenset(["ㄷ", "ㅅ", "ㅆ", "ㅈ", "ㅊ", "ㅌ", "ㅎ"])
+_CODA_BILABIAL = frozenset(["ㅂ", "ㅍ", "ㄼ", "ㄿ", "ㅄ"])
+
+# 자음군 단순화 §10~§11 — 어말·자음 앞에서 1자음만 발음
+_CLUSTER_SIMPLIFY = {
+    "ㄳ": "ㄱ", "ㄵ": "ㄴ", "ㄶ": "ㄴ",
+    "ㄺ": "ㄱ", "ㄻ": "ㅁ", "ㄼ": "ㄹ",
+    "ㄽ": "ㄹ", "ㄾ": "ㄹ", "ㄿ": "ㅂ",
+    "ㅀ": "ㄹ", "ㅄ": "ㅂ",
+}
+
+# 경음화 §23~§28 — 평음 → 경음
+_TENSE_MAP = {"ㄱ": "ㄲ", "ㄷ": "ㄸ", "ㅂ": "ㅃ", "ㅅ": "ㅆ", "ㅈ": "ㅉ"}
+
+# 격음화 §12 — ㅎ 인접 평음 → 격음
+_ASPIRATE_MAP = {"ㄱ": "ㅋ", "ㄷ": "ㅌ", "ㅂ": "ㅍ", "ㅈ": "ㅊ"}
+
+# ㄴ첨가 §29~§30 — 합성어 환경 후행 ㅣ·반모음(ㅑㅕㅛㅠㅖ) 앞
+_N_INSERT_VOWELS = frozenset(["ㅣ", "ㅑ", "ㅕ", "ㅛ", "ㅠ", "ㅖ", "ㅒ"])
+
+# 평음 (응축되지 않은 자음) 식별
+_PLAIN_CONSONANTS = frozenset(["ㄱ", "ㄷ", "ㅂ", "ㅅ", "ㅈ"])
+
+
+def _compose_jamo(cho: str, jung: str, jong: str = "") -> str:
+    """(초성, 중성, 종성) → 한글 음절. 분해 실패 시 빈 문자열."""
+    CHO = "ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ"
+    JUNG = "ㅏㅐㅑㅒㅓㅔㅕㅖㅗㅘㅙㅚㅛㅜㅝㅞㅟㅠㅡㅢㅣ"
+    JONG = "_ㄱㄲㄳㄴㄵㄶㄷㄹㄺㄻㄼㄽㄾㄿㅀㅁㅂㅄㅅㅆㅇㅈㅊㅋㅌㅍㅎ"
+    if cho not in CHO or jung not in JUNG:
+        return ""
+    cho_idx = CHO.index(cho)
+    jung_idx = JUNG.index(jung)
+    jong_idx = JONG.index(jong) if jong and jong in JONG else 0
+    code = cho_idx * 21 * 28 + jung_idx * 28 + jong_idx
+    return chr(ord("가") + code)
+
+
+def f_nasalize(coda: str, initial: str) -> str | None:
+    """비음화 §18~§19 — C1 폐쇄음 + C2 비음(ㄴ·ㅁ) → 조음 위치 동질 비음.
+
+    Returns:
+        새 종성 (str) 또는 변화 없음 (None).
+
+    Examples:
+        f_nasalize('ㄱ', 'ㄴ') == 'ㅇ'  # 박나리 → 방나리
+        f_nasalize('ㅂ', 'ㅁ') == 'ㅁ'
+        f_nasalize('ㄷ', 'ㄴ') == 'ㄴ'
+    """
+    if initial not in ("ㄴ", "ㅁ"):
+        return None
+    if coda in _CODA_VELAR:
+        return "ㅇ"
+    if coda in _CODA_ALVEOLAR:
+        return "ㄴ"
+    if coda in _CODA_BILABIAL:
+        return "ㅁ"
+    return None
+
+
+def f_lateralize(coda: str, initial: str) -> tuple[str, str] | None:
+    """유음화 §20 — ㄴ·ㄹ 인접 → 둘 다 ㄹ.
+
+    Returns:
+        (새 종성, 새 초성) 또는 None.
+
+    Examples:
+        f_lateralize('ㄴ', 'ㄹ') == ('ㄹ', 'ㄹ')  # 신루리 → 실루리
+        f_lateralize('ㄹ', 'ㄴ') == ('ㄹ', 'ㄹ')  # 김만리 → 김말리
+    """
+    if coda == "ㄴ" and initial == "ㄹ":
+        return ("ㄹ", "ㄹ")
+    if coda == "ㄹ" and initial == "ㄴ":
+        return ("ㄹ", "ㄹ")
+    return None
+
+
+def f_aspirate(coda: str, initial: str) -> tuple[str, str] | None:
+    """격음화 §12 — ㅎ + 평음 또는 평음 + ㅎ → 격음.
+
+    Returns:
+        (새 종성, 새 초성) 또는 None.
+
+    Examples:
+        f_aspirate('ㄱ', 'ㅎ') == ('', 'ㅋ')  # 박국희 → 박구키
+        f_aspirate('ㅎ', 'ㄱ') == ('', 'ㅋ')
+    """
+    # 종성 ㅎ + 초성 평음 → 격음
+    if coda == "ㅎ" and initial in _ASPIRATE_MAP:
+        return ("", _ASPIRATE_MAP[initial])
+    # 종성 평음 + 초성 ㅎ → 격음
+    if coda in _ASPIRATE_MAP and initial == "ㅎ":
+        return ("", _ASPIRATE_MAP[coda])
+    return None
+
+
+def f_tensify(coda: str, initial: str) -> str | None:
+    """경음화 §23 — 폐쇄음 종성 + 평음 초성 → 경음 초성.
+
+    한자어 §26 (ㄹ받침 + 평음) 별도 처리 필요 (구분 불가하면 미적용).
+
+    Returns:
+        새 초성 또는 None.
+
+    Examples:
+        f_tensify('ㄱ', 'ㅈ') == 'ㅉ'  # 김국진 → 김국찐
+        f_tensify('ㅂ', 'ㅅ') == 'ㅆ'  # 송학동: 송학똥 (학+동 → 학똥)
+    """
+    if initial not in _PLAIN_CONSONANTS:
+        return None
+    # §23 — 받침이 ㄱ·ㄷ·ㅂ 계열 (자음군 단순화 후)
+    simplified = _CLUSTER_SIMPLIFY.get(coda, coda)
+    if simplified in _CODA_VELAR or simplified in _CODA_ALVEOLAR or simplified in _CODA_BILABIAL:
+        return _TENSE_MAP.get(initial)
+    return None
+
+
+def f_insert_n(coda: str, initial: str, jung_next: str) -> tuple[str, str] | None:
+    """ㄴ첨가 §29~§30 — C1 존재 + C2=ㅇ + 후행 중성 ㅣ류 → ㄴ첨가.
+
+    Returns:
+        (새 종성, 새 초성) 또는 None.
+
+    Examples:
+        f_insert_n('ㅇ', 'ㅇ', 'ㅛ') == None  # 박영진: 단어 경계 아님
+        f_insert_n('ㄴ', 'ㅇ', 'ㅑ') → ('ㄴ', 'ㄴ')  # 송녀름의 첨가 패턴
+    """
+    if not coda or initial != "ㅇ" or jung_next not in _N_INSERT_VOWELS:
+        return None
+    # 단순 ㄴ첨가: 후행 ㅇ → ㄴ
+    return (coda, "ㄴ")
+
+
+def f_simplify_cluster(coda: str) -> str:
+    """자음군 단순화 §10~§11 — 어말·자음 앞 겹받침 단일화.
+
+    Examples:
+        f_simplify_cluster('ㄳ') == 'ㄱ'
+        f_simplify_cluster('ㄶ') == 'ㄴ'
+    """
+    return _CLUSTER_SIMPLIFY.get(coda, coda)
+
+
+def f_link(coda: str, initial: str) -> tuple[str, str] | None:
+    """연음 §13~§16 — C1 + 초성 ㅇ → C1을 다음 음절 초성으로 이동.
+
+    §13 (단순 종성): 종성 전체 이동, 종성 빈 문자열.
+    §14 (겹받침): 앞 자음은 종성으로 남고 뒤 자음만 이동.
+
+    Returns:
+        (새 종성, 새 초성) 또는 None.
+
+    Examples:
+        f_link('ㄴ', 'ㅇ') == ('', 'ㄴ')  # §13: 이진희→이지니
+        f_link('ㄺ', 'ㅇ') == ('ㄹ', 'ㄱ')  # §14: 송닭이→송달기 (ㄹ 남고 ㄱ 이동)
+    """
+    if not coda or initial != "ㅇ":
+        return None
+    # §14 겹받침 — 앞 자음 종성 유지 + 뒤 자음 초성 이동
+    DOUBLE_CODA_SPLIT = {
+        "ㄳ": ("ㄱ", "ㅅ"),
+        "ㄵ": ("ㄴ", "ㅈ"),
+        "ㄶ": ("ㄴ", "ㅎ"),
+        "ㄺ": ("ㄹ", "ㄱ"),
+        "ㄻ": ("ㄹ", "ㅁ"),
+        "ㄼ": ("ㄹ", "ㅂ"),
+        "ㄽ": ("ㄹ", "ㅅ"),
+        "ㄾ": ("ㄹ", "ㅌ"),
+        "ㄿ": ("ㄹ", "ㅍ"),
+        "ㅀ": ("ㄹ", "ㅎ"),
+        "ㅄ": ("ㅂ", "ㅅ"),
+    }
+    if coda in DOUBLE_CODA_SPLIT:
+        kept, moved = DOUBLE_CODA_SPLIT[coda]
+        return (kept, moved)
+    # §13 단순 종성
+    if coda == "ㅎ":
+        # ㅎ은 격음화로 가지 않으면 약화 탈락
+        return ("", "ㅇ")
+    return ("", coda)
+
+
+def phonetic_delta_score(name_korean: str) -> dict:
+    """표준발음법 §10~§30 절대값 어감 변동 점수 (ADR-028).
+
+    보고서 §3·§4 명시 expected_score_delta [-5, 0] 절대값.
+
+    파이프라인:
+      1. 자모 분해
+      2. 경계별 음운 변동 적용 (비음화·유음화·격음화·경음화·ㄴ첨가·연음)
+      3. 변동별 delta 합산 + expected_phonetic 산출
+
+    Returns:
+        {
+            "input_name": str,
+            "expected_phonetic": str,
+            "applied_rules": list[str],
+            "score_delta": int,  # [-5, 0] 절대값 합
+            "rationale": str,  # 면책 자동 포함
+        }
+
+    면책 (ADR-010 + ADR-028):
+        본 결과는 국립국어원 표준발음법 기반 음운 변동 분석. 운명·길흉
+        해석 X. 사용자 출력에 면책 자동 포함.
+    """
+    syllables = [c for c in name_korean if "가" <= c <= "힣"]
+    applied_rules: list[str] = []
+    delta = 0
+
+    if len(syllables) < 2:
+        return {
+            "input_name": name_korean,
+            "expected_phonetic": name_korean,
+            "applied_rules": [],
+            "score_delta": 0,
+            "rationale": (
+                f"'{name_korean}'은 음운 변동 분석 대상 음절 부족. "
+                f"※ {DISCLAIMER_KO}"
+            ),
+        }
+
+    decomps: list[list[str]] = []
+    for s in syllables:
+        d = _decompose_jamo(s)
+        if d is None:
+            return {
+                "input_name": name_korean,
+                "expected_phonetic": name_korean,
+                "applied_rules": [],
+                "score_delta": 0,
+                "rationale": f"'{name_korean}' 분해 실패. ※ {DISCLAIMER_KO}",
+            }
+        decomps.append([d[0], d[1], d[2]])
+
+    # 음운 변동 적용 — 경계별 좌→우
+    for i in range(len(decomps) - 1):
+        jong1 = decomps[i][2]
+        cho2 = decomps[i + 1][0]
+
+        # §18~19 비음화
+        new_jong = f_nasalize(jong1, cho2)
+        if new_jong is not None:
+            decomps[i][2] = new_jong
+            applied_rules.append(f"§18~19 비음화 ({jong1}→{new_jong} / {cho2}_)")
+            delta -= 2
+            continue
+
+        # §20 유음화
+        lateral = f_lateralize(jong1, cho2)
+        if lateral is not None:
+            decomps[i][2] = lateral[0]
+            decomps[i + 1][0] = lateral[1]
+            applied_rules.append(f"§20 유음화 ({jong1}+{cho2}→ㄹㄹ)")
+            delta -= 1
+            continue
+
+        # §12 격음화
+        aspirate = f_aspirate(jong1, cho2)
+        if aspirate is not None:
+            decomps[i][2] = aspirate[0]
+            decomps[i + 1][0] = aspirate[1]
+            applied_rules.append(f"§12 격음화 ({jong1}+{cho2}→{aspirate[1]})")
+            delta -= 1
+            continue
+
+        # §23~28 경음화
+        tense = f_tensify(jong1, cho2)
+        if tense is not None:
+            decomps[i + 1][0] = tense
+            # §26 한자어 특례 추정 + 송학동 같은 극단 사례
+            ext = -3 if cho2 in ("ㅅ", "ㅈ") else -4
+            applied_rules.append(f"§23~26 경음화 ({jong1}+{cho2}→{tense})")
+            delta += ext
+            continue
+
+        # §13~16 연음 (종성 + 초성 ㅇ)
+        link = f_link(jong1, cho2)
+        if link is not None:
+            decomps[i][2] = link[0]
+            decomps[i + 1][0] = link[1]
+            applied_rules.append(f"§13~16 연음 ({jong1}→{link[1]}_)")
+            # 연음은 자연스러운 변동, delta 0
+            continue
+
+    expected = "".join(_compose_jamo(c, j, jg) or "" for c, j, jg in decomps)
+    # delta 클램프 (보고서 [-5, 0])
+    delta = max(-5, min(0, delta))
+
+    rule_summary = ", ".join(applied_rules) if applied_rules else "변동 없음"
+    rationale = (
+        f"'{name_korean}'은 표준발음법 적용 시 [{expected}]으로 발음됩니다 "
+        f"({rule_summary}). "
+        f"※ {DISCLAIMER_KO}"
+    )
+    return {
+        "input_name": name_korean,
+        "expected_phonetic": expected,
+        "applied_rules": applied_rules,
+        "score_delta": delta,
+        "rationale": rationale,
+    }

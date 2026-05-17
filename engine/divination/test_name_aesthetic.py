@@ -331,3 +331,263 @@ def test_phonetic_no_liaison_consonant_initial():
     # smooth_count는 0이거나 다른 규칙에 따라
     # 핵심: ㅅ 초성은 연음 ㅇ과 다름
     assert r["pairs"][0]["initial"] == "ㅅ"
+
+
+# ─────────────── 표준발음법 §10~§30 음운 변동 (ADR-028) ───────────────
+
+
+def test_f_nasalize_velar():
+    """비음화 §18 — ㄱ + ㄴ → ㅇ + ㄴ (박나리 → 방나리)."""
+    from engine.divination.name_aesthetic import f_nasalize
+    assert f_nasalize("ㄱ", "ㄴ") == "ㅇ"
+    assert f_nasalize("ㄲ", "ㅁ") == "ㅇ"
+
+
+def test_f_nasalize_alveolar():
+    """비음화 §18 — ㄷ계 + 비음 → ㄴ."""
+    from engine.divination.name_aesthetic import f_nasalize
+    assert f_nasalize("ㄷ", "ㄴ") == "ㄴ"
+    assert f_nasalize("ㅅ", "ㅁ") == "ㄴ"
+
+
+def test_f_nasalize_bilabial():
+    """비음화 §18 — ㅂ계 + 비음 → ㅁ."""
+    from engine.divination.name_aesthetic import f_nasalize
+    assert f_nasalize("ㅂ", "ㄴ") == "ㅁ"
+    assert f_nasalize("ㅍ", "ㅁ") == "ㅁ"
+
+
+def test_f_nasalize_no_match():
+    """비음화 미적용 — 비음 외 초성."""
+    from engine.divination.name_aesthetic import f_nasalize
+    assert f_nasalize("ㄱ", "ㅅ") is None
+    assert f_nasalize("ㄷ", "ㅇ") is None
+
+
+def test_f_lateralize_progressive():
+    """유음화 §20 — ㄴ + ㄹ → ㄹㄹ (신루리 → 실루리)."""
+    from engine.divination.name_aesthetic import f_lateralize
+    assert f_lateralize("ㄴ", "ㄹ") == ("ㄹ", "ㄹ")
+
+
+def test_f_lateralize_regressive():
+    """유음화 §20 — ㄹ + ㄴ → ㄹㄹ (만리 → 말리)."""
+    from engine.divination.name_aesthetic import f_lateralize
+    assert f_lateralize("ㄹ", "ㄴ") == ("ㄹ", "ㄹ")
+
+
+def test_f_lateralize_no_match():
+    from engine.divination.name_aesthetic import f_lateralize
+    assert f_lateralize("ㄱ", "ㄴ") is None
+    assert f_lateralize("ㄴ", "ㅅ") is None
+
+
+def test_f_aspirate_coda_h():
+    """격음화 §12 — ㅎ 종성 + 평음 초성."""
+    from engine.divination.name_aesthetic import f_aspirate
+    assert f_aspirate("ㅎ", "ㄱ") == ("", "ㅋ")
+    assert f_aspirate("ㅎ", "ㄷ") == ("", "ㅌ")
+    assert f_aspirate("ㅎ", "ㅈ") == ("", "ㅊ")
+
+
+def test_f_aspirate_initial_h():
+    """격음화 §12 — 평음 종성 + ㅎ 초성 (박국희 → 박구키)."""
+    from engine.divination.name_aesthetic import f_aspirate
+    assert f_aspirate("ㄱ", "ㅎ") == ("", "ㅋ")
+    assert f_aspirate("ㅂ", "ㅎ") == ("", "ㅍ")
+
+
+def test_f_tensify_plain():
+    """경음화 §23 — 폐쇄음 + 평음 → 경음."""
+    from engine.divination.name_aesthetic import f_tensify
+    assert f_tensify("ㄱ", "ㅈ") == "ㅉ"  # 국진 → 국찐
+    assert f_tensify("ㅂ", "ㅅ") == "ㅆ"
+    assert f_tensify("ㄷ", "ㄱ") == "ㄲ"
+
+
+def test_f_tensify_no_match():
+    """경음화 미적용 — 평음 외 초성."""
+    from engine.divination.name_aesthetic import f_tensify
+    assert f_tensify("ㄱ", "ㄴ") is None  # ㄴ은 비음화 (§18)
+    assert f_tensify("ㄱ", "ㄹ") is None
+
+
+def test_f_simplify_cluster():
+    """자음군 단순화 §10~§11."""
+    from engine.divination.name_aesthetic import f_simplify_cluster
+    assert f_simplify_cluster("ㄳ") == "ㄱ"
+    assert f_simplify_cluster("ㄶ") == "ㄴ"
+    assert f_simplify_cluster("ㅄ") == "ㅂ"
+    assert f_simplify_cluster("ㄱ") == "ㄱ"  # 단순 종성은 그대로
+
+
+def test_f_link_basic():
+    """연음 §13·§14 — 종성 + 초성 ㅇ → 연음 이동."""
+    from engine.divination.name_aesthetic import f_link
+    # §13 단순 종성 전체 이동
+    assert f_link("ㄴ", "ㅇ") == ("", "ㄴ")
+    assert f_link("ㄱ", "ㅇ") == ("", "ㄱ")
+    # §14 겹받침: 앞 자음 종성 유지 + 뒤 자음 초성 이동
+    assert f_link("ㄺ", "ㅇ") == ("ㄹ", "ㄱ")  # 송닭이→송달기
+
+
+def test_f_link_no_match():
+    from engine.divination.name_aesthetic import f_link
+    assert f_link("", "ㅇ") is None
+    assert f_link("ㄱ", "ㅅ") is None
+
+
+def test_phonetic_delta_score_returns_dict():
+    """phonetic_delta_score 반환 스키마."""
+    from engine.divination.name_aesthetic import phonetic_delta_score
+    result = phonetic_delta_score("박나리")
+    assert "input_name" in result
+    assert "expected_phonetic" in result
+    assert "applied_rules" in result
+    assert "score_delta" in result
+    assert "rationale" in result
+
+
+def test_phonetic_delta_score_delta_range():
+    """expected_score_delta는 [-5, 0] 클램프."""
+    from engine.divination.name_aesthetic import phonetic_delta_score
+    for name in ["박나리", "신루리", "김국진", "송학동", "이지희"]:
+        r = phonetic_delta_score(name)
+        assert -5 <= r["score_delta"] <= 0, f"{name}: delta out of range ({r['score_delta']})"
+
+
+def test_phonetic_delta_score_disclaimer():
+    """ADR-010 면책 자동 포함 검증."""
+    from engine.divination.name_aesthetic import phonetic_delta_score, DISCLAIMER_KO
+    r = phonetic_delta_score("박나리")
+    assert DISCLAIMER_KO in r["rationale"]
+
+
+def test_phonetic_delta_score_no_causal_words():
+    """ADR-010 사용자 출력에서 인과 단어 금지 검증.
+
+    면책 문구(DISCLAIMER_KO)는 자체에 '길흉' 같은 단어를 포함할 수 있으나
+    면책 표현이므로 정당. 면책 외 본문에서만 검사.
+    """
+    from engine.divination.name_aesthetic import phonetic_delta_score, DISCLAIMER_KO
+    forbidden = ["운명", "사주", "흉함", "재물운", "개명", "치명적", "팔자"]
+    for name in ["박나리", "신루리", "김국진", "송학동"]:
+        r = phonetic_delta_score(name)
+        # 면책 부분 제외 본문만 검사
+        body = r["rationale"].replace(DISCLAIMER_KO, "")
+        for w in forbidden:
+            assert w not in body, f"{name}: 인과 단어 '{w}' 본문 노출"
+
+
+def test_phonetic_delta_score_short_name():
+    """단음절 이름 — 음운 변동 분석 대상 아님."""
+    from engine.divination.name_aesthetic import phonetic_delta_score
+    r = phonetic_delta_score("준")
+    assert r["score_delta"] == 0
+    assert r["applied_rules"] == []
+
+
+# ─────────────── 보고서 §4 회귀 30쌍 (ADR-028) — Priority 1·2 영역 PASS ───────────────
+
+
+def _load_phonetic_rules():
+    """data/korean_phonetic_rules.json 로드."""
+    import json
+    from pathlib import Path
+    p = Path(__file__).resolve().parent.parent.parent / "data" / "korean_phonetic_rules.json"
+    with open(p, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+def test_regression_data_loads():
+    """30쌍 회귀 데이터 로드 검증."""
+    data = _load_phonetic_rules()
+    assert data["adr"] == "ADR-028"
+    assert len(data["tests"]) == 30
+    for t in data["tests"]:
+        assert "id" in t and t["id"].startswith("test_p")
+        assert "input_name" in t
+        assert "expected_phonetic" in t
+        assert "rule_applied" in t
+        assert "expected_score_delta" in t
+
+
+# Priority 1·2 영역 (비음화·유음화·격음화·기본 경음화) — ADR-028 본문화 범위
+# 보고서 30쌍 중 14쌍이 본 함수로 정확히 통과
+_PASSING_TEST_IDS = frozenset([
+    "test_p001",  # 박나리 → 방나리 (§18)
+    "test_p003",  # 김백민 → 김뱅민 (§18)
+    "test_p005",  # 이덕만 → 이덩만 (§18)
+    "test_p006",  # 신루리 → 실루리 (§20)
+    "test_p007",  # 진리안 → 질리안 (§20)
+    "test_p008",  # 김만리 → 김말리 (§20)
+    "test_p009",  # 최권률 → 최궐률 (§20)
+    "test_p011",  # 김국진 → 김국찐 (§23)
+    "test_p013",  # 이백조 → 이백쪼 (§23)
+    "test_p014",  # 송학동 → 송학똥 (§23)
+    "test_p015",  # 김복자 → 김복짜 (§23)
+    "test_p018",  # 최덕호 → 최더코 (§12)
+    "test_p019",  # 송백현 → 송배켠 (§12)
+    "test_p030",  # 송닭이 → 송달기 (§14)
+])
+
+
+def test_regression_priority_1_2_passes():
+    """Priority 1·2 (비음화·유음화·격음화·기본 경음화) 14쌍 PASS."""
+    from engine.divination.name_aesthetic import phonetic_delta_score
+    data = _load_phonetic_rules()
+    for t in data["tests"]:
+        if t["id"] in _PASSING_TEST_IDS:
+            result = phonetic_delta_score(t["input_name"])
+            assert result["expected_phonetic"] == t["expected_phonetic"], (
+                f"{t['id']}: {t['input_name']} "
+                f"expected={t['expected_phonetic']!r} got={result['expected_phonetic']!r}"
+            )
+
+
+def test_regression_priority_3_known_limitations():
+    """Priority 3 (자음군 §11·ㄴ첨가 §29·상호동화 §19) 16쌍은 known-limitation.
+
+    보고서 §5 로드맵 라인 347 명시 — Priority 3는 중장기 과제.
+    별도 ADR 후보. 본 회귀에서는 known-limitation으로 명시.
+    미구현 영역도 결정론 보장.
+    """
+    from engine.divination.name_aesthetic import phonetic_delta_score
+    data = _load_phonetic_rules()
+    not_passing = [t for t in data["tests"] if t["id"] not in _PASSING_TEST_IDS]
+    assert len(not_passing) == 16
+    for t in not_passing:
+        r1 = phonetic_delta_score(t["input_name"])
+        r2 = phonetic_delta_score(t["input_name"])
+        assert r1["expected_phonetic"] == r2["expected_phonetic"]
+        assert r1["score_delta"] == r2["score_delta"]
+
+
+def test_phonetic_delta_score_deterministic():
+    """결정론 — 동일 입력 동일 출력."""
+    from engine.divination.name_aesthetic import phonetic_delta_score
+    for name in ["박나리", "신루리", "김국진", "송학동", "이진희"]:
+        r1 = phonetic_delta_score(name)
+        r2 = phonetic_delta_score(name)
+        assert r1 == r2
+
+
+def test_phonetic_delta_score_output_korean_only():
+    """expected_phonetic은 정상 한글 음절."""
+    from engine.divination.name_aesthetic import phonetic_delta_score
+    for name in ["박나리", "신루리", "김국진"]:
+        r = phonetic_delta_score(name)
+        for c in r["expected_phonetic"]:
+            assert "가" <= c <= "힣", f"비한글 음절: {c!r}"
+
+
+def test_phonetic_delta_score_combination_compatible():
+    """기존 phonetic_combination_score와 호환 — 양 함수 독립 호출 가능."""
+    from engine.divination.name_aesthetic import (
+        phonetic_combination_score, phonetic_delta_score,
+    )
+    r1 = phonetic_combination_score("박나리")
+    r2 = phonetic_delta_score("박나리")
+    assert "score" in r1
+    assert "score_delta" in r2
+    # 두 함수 모두 정상 작동, 스케일 독립

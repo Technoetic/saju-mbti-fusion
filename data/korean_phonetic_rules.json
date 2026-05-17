@@ -1,0 +1,227 @@
+{
+  "source": "국립국어원 표준발음법 §10~§30 + 보고서 §4 회귀 검증 데이터셋",
+  "adr": "ADR-028",
+  "extracted_from": "한국어 표준발음법 전산 매핑 및 작명 어감 평가 아키텍처 고도화 연구 보고서.md (라인 304-335)",
+  "extraction_date": "2026-05-17",
+  "rules_reference": [
+    "§10~§11 자음군 단순화",
+    "§12 격음화",
+    "§13~§16 연음",
+    "§18~§19 비음화",
+    "§20 유음화",
+    "§23~§28 경음화 (§26 한자어 특례)",
+    "§29~§30 ㄴ첨가"
+  ],
+  "tests": [
+    {
+      "id": "test_p001",
+      "input_name": "박나리",
+      "expected_phonetic": "방나리",
+      "rule_applied": "표준발음법 §18 비음화",
+      "expected_score_delta": -2
+    },
+    {
+      "id": "test_p002",
+      "input_name": "최빛나",
+      "expected_phonetic": "최빈나",
+      "rule_applied": "표준발음법 §9 평음화, §18 비음화 연쇄",
+      "expected_score_delta": -3
+    },
+    {
+      "id": "test_p003",
+      "input_name": "김백민",
+      "expected_phonetic": "김뱅민",
+      "rule_applied": "표준발음법 §18 비음화",
+      "expected_score_delta": -2
+    },
+    {
+      "id": "test_p004",
+      "input_name": "송학림",
+      "expected_phonetic": "송항님",
+      "rule_applied": "표준발음법 §19 비음화(상호동화)",
+      "expected_score_delta": -4
+    },
+    {
+      "id": "test_p005",
+      "input_name": "이덕만",
+      "expected_phonetic": "이덩만",
+      "rule_applied": "표준발음법 §18 비음화",
+      "expected_score_delta": -2
+    },
+    {
+      "id": "test_p006",
+      "input_name": "신루리",
+      "expected_phonetic": "실루리",
+      "rule_applied": "표준발음법 §20 유음화",
+      "expected_score_delta": -1
+    },
+    {
+      "id": "test_p007",
+      "input_name": "진리안",
+      "expected_phonetic": "질리안",
+      "rule_applied": "표준발음법 §20 유음화(역행)",
+      "expected_score_delta": -1
+    },
+    {
+      "id": "test_p008",
+      "input_name": "김만리",
+      "expected_phonetic": "김말리",
+      "rule_applied": "표준발음법 §20 유음화",
+      "expected_score_delta": -2
+    },
+    {
+      "id": "test_p009",
+      "input_name": "최권률",
+      "expected_phonetic": "최궐률",
+      "rule_applied": "표준발음법 §20 유음화",
+      "expected_score_delta": -1
+    },
+    {
+      "id": "test_p010",
+      "input_name": "박원리",
+      "expected_phonetic": "방월리",
+      "rule_applied": "표준발음법 §18 역행 비음화, §20 순행 유음화",
+      "expected_score_delta": -3
+    },
+    {
+      "id": "test_p011",
+      "input_name": "김국진",
+      "expected_phonetic": "김국찐",
+      "rule_applied": "표준발음법 §23 경음화",
+      "expected_score_delta": -4
+    },
+    {
+      "id": "test_p012",
+      "input_name": "박철수",
+      "expected_phonetic": "박철쑤",
+      "rule_applied": "표준발음법 §26 한자어 경음화 특례",
+      "expected_score_delta": -3
+    },
+    {
+      "id": "test_p013",
+      "input_name": "이백조",
+      "expected_phonetic": "이백쪼",
+      "rule_applied": "표준발음법 §23 경음화",
+      "expected_score_delta": -4
+    },
+    {
+      "id": "test_p014",
+      "input_name": "송학동",
+      "expected_phonetic": "송학똥",
+      "rule_applied": "표준발음법 §23 극단적 경음화 악영향",
+      "expected_score_delta": -5
+    },
+    {
+      "id": "test_p015",
+      "input_name": "김복자",
+      "expected_phonetic": "김복짜",
+      "rule_applied": "표준발음법 §23 경음화",
+      "expected_score_delta": -3
+    },
+    {
+      "id": "test_p016",
+      "input_name": "김빛하",
+      "expected_phonetic": "김비타",
+      "rule_applied": "표준발음법 §12 평음화 후 격음화",
+      "expected_score_delta": -2
+    },
+    {
+      "id": "test_p017",
+      "input_name": "박국희",
+      "expected_phonetic": "박구키",
+      "rule_applied": "표준발음법 §12 격음화",
+      "expected_score_delta": -1
+    },
+    {
+      "id": "test_p018",
+      "input_name": "최덕호",
+      "expected_phonetic": "최더코",
+      "rule_applied": "표준발음법 §12 격음화",
+      "expected_score_delta": -2
+    },
+    {
+      "id": "test_p019",
+      "input_name": "송백현",
+      "expected_phonetic": "송배켠",
+      "rule_applied": "표준발음법 §12 격음화",
+      "expected_score_delta": -1
+    },
+    {
+      "id": "test_p020",
+      "input_name": "이진희",
+      "expected_phonetic": "이지니",
+      "rule_applied": "표준발음법 §12 ㅎ탈락 현상 예외 연음",
+      "expected_score_delta": 0
+    },
+    {
+      "id": "test_p021",
+      "input_name": "박영진",
+      "expected_phonetic": "방녕진",
+      "rule_applied": "표준발음법 §29 ㄴ첨가, §18 역행 비음화",
+      "expected_score_delta": -3
+    },
+    {
+      "id": "test_p022",
+      "input_name": "김유리",
+      "expected_phonetic": "김뉴리",
+      "rule_applied": "표준발음법 §29 단어 경계 ㄴ첨가",
+      "expected_score_delta": -2
+    },
+    {
+      "id": "test_p023",
+      "input_name": "정연우",
+      "expected_phonetic": "정녀누",
+      "rule_applied": "표준발음법 §29 ㄴ첨가 후 연음 복합",
+      "expected_score_delta": -2
+    },
+    {
+      "id": "test_p024",
+      "input_name": "최영락",
+      "expected_phonetic": "최영낙",
+      "rule_applied": "표준발음법 §19 붙임 비음화",
+      "expected_score_delta": -1
+    },
+    {
+      "id": "test_p025",
+      "input_name": "송여름",
+      "expected_phonetic": "송녀름",
+      "rule_applied": "표준발음법 §29 고유어 ㄴ첨가 파괴 현상",
+      "expected_score_delta": -3
+    },
+    {
+      "id": "test_p026",
+      "input_name": "김맑음",
+      "expected_phonetic": "김말금",
+      "rule_applied": "표준발음법 §14 겹받침의 연음 예외 회피",
+      "expected_score_delta": -1
+    },
+    {
+      "id": "test_p027",
+      "input_name": "박넓음",
+      "expected_phonetic": "방널븜",
+      "rule_applied": "표준발음법 §18 비음화 후 §14 겹받침 연음",
+      "expected_score_delta": -3
+    },
+    {
+      "id": "test_p028",
+      "input_name": "최값진",
+      "expected_phonetic": "최갑찐",
+      "rule_applied": "표준발음법 §11 겹받침 단순화 후 §23 경음화",
+      "expected_score_delta": -4
+    },
+    {
+      "id": "test_p029",
+      "input_name": "정읊다",
+      "expected_phonetic": "정읍따",
+      "rule_applied": "표준발음법 §11 피읖 단순화 후 §23 경음화",
+      "expected_score_delta": -4
+    },
+    {
+      "id": "test_p030",
+      "input_name": "송닭이",
+      "expected_phonetic": "송달기",
+      "rule_applied": "표준발음법 §14 겹받침 모음 앞 연음",
+      "expected_score_delta": -1
+    }
+  ]
+}

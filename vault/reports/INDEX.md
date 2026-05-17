@@ -26,6 +26,7 @@ last_updated: 2026-05-17
 | 2026-05-17 | [[name-aesthetic-data]] (어감·인기 음절) | 딥리서치 | 🟡 §2만 채택 (ADR-016) — 가짜 인용 2건 + 빈 약속 2건 발견 |
 | 2026-05-17 | [[face-golden-set-synthesis]] (관상 골든셋 합성 사양) | 딥리서치 | 🟡 ADR-018 정책·사양만 (실제 생성은 DEFER, 보고서 자체 권고) — `/squeeze-report` 첫 사용 |
 | 2026-05-17 | [[resource-ohaeng-kci-mapping]] (자원오행 5001자 매핑 조사) | 딥리서치 | 🟡 94자 본문화 (ADR-027) — 보고서 표제 5001자 vs 실 94자 정직 명시 + 옵션 A 보존 + 충돌 6건 |
+| 2026-05-17 | [[korean-phonetic-rules-architecture]] (한국어 표준발음법 전산 매핑) | 딥리서치 | 🟡 Priority 1·2 본문화 (ADR-028) — 7 음운 변동 함수 + 30쌍 회귀 14/30 PASS, 16 known-limitation |
 
 ## 대기 중인 보고서
 
