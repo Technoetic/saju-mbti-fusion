@@ -1,0 +1,29 @@
+{
+  "items": [
+    {
+      "type": "file",
+      "path": "README.md",
+      "title": "Vault 홈"
+    },
+    {
+      "type": "file",
+      "path": "roadmap/INDEX.md",
+      "title": "로드맵"
+    },
+    {
+      "type": "file",
+      "path": "decisions/INDEX.md",
+      "title": "ADR 인덱스"
+    },
+    {
+      "type": "file",
+      "path": "done/INDEX.md",
+      "title": "완료 작업"
+    },
+    {
+      "type": "file",
+      "path": "runbook/INDEX.md",
+      "title": "운영 가이드"
+    }
+  ]
+}
