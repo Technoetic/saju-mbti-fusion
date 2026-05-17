@@ -26,22 +26,22 @@ Session Handoff 정신 — "Needs Human Review" 명시 — 을 분류 라벨에 
 
 → 새 세션에서 AI가 작업 시작 시 ⚪부터 검토하면 사용자 개입 없이 진행 가능.
 
-## 🟢 외부 입력 대기 (본문화 완료 7건 포함: ADR-020·021·022·023·024·025·026·027)
+## 🟢 외부 입력 대기 (본문화 완료 9건 포함: ADR-020~028)
 
 ### 작명·관상·사주·손금 도메인
 
 | 항목 | 노트 | 우선도 | 딥리서치 프롬프트 |
 |---|---|---|---|
 | ✅ 관상 5형 결정론 분류 완료 (ADR-022, 회귀 18 PASS) | [[../done/face-shape-5형-classifier]] | done | (사용자 의도 삭제) |
-| 손금 4선 결정론 점수 (palm_scoring.py 신설, palm-reading-app C1·C2 DEFER) | [[../reports/palm-reading-app]] | **높음** | [[../templates/PROMPT_palm-scoring-deterministic]] |
+| 손금 4선 결정론 점수 (palm_scoring.py 신설, palm-reading-app C1·C2 DEFER) | [[../reports/palm-reading-app]] | **높음** | (사용자 의도 삭제) |
 | 십이운성 옵션 C (engine/saju/ 신살 5종 외 결손) | (새 항목) | 중 | [[../templates/PROMPT_saju-12-stages-jangsaeng]] |
-| 한국 성씨·인명 빈도 (name_uniqueness.py 신설) | (새 항목) | 중 | [[../templates/PROMPT_korean-surname-frequency]] |
+| 🟡 한국 성씨·인명 빈도 — **신규 보고서 도착 대기 처리** | (사용자 placed 보고서) | 중 | (사용자 보고서) |
 | ✅ 한국 화투 48매 결정론 점패 엔진 완료 (ADR-025, 회귀 30 PASS, 핵심 6패) | [[../done/hwapae-korean-deterministic]] | done | (사용자 의도 삭제) |
 | ✅ §4 인명용 한자 9389자 → 9932자 본문화 완료 (ADR-026, scourt API 직접 추출) | [[../done/hanja-9389-scourt-api]] | done | (사용자 의도 삭제) |
 | ✅ 궁합 MBTI 16×16 매트릭스 v2 완료 (ADR-024, 회귀 29 PASS) | [[../done/saju-mbti-compat-v2]] | done | (사용자 의도 삭제) |
-| 🟡 §4 자원오행 5001자 — **부분 완료** (ADR-027, KCI 94자 본문화) | [[../reports/resource-ohaeng-kci-mapping]] | 중 | (잔여 작업: 아래) |
-| 신규 1,407자 부수 + KCI 자원오행 매핑 (ADR-027 잔여 영역 해소) | [[../reports/resource-ohaeng-kci-mapping]] | **높음** | [[../templates/PROMPT_hanja-1407-radical-ohaeng]] |
-| 🟡 §5 음운 결합 규칙 — **부분 완료** (ADR-028 Priority 1·2 본문화, 회귀 14/30 PASS) | [[../reports/korean-phonetic-rules-architecture]] | done (P1·2) | (Priority 3 별도 ADR 후보) |
+| 🟡 §4 자원오행 5001자 — **부분 완료** (ADR-027, KCI 94자 본문화) | [[../reports/resource-ohaeng-kci-mapping]] | 중 | (사용자 의도 삭제, 신규 학파 자료 의뢰 시 PROMPT 재작성) |
+| 🟡 §5 음운 결합 규칙 — **부분 완료** (ADR-028 Priority 1·2 본문화, 회귀 14/30 PASS) | [[../reports/korean-phonetic-rules-architecture]] | done (P1·2) | — |
+| Priority 3 음운 변동 (자음군 §11+§23 연쇄·ㄴ첨가 §29·상호동화 §19·한자어 §26 특례·다중 연쇄) | [[../reports/korean-phonetic-rules-architecture]] | 중 | [[../templates/PROMPT_korean-phonetic-priority-3]] |
 
 ### 꿈해석 멀티에이전트 (engine/agents/ TODO 명시 영역)
 
