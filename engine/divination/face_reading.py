@@ -137,6 +137,9 @@ _STAGE1_OBJECTIVE_SYSTEM = (
     "5. Forbidden fate/fortune vocabulary: 운명, 운, 길흉, 복록, 학문복, 재물복, "
     "인덕, 초년, 중년, 말년, 대운, 금전수, 길한, 흉한, 복있는. "
     "English equivalents also forbidden: fortune, destiny, fate, luck.\n"
+    "5a. Forbidden traditional Korean medicine / constitution vocabulary: "
+    "태양인, 태음인, 소양인, 소음인, 사상체질, 사상의학. "
+    "These TCM body-type classifications are not part of anatomical face description.\n"
     "6. Forbidden persona vocabulary: 허허, 이 늙은이, ~시게, 그대, 자네, 운학 도사, "
     "도사. Output is neutral descriptive Korean, not 사극 어조.\n"
     "7. No evaluative adjectives implying worth: avoid 좋은·나쁜·길한·흉한·복있는·"
@@ -216,7 +219,9 @@ _STAGE2_PERSONA_SYSTEM = (
     "  • 12궁·5형 운명 매핑: \"명궁이 또렷하니 평생운 밝다\", \"토형이라 신용 두텁다\" X\n"
     "  • 학파 직접 인용: \"마의상법에 이르길\", \"신상전편에 따르면\" X\n"
     "  • 외모 평가·미추 비교, 인종 일반화 X\n"
-    "  • 단정 예언: \"~될 것이로세\", \"~의 운이 있다\" X\n\n"
+    "  • 단정 예언: \"~될 것이로세\", \"~의 운이 있다\" X\n"
+    "  • 사상체질 인용: 태양인·태음인·소양인·소음인·사상체질 어휘 X "
+    "(한의학 체질 분류는 본 시스템 관상 풀이와 무관)\n\n"
     "[허용 — 두 JSON을 사극 어조로 풀어 전달]\n"
     "  • anatomical_description 각 필드를 사극풍 자연 문장으로 변환\n"
     "  • deterministic_scores의 명칭·점수를 정량 근거로 인용 (운명 해석 X)\n"
@@ -275,17 +280,115 @@ _STAGE2_PERSONA_SYSTEM = (
 )
 
 
-def _hash_payload(image_b64: str, age: int | None, gender: str | None, question: str | None) -> str:
-    """캐시 키 — 이미지 본문 + 보조 정보."""
+def _hash_payload(
+    image_b64: str,
+    age: int | None,
+    gender: str | None,
+    question: str | None,
+    metrics: dict[str, Any] | None = None,
+) -> str:
+    """캐시 키 — 이미지 본문 + 나이 + 성별 + 메트릭.
+
+    ADR-035 (Phase 3회차): question을 캐시 키에서 제외.
+    같은 사진/나이/성별이면 객관 해부학 분석 결과가 동일하므로
+    question 변화에 의한 캐시 미스를 줄여 비용·응답속도 개선.
+    question이 운명 해석 트리거라면 _postprocess_remove_fate_mapping이
+    사후 필터링으로 처리.
+    """
+    import json as _json
     h = hashlib.sha256()
     h.update(image_b64.encode("utf-8", errors="ignore"))
     h.update(b"|")
     h.update(str(age or "").encode())
     h.update(b"|")
     h.update((gender or "").encode())
-    h.update(b"|")
-    h.update((question or "").strip().encode("utf-8", errors="ignore"))
+    if metrics:
+        h.update(b"|")
+        h.update(_json.dumps(metrics, sort_keys=True, ensure_ascii=False).encode("utf-8", errors="ignore"))
     return h.hexdigest()[:24]
+
+
+# ─────────────────────────── 운명 매핑 후처리 필터 ───────────────────────────
+# ADR-035 (Phase 3회차): LLM 응답에서 운명 키워드 포함 문장 제거.
+# 시스템 프롬프트로 제어해도 Gemini 사전학습 가중치에서 잔재가 흘러나올 수 있음.
+# 정규식 후처리로 이중 방어선.
+
+import re as _re
+
+# 금지 패턴 — 카테고리별로 분리해 추적 가능하게 유지
+_FATE_PATTERNS: list[tuple[str, _re.Pattern[str]]] = [
+    # 시간 차원 운명
+    ("time_fate", _re.compile(
+        r"(?:초년|중년|말년)[\s\S]{0,20}(?:복록|운|기운|길|흉)",
+        _re.IGNORECASE,
+    )),
+    # 운명 매핑 단어 단독
+    ("fate_word", _re.compile(
+        r"(?:대운|금전수|재물수|길흉화복|길흉|학문복|재물복|인덕|관록|재백|"
+        r"복록|운명|팔자|사주|명리|직장운|재물운|건강운|애정운|대인운|부부운|자식운)",
+        _re.IGNORECASE,
+    )),
+    # 단정 예언 어미
+    ("prophecy_ending", _re.compile(
+        r"(?:될\s*것이로세|의\s*운이\s*있(?:다|도다|구먼|겠)|운이\s*(?:트이|열리|밝|좋아))",
+        _re.IGNORECASE,
+    )),
+    # 학파 직접 인용
+    ("school_citation", _re.compile(
+        r"(?:마의상법|신상전편|달마상법)(?:에\s*(?:이르길|따르면|의하면))?",
+        _re.IGNORECASE,
+    )),
+    # 사상체질
+    ("sasang", _re.compile(
+        r"(?:태양인|태음인|소양인|소음인|사상체질|사상의학)",
+        _re.IGNORECASE,
+    )),
+]
+
+_FATE_DISCLAIMER = (
+    "\n\n[이 풀이는 얼굴 시각 형상 묘사이며 운명·성격 단정이 아닙니다.]"
+)
+
+
+def _postprocess_remove_fate_mapping(text: str) -> str:
+    """LLM 응답에서 운명 매핑 키워드 포함 문장을 제거한다.
+
+    ADR-035 (Phase 3회차) — Gemini 사전학습 잔재 이중 방어.
+
+    처리 순서:
+    1. 줄 단위로 분리.
+    2. 각 줄에서 _FATE_PATTERNS 중 하나라도 매치되면 해당 줄 제거.
+    3. 나머지 줄 재조합 후 후미에 자동 면책 삽입.
+
+    Notes:
+        - 정상 문장도 일부 제거될 수 있음 (오탐 리스크 존재).
+          "태양 같은 밝은 기색" 같은 표현도 sasang 패턴에 잡힐 수 있음.
+          → 오탐을 줄이려면 문맥 기반 분류가 필요하나 복잡도 증가.
+          현재 구현: 안전 우선 (false positive 허용, false negative 최소화).
+        - 제거된 줄이 있으면 _FATE_DISCLAIMER 추가.
+    """
+    if not text:
+        return text
+
+    lines = text.split("\n")
+    filtered: list[str] = []
+    removed_count = 0
+
+    for line in lines:
+        hit = False
+        for _cat, pattern in _FATE_PATTERNS:
+            if pattern.search(line):
+                hit = True
+                break
+        if hit:
+            removed_count += 1
+        else:
+            filtered.append(line)
+
+    result = "\n".join(filtered).strip()
+    if removed_count > 0:
+        result = result + _FATE_DISCLAIMER
+    return result
 
 
 def _load_cache(key: str) -> dict[str, Any] | None:
@@ -388,6 +491,16 @@ def _detect_image_mime(raw_b64: str) -> str:
 
     Phase 21: Anthropic Vision API는 MIME과 실제 바이트가 일치해야 함.
     "image/jpeg"로 기본값 처리하면 PNG·WebP 사진이 400 BadRequest.
+
+    Phase 3회차 (ADR-035): HEIC·AVIF 감지 추가.
+    ISO BMFF 컨테이너(ftyp box)의 brand 필드로 분기.
+    Anthropic Vision API는 HEIC/AVIF 미지원 — 감지 후 명확한 오류 반환용.
+
+    HEIC/AVIF base64 매직:
+      HEIC (ftyp box, brand=heic): base64로 시작 "AAAAGGZ0eXBoZWlj" (아이폰 기본)
+      HEIF (ftyp box, brand=mif1): base64로 시작 "AAAAGGZ0eXBtaWYx"
+      AVIF (ftyp box, brand=avif): base64로 시작 "AAAAGGZ0eXBhdmlm"
+      일반 ISO BMFF: 오프셋 4~8 = "ftyp" → b64 인코딩으로 추적
     """
     head = (raw_b64 or "")[:32].strip()
     # base64 처음 12자 = 원본 9바이트 정도 → 매직 넘버 식별 충분
@@ -399,6 +512,27 @@ def _detect_image_mime(raw_b64: str) -> str:
         return "image/gif"
     if head.startswith("UklGR"):  # WebP: 52 49 46 46 ... 57 45 42 50
         return "image/webp"
+
+    # ISO BMFF 컨테이너 계열 (HEIC/HEIF/AVIF) — base64 디코딩으로 brand 확인
+    # ftyp box: bytes 4~7 = b"ftyp", bytes 8~11 = major brand (4 chars)
+    try:
+        import base64 as _b64_mod
+        # 앞 24바이트면 충분 (32자 base64 = 24바이트)
+        raw_bytes = _b64_mod.b64decode(head + "==", validate=False)
+        if len(raw_bytes) >= 12 and raw_bytes[4:8] == b"ftyp":
+            brand = raw_bytes[8:12]
+            # HEIC 계열
+            if brand in (b"heic", b"heix", b"hevc", b"hevx"):
+                return "image/heic"
+            # HEIF 계열
+            if brand in (b"mif1", b"msf1", b"miaf", b"miag"):
+                return "image/heif"
+            # AVIF 계열
+            if brand in (b"avif", b"avis", b"MA1B", b"MA1A"):
+                return "image/avif"
+    except Exception:
+        pass
+
     return "image/jpeg"  # 추정 실패 — JPEG 기본값
 
 
@@ -723,7 +857,7 @@ def _call_stage2_persona(
             if resp.choices:
                 content = resp.choices[0].message.content
                 if content:
-                    return content
+                    return _postprocess_remove_fate_mapping(content)
         except Exception:
             pass  # Opus fallback
 
@@ -751,7 +885,7 @@ def _call_stage2_persona(
             None,
         )
         if text:
-            return text
+            return _postprocess_remove_fate_mapping(text)
     except Exception:
         pass
 
@@ -896,8 +1030,9 @@ def generate_face_reading(
         except Exception:
             face_shape_dict = None
 
-    # 1. 캐시 — 같은 이미지+보조정보 24h 재사용 (메트릭은 캐시 키에 미포함, 결정론은 항상 재산출)
-    key = _hash_payload(image_b64, age, gender, question)
+    # 1. 캐시 — 같은 이미지+나이+성별+메트릭 24h 재사용 (question 제외, 결정론은 항상 재산출)
+    # ADR-035: question을 캐시 키에서 제외 — 같은 사진/나이/성별이면 해부학 분석 동일
+    key = _hash_payload(image_b64, age, gender, None, metrics)
     cached = _load_cache(key)
     if cached is not None:
         cached.setdefault("crisis_alert", None)
