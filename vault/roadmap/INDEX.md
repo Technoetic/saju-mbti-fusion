@@ -2,6 +2,7 @@
 type: index
 section: roadmap
 last_updated: 2026-05-17
+note: 관상 도메인 결손 5건 식별 + HIGH 2건 PROMPT 페어 영속화 (PROMPT_physiognomy-knowledge-db, PROMPT_facial-feature-classification)
 ---
 
 # 로드맵 — 앞으로 할 작업
@@ -36,6 +37,11 @@ Session Handoff 정신 — "Needs Human Review" 명시 — 을 분류 라벨에 
 | ✅ 손금 4대 선 + 금성대 결정론 점수 완료 (ADR-030, 회귀 21 PASS / 120/120 라벨 100%) | [[../done/palm-scoring-deterministic]] | done | — |
 | ✅ 사주 십이운성 결정론 매핑 완료 (ADR-031, 120 셀 자평진전 + 17 회귀 PASS) | [[../done/saju-twelve-stages]] | done | — |
 | 🟡 한국 성씨·인명 빈도 — **부분 완료** (ADR-029 본문화, 15 성씨 + 30쌍 회귀 12 PASS) | [[../reports/korean-name-frequency-statistics]] | done (부분) | — |
+| 🟢 관상학 통설 코드 DB (30+ 항목, Stage 2 인용 출처) — **딥리서치 대기** (옵션 C 정합) | [[../templates/PROMPT_physiognomy-knowledge-db]] | 높음 | [[../templates/PROMPT_physiognomy-knowledge-db]] |
+| 🟢 부위별 형상 결정론 분류 (코·눈썹·눈·입·귀·턱) — **딥리서치 대기** (ADR-022 부위 확장) | [[../templates/PROMPT_facial-feature-classification]] | 높음 | [[../templates/PROMPT_facial-feature-classification]] |
+| 🟡 12궁 영역 좌표 매핑 (MediaPipe → 영역 bounding) — **결손 식별** (UI 12궁 오버레이용) | (PROMPT 미작성, 운영 데이터 후) | 중 | — |
+| 🟡 EU AI Act / 한국 개인정보법 관상 SaaS 의무 — **결손 식별** (운영 전 필수) | (PROMPT_saas-legal-compliance 정합) | 중 | [[../templates/PROMPT_saas-legal-compliance]] |
+| 🟡 관상 골든셋 데이터 (학파 통설 vs 결정론 일치도) — **결손 식별** (ADR-018 정합, post_traffic) | (운영 데이터 후) | 낮음 | — |
 | ✅ 통계청 KOSIS 300위 + 한자 분리 + γ 보정 완료 (ADR-033, 24 회귀 PASS / 15/30 보고서) | [[../done/korean-surname-300-extension]] | done | — |
 | ✅ 한국 화투 48매 결정론 점패 엔진 완료 (ADR-025, 회귀 30 PASS, 핵심 6패) | [[../done/hwapae-korean-deterministic]] | done | (사용자 의도 삭제) |
 | ✅ §4 인명용 한자 9389자 → 9932자 본문화 완료 (ADR-026, scourt API 직접 추출) | [[../done/hanja-9389-scourt-api]] | done | (사용자 의도 삭제) |
