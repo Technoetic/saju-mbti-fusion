@@ -57,3 +57,4 @@ last_updated: 2026-05-17
 | 2026-05-17 | CLAUDE.md 프로젝트 전용 분리 | ADR-008 |
 | 2026-05-17 | Hook 정리 — destructive-guard만 유지 | ADR-009 / [[hook-cleanup]] |
 | 2026-05-17 | Claude Code Read 권한 거부 — 토큰 낭비 방지 | ADR-012 / [[tool-read-deny]] |
+| 2026-05-17 | Roadmap에 AI vs Human 분담 라벨 명시 | ADR-008 supplement / [[roadmap-human-review-labels]] |
