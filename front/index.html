@@ -8757,6 +8757,11 @@ if (document.readyState === 'loading') {
   alert('사진 파일만 올려주시게나.');
   return;
   }
+  // Phase 4회차: 파일 크기 경고 (ADR-035 보조)
+  const maxFileSize = 5 * 1024 * 1024; // 5MB
+  if (file.size > maxFileSize) {
+  alert('사진이 커서 자동으로 크기를 조정했습니다. 선명한 사진이라면 다시 올려주시게나.');
+  }
   const reader = new FileReader();
   reader.onload = () => {
   // 큰 파일은 다운스케일 후 base64로
@@ -8773,6 +8778,17 @@ if (document.readyState === 'loading') {
   canvas.height = h;
   canvas.getContext('2d').drawImage(img, 0, 0, w, h);
   capturedDataUrl = canvas.toDataURL('image/jpeg', 0.85);
+  // Phase 4회차: 다운스케일 안내 메시지 (1024px 초과 시)
+  const originalMaxSide = Math.max(img.naturalWidth, img.naturalHeight);
+  if (originalMaxSide > maxSide) {
+  const infoDiv = document.createElement('div');
+  infoDiv.style.cssText = 'margin-top: 10px; padding: 8px 12px; background: #fff3cd; border: 1px solid #ffc107; border-radius: 4px; font-size: 13px; color: #856404; text-align: center;';
+  infoDiv.textContent = `(${originalMaxSide}px에서 ${maxSide}px로 자동 조정됨)`;
+  const preview = $('facePreviewArea');
+  if (preview && !preview.querySelector('[style*="ffc107"]')) {
+  preview.appendChild(infoDiv);
+  }
+  }
   showCapturedPreview();
   stopCamera();
   };
@@ -9442,6 +9458,11 @@ if (document.readyState === 'loading') {
       alert('사진 파일만 올려주시게나.');
       return;
     }
+    // Phase 4회차: 파일 크기 경고 (ADR-035 보조)
+    const maxFileSize = 5 * 1024 * 1024; // 5MB
+    if (file.size > maxFileSize) {
+      alert('사진이 커서 자동으로 크기를 조정했습니다. 선명한 손 사진이라면 다시 올려주시게나.');
+    }
     const reader = new FileReader();
     reader.onload = () => {
       const img = new Image();
@@ -9457,6 +9478,17 @@ if (document.readyState === 'loading') {
         canvas.height = h;
         canvas.getContext('2d').drawImage(img, 0, 0, w, h);
         capturedDataUrl = canvas.toDataURL('image/jpeg', 0.88);
+        // Phase 4회차: 다운스케일 안내 메시지 (1280px 초과 시)
+        const originalMaxSide = Math.max(img.naturalWidth, img.naturalHeight);
+        if (originalMaxSide > maxSide) {
+          const infoDiv = document.createElement('div');
+          infoDiv.style.cssText = 'margin-top: 10px; padding: 8px 12px; background: #fff3cd; border: 1px solid #ffc107; border-radius: 4px; font-size: 13px; color: #856404; text-align: center;';
+          infoDiv.textContent = `(${originalMaxSide}px에서 ${maxSide}px로 자동 조정됨)`;
+          const preview = $('palmPreviewArea');
+          if (preview && !preview.querySelector('[style*="ffc107"]')) {
+            preview.appendChild(infoDiv);
+          }
+        }
         showCapturedPreview();
         stopCamera();
       };
