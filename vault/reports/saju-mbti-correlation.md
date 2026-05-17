@@ -7,11 +7,25 @@ domain: saju
 applied_to:
   - 사주→MBTI 4축 경향성 매핑 → ADR-014 + engine/divination/saju_mbti_predictor.py (2026-05-17, 사용자 명시 예외)
   - 단, 보고서 권장 학설 매핑(식상=NF 등) 채택은 거부 유지 — 본 시스템 자체 매핑만 적용
+  - 2026-05-17 재호출: 학술 인용 4건 중 2건 실존 확인 → references/saju-mbti-academic-papers.md (이전 가짜 인용 추정 정정)
 neo4j_synced: false
 factuality: high_risk
+academic_citations_verified:
+  - 최영(2023) ✅ 실존 (HSS21 Vol.14 No.3, DOI 10.22143/HSS21.14.3.109)
+  - 엄현주(2013) ✅ 실존 (RISS 석사, 194명 표본)
+  - 백강희·정미숙(2022) ✅ 실존하나 도그마 신호 → 거부 유지
+  - 안수현(2023) ❌ 가짜 인용 확정 (KCI 미발견)
+permanently_rejected:
+  - 보고서 권장 학설 매핑 채택 (ADR-002 학파 회피 위반)
+  - 16유형 단정 출력 (ADR-014 영구 금지)
+  - 정확도 표시 (60-73% 일치 등) — 자기실현적 예언 회피
+  - 백강희·정미숙(2022) 십성-심리기능 매핑 — 도그마 신호
+  - 안수현(2023) 인용 — 가짜 인용
 related:
   - decisions/ADR-010-name-sibling-factuality.md
+  - decisions/ADR-014-saju-mbti-prediction-exception.md
   - decisions/ADR-006-legaltech-rejected.md
+  - references/saju-mbti-academic-papers.md
 original_file: ../../사주명리학과 MBTI의 성격심리학적 연관성 및 융합적 활용에 관한 심층 연구 보고.md
 ---
 
