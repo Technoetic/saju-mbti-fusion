@@ -18,6 +18,7 @@ last_updated: 2026-05-17
 | [[korean-phonetic-research|조성문(2025) / 신지영(2010)]] | KCI 등재 논문 | 한국어 음운·이름 음운론 (ADR-016 가짜 인용 대체 출처) |
 | [[saju-mbti-academic-papers|최영(2023) / 엄현주(2013)]] | KCI·RISS 등재 | 사주-MBTI 학술 참고 (본 시스템 채택 X, ADR-014 references만, 1차 처리 정정) |
 | [[name-resource-ohaeng-kci|김기승(2024) / 이재승(2025) / 김만태(2018) / 이재승(2024)]] | ISBN + KCI 등재 | 자원오행 옵션 C 학설 매핑 (ADR-027, 94자 본문화) |
+| [[korean-mouth-anthropometry-jako|한국인 입 생체계측학 (JAKO200810103458095)]] | KoreaScience | 입꼬리 분류 학술 출처 (ADR-034) |
 | 마의상법(麻衣相法) | 송대 (마의도자) | 관상 (※ 작명 학파로 호명은 부정확 — ADR-010) |
 | 유장상법(柳莊相法) | 명대 (원충철) | 관상 (※ 작명 학파로 호명은 부정확 — ADR-010) |
 | 자평진전(子平眞詮) | 청대 (심효첨) | 사주 격국론 |

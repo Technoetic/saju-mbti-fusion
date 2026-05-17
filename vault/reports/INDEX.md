@@ -34,6 +34,7 @@ last_updated: 2026-05-17
 | 2026-05-17 | [[saju-mbti-calibration-virtual-data]] (사주-MBTI 임계값 보정 — 가상 데이터) | 딥리서치 | 🔴 **영구 거부** — 보고서 자체 "가상 데이터" 명시 (라인 57·61·70). ADR-014 임계값 유지. 본문화 가치 0 (ADR-017 첫 ZERO 사례) |
 | 2026-05-17 | [[korean-surname-300-algorithm-extension]] (한국 성씨 300위 + 한자 + γ) | 딥리서치 | ✅ ADR-033 본문화 — 300 entries + split_with_hanja + γ 보정 + 24 회귀 PASS (15/30 보고서 회귀, ADR-029 supersede) |
 | 2026-05-17 | [[social-unconscious-academic-foundations]] (사회적 무의식·집단 무의식 학술 근거) | 딥리서치 | 🔴 **대부분 영구 거부** — ISBN 9781032601144 중복 오류 + symbols 6건 공란 + placeholder logic + 회귀 20쌍 expected 공란. 본문화 0 (ADR-017 두 번째 ZERO 사례) |
+| 2026-05-17 | [[facial-feature-classification-phase1]] (부위별 형상 분류 6부위 24+ 항목) | 딥리서치 | 🟢 **부분 본문화** — C5(앙월구·복주구·일자구) 단독 ADR-034 채택. C1·C2·C4·C7 DEFER (구체 임계값 부재). C3·C6 영구 거부 (출처 0 / MediaPipe 귀 KP 미지원). 사상체질 인용 거부 (ADR-006). |
 
 ## 대기 중인 보고서
 
