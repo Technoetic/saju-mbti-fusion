@@ -1,11 +1,19 @@
 ---
 type: external_report
-status: received_pending_decision
+status: applied
 date: 2026-05-17
 source: deepresearch
 domain: hwapae
 factuality: high
-applied_to: []
+applied_to:
+  - "§3 카테고리 점수 (광 20·열끗 10·띠 5·피 1) → hwapae_korean.py HwapaeCard"
+  - "§4 3장 스프레드 알고리즘 → three_card_spread() (계절 순행/역행/카테고리/아패영유 3구간)"
+  - "§5 48패 데이터 (핵심 6패: 월 1·2·3·8·11·12) → HWAPAE_CARDS dict"
+  - "§6 회귀 — 핵심 6패 + 알고리즘 30 tests PASS"
+  - "§7 학파 명시 + DEFAULT_DISCLAIMERS 3건"
+  - "§8 forbidden_keywords 12건 + has_forbidden_output() filter"
+adopted_option: "B — 신규 hwapae_korean.py 별도 모듈 (기존 hwapae.py 타로 변형 보존)"
+user_directive: "2026-05-17 사용자 명시 — 합리적이면 단독 진행, 불합리만 보고"
 related:
   - decisions/ADR-002-saju-option-A
   - decisions/ADR-006-legaltech-rejected

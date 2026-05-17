@@ -36,7 +36,7 @@ Session Handoff 정신 — "Needs Human Review" 명시 — 을 분류 라벨에 
 | 손금 4선 결정론 점수 (palm_scoring.py 신설, palm-reading-app C1·C2 DEFER) | [[../reports/palm-reading-app]] | **높음** | [[../templates/PROMPT_palm-scoring-deterministic]] |
 | 십이운성 옵션 C (engine/saju/ 신살 5종 외 결손) | (새 항목) | 중 | [[../templates/PROMPT_saju-12-stages-jangsaeng]] |
 | 한국 성씨·인명 빈도 (name_uniqueness.py 신설) | (새 항목) | 중 | [[../templates/PROMPT_korean-surname-frequency]] |
-| ⏸️ 화패 48패 보고서 수령 — 🔵 사용자 결정 대기 (현 hwapae.py 타로 변형 vs 한국 화투 48매 모듈 정체성 변경) | [[../reports/hwapae-card-meanings-research]] | DEFER | [[../templates/PROMPT_hwapae-card-meanings]] |
+| ✅ 한국 화투 48매 결정론 점패 엔진 완료 (ADR-025, 회귀 30 PASS, 핵심 6패) | [[../done/hwapae-korean-deterministic]] | done | [[../templates/PROMPT_hwapae-card-meanings]] |
 | 한국어 표준발음법 §1~§30 작명 적용 (name_aesthetic.py 보강) | (새 항목) | 중 | [[../templates/PROMPT_korean-phonetic-rules]] |
 | §4 인명용 한자 9389자 추가 (saju-app-spec C1 DEFER) | [[../reports/saju-app-spec]] | **높음** | [[../templates/PROMPT_korean-hanja-9389-source]] |
 | ✅ 궁합 MBTI 16×16 매트릭스 v2 완료 (ADR-024, 회귀 29 PASS) | [[../done/saju-mbti-compat-v2]] | done | [[../templates/PROMPT_gunghap-mbti-matrix-academic]] |
