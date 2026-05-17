@@ -1,11 +1,16 @@
 ---
 type: external_report
-status: received_partial_pending_data
+status: applied_via_alternative
 date: 2026-05-17
 source: deepresearch
 domain: name
 factuality: mixed_with_empty_promise
-applied_to: []
+applied_to:
+  - "9389자 부족 해소 → AI 자율 진행 (사용자 지시) → efamily.scourt.go.kr API 직접 추출 → 9932자 본문화"
+  - "data/korean_hanja_unihan.json 9932자 (보고서 1070자 대신 1407자 신규 + 변형자 439자 보존)"
+  - "ADR-026 본문화 (법원 API 직접 추출 방법론 영속화)"
+  - "saju-app-spec C1 DEFER 해소"
+resolution_method: "보고서 빈 약속 차단 후 사용자 명시 'AI 직접 조사' 지시로 efamily.scourt.go.kr API 호출로 우회 해소"
 related:
   - decisions/ADR-010-name-sibling-factuality
   - decisions/ADR-017-squeeze-report-command

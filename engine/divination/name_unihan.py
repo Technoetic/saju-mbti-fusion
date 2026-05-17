@@ -1,17 +1,26 @@
-"""Unihan 기반 한자 자동 매핑 — 보고서 §4 9,389자 풀 확장 본문화.
+"""Unihan 기반 한자 자동 매핑 — ADR-026 9,932자 풀 확장 본문화.
 
-data/korean_hanja_unihan.json에서 8,525자 (한국어 음을 가진 한자) 로드:
+data/korean_hanja_unihan.json에서 9,932자 (대법원 9,389자 + 변형자) 로드:
   · char: 한자
   · hangul: 한국어 음 (대표 1자)
-  · kangxi_strokes: 강희자전 원획수
-  · radical: 부수 번호 (1~214)
-  · resource_ohaeng: 자원오행 (자동 매핑 41%, 나머지 빈 문자열)
+  · kangxi_strokes: 강희자전 원획수 (또는 총획수)
+  · radical: 부수 번호 (1~214, 신규 1,407자는 빈 문자열)
+  · resource_ohaeng: 자원오행 (자동 매핑 35%, 나머지 빈 문자열)
+  · source: 'scourt_2024' (신규 추가분만)
+  · is_scourt_approved: True (신규 추가분만)
 
-지연 로딩 — 처음 호출 시에만 JSON 파싱. 메모리 ~5MB.
+데이터 출처:
+  · 기존 8,525자: Unihan 자동 매핑 (한국어 음 보유 한자)
+  · 신규 1,407자: 법원 전자가족관계등록시스템 API
+    (efamily.scourt.go.kr/webhanja/whjsearch, mode=listUnicodeByTotstroke, 2026-05-17 fetch)
+  · 대법원규칙 제3151호 (2024-06-11 시행) 인명용 한자 9,389자
+  · 저작권법 제7조 (국가 법령 저작권 배제)
+
+지연 로딩 — 처음 호출 시에만 JSON 파싱. 메모리 ~6MB.
 
 호환성:
   · name_strokes (수동 250자) — 우선순위
-  · name_unihan (자동 8525자) — fallback
+  · name_unihan (자동 9932자, 대법원 9389자 + 변형자 보존) — fallback
 
 운영표준:
   · 결정론 (재현성)
