@@ -22,6 +22,8 @@ last_updated: 2026-05-17
 | 2026-05-17 | [[saju-mbti-ml-model]] (사주-MBTI ML 모델) | 딥리서치 | 🔴 **거부** — 위 보고서 거부 + 학습 데이터 부재 + ADR 다수 위반 |
 | 2026-05-17 | [[face-image-generation]] (Gemini Flash Image 길흉상) | 딥리서치 | 🟡 내부 테스트 한정 — 사용자 노출 금지 |
 | 2026-05-17 | [[palm-reading-app]] (손금 앱 도메인·아키텍처) | 딥리서치 | 🟡 palm_reading.py 이미 인과 표현 차단. 한의학 손톱 병리 거부 |
+| 2026-05-17 | [[saju-option-B-school]] (사주 용신 학파 채택) | 딥리서치 | ✅ ADR-015 본문화 — KCI 검증 통과 (최상 정합도) |
+| 2026-05-17 | [[name-aesthetic-data]] (어감·인기 음절) | 딥리서치 | 🟡 §2만 채택 (ADR-016) — 가짜 인용 2건 + 빈 약속 2건 발견 |
 
 ## 대기 중인 보고서
 

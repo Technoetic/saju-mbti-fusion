@@ -31,10 +31,11 @@ Session Handoff 정신 — "Needs Human Review" 명시 — 을 분류 라벨에 
 | 항목 | 노트 | 우선도 | 딥리서치 프롬프트 |
 |---|---|---|---|
 | §4 자원오행 5001자 수동 매핑 | [[ohaeng-manual-5001]] | 낮음 | [[../templates/PROMPT_ohaeng-manual-5001]] |
-| §5 어감·선호도 데이터 수집 | [[name-aesthetic-survey]] | 낮음 | [[../templates/PROMPT_aesthetic-survey]] |
+| §5 음운 결합 규칙 (어감 §1 영역) | [[name-aesthetic-survey]] | 낮음 | [[../templates/PROMPT_aesthetic-survey]] |
 
 > ✅ §1 가족 서열 상대 불용한자 — **완료** (ADR-010 사실성 분리 적용) → [[../done/name-phase3-sibling-preference]]
 > ✅ §3 용신 학파 옵션 B — **완료** (이재승 2019 계량화 억부론, KCI 검증) → [[../done/saju-option-B-eokbu]]
+> 🟡 §5 어감 — **부분 완료** (§2 인기 음절만 채택, §1 음운 규칙은 미적용) → [[../done/name-aesthetic-partial]]
 
 ## 🟡 정책 결정 필요 (2건)
 
