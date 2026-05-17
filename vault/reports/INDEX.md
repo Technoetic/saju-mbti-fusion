@@ -29,7 +29,7 @@ last_updated: 2026-05-17
 
 | 항목 | 노트 |
 |---|---|
-| §3 용신 학파 옵션 B | [[../roadmap/saju-option-B-school]] |
+| ~~§3 용신 학파 옵션 B~~ | ✅ 완료 [[saju-option-B-school]] → [[../done/saju-option-B-eokbu]] |
 | 자원오행 5001자 | [[../roadmap/ohaeng-manual-5001]] |
 
 ✅ §1 가족 서열 상대 불용 — 완료 ([[name-sibling-bulyong]] 보고서 → ADR-010 사실성 분리 적용 → [[../done/name-phase3-sibling-preference]])
