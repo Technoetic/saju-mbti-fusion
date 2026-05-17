@@ -33,6 +33,7 @@ last_updated: 2026-05-17
 | ADR-021 | [[ADR-021-dreamnet-b6-v4]] | accepted | 2026-05-17 |
 | ADR-022 | [[ADR-022-face-shape-classifier]] | accepted | 2026-05-17 |
 | ADR-023 | [[ADR-023-freud-v2-adoption]] | accepted | 2026-05-17 |
+| ADR-024 | [[ADR-024-mbti-compat-v2-socionics]] | accepted | 2026-05-17 |
 
 ## 원칙
 
