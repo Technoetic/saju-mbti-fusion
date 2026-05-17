@@ -18,6 +18,8 @@ last_updated: 2026-05-17
 | ADR-006 | [[ADR-006-legaltech-rejected]] | accepted | 2026-05-17 |
 | ADR-007 | [[ADR-007-obsidian-vault-introduced]] | accepted | 2026-05-17 |
 | ADR-008 | [[ADR-008-ai-work-protocol]] | accepted | 2026-05-17 |
+| ADR-009 | [[ADR-009-hook-cleanup]] | accepted | 2026-05-17 |
+| ADR-010 | [[ADR-010-name-sibling-factuality]] | accepted | 2026-05-17 |
 
 ## 원칙
 
