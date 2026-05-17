@@ -26,7 +26,7 @@ Session Handoff 정신 — "Needs Human Review" 명시 — 을 분류 라벨에 
 
 → 새 세션에서 AI가 작업 시작 시 ⚪부터 검토하면 사용자 개입 없이 진행 가능.
 
-## 🟢 외부 입력 대기 (10건)
+## 🟢 외부 입력 대기 (12건)
 
 ### 작명·관상·사주·손금 도메인
 
@@ -38,7 +38,8 @@ Session Handoff 정신 — "Needs Human Review" 명시 — 을 분류 라벨에 
 | 한국 성씨·인명 빈도 (name_uniqueness.py 신설) | (새 항목) | 중 | [[../templates/PROMPT_korean-surname-frequency]] |
 | 화패 48패 결정론 카드 의미 (hwapae.py 보강) | (새 항목) | 중 | [[../templates/PROMPT_hwapae-card-meanings]] |
 | 한국어 표준발음법 §1~§30 작명 적용 (name_aesthetic.py 보강) | (새 항목) | 중 | [[../templates/PROMPT_korean-phonetic-rules]] |
-| §4 인명용 한자 9389자 추가 (saju-app-spec C1 DEFER) | [[../reports/saju-app-spec]] | 중 | 대법원 공식 출처 확보 후 재호출 |
+| §4 인명용 한자 9389자 추가 (saju-app-spec C1 DEFER) | [[../reports/saju-app-spec]] | **높음** | [[../templates/PROMPT_korean-hanja-9389-source]] |
+| 궁합 MBTI 16×16 매트릭스 학술 검증 (compat.py "간이" 명시) | (새 항목) | 중 | [[../templates/PROMPT_gunghap-mbti-matrix-academic]] |
 | §4 자원오행 5001자 수동 매핑 | [[ohaeng-manual-5001]] | 낮음 | [[../templates/PROMPT_ohaeng-manual-5001]] |
 | §5 음운 결합 규칙 (어감 §1 영역) | [[name-aesthetic-survey]] | 낮음 | [[../templates/PROMPT_aesthetic-survey]] |
 
