@@ -35,6 +35,7 @@ last_updated: 2026-05-17
 
 | 일자 | 영역 | 모듈 |
 |---|---|---|
+| 2026-05-17 | L1 파일 무결성 (매직 넘버 + 크기 + MIME) — ADR-011 | engine/safety/file_integrity.py / 17 테스트 |
 | 2026-05-14~16 | 운영표준 §5~§14 본문화 | engine/safety/ 43+ 모듈 |
 | EU AI Act §50(3) | 감정 추론 명시 고지 | emotion_disclosure.py |
 | §7.3.2 SLO·KPI | 측정 모듈 | slo.py |

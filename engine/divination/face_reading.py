@@ -290,6 +290,20 @@ def generate_face_reading(
     if not (image_b64 or "").strip():
         raise ValueError("image_b64 is required")
 
+    # L1 파일 무결성 — 매직 넘버·크기·MIME 검증 (LLM 호출 전 결정론 가드레일)
+    # reports/input-guardrails.md L1 계층. ADR-010 사실성 분리 적용.
+    from engine.safety.file_integrity import validate_image_base64
+    integrity = validate_image_base64(image_b64)
+    if not integrity.valid:
+        return {
+            "text": integrity.reason + build_legal_footer(is_crisis=False),
+            "cached": False,
+            "crisis_alert": None,
+            "legal_notice": None,
+            "palace_scores": None,
+            "file_integrity_error": integrity.error_code,
+        }
+
     # 키포인트 → 12궁 결정론 점수 (LLM 호출 전, 캐시와 무관하게 항상 산출)
     from engine.divination.face_scoring import score_face, report_to_dict
     score_report = score_face(metrics)

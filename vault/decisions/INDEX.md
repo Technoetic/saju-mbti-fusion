@@ -20,6 +20,7 @@ last_updated: 2026-05-17
 | ADR-008 | [[ADR-008-ai-work-protocol]] | accepted | 2026-05-17 |
 | ADR-009 | [[ADR-009-hook-cleanup]] | accepted | 2026-05-17 |
 | ADR-010 | [[ADR-010-name-sibling-factuality]] | accepted | 2026-05-17 |
+| ADR-011 | [[ADR-011-l1-file-integrity]] | accepted | 2026-05-17 |
 
 ## 원칙
 
