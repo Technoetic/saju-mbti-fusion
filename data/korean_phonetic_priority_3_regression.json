@@ -1,0 +1,218 @@
+{
+  "source": "보고서 §8 회귀 검증 30쌍 (라인 81-112)",
+  "adr": "ADR-032",
+  "extracted_from": "한국어 표준발음법 Priority 3 영역 결정론 매핑 보고서.md",
+  "extraction_date": "2026-05-17",
+  "tests": [
+    {
+      "id": "test_p101",
+      "input_name": "최값진",
+      "expected_phonetic": "최갑찐",
+      "rule": "자음군 단순화(§11) → 평폐쇄음화 → 경음화(§23) 연쇄",
+      "delta": 0.2
+    },
+    {
+      "id": "test_p102",
+      "input_name": "정읊다",
+      "expected_phonetic": "정읍따",
+      "rule": "자음군 단순화(§11) → 평폐쇄음화 → 경음화(§23) 연쇄",
+      "delta": -0.1
+    },
+    {
+      "id": "test_p103",
+      "input_name": "박영진",
+      "expected_phonetic": "바경진",
+      "rule": "보수적 연음(§13) 최우선 (ㄴ첨가 배제)",
+      "delta": 0.0
+    },
+    {
+      "id": "test_p104",
+      "input_name": "김유리",
+      "expected_phonetic": "기뮤리",
+      "rule": "보수적 연음(§13) 최우선 (ㄴ첨가 배제)",
+      "delta": 0.1
+    },
+    {
+      "id": "test_p105",
+      "input_name": "정연우",
+      "expected_phonetic": "정여누",
+      "rule": "보수적 연음(§13) 최우선 (ㄴ첨가 배제)",
+      "delta": 0.1
+    },
+    {
+      "id": "test_p106",
+      "input_name": "송여름",
+      "expected_phonetic": "송여름",
+      "rule": "고유어 예외 외 보수적 연음 (ㄴ첨가 억제)",
+      "delta": 0.0
+    },
+    {
+      "id": "test_p107",
+      "input_name": "송학림",
+      "expected_phonetic": "송항님",
+      "rule": "역행 비음화(§19) 양방향 (ㄱ+ㄹ → ㅇ+ㄴ)",
+      "delta": 0.3
+    },
+    {
+      "id": "test_p108",
+      "input_name": "백법륜",
+      "expected_phonetic": "백범뉸",
+      "rule": "파열음 비음화 → 상호동화 양방향 (ㅂ+ㄹ → ㅁ+ㄴ)",
+      "delta": 0.2
+    },
+    {
+      "id": "test_p109",
+      "input_name": "곽십리",
+      "expected_phonetic": "곽심니",
+      "rule": "파열음 비음화 → 상호동화 양방향",
+      "delta": 0.3
+    },
+    {
+      "id": "test_p110",
+      "input_name": "박철수",
+      "expected_phonetic": "박철쑤",
+      "rule": "한자어 경음화 특례(§26) 휴리스틱",
+      "delta": -0.2
+    },
+    {
+      "id": "test_p111",
+      "input_name": "김말자",
+      "expected_phonetic": "김말짜",
+      "rule": "한자어 경음화 특례(§26) 휴리스틱",
+      "delta": -0.1
+    },
+    {
+      "id": "test_p112",
+      "input_name": "이일도",
+      "expected_phonetic": "이일또",
+      "rule": "한자어 경음화 특례(§26) 휴리스틱",
+      "delta": -0.2
+    },
+    {
+      "id": "test_p113",
+      "input_name": "최빛나",
+      "expected_phonetic": "최빈나",
+      "rule": "평파열음화(§9) → 비음화(§18) 연쇄 (ㅊ→ㄷ→ㄴ)",
+      "delta": 0.4
+    },
+    {
+      "id": "test_p114",
+      "input_name": "강꽃잎",
+      "expected_phonetic": "강꼰닙",
+      "rule": "평파열음화 → 화이트리스트 ㄴ첨가(§29) → 비음화",
+      "delta": 0.0
+    },
+    {
+      "id": "test_p115",
+      "input_name": "김빛하",
+      "expected_phonetic": "김비타",
+      "rule": "평파열음화(§9) → 격음화(§12) → 연음 회피",
+      "delta": -0.3
+    },
+    {
+      "id": "test_p116",
+      "input_name": "박원리",
+      "expected_phonetic": "방월리",
+      "rule": "비음화(§18) → 유음화(§20) 위상 정렬",
+      "delta": 0.4
+    },
+    {
+      "id": "test_p117",
+      "input_name": "남궁률",
+      "expected_phonetic": "남궁뉼",
+      "rule": "모음/비음 뒤 한자음 '률' 본음 회피",
+      "delta": 0.1
+    },
+    {
+      "id": "test_p118",
+      "input_name": "이진희",
+      "expected_phonetic": "이지니",
+      "rule": "유성음 환경 ㅎ 약화/탈락 → 연음",
+      "delta": 0.5
+    },
+    {
+      "id": "test_p119",
+      "input_name": "송은희",
+      "expected_phonetic": "송으니",
+      "rule": "유성음 환경 ㅎ 약화/탈락 → 연음",
+      "delta": 0.4
+    },
+    {
+      "id": "test_p120",
+      "input_name": "박국희",
+      "expected_phonetic": "박구키",
+      "rule": "무성 파열음 정상 격음화(§12) (ㅎ탈락 예외 배제)",
+      "delta": -0.2
+    },
+    {
+      "id": "test_p121",
+      "input_name": "박넓음",
+      "expected_phonetic": "방널븜",
+      "rule": "형식형태소 자음군 연음(§14) 우선 (단순화 배제)",
+      "delta": 0.2
+    },
+    {
+      "id": "test_p122",
+      "input_name": "김맑음",
+      "expected_phonetic": "김말금",
+      "rule": "형식형태소 자음군 연음(§14) 우선 (단순화 배제)",
+      "delta": 0.3
+    },
+    {
+      "id": "test_p123",
+      "input_name": "정밟다",
+      "expected_phonetic": "정밥따",
+      "rule": "겹받침 ㄼ 예외 단순화(§10) → 경음화(§23)",
+      "delta": -0.1
+    },
+    {
+      "id": "test_p124",
+      "input_name": "최여덟",
+      "expected_phonetic": "최여덜",
+      "rule": "어말 자음군 단순화(§10) 단독",
+      "delta": 0.1
+    },
+    {
+      "id": "test_p125",
+      "input_name": "강물엿",
+      "expected_phonetic": "강물렫",
+      "rule": "ㄴ첨가 억제 → 연음 → 평음화(§9)",
+      "delta": 0.0
+    },
+    {
+      "id": "test_p126",
+      "input_name": "최영락",
+      "expected_phonetic": "최영낙",
+      "rule": "비음화 붙임(§19) ㅇ+ㄹ → ㅇ+ㄴ",
+      "delta": 0.2
+    },
+    {
+      "id": "test_p127",
+      "input_name": "신동력",
+      "expected_phonetic": "신동녁",
+      "rule": "비음화 붙임(§19) ㅇ+ㄹ → ㅇ+ㄴ",
+      "delta": 0.1
+    },
+    {
+      "id": "test_p128",
+      "input_name": "오백로",
+      "expected_phonetic": "오뱅노",
+      "rule": "파열음 비음화 → 상호동화(§19) 연쇄",
+      "delta": 0.3
+    },
+    {
+      "id": "test_p129",
+      "input_name": "권협력",
+      "expected_phonetic": "권혐녁",
+      "rule": "파열음 비음화 → 상호동화(§19) 연쇄",
+      "delta": 0.2
+    },
+    {
+      "id": "test_p130",
+      "input_name": "정십리",
+      "expected_phonetic": "정심니",
+      "rule": "파열음 비음화 → 상호동화(§19) 연쇄",
+      "delta": 0.2
+    }
+  ]
+}
