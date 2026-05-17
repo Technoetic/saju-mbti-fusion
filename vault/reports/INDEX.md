@@ -13,7 +13,8 @@ last_updated: 2026-05-17
 | 일자 | 제목 | 출처 | 반영 상태 |
 |---|---|---|---|
 | 2026-05-15 | [[saju-app-spec]] (작명 보고서) | 외부 작성 | §1~§5 본문화 완료, §6 거부, §3 옵션 A 채택 |
-| 2026-05-17 | [[name-sibling-bulyong]] (가족 서열 상대 불용한자) | 딥리서치 | 수신 — 본문화 대기 (ADR-010 예정) |
+| 2026-05-17 | [[name-sibling-bulyong]] (가족 서열 상대 불용한자) | 딥리서치 | ✅ 본문화 완료 (ADR-010 적용) → [[../done/name-phase3-sibling-preference]] |
+| 2026-05-17 | [[saas-claude-obsidian-methodology]] (Claude Code + Obsidian 방법론) | 딥리서치 | ✅ 검증 — 본 프로젝트가 이미 권장 구조 채택 완료 (ADR-007~010) |
 
 ## 대기 중인 보고서
 
