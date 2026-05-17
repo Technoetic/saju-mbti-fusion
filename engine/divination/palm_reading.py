@@ -203,7 +203,7 @@ def _call_vision(
         model = (
             os.environ.get("BIZROUTER_VISION_MODEL")
             or os.environ.get("BIZROUTER_MODEL")
-            or "google/gemini-2.5-flash-lite"
+            or "anthropic/claude-opus-4.7"
         )
         resp = client.chat.completions.create(
             model=model,
