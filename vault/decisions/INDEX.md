@@ -28,6 +28,7 @@ last_updated: 2026-05-17
 | ADR-016 | [[ADR-016-name-aesthetic-partial]] | accepted | 2026-05-17 |
 | ADR-017 | [[ADR-017-squeeze-report-command]] | accepted | 2026-05-17 |
 | ADR-018 | [[ADR-018-face-golden-set-policy]] | accepted | 2026-05-17 |
+| ADR-019 | [[ADR-019-propose-research-command]] | accepted | 2026-05-17 |
 
 ## 원칙
 
