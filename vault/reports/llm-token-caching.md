@@ -4,7 +4,8 @@ status: received_with_caveats
 date: 2026-05-17
 source: deepresearch
 domain: infra
-applied_to: []
+applied_to:
+  - L2 적중률 측정 → ADR-013 + engine/safety/prompt_cache_telemetry.py (2026-05-17)
 neo4j_synced: false
 factuality: mixed
 related:
