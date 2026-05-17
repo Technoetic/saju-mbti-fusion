@@ -1885,6 +1885,31 @@ def test_stage2_system_separates_normal_ending_from_safety_refusal():
     assert "혼동 금지" in s
 
 
+def test_stage2_system_requires_character_synthesis_paragraph():
+    """Phase 22b — Stage 2 프롬프트가 종합 인상(캐릭터화) 단락을 필수로 강제."""
+    from engine.divination.face_reading import _STAGE2_PERSONA_SYSTEM
+    s = _STAGE2_PERSONA_SYSTEM
+    # 종합 인상 캐릭터화 절 존재
+    assert "종합 인상" in s and "캐릭터화" in s
+    assert "필수 단락" in s and "생략 X" in s
+    # 단정 어조 금지
+    assert "단정 어조 금지" in s or ("~한 사람이다" in s and "금지" in s)
+    # 인상 어조 예시
+    assert "느껴지는구먼" in s or "분위기를 풍" in s
+
+
+def test_stage2_system_forbids_photo_meta_in_final_line():
+    """Phase 22b — 마무리에 photo_quality_note·면책 노출 금지."""
+    from engine.divination.face_reading import _STAGE2_PERSONA_SYSTEM
+    s = _STAGE2_PERSONA_SYSTEM
+    # 사진 메타 노출 금지 명시
+    assert "사진 메타" in s and "노출 금지" in s
+    # 잘못된 예시 명시
+    assert "정면·조명 양호한 사진" in s
+    # 면책 자동 부착 명시
+    assert "면책" in s and "자동" in s
+
+
 def test_detect_image_mime_distinguishes_png_jpeg():
     """Phase 21 — raw base64에서 PNG/JPEG 매직 넘버 자동 감지 (Bizrouter 400 회피)."""
     from engine.divination.face_reading import _detect_image_mime, _normalize_image_b64

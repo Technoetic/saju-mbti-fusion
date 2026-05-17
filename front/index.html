@@ -1865,6 +1865,196 @@
   font-family: 'Nanum Myeongjo', serif;
   }
 
+  /* ─────────────────────────────────────────────────────────────
+     Phase 22a — 객관 분석 시각화 (Opus 해부학 JSON + 결정론 점수)
+     ───────────────────────────────────────────────────────────── */
+  .face-viz-section {
+  margin: 22px 0 18px;
+  padding: 18px 0 4px;
+  border-top: 1px dashed var(--gold-dp);
+  }
+  .face-viz-title {
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 13px;
+  letter-spacing: 6px;
+  color: var(--gold);
+  margin: 0 0 14px;
+  text-align: center;
+  }
+  .face-viz-subtitle {
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 11px;
+  letter-spacing: 3px;
+  color: var(--text-mute);
+  text-align: center;
+  margin: 0 0 18px;
+  }
+  .face-viz-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  margin-bottom: 18px;
+  }
+  .face-viz-grid.full { grid-template-columns: 1fr; }
+  .face-viz-panel {
+  border: 1px solid var(--gold-dp);
+  background: rgba(0,0,0,0.30);
+  border-radius: 3px;
+  padding: 14px 16px;
+  }
+  .face-viz-panel-title {
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 12px;
+  letter-spacing: 4px;
+  color: var(--gold);
+  margin: 0 0 10px;
+  text-align: center;
+  }
+
+  /* [D] 5형 배지 */
+  .face-shape-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 16px;
+  border: 1px solid var(--gold);
+  background: rgba(180,140,70,0.10);
+  color: var(--gold);
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 14px;
+  letter-spacing: 3px;
+  border-radius: 2px;
+  }
+  .face-shape-badge-glyph { font-size: 18px; }
+  .face-shape-badge-name { font-weight: bold; }
+  .face-shape-badge-sub {
+  color: var(--text-mute); font-size: 11px; letter-spacing: 2px;
+  }
+
+  /* [A] 12궁 가로 막대 차트 */
+  .face-bar-row {
+  display: grid;
+  grid-template-columns: 130px 1fr 40px;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 6px;
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 12px;
+  }
+  .face-bar-label { color: var(--text-main); letter-spacing: 1px; }
+  .face-bar-track {
+  height: 12px;
+  background: rgba(0,0,0,0.4);
+  border: 1px solid var(--gold-dp);
+  border-radius: 2px;
+  overflow: hidden;
+  }
+  .face-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, rgba(180,140,70,0.4), var(--gold));
+  transition: width 0.6s ease;
+  }
+  .face-bar-fill.top { background: linear-gradient(90deg, rgba(220,180,90,0.5), #d8b958); }
+  .face-bar-fill.weak { background: linear-gradient(90deg, rgba(80,80,80,0.4), #6a6a6a); }
+  .face-bar-val { color: var(--text-mute); text-align: right; font-size: 11px; }
+
+  /* [B] 삼정 도넛 (CSS conic-gradient) */
+  .face-samjeong-donut-wrap {
+  display: flex; align-items: center; gap: 16px; justify-content: center;
+  }
+  .face-samjeong-donut {
+  width: 110px; height: 110px;
+  border-radius: 50%;
+  background: conic-gradient(
+  #c89a52 0deg var(--sang),
+  #b88a42 var(--sang) var(--jung),
+  #a87a32 var(--jung) 360deg
+  );
+  position: relative;
+  }
+  .face-samjeong-donut::after {
+  content: "";
+  position: absolute; inset: 22%;
+  background: rgba(10,15,30,0.92);
+  border-radius: 50%;
+  border: 1px solid var(--gold-dp);
+  }
+  .face-samjeong-legend {
+  display: flex; flex-direction: column; gap: 6px;
+  font-family: 'Nanum Myeongjo', serif; font-size: 11px;
+  letter-spacing: 2px; color: var(--text-main);
+  }
+  .face-samjeong-legend-row {
+  display: flex; align-items: center; gap: 6px;
+  }
+  .face-samjeong-swatch {
+  width: 10px; height: 10px; border-radius: 1px;
+  }
+  .face-samjeong-swatch.sang { background: #c89a52; }
+  .face-samjeong-swatch.jung { background: #b88a42; }
+  .face-samjeong-swatch.ha { background: #a87a32; }
+
+  /* [C] 오관 5각 레이더 (SVG) */
+  .face-ogwan-radar { width: 100%; height: auto; display: block; }
+  .face-ogwan-radar .radar-grid { fill: none; stroke: var(--gold-dp); stroke-width: 0.5; opacity: 0.5; }
+  .face-ogwan-radar .radar-axis { stroke: var(--gold-dp); stroke-width: 0.4; opacity: 0.4; }
+  .face-ogwan-radar .radar-poly {
+  fill: rgba(180,140,70,0.20);
+  stroke: var(--gold);
+  stroke-width: 1.2;
+  }
+  .face-ogwan-radar .radar-point { fill: var(--gold); }
+  .face-ogwan-radar .radar-label {
+  fill: var(--text-main); font-family: 'Nanum Myeongjo', serif;
+  font-size: 9px; letter-spacing: 1px;
+  }
+
+  /* [E] 신·기 게이지 */
+  .face-shenqi-row {
+  display: grid; grid-template-columns: 30px 1fr 40px;
+  gap: 8px; align-items: center;
+  margin-bottom: 8px;
+  font-family: 'Nanum Myeongjo', serif; font-size: 12px;
+  }
+  .face-shenqi-label {
+  color: var(--gold); font-weight: bold; text-align: center;
+  font-size: 16px;
+  }
+  .face-shenqi-track {
+  height: 14px;
+  background: rgba(0,0,0,0.4);
+  border: 1px solid var(--gold-dp);
+  border-radius: 7px;
+  overflow: hidden;
+  }
+  .face-shenqi-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #6a4830, #c89a52, #f0d080);
+  transition: width 0.6s ease;
+  }
+
+  /* [F] 해부학 묘사 카드 */
+  .face-anat-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: 'Nanum Myeongjo', serif; font-size: 12px;
+  }
+  .face-anat-table th, .face-anat-table td {
+  text-align: left;
+  padding: 7px 10px;
+  border-bottom: 1px dashed rgba(180,140,70,0.18);
+  color: var(--text-main);
+  letter-spacing: 1px;
+  }
+  .face-anat-table th {
+  color: var(--gold);
+  font-weight: normal;
+  width: 110px;
+  letter-spacing: 2px;
+  font-size: 11px;
+  }
+  .face-anat-table td { line-height: 1.7; }
+
   @media (max-width: 600px) {
   .face-master-card { padding: 18px 16px; margin: 12px 0 20px; }
   .face-master-emblem { font-size: 24px; letter-spacing: 6px; }
@@ -1875,6 +2065,9 @@
   .face-source-bar { gap: 12px; }
   .face-btn { padding: 9px 16px; font-size: 13px; letter-spacing: 2px; }
   .face-loading-emblem { font-size: 30px; letter-spacing: 6px; }
+  .face-viz-grid { grid-template-columns: 1fr; }
+  .face-bar-row { grid-template-columns: 100px 1fr 36px; font-size: 11px; }
+  .face-samjeong-donut { width: 92px; height: 92px; }
   }
 </style>
 <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
@@ -8601,6 +8794,212 @@ if (document.readyState === 'loading') {
   showFaceStep('face-step-input');
   }
 
+  // ── Phase 22a 시각화 헬퍼 ────────────────────────────────────────
+  function _esc(s) {
+  return String(s == null ? '' : s)
+  .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+  function _pct(v) { return Math.max(0, Math.min(100, Math.round(Number(v || 0) * 100))); }
+
+  // [D] 5형 배지
+  function renderFaceShapeBadge(faceShape) {
+  if (!faceShape || !faceShape.shape_type) return '';
+  const shape = String(faceShape.shape_type);
+  const morph = faceShape.morphological_name ? String(faceShape.morphological_name) : '';
+  const glyph = ({ '목형':'木', '화형':'火', '토형':'土', '금형':'金', '수형':'水' })[shape] || '◯';
+  return `
+  <div class="face-viz-section">
+  <div class="face-viz-title">오 행 분 류</div>
+  <div class="face-viz-subtitle">MediaPipe 키포인트 기반 결정론 (ADR-022)</div>
+  <div style="text-align:center">
+  <span class="face-shape-badge">
+  <span class="face-shape-badge-glyph">${_esc(glyph)}</span>
+  <span class="face-shape-badge-name">${_esc(shape)}</span>
+  ${morph ? `<span class="face-shape-badge-sub">${_esc(morph)}</span>` : ''}
+  </span>
+  </div>
+  </div>`;
+  }
+
+  // [B] 삼정 도넛
+  function renderSamjeongDonut(samjeong) {
+  if (!samjeong || typeof samjeong !== 'object') return '';
+  const entries = Object.entries(samjeong);
+  if (!entries.length) return '';
+  // entries: [[label_ko_or_key, {label_ko, score, ...}], ...]
+  const items = entries.map(([k, v]) => ({
+  label: (v && v.label_ko) ? v.label_ko : k,
+  score: (v && typeof v.score === 'number') ? v.score : 0,
+  }));
+  const total = items.reduce((s, x) => s + x.score, 0) || 1;
+  const sang = (items[0] ? items[0].score : 0) / total * 360;
+  const jung = sang + ((items[1] ? items[1].score : 0) / total * 360);
+  return `
+  <div class="face-viz-panel">
+  <h4 class="face-viz-panel-title">삼 정 (三停)</h4>
+  <div class="face-samjeong-donut-wrap">
+  <div class="face-samjeong-donut" style="--sang:${sang}deg; --jung:${jung}deg"></div>
+  <div class="face-samjeong-legend">
+  ${items.map((it, i) => `
+  <div class="face-samjeong-legend-row">
+  <span class="face-samjeong-swatch ${['sang','jung','ha'][i] || ''}"></span>
+  <span>${_esc(it.label)} · ${it.score.toFixed(2)}</span>
+  </div>
+  `).join('')}
+  </div>
+  </div>
+  </div>`;
+  }
+
+  // [C] 오관 5각 레이더
+  function renderOgwanRadar(ogwan) {
+  if (!ogwan || typeof ogwan !== 'object') return '';
+  const entries = Object.entries(ogwan);
+  if (!entries.length) return '';
+  const items = entries.slice(0, 5).map(([k, v]) => ({
+  label: (v && v.label_ko) ? v.label_ko : k,
+  score: Math.max(0, Math.min(1, (v && typeof v.score === 'number') ? v.score : 0)),
+  }));
+  const N = items.length;
+  const cx = 100, cy = 100, R = 70;
+  const angle = (i) => (-Math.PI / 2) + (i * 2 * Math.PI / N);
+  const point = (i, r) => [cx + r * Math.cos(angle(i)), cy + r * Math.sin(angle(i))];
+  const gridLevels = [0.25, 0.5, 0.75, 1.0];
+  const gridPolys = gridLevels.map(lvl => {
+  const pts = items.map((_, i) => point(i, R * lvl).map(v => v.toFixed(1)).join(',')).join(' ');
+  return `<polygon class="radar-grid" points="${pts}"/>`;
+  }).join('');
+  const axes = items.map((_, i) => {
+  const [x, y] = point(i, R);
+  return `<line class="radar-axis" x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}"/>`;
+  }).join('');
+  const dataPts = items.map((it, i) => point(i, R * it.score));
+  const polyPts = dataPts.map(p => p.map(v => v.toFixed(1)).join(',')).join(' ');
+  const points = dataPts.map(([x, y]) => `<circle class="radar-point" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="2"/>`).join('');
+  const labels = items.map((it, i) => {
+  const [x, y] = point(i, R + 14);
+  const anchor = Math.abs(x - cx) < 5 ? 'middle' : (x > cx ? 'start' : 'end');
+  return `<text class="radar-label" x="${x.toFixed(1)}" y="${y.toFixed(1)}" text-anchor="${anchor}" dominant-baseline="middle">${_esc(it.label)}</text>`;
+  }).join('');
+  return `
+  <div class="face-viz-panel">
+  <h4 class="face-viz-panel-title">오 관 (五官)</h4>
+  <svg class="face-ogwan-radar" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  ${gridPolys}
+  ${axes}
+  <polygon class="radar-poly" points="${polyPts}"/>
+  ${points}
+  ${labels}
+  </svg>
+  </div>`;
+  }
+
+  // [E] 신·기 게이지
+  function renderShenQi(shen, qi) {
+  if (shen == null && qi == null) return '';
+  const sPct = _pct(shen);
+  const qPct = _pct(qi);
+  return `
+  <div class="face-viz-panel">
+  <h4 class="face-viz-panel-title">신 · 기 (神 · 氣)</h4>
+  <div class="face-shenqi-row">
+  <span class="face-shenqi-label">神</span>
+  <div class="face-shenqi-track"><div class="face-shenqi-fill" style="width:${sPct}%"></div></div>
+  <span class="face-bar-val">${(shen || 0).toFixed(2)}</span>
+  </div>
+  <div class="face-shenqi-row">
+  <span class="face-shenqi-label">氣</span>
+  <div class="face-shenqi-track"><div class="face-shenqi-fill" style="width:${qPct}%"></div></div>
+  <span class="face-bar-val">${(qi || 0).toFixed(2)}</span>
+  </div>
+  </div>`;
+  }
+
+  // [A] 12궁 가로 막대 차트
+  function renderPalaceBars(palaces, topKey, weakKey) {
+  if (!palaces || typeof palaces !== 'object') return '';
+  const entries = Object.entries(palaces);
+  if (!entries.length) return '';
+  const items = entries.map(([k, v]) => ({
+  key: k,
+  label: (v && v.label_ko) ? v.label_ko : k,
+  score: Math.max(0, Math.min(1, (v && typeof v.score === 'number') ? v.score : 0)),
+  })).sort((a, b) => b.score - a.score);
+  const rows = items.map(it => {
+  const cls = (it.key === topKey) ? 'top' : (it.key === weakKey ? 'weak' : '');
+  return `
+  <div class="face-bar-row">
+  <span class="face-bar-label">${_esc(it.label)}</span>
+  <div class="face-bar-track"><div class="face-bar-fill ${cls}" style="width:${_pct(it.score)}%"></div></div>
+  <span class="face-bar-val">${it.score.toFixed(2)}</span>
+  </div>`;
+  }).join('');
+  return `
+  <div class="face-viz-section">
+  <div class="face-viz-title">십 이 궁 점 수</div>
+  <div class="face-viz-subtitle">MediaPipe 478 키포인트 비율·대칭 (ADR-004)</div>
+  ${rows}
+  </div>`;
+  }
+
+  // [F] 해부학 묘사 카드
+  function renderAnatomicalTable(anat) {
+  if (!anat || typeof anat !== 'object') return '';
+  const fmtObj = (o) => {
+  if (!o || typeof o !== 'object') return '';
+  return Object.values(o).filter(v => v && String(v).trim()).join(' · ');
+  };
+  const rows = [
+  ['윤곽', fmtObj(anat.face_outline)],
+  ['이마', fmtObj(anat.forehead)],
+  ['눈썹', fmtObj(anat.eyebrow)],
+  ['눈', fmtObj(anat.eye)],
+  ['코', fmtObj(anat.nose)],
+  ['입', fmtObj(anat.mouth)],
+  ['턱', fmtObj(anat.chin)],
+  ['뺨·광대', fmtObj(anat.cheek_zygomatic)],
+  ['기색', fmtObj(anat.complexion)],
+  ['특징', anat.distinctive_feature || ''],
+  ].filter(([_, v]) => v && String(v).trim());
+  if (!rows.length) return '';
+  return `
+  <div class="face-viz-section">
+  <div class="face-viz-title">해 부 학 묘 사</div>
+  <div class="face-viz-subtitle">Opus Vision 객관 분석 (ADR-005 Supplement 4)</div>
+  <table class="face-anat-table">
+  <tbody>
+  ${rows.map(([k, v]) => `<tr><th>${_esc(k)}</th><td>${_esc(v)}</td></tr>`).join('')}
+  </tbody>
+  </table>
+  </div>`;
+  }
+
+  // 통합 시각화 블록 — 응답 dict에서 자동 발췌
+  function renderVisualizations(data) {
+  if (!data) return '';
+  const ps = data.palace_scores || {};
+  const fs = data.face_shape;
+  const anat = data.anatomical_description;
+
+  let mid = '';
+  const samj = renderSamjeongDonut(ps.samjeong);
+  const ogw = renderOgwanRadar(ps.ogwan);
+  if (samj || ogw) {
+  mid += `<div class="face-viz-grid">${samj}${ogw}</div>`;
+  }
+  const shenqi = renderShenQi(ps.shen_score, ps.qi_score);
+  if (shenqi) {
+  mid += `<div class="face-viz-grid full">${shenqi}</div>`;
+  }
+
+  return [
+  renderFaceShapeBadge(fs),
+  mid ? `<div class="face-viz-section"><div class="face-viz-title">결 정 론 점 수</div><div class="face-viz-subtitle">MediaPipe 478 키포인트 (ADR-004·022)</div>${mid}</div>` : '',
+  renderPalaceBars(ps.palaces, ps.top_palace, ps.weakest_palace),
+  renderAnatomicalTable(anat),
+  ].filter(Boolean).join('');
+  }
+
   function renderResult(data) {
   const text = (data && data.text) ? data.text : '(풀이를 받지 못했네.)';
   const cached = data && data.cached;
@@ -8619,9 +9018,12 @@ if (document.readyState === 'loading') {
   </div>`;
   }
 
+  const vizBlock = renderVisualizations(data);
+
   board.innerHTML = `
   <div class="face-result-card">
   <h2 class="story-title">운 학 도 사 의 얼 굴 풀 이</h2>
+  ${vizBlock}
   <div class="face-result-text">${escaped}</div>
   ${crisisBlock}
   <div class="face-result-meta">
