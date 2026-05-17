@@ -108,6 +108,7 @@ async def _call_anthropic_async(
     system_prompt: str,
     model: str | None,
     max_tokens: int,
+    usage_sink: list | None = None,
 ) -> str:
     client = anthropic_async_client()
     chosen = model or _ANTHROPIC_FALLBACK_MODEL
@@ -133,6 +134,8 @@ async def _call_anthropic_async(
     )
     if not text:
         raise ValueError("empty model response")
+    if usage_sink is not None:
+        usage_sink.append(getattr(msg, "usage", None))
     return text
 
 
@@ -141,12 +144,17 @@ async def call_llm_async(
     system_prompt: str,
     model: str | None = None,
     max_tokens: int = _MAX_TOKENS,
+    usage_sink: list | None = None,
 ) -> str:
     """비동기 LLM 호출 → raw 텍스트.
 
     Bizrouter (BIZROUTER_API_KEY 설정 시) 우선, 아니면 Anthropic fallback.
     `model=None` 이면 라우터별 기본 모델 사용 (Bizrouter: gemini-2.5-flash-lite).
+
+    Args:
+        usage_sink: ADR-013. Anthropic 호출의 usage 객체 sink.
+            Bizrouter는 OpenAI 형식이라 append 안 함.
     """
     if _bizrouter_enabled():
         return await _call_bizrouter_async(user_text, system_prompt, model, max_tokens)
-    return await _call_anthropic_async(user_text, system_prompt, model, max_tokens)
+    return await _call_anthropic_async(user_text, system_prompt, model, max_tokens, usage_sink=usage_sink)

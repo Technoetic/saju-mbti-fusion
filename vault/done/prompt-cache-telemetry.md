@@ -41,6 +41,30 @@ commit: TBD
 본 PR은 **측정 모듈 신설만**. face_reading 등 5개 LLM 호출 모듈에 emit
 코드 삽입은 별도 PR (SLO 시스템 결합 시).
 
+## 추가 통합 (2026-05-17, 같은 날)
+
+5개 호출 모듈 통합 완료 — `usage_sink: list | None = None` 옵션 인자 패턴:
+
+| 모듈 | 함수 | 통합 |
+|---|---|---|
+| engine/divination/face_reading.py | `_call_vision` | ✅ |
+| engine/divination/palm_reading.py | `_call_vision` | ✅ |
+| engine/divination/name_reading.py | `_call_llm` | ✅ |
+| engine/llm_sync.py | `call_llm_sync` | ✅ |
+| engine/llm_async.py | `call_llm_async` | ✅ |
+
+응답 dict 일관성:
+- 정상 LLM 호출: `prompt_cache_usage` = summarize(extract_usage(usage))
+- 위기·file_integrity·기타 단락: `prompt_cache_usage: None`
+- 캐시 hit: `setdefault("prompt_cache_usage", None)` (이전 저장 값 또는 None)
+
+기존 테스트 호환성:
+- `usage_sink` 기본값 None → mock 기존 시그니처 영향 0
+- stash 검증: 본 PR 전후 face_reading 87 fail 동일 → 본 PR이 깨뜨리지 않음
+
+호출자(web/server.py 등)는 응답 dict의 `prompt_cache_usage` 키를 옵션
+필드로 처리 가능. SLO 시스템 결합은 다음 PR.
+
 ## 검증
 
 ```

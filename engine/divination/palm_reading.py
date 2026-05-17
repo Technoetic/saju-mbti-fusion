@@ -183,8 +183,18 @@ def _bizrouter_enabled() -> bool:
     return bool((os.environ.get("BIZROUTER_API_KEY") or "").strip())
 
 
-def _call_vision(system_prompt: str, user_text: str, image_b64: str) -> str:
-    """비전 LLM 호출 — Bizrouter(Gemini) 우선, Anthropic Claude fallback."""
+def _call_vision(
+    system_prompt: str,
+    user_text: str,
+    image_b64: str,
+    usage_sink: list[Any] | None = None,
+) -> str:
+    """비전 LLM 호출 — Bizrouter(Gemini) 우선, Anthropic Claude fallback.
+
+    Args:
+        usage_sink: ADR-013. Anthropic 호출의 usage 객체 sink.
+            Bizrouter는 OpenAI 형식이라 append 안 함.
+    """
     mime, raw_b64 = _normalize_image_b64(image_b64)
     data_url = f"data:{mime};base64,{raw_b64}"
 
@@ -255,6 +265,8 @@ def _call_vision(system_prompt: str, user_text: str, image_b64: str) -> str:
     )
     if not text:
         raise ValueError("empty model response")
+    if usage_sink is not None:
+        usage_sink.append(getattr(msg, "usage", None))
     return text
 
 
@@ -287,6 +299,7 @@ def generate_palm_reading(
                 "matched_count": len(crisis["matched_keywords"]),
             },
             "legal_notice": None,
+            "prompt_cache_usage": None,
         }
 
     if not (image_b64 or "").strip():
@@ -303,6 +316,7 @@ def generate_palm_reading(
             "crisis_alert": None,
             "legal_notice": None,
             "file_integrity_error": integrity.error_code,
+            "prompt_cache_usage": None,
         }
 
     # 1. 캐시
@@ -311,17 +325,25 @@ def generate_palm_reading(
     if cached is not None:
         cached.setdefault("crisis_alert", None)
         cached.setdefault("legal_notice", None)
+        cached.setdefault("prompt_cache_usage", None)
         return cached
 
-    # 2. LLM 호출
+    # 2. LLM 호출 — ADR-013 prompt cache telemetry sink 동반
     user_text = _build_user_text(age, gender, hand, question)
-    text = _call_vision(_PALM_SYSTEM, user_text, image_b64)
+    usage_sink: list[Any] = []
+    text = _call_vision(_PALM_SYSTEM, user_text, image_b64, usage_sink=usage_sink)
     legal = build_legal_footer(is_crisis=False)
     full_text = (text or "").strip() + legal
+
+    prompt_cache_usage: dict[str, Any] | None = None
+    if usage_sink:
+        from engine.safety.prompt_cache_telemetry import extract_usage, summarize
+        prompt_cache_usage = summarize(extract_usage(usage_sink[0]))
 
     out = {
         "text": full_text,
         "cached": False,
+        "prompt_cache_usage": prompt_cache_usage,
         "crisis_alert": None,
         "legal_notice": legal,
     }
