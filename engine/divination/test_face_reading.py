@@ -1794,3 +1794,133 @@ def test_stage2_system_still_allows_deterministic_label_citation():
     assert "사전학습으로" in s and "끌어오지" in s
     # 라벨 그대로 인용 지시 (Phase 20 신규)
     assert "라벨" in s and "인용" in s
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Phase 21 — 길상·흉상 테스트 4문제 해결
+#
+# 문제 1: metrics None일 때 폴백 0.5 점수 그대로 인용
+# 문제 2: 0.5 일색을 "조화·균형" 긍정 해석
+# 문제 3: 영문 key (top_palace·myeong·bumo) 본문 노출
+# 문제 4: 안전 거절구가 정상 사진의 마무리에 오발동
+# 문제 5: 라벨 변조 ('보수관(눈썹)' → '보수관(귀)')
+# ADR-005 Supplement 6.
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+def test_generate_face_reading_returns_empty_summary_when_metrics_none(monkeypatch, tmp_path):
+    """문제 1 — metrics=None이면 deterministic_scores_summary가 빈 dict."""
+    from engine.divination import face_reading
+    from engine.safety import file_integrity
+    import json as _json
+
+    monkeypatch.setattr(face_reading, "_CACHE_DIR", tmp_path)
+    sample = {
+        "face_outline": {"shape": "둥근", "width_height_balance": "균형", "left_right_symmetry": "양호"},
+        "forehead": {"width": "", "shape": "", "wrinkles": ""},
+        "eyebrow": {"thickness": "", "length": "", "shape": ""},
+        "eye": {"size": "", "shape": "", "gaze_intensity": "", "clarity": ""},
+        "nose": {"bridge": "", "nostril_wing": "", "tip": ""},
+        "mouth": {"thickness": "", "corner": ""},
+        "chin": {"shape": "", "fullness": ""},
+        "cheek_zygomatic": {"prominence": "", "fullness": ""},
+        "complexion": {"tone": "", "color_cast": ""},
+        "distinctive_feature": "",
+        "photo_quality_note": "정면 양호",
+    }
+    monkeypatch.setattr(
+        face_reading, "_call_vision",
+        lambda *a, **k: _json.dumps(sample, ensure_ascii=False),
+    )
+    monkeypatch.setattr(
+        face_reading, "_call_stage2_persona", lambda *a, **k: "허허, 풀이.",
+    )
+    from types import SimpleNamespace
+    monkeypatch.setattr(
+        file_integrity, "validate_image_base64",
+        lambda b64: SimpleNamespace(valid=True, reason="", error_code=None),
+    )
+
+    # metrics=None → palace_scores None, summary 빈 dict
+    result = face_reading.generate_face_reading(
+        image_b64="dummy", age=30, gender="남성", metrics=None,
+    )
+    assert result["palace_scores"] is None
+    assert result["deterministic_scores_summary"] == {}
+
+
+def test_stage2_system_forbids_fallback_score_citation():
+    """문제 2 — Stage 2 프롬프트가 0.5 폴백 인용 금지를 명시."""
+    from engine.divination.face_reading import _STAGE2_PERSONA_SYSTEM
+    s = _STAGE2_PERSONA_SYSTEM
+    # 0.5 폴백 신호 인지 + 인용 금지 명시
+    assert "0.5" in s
+    assert "폴백" in s
+    # 균일/조화 해석 금지 어휘
+    assert "균형 잡혔" in s or "조화롭" in s or "고른 기운" in s
+
+
+def test_stage2_system_forbids_english_key_exposure():
+    """문제 3 — Stage 2 프롬프트가 영문 key 노출 금지를 명시."""
+    from engine.divination.face_reading import _STAGE2_PERSONA_SYSTEM
+    s = _STAGE2_PERSONA_SYSTEM
+    # 영문 key 노출 금지 명시
+    assert "영문 key 노출" in s and "절대 금지" in s
+    # 구체 예시 (top_palace 등)
+    assert "top_palace" in s
+    # 라벨 변조 금지 (문제 5)
+    assert "라벨 변조" in s and "토씨 하나 바꾸지" in s
+
+
+def test_stage2_system_separates_normal_ending_from_safety_refusal():
+    """문제 4 — 일반 마무리와 안전 거절구가 명확히 분리됨."""
+    from engine.divination.face_reading import _STAGE2_PERSONA_SYSTEM
+    s = _STAGE2_PERSONA_SYSTEM
+    # 명확 분리 절 존재
+    assert "일반 마무리" in s
+    assert "안전 거절구" in s
+    # 조건 명시
+    assert "식별 불가" in s
+    # 혼동 금지 명시
+    assert "혼동 금지" in s
+
+
+def test_detect_image_mime_distinguishes_png_jpeg():
+    """Phase 21 — raw base64에서 PNG/JPEG 매직 넘버 자동 감지 (Bizrouter 400 회피)."""
+    from engine.divination.face_reading import _detect_image_mime, _normalize_image_b64
+    # PNG 매직 넘버: 89 50 4E 47 → base64 'iVBORw0KGgo...'
+    png_b64 = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAA"
+    assert _detect_image_mime(png_b64) == "image/png"
+    # JPEG: FF D8 FF → '/9j/...'
+    jpg_b64 = "/9j/4AAQSkZJRgABAQEAAAAAAAD..."
+    assert _detect_image_mime(jpg_b64) == "image/jpeg"
+    # _normalize_image_b64 통합 — raw PNG는 image/png 반환
+    mime, body = _normalize_image_b64(png_b64)
+    assert mime == "image/png"
+    assert body == png_b64
+    # data URL은 명시 MIME 사용
+    mime2, body2 = _normalize_image_b64(f"data:image/webp;base64,{png_b64}")
+    assert mime2 == "image/webp"
+
+
+def test_build_deterministic_scores_summary_maps_english_keys_to_korean_labels():
+    """문제 3 — top_palace·weakest_palace 영문 key가 한국어 라벨로 매핑됨."""
+    from engine.divination.face_reading import _build_deterministic_scores_summary
+    # palace_scores.palaces dict에 영문 key → label_ko 매핑 있는 형식
+    palace = {
+        "palaces": {
+            "myeong": {"label_ko": "명궁(命宮·미간)", "score": 0.82},
+            "bumo": {"label_ko": "부모궁(父母宮)", "score": 0.32},
+        },
+        "top_palace": "myeong",
+        "weakest_palace": "bumo",
+    }
+    out = _build_deterministic_scores_summary(palace, None)
+    # 한국어 라벨로 변환되어야 함
+    assert out["top_palace"] == "명궁(命宮·미간)"
+    assert out["weakest_palace"] == "부모궁(父母宮)"
+    # 영문 key 본문에 부재
+    import json as _json
+    s = _json.dumps(out, ensure_ascii=False)
+    assert "myeong" not in s
+    assert "bumo" not in s
