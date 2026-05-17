@@ -1,0 +1,188 @@
+{
+  "source": "본 시스템 자동 생성 (보고서 §7 빈 약속 자율 생성)",
+  "adr": "ADR-031",
+  "extraction_date": "2026-05-17",
+  "sampling_strategy": "양간 12 + 음간 12 + 화토동궁 6 = 30",
+  "tests": [
+    {
+      "id": "ts_001",
+      "day_stem": "甲",
+      "branch": "酉",
+      "expected_stage": "태"
+    },
+    {
+      "id": "ts_002",
+      "day_stem": "甲",
+      "branch": "子",
+      "expected_stage": "목욕"
+    },
+    {
+      "id": "ts_003",
+      "day_stem": "甲",
+      "branch": "亥",
+      "expected_stage": "장생"
+    },
+    {
+      "id": "ts_004",
+      "day_stem": "丙",
+      "branch": "丑",
+      "expected_stage": "양"
+    },
+    {
+      "id": "ts_005",
+      "day_stem": "丙",
+      "branch": "午",
+      "expected_stage": "제왕"
+    },
+    {
+      "id": "ts_006",
+      "day_stem": "丙",
+      "branch": "巳",
+      "expected_stage": "건록"
+    },
+    {
+      "id": "ts_007",
+      "day_stem": "庚",
+      "branch": "申",
+      "expected_stage": "건록"
+    },
+    {
+      "id": "ts_008",
+      "day_stem": "庚",
+      "branch": "未",
+      "expected_stage": "관대"
+    },
+    {
+      "id": "ts_009",
+      "day_stem": "庚",
+      "branch": "午",
+      "expected_stage": "목욕"
+    },
+    {
+      "id": "ts_010",
+      "day_stem": "壬",
+      "branch": "午",
+      "expected_stage": "태"
+    },
+    {
+      "id": "ts_011",
+      "day_stem": "壬",
+      "branch": "辰",
+      "expected_stage": "묘"
+    },
+    {
+      "id": "ts_012",
+      "day_stem": "壬",
+      "branch": "酉",
+      "expected_stage": "목욕"
+    },
+    {
+      "id": "ts_013",
+      "day_stem": "乙",
+      "branch": "酉",
+      "expected_stage": "절"
+    },
+    {
+      "id": "ts_014",
+      "day_stem": "乙",
+      "branch": "子",
+      "expected_stage": "병"
+    },
+    {
+      "id": "ts_015",
+      "day_stem": "乙",
+      "branch": "午",
+      "expected_stage": "장생"
+    },
+    {
+      "id": "ts_016",
+      "day_stem": "丁",
+      "branch": "酉",
+      "expected_stage": "장생"
+    },
+    {
+      "id": "ts_017",
+      "day_stem": "丁",
+      "branch": "申",
+      "expected_stage": "목욕"
+    },
+    {
+      "id": "ts_018",
+      "day_stem": "丁",
+      "branch": "午",
+      "expected_stage": "건록"
+    },
+    {
+      "id": "ts_019",
+      "day_stem": "辛",
+      "branch": "酉",
+      "expected_stage": "건록"
+    },
+    {
+      "id": "ts_020",
+      "day_stem": "辛",
+      "branch": "辰",
+      "expected_stage": "묘"
+    },
+    {
+      "id": "ts_021",
+      "day_stem": "辛",
+      "branch": "卯",
+      "expected_stage": "절"
+    },
+    {
+      "id": "ts_022",
+      "day_stem": "癸",
+      "branch": "卯",
+      "expected_stage": "장생"
+    },
+    {
+      "id": "ts_023",
+      "day_stem": "癸",
+      "branch": "未",
+      "expected_stage": "묘"
+    },
+    {
+      "id": "ts_024",
+      "day_stem": "癸",
+      "branch": "子",
+      "expected_stage": "건록"
+    },
+    {
+      "id": "ts_025",
+      "day_stem": "戊",
+      "branch": "丑",
+      "expected_stage": "양"
+    },
+    {
+      "id": "ts_026",
+      "day_stem": "戊",
+      "branch": "子",
+      "expected_stage": "태"
+    },
+    {
+      "id": "ts_027",
+      "day_stem": "戊",
+      "branch": "戌",
+      "expected_stage": "묘"
+    },
+    {
+      "id": "ts_028",
+      "day_stem": "己",
+      "branch": "卯",
+      "expected_stage": "병"
+    },
+    {
+      "id": "ts_029",
+      "day_stem": "己",
+      "branch": "午",
+      "expected_stage": "건록"
+    },
+    {
+      "id": "ts_030",
+      "day_stem": "己",
+      "branch": "寅",
+      "expected_stage": "사"
+    }
+  ]
+}

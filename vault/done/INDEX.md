@@ -43,6 +43,14 @@ last_updated: 2026-05-17
 
 → 자세히: [[palm-scoring-deterministic]]
 
+## 사주 도메인
+
+| 일자 | 작업 | 모듈 | 회귀 | ADR |
+|---|---|---|---|---|
+| 2026-05-17 | 사주 십이운성 120 셀 결정론 매핑 — 자평진전 (양순음역 + 화토동궁) + KCI 검증 + ADR-015 옵션 B 패턴 | engine/saju/twelve_stages.py (11 API) + data/twelve_stages_mapping.json + regression.json | 17 (120 셀 전수 + 30 샘플) | ADR-031 |
+
+→ 자세히: [[saju-twelve-stages]]
+
 ## 꿈해석 멀티에이전트 도메인
 
 | 일자 | 작업 | 모듈 | 회귀 | ADR |
