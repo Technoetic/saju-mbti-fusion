@@ -26,20 +26,20 @@ Session Handoff 정신 — "Needs Human Review" 명시 — 을 분류 라벨에 
 
 → 새 세션에서 AI가 작업 시작 시 ⚪부터 검토하면 사용자 개입 없이 진행 가능.
 
-## 🟢 외부 입력 대기 (12건)
+## 🟢 외부 입력 대기 (12건 — 본문화 완료 5건 포함: ADR-020·021·022·023·024)
 
 ### 작명·관상·사주·손금 도메인
 
 | 항목 | 노트 | 우선도 | 딥리서치 프롬프트 |
 |---|---|---|---|
-| 관상 5형 결정론 분류 (face_scoring.py 외 5형 매핑 결손) | (새 항목) | **높음** | [[../templates/PROMPT_face-shape-classifier]] |
+| ✅ 관상 5형 결정론 분류 완료 (ADR-022, 회귀 18 PASS) | [[../done/face-shape-5형-classifier]] | done | [[../templates/PROMPT_face-shape-classifier]] |
 | 손금 4선 결정론 점수 (palm_scoring.py 신설, palm-reading-app C1·C2 DEFER) | [[../reports/palm-reading-app]] | **높음** | [[../templates/PROMPT_palm-scoring-deterministic]] |
 | 십이운성 옵션 C (engine/saju/ 신살 5종 외 결손) | (새 항목) | 중 | [[../templates/PROMPT_saju-12-stages-jangsaeng]] |
 | 한국 성씨·인명 빈도 (name_uniqueness.py 신설) | (새 항목) | 중 | [[../templates/PROMPT_korean-surname-frequency]] |
 | 화패 48패 결정론 카드 의미 (hwapae.py 보강) | (새 항목) | 중 | [[../templates/PROMPT_hwapae-card-meanings]] |
 | 한국어 표준발음법 §1~§30 작명 적용 (name_aesthetic.py 보강) | (새 항목) | 중 | [[../templates/PROMPT_korean-phonetic-rules]] |
 | §4 인명용 한자 9389자 추가 (saju-app-spec C1 DEFER) | [[../reports/saju-app-spec]] | **높음** | [[../templates/PROMPT_korean-hanja-9389-source]] |
-| 궁합 MBTI 16×16 매트릭스 학술 검증 (compat.py "간이" 명시) | (새 항목) | 중 | [[../templates/PROMPT_gunghap-mbti-matrix-academic]] |
+| ✅ 궁합 MBTI 16×16 매트릭스 v2 완료 (ADR-024, 회귀 29 PASS) | [[../done/saju-mbti-compat-v2]] | done | [[../templates/PROMPT_gunghap-mbti-matrix-academic]] |
 | §4 자원오행 5001자 수동 매핑 | [[ohaeng-manual-5001]] | 낮음 | [[../templates/PROMPT_ohaeng-manual-5001]] |
 | §5 음운 결합 규칙 (어감 §1 영역) | [[name-aesthetic-survey]] | 낮음 | [[../templates/PROMPT_aesthetic-survey]] |
 
@@ -47,7 +47,7 @@ Session Handoff 정신 — "Needs Human Review" 명시 — 을 분류 라벨에 
 
 | 항목 | 노트 | 우선도 | 딥리서치 프롬프트 |
 |---|---|---|---|
-| A8 Freud v2 — 4기제·상징 결정론 매핑 (현재 v1 페르소나만) | (새 항목) | 중 | [[../templates/PROMPT_freud-classical-v2]] |
+| ✅ A8 Freud v2 완료 (ADR-023, 회귀 26 PASS) | [[../done/dream-a8-freud-v2]] | done | [[../templates/PROMPT_freud-classical-v2]] |
 | A13 사회적 무의식 v3 — DB 클러스터링 (운영 데이터 누적 후) | (새 항목) | 낮음 | [[../templates/PROMPT_social-unconscious-v3]] |
 | ✅ B6 DreamNet v4 완료 (ADR-021, 회귀 17 PASS) | [[../done/dream-b6-dreamnet-v4]] | done | [[../templates/PROMPT_dreamnet-multimodal-v4]] |
 
