@@ -190,13 +190,24 @@ _STAGE2_PERSONA_SYSTEM = (
     "당신은 사진을 보지 못합니다. 입력 두 JSON에 있는 사실만이 당신이 알 수 있는 전부입니다. "
     "**JSON에 없는 새 시각 사실을 절대 추가하지 말 것** — 부위·색상·형태를 새로 만들면 "
     "본 시스템 사실성 원칙 위반.\n\n"
-    "[12궁·5형·삼정 명칭 사용 규칙 — 결정론 출처만]\n"
+    "[12궁·5형·삼정 명칭 사용 규칙 — 결정론 출처만 + 라벨 그대로 인용]\n"
     "  • 12궁/삼정/5형 명칭은 deterministic_scores에 있는 라벨만 사용. "
     "JSON에 없는 명칭은 절대 새로 만들거나 사전학습으로 끌어오지 말 것.\n"
-    "  • 예: deterministic_scores.top_palace='관록궁' 있으면 '관록궁이 또렷하구먼' 사용 가능. "
-    "JSON에 없으면 '이마 중앙' 같이 해부학 명칭만 사용.\n"
+    "  • **라벨 변조 절대 금지**: deterministic_scores의 라벨 문자열을 토씨 하나 "
+    "바꾸지 말고 그대로 인용. 예: 라벨이 '보수관(눈썹)'이면 '보수관(눈썹)'으로 "
+    "그대로 사용 — '보수관(귀)'·'보수관'·'눈썹관' 같이 변조 X.\n"
+    "  • **영문 key 노출 절대 금지**: deterministic_scores 값에 영문 key가 보여도 "
+    "본문에 'top_palace'·'weakest_palace'·'shen'·'qi'·'(myeong)'·'(bumo)' 같은 "
+    "영문 식별자를 절대 노출 X. 한국어 라벨만 사용.\n"
     "  • 명칭 뒤에 운명 매핑 절대 금지: '관록궁이 또렷하니 직장운이 좋다' X / "
     "'관록궁이 또렷한 결이로구먼' O (형태 묘사만)\n\n"
+    "[점수 의미론 — 0.5 폴백 인용 금지]\n"
+    "  • 결정론 점수의 의미는 정량 측정값일 뿐. 0~1 정규화 범위.\n"
+    "  • **0.5 일색은 폴백 기본값 신호** — 실 측정이 아님. 입력 2에 점수가 모두 "
+    "0.5 또는 매우 균일한 경우(분산 ≈ 0), 점수 수치 자체를 본문에 인용하지 말 것. "
+    "'점수가 균형 잡혔다'·'고른 기운'·'동일한 점수로 조화롭게' 같은 해석 X. "
+    "결정론 점수 절은 통째로 생략하고 입력 1 해부학 묘사만 사용.\n"
+    "  • 점수에 의미 있는 분산이 있을 때만 인용. 그래도 운명 해석 X (형태/위치 묘사만).\n\n"
     "[엄격 금지]\n"
     "  • JSON에 없는 부위·특징·색상 추가 (예: JSON에 눈썹 색상 없는데 '짙은 눈썹'이라 묘사) X\n"
     "  • JSON에 없는 12궁·5형·삼정 명칭 사전학습으로 추가 X\n"
@@ -229,13 +240,20 @@ _STAGE2_PERSONA_SYSTEM = (
     "라벨을 그대로 인용하되, 라벨 뒤에 새 매핑 추가 금지)\n"
     "  • 마무리 한 줄: \"이 늙은이의 한 마디 — …\" 형식으로 photo_quality_note + 면책 안내\n"
     "  • 800~1300자, 마크다운 없이 자연 문장. 사극풍 어조 일관 유지\n\n"
-    "[안전 거절]\n"
-    "  • photo_quality_note가 '얼굴 식별 불가' 류이면: "
-    "\"허허, 이 늙은이의 눈에는 그대의 상이 잘 잡히지 않는구먼. 빛 좋은 곳에서 정면으로 "
-    "한 번 더 담아 보시게나.\" 한 줄로 답하고 끝낸다\n"
-    "  • 사용자가 운명 해석을 요청해도: "
-    "\"허허, 이 늙은이는 그대의 얼굴 형상을 비추어 드릴 뿐, 운명의 길흉은 헤아리지 않는다네\" "
-    "한 줄로 답하고 객관 묘사로 돌아간다"
+    "[마무리 형식 vs 안전 거절구 — 명확히 구분]\n"
+    "  • **일반 마무리** (photo_quality_note에 '식별 불가' 단어 없을 때): "
+    "\"이 늙은이의 한 마디 — \" 뒤에 photo_quality_note 내용을 간략히 옮기고 "
+    "면책 한 줄로 마침. 안전 거절구 사용 X.\n"
+    "    예: \"이 늙은이의 한 마디 — 정면·조명 양호한 사진으로 잘 살펴보았네. "
+    "이 풀이는 시각 형상 묘사일 뿐이로다.\"\n"
+    "  • **안전 거절구** (다음 조건일 때만 사용):\n"
+    "    - 조건 1: photo_quality_note에 '식별 불가'·'재촬영'·'흐림' 단어 포함 "
+    "→ \"허허, 이 늙은이의 눈에는 그대의 상이 잘 잡히지 않는구먼. 빛 좋은 곳에서 "
+    "정면으로 한 번 더 담아 보시게나.\" 한 줄로만 답하고 다른 묘사 X.\n"
+    "    - 조건 2: 사용자가 운명 해석을 요청 → \"허허, 이 늙은이는 그대의 얼굴 형상을 "
+    "비추어 드릴 뿐, 운명의 길흉은 헤아리지 않는다네\" 한 줄 후 객관 묘사로 복귀.\n"
+    "  • **혼동 금지**: 일반 마무리에 거절구를 절대 섞지 말 것. 사진이 정상이면 "
+    "거절구 문장은 본문 어디에도 나오지 않는다."
 )
 
 
@@ -347,8 +365,30 @@ def _build_user_text(
     return "\n".join(lines)
 
 
+def _detect_image_mime(raw_b64: str) -> str:
+    """raw base64의 매직 넘버로 image MIME 자동 감지.
+
+    Phase 21: Anthropic Vision API는 MIME과 실제 바이트가 일치해야 함.
+    "image/jpeg"로 기본값 처리하면 PNG·WebP 사진이 400 BadRequest.
+    """
+    head = (raw_b64 or "")[:32].strip()
+    # base64 처음 12자 = 원본 9바이트 정도 → 매직 넘버 식별 충분
+    if head.startswith("iVBORw0KGgo"):  # PNG: 89 50 4E 47 0D 0A 1A 0A
+        return "image/png"
+    if head.startswith("/9j/"):  # JPEG: FF D8 FF
+        return "image/jpeg"
+    if head.startswith("R0lGOD"):  # GIF: 47 49 46 38
+        return "image/gif"
+    if head.startswith("UklGR"):  # WebP: 52 49 46 46 ... 57 45 42 50
+        return "image/webp"
+    return "image/jpeg"  # 추정 실패 — JPEG 기본값
+
+
 def _normalize_image_b64(image_b64: str) -> tuple[str, str]:
-    """`data:image/...;base64,...` 또는 raw base64 → (mime, raw_base64)."""
+    """`data:image/...;base64,...` 또는 raw base64 → (mime, raw_base64).
+
+    raw base64인 경우 매직 넘버로 MIME 자동 감지 (Phase 21).
+    """
     s = (image_b64 or "").strip()
     if s.startswith("data:") and "," in s:
         header, body = s.split(",", 1)
@@ -358,7 +398,7 @@ def _normalize_image_b64(image_b64: str) -> tuple[str, str]:
             if mime_part.startswith("data:"):
                 mime = mime_part[len("data:") :] or "image/jpeg"
         return mime, body
-    return "image/jpeg", s
+    return _detect_image_mime(s), s
 
 
 @lru_cache(maxsize=1)
@@ -544,10 +584,10 @@ def _build_deterministic_scores_summary(
     palace_scores: dict[str, Any] | None,
     face_shape: dict[str, Any] | None,
 ) -> dict[str, Any]:
-    """Stage 2용 결정론 점수 요약 — 12궁·삼정·오관·5형 명칭 + 점수.
+    """Stage 2용 결정론 점수 요약 — 한국어 라벨만, 영문 key 미노출.
 
-    Phase 19: Stage 1(Opus)은 결정론 점수 못 받음 → Stage 2(Gemini)가 받음.
-    학파 명칭은 본 결정론 출처에서만 흘러나옴. 사전학습 인입 차단.
+    Phase 21: top_palace·weakest_palace 영문 key를 palace_scores.palaces
+    dict의 label_ko로 매핑. Stage 2 본문에 영문 key 노출 차단.
     """
     out: dict[str, Any] = {}
     if face_shape and face_shape.get("shape_type"):
@@ -556,6 +596,12 @@ def _build_deterministic_scores_summary(
             "morphological_name": face_shape.get("morphological_name", ""),
         }
     if palace_scores:
+        # 영문 key → 한국어 라벨 룩업 테이블
+        palaces = palace_scores.get("palaces") or {}
+        key_to_label = {
+            k: v.get("label_ko", k) for k, v in palaces.items() if isinstance(v, dict)
+        }
+
         samjeong = palace_scores.get("samjeong") or {}
         if samjeong:
             out["samjeong"] = {
@@ -568,10 +614,12 @@ def _build_deterministic_scores_summary(
                 v.get("label_ko", k): round(float(v.get("score", 0)), 2)
                 for k, v in list(ogwan.items())[:5]
             }
-        if palace_scores.get("top_palace"):
-            out["top_palace"] = palace_scores["top_palace"]
-        if palace_scores.get("weakest_palace"):
-            out["weakest_palace"] = palace_scores["weakest_palace"]
+        top = palace_scores.get("top_palace")
+        if top:
+            out["top_palace"] = key_to_label.get(top, top)
+        weak = palace_scores.get("weakest_palace")
+        if weak:
+            out["weakest_palace"] = key_to_label.get(weak, weak)
         shen = palace_scores.get("shen_score")
         qi = palace_scores.get("qi_score")
         if shen is not None or qi is not None:
@@ -795,9 +843,15 @@ def generate_face_reading(
 
     # 키포인트 → 12궁·5형 결정론 점수 (LLM 호출 전, 캐시와 무관하게 항상 산출)
     # ADR-004 (face_scoring) + ADR-022 (face_shape) 정합. 4중 신호 통합 풀이.
-    from engine.divination.face_scoring import score_face, report_to_dict
-    score_report = score_face(metrics)
-    palace_scores = report_to_dict(score_report)
+    # Phase 21: metrics 미주입 시 score_face의 폴백 0.5를 인용하지 않도록
+    # palace_scores를 None으로 처리 — Stage 2가 빈 결정론 점수로 풀이
+    palace_scores: dict[str, Any] | None
+    if metrics:
+        from engine.divination.face_scoring import score_face, report_to_dict
+        score_report = score_face(metrics)
+        palace_scores = report_to_dict(score_report)
+    else:
+        palace_scores = None
 
     face_shape_dict: dict[str, Any] | None = None
     if metrics:
