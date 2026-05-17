@@ -30,3 +30,21 @@ data/app.db
 
 # Obsidian Vault — 인간 지식 저장소, 운영 코드 무관
 vault/
+
+# 테스트 파일 — Railway 운영 컨테이너에 불필요 (CI에서만 사용)
+**/test_*.py
+**/conftest.py
+**/pytest.ini
+.pytest_cache/
+
+# 디버그 잔재
+tarot_*.png
+tarot_*.json
+
+# 외부 보고서 원본 (.gitignore와 정합)
+/Export.md
+/[가-힣]*보고서*.md
+/[가-힣]*분석*.md
+
+# GitHub Actions / CI 설정 (Railway 빌드와 무관)
+.github/
