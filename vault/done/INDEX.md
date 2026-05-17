@@ -31,6 +31,14 @@ last_updated: 2026-05-17
 
 → 자세히: [[face-phase1-keypoint-scoring]]
 
+## 꿈해석 멀티에이전트 도메인
+
+| 일자 | 작업 | 모듈 | 회귀 | ADR |
+|---|---|---|---|---|
+| 2026-05-17 | B6 DreamNet v4 멀티모달 통합 (HVDC + 한국 KCI 규준 + disclaimers 강제) | engine/agents/dreamnet_multimodal.py + dreambank.py NORMS_KOREAN | 17 | ADR-021 |
+
+→ 자세히: [[dream-b6-dreamnet-v4]]
+
 ## 안전·운영 인프라
 
 | 일자 | 영역 | 모듈 |
