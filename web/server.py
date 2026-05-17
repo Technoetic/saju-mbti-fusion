@@ -1653,7 +1653,22 @@ class PersonalityAPIServer:
     async def post_face_reading(
         self, req: FaceReadingRequest
     ) -> dict[str, Any]:
-        """운학 도사 얼굴 풀이 — Gemini Vision 멀티모달 호출 + 캐시."""
+        """운학 도사 얼굴 풀이 — Gemini Vision 멀티모달 호출 + 캐시.
+
+        ADR-035 (Phase 3회차): 5MB 초과 시 HTTP 413 명확 오류 반환.
+        base64 길이 사전 검사 (7MB ≈ 5MB 바이너리) → 조기 차단.
+        """
+        # 서버측 이미지 크기 안전망 — 5MB 바이너리 ≈ base64 7MB
+        _MAX_B64_LEN = 7 * 1024 * 1024  # 7_340_032 chars
+        raw_b64 = req.image_base64 or ""
+        # data URL prefix 제거 후 길이 체크
+        b64_body = raw_b64.split(",", 1)[-1] if "," in raw_b64 else raw_b64
+        if len(b64_body) > _MAX_B64_LEN:
+            raise HTTPException(
+                status_code=413,
+                detail="이미지가 너무 큽니다 — 5MB 이하 JPG/PNG/WEBP로 변환 후 업로드해주세요.",
+            )
+
         try:
             from engine.divination.face_reading import generate_face_reading
 

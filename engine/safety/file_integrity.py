@@ -36,15 +36,24 @@ ALLOWED_MIMES = frozenset({"image/jpeg", "image/png", "image/webp"})
 # JPEG:  FF D8 FF (3 bytes)
 # PNG:   89 50 4E 47 0D 0A 1A 0A (8 bytes)
 # WebP:  RIFF????WEBP (12 bytes — bytes 0-3=RIFF, 8-11=WEBP)
+# HEIC/HEIF/AVIF: ISO BMFF ftyp box (bytes 4-7=ftyp, 8-11=brand)
 
 _JPEG_MAGIC = b"\xff\xd8\xff"
 _PNG_MAGIC = b"\x89PNG\r\n\x1a\n"
 _WEBP_RIFF = b"RIFF"
 _WEBP_WEBP = b"WEBP"
 
+# HEIC/AVIF — ISO BMFF 컨테이너 brand 목록 (ADR-035 Phase 3회차)
+_HEIC_BRANDS = frozenset({b"heic", b"heix", b"hevc", b"hevx", b"heim", b"heis", b"hevm", b"hevs"})
+_HEIF_BRANDS = frozenset({b"mif1", b"msf1", b"miaf", b"miag"})
+_AVIF_BRANDS = frozenset({b"avif", b"avis", b"MA1B", b"MA1A"})
+
 
 def _detect_mime_from_magic(data: bytes) -> str | None:
-    """파일 헤더 바이트만으로 실제 MIME 식별. 알 수 없으면 None."""
+    """파일 헤더 바이트만으로 실제 MIME 식별. 알 수 없으면 None.
+
+    ADR-035: HEIC/AVIF도 식별해 명확한 오류 메시지 제공.
+    """
     if len(data) < 3:
         return None
     if data.startswith(_JPEG_MAGIC):
@@ -57,6 +66,15 @@ def _detect_mime_from_magic(data: bytes) -> str | None:
         and data[8:12] == _WEBP_WEBP
     ):
         return "image/webp"
+    # ISO BMFF 컨테이너 (HEIC/HEIF/AVIF) — ftyp box 감지
+    if len(data) >= 12 and data[4:8] == b"ftyp":
+        brand = data[8:12]
+        if brand in _HEIC_BRANDS:
+            return "image/heic"
+        if brand in _HEIF_BRANDS:
+            return "image/heif"
+        if brand in _AVIF_BRANDS:
+            return "image/avif"
     return None
 
 
@@ -134,9 +152,22 @@ def validate_image_bytes(
         )
 
     if detected not in ALLOWED_MIMES:
+        # HEIC/AVIF — 구체적 안내 메시지
+        if detected in ("image/heic", "image/heif"):
+            reason = (
+                "HEIC 형식은 지원하지 않습니다. "
+                "사진 앱에서 JPG로 내보내기 후 업로드해주세요."
+            )
+        elif detected == "image/avif":
+            reason = (
+                "AVIF 형식은 지원하지 않습니다. "
+                "JPG 또는 PNG로 변환 후 업로드해주세요."
+            )
+        else:
+            reason = "지원하지 않는 이미지 형식입니다. JPG, PNG, WEBP만 가능합니다."
         return IntegrityResult(
             valid=False,
-            reason="지원하지 않는 이미지 형식입니다. JPG, PNG, WEBP만 가능합니다.",
+            reason=reason,
             detected_mime=detected,
             size_bytes=size,
             error_code="format_not_allowed",
