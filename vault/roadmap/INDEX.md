@@ -26,13 +26,14 @@ Session Handoff 정신 — "Needs Human Review" 명시 — 을 분류 라벨에 
 
 → 새 세션에서 AI가 작업 시작 시 ⚪부터 검토하면 사용자 개입 없이 진행 가능.
 
-## 🟢 외부 입력 대기 (9건)
+## 🟢 외부 입력 대기 (10건)
 
-### 작명·관상·사주 도메인
+### 작명·관상·사주·손금 도메인
 
 | 항목 | 노트 | 우선도 | 딥리서치 프롬프트 |
 |---|---|---|---|
-| 관상 5형 결정론 분류 (face_reading.py LLM 외 결정론 엔진 결손) | (새 항목) | **높음** | [[../templates/PROMPT_face-shape-classifier]] |
+| 관상 5형 결정론 분류 (face_scoring.py 외 5형 매핑 결손) | (새 항목) | **높음** | [[../templates/PROMPT_face-shape-classifier]] |
+| 손금 4선 결정론 점수 (palm_scoring.py 신설, palm-reading-app C1·C2 DEFER) | [[../reports/palm-reading-app]] | **높음** | [[../templates/PROMPT_palm-scoring-deterministic]] |
 | 십이운성 옵션 C (engine/saju/ 신살 5종 외 결손) | (새 항목) | 중 | [[../templates/PROMPT_saju-12-stages-jangsaeng]] |
 | 한국 성씨·인명 빈도 (name_uniqueness.py 신설) | (새 항목) | 중 | [[../templates/PROMPT_korean-surname-frequency]] |
 | 화패 48패 결정론 카드 의미 (hwapae.py 보강) | (새 항목) | 중 | [[../templates/PROMPT_hwapae-card-meanings]] |
