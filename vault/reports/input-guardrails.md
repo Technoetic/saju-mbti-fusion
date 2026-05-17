@@ -6,6 +6,25 @@ source: deepresearch
 domain: safety
 applied_to:
   - L1 → ADR-011 + engine/safety/file_integrity.py (2026-05-17)
+  - L2 → ADR-020 + engine/safety/photo_quality.py (Laplacian variance, 9 회귀 PASS, 손금 150 / 관상 100 임계값, graceful degradation)
+adr_017_first_application: "2026-05-17 (절차 첫 적용 + L2 본문화)"
+permanently_rejected:
+  - "광고성 수사 ('환각 없는'·'완벽에 가까운'·'단 20ms 만에') — ADR-010 도그마"
+  - "OpenAI Moderation API 무비판 채택 — 데이터 송신 정책 ADR 선행 필요 (외부 의존)"
+  - "Llama Guard 3 무비판 채택 — 운영 데이터 누적 후 ROI 평가 필수"
+  - "손금 도메인 미구현 추정 (1차 오추정 정정 — palm_reading.py 실제 351줄 존재)"
+already_implemented:
+  - "L1 파일 무결성 → file_integrity.py (17 tests)"
+  - "L2 OpenCV Blur → photo_quality.py (9 tests, ADR-020)"
+  - "L3 photo_guide.py 9종 사진 에러"
+  - "L4 crisis_detector.py 자살·자해"
+  - "L5 jailbreak_defense.py 5 카테고리"
+  - "L5 input_sanitizer.py"
+  - "L6 name_unihan.py 8525자 (9389자 갭은 별도 PROMPT_korean-hanja-9389-source.md)"
+  - "L7 output_safety_gate.py 결정론 게이트"
+deferred_pending_decision:
+  - "L4 OpenAI Moderation API — 데이터 송신 정책 ADR + 사업 결정 필요"
+  - "L7 Llama Guard 3 — 운영 데이터 누적 후 ROI 평가 (post_traffic)"
 neo4j_synced: false
 factuality: mostly_verified
 related:
