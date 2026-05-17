@@ -1322,3 +1322,104 @@ def test_generate_face_reading_empty_image_raises():
         face_reading.generate_face_reading(image_b64="", age=30)
     with _pytest.raises(ValueError, match="image_b64 is required"):
         face_reading.generate_face_reading(image_b64="   ", age=30)
+
+
+# ─────────── B 옵션: 4중 신호 통합 (palace_scores + face_shape) ───────────
+
+
+def test_build_user_text_with_palace_scores():
+    """palace_scores 주입 시 삼정·오관 블록 포함."""
+    from engine.divination.face_reading import _build_user_text
+    palace = {
+        "samjeong": {
+            "sangjeong": {"label_ko": "상정", "score": 0.72},
+            "jungjeong": {"label_ko": "중정", "score": 0.81},
+            "hajeong": {"label_ko": "하정", "score": 0.65},
+        },
+        "ogwan": {
+            "nun": {"label_ko": "감찰관(눈)", "score": 0.88},
+        },
+        "top_palace": "관록궁",
+        "weakest_palace": "재백궁",
+        "shen_score": 0.75,
+        "qi_score": 0.62,
+    }
+    t = _build_user_text(30, "남성", None, palace_scores=palace)
+    assert "결정론 점수" in t
+    assert "상정" in t
+    assert "감찰관" in t
+    assert "관록궁" in t  # top_palace
+    assert "재백궁" in t  # weakest_palace
+    assert "신 0.75" in t
+
+
+def test_build_user_text_with_face_shape():
+    """face_shape 주입 시 5형 블록 포함."""
+    from engine.divination.face_reading import _build_user_text
+    shape = {
+        "shape_type": "목형",
+        "morphological_name": "수직 발달형",
+        "matched_criteria": ["face_width_height_ratio < 0.75", "bizygomatic 좁음"],
+    }
+    t = _build_user_text(30, "여성", None, face_shape=shape)
+    assert "5형: 목형" in t
+    assert "수직 발달형" in t
+
+
+def test_build_user_text_no_extras_backward_compat():
+    """palace_scores·face_shape 없을 때도 정상 — 풀이 흐름 안내 포함."""
+    from engine.divination.face_reading import _build_user_text
+    t = _build_user_text(30, "남성", "새 일을 시작해도 좋을지")
+    assert "약 30세" in t
+    assert "남성" in t
+    assert "새 일을" in t
+    assert "운학 도사의 어조" in t
+    # 결정론 블록은 없어야 함
+    assert "[얼굴 구조 분류" not in t
+    assert "[십이궁·삼정·오관" not in t
+
+
+def test_generate_face_reading_emits_face_shape(monkeypatch, tmp_path):
+    """metrics 제공 시 응답 dict에 face_shape 필드 포함.
+
+    L1 파일 무결성 게이트는 통과해야 하므로 validate_image_base64를 mock.
+    """
+    from engine.divination import face_reading
+    from engine.safety import file_integrity
+
+    monkeypatch.setattr(face_reading, "_CACHE_DIR", tmp_path)
+    monkeypatch.setattr(face_reading, "_call_vision", lambda *a, **k: "mock 풀이")
+
+    # L1 파일 무결성 게이트 우회 (테스트용 mock)
+    from types import SimpleNamespace
+    monkeypatch.setattr(
+        file_integrity, "validate_image_base64",
+        lambda b64: SimpleNamespace(valid=True, reason="", error_code=None),
+    )
+
+    # face_shape.classify_face_shape가 받는 metrics 형식
+    metrics = {
+        "face_width_height_ratio": 0.85,
+        "jaw_angle_deg": 110.0,
+        "bizygomatic_to_bigonial_ratio": 1.15,
+    }
+    result = face_reading.generate_face_reading(
+        image_b64="dummy_b64_payload",
+        age=30,
+        gender="남성",
+        metrics=metrics,
+    )
+    # 응답에 face_shape 필드 존재 (None 또는 dict)
+    assert "face_shape" in result
+    # metrics 제공했으므로 face_shape는 dict (목/화/토/금/수/복합형 중 하나)
+    assert result["face_shape"] is not None
+    assert "shape_type" in result["face_shape"]
+
+
+def test_face_system_includes_score_dispatch_policy():
+    """_FACE_SYSTEM에 결정론 점수 vs 사진 역할 분담 원칙 포함."""
+    from engine.divination.face_reading import _FACE_SYSTEM
+    assert "결정론 점수" in _FACE_SYSTEM
+    assert "ADR-004" in _FACE_SYSTEM or "ADR-022" in _FACE_SYSTEM
+    # 점수 낮음 = 개성으로 해석 원칙
+    assert "개성" in _FACE_SYSTEM
