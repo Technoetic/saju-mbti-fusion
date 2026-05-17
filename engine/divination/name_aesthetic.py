@@ -15,7 +15,8 @@
 본 모듈은 ADR-010 사실성 분리 부분 적용:
   - 검증된 데이터 (전자가족관계 통계) 채택
   - 학술 인용 (보고서 §4의 김진욱·정희원) 검증 실패라 미채택
-  - 음운 결합 규칙 (보고서 §1) 데이터 미완으로 미채택
+  - 음운 결합 규칙 (보고서 §1) JSON 표는 미완이나 본문 명시 4개 규칙은 채택
+    (국립국어원 표준발음법 — 한국어 음운론 표준 사실)
 """
 
 from __future__ import annotations
@@ -161,3 +162,166 @@ def get_top_syllables(gender: str = GENDER_NEUTRAL, n: int = 10) -> list[tuple[s
     """상위 N개 인기 음절 (디버깅·관리용)."""
     freq = _get_freq_dict(gender)
     return sorted(freq.items(), key=lambda kv: -kv[1])[:n]
+
+
+# ─────────────────────────── 음운 결합 자연스러움 (보고서 §1) ───────────────────────────
+# 국립국어원 표준발음법 기반 — 한국어 음운론 표준 사실.
+# 보고서 §1 JSON 표는 빈 약속이나, 본문에 명시된 4개 규칙은 채택.
+
+
+# 표준 종성 7자음 (표준발음법 제8항)
+_VALID_CODA = frozenset("ㄱㄴㄷㄹㅁㅂㅇ")
+
+# 자음군 회피 — 받침 + 다음 초성 어색 조합 (보고서 §1 명시)
+# 격음(ㅋㅌㅍㅊ) + 평음 종성, 또는 발음 충돌 조합
+_AWKWARD_BATCHIM_INITIAL = frozenset([
+    ("ㄱ", "ㅍ"),  # 보고서 명시 예시
+    ("ㄱ", "ㅌ"),
+    ("ㄱ", "ㅋ"),
+    ("ㅂ", "ㅍ"),
+    ("ㅂ", "ㅋ"),
+    ("ㅂ", "ㅌ"),
+    ("ㄷ", "ㅌ"),
+    ("ㄷ", "ㅍ"),
+])
+
+# 자연 결합 — 받침 + 다음 초성 부드러운 조합 (보고서 §1 명시)
+# ㄴ 받침 + ㅇ/ㅎ (연음 + 약화), 모음 시작 (연음)
+_SMOOTH_BATCHIM_INITIAL = frozenset([
+    ("ㄴ", "ㅇ"),  # 보고서 명시 예시
+    ("ㄴ", "ㅎ"),
+    ("ㄴ", "ㄴ"),  # 동일 자음 연결 자연
+    ("ㄹ", "ㄹ"),  # 유음화 자연
+    ("ㅇ", "ㅇ"),
+    ("ㅁ", "ㅇ"),
+    ("ㅁ", "ㅎ"),
+])
+
+
+def _decompose_jamo(syllable: str) -> tuple[str, str, str] | None:
+    """한글 음절 → (초성, 중성, 종성) 분해. 종성 없으면 빈 문자열."""
+    if not ("가" <= syllable <= "힣"):
+        return None
+    code = ord(syllable) - ord("가")
+    cho_idx = code // (21 * 28)
+    jung_idx = (code % (21 * 28)) // 28
+    jong_idx = code % 28
+    CHO = "ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ"
+    JUNG = "ㅏㅐㅑㅒㅓㅔㅕㅖㅗㅘㅙㅚㅛㅜㅝㅞㅟㅠㅡㅢㅣ"
+    JONG = "_ㄱㄲㄳㄴㄵㄶㄷㄹㄺㄻㄼㄽㄾㄿㅀㅁㅂㅄㅅㅆㅇㅈㅊㅋㅌㅍㅎ"
+    cho = CHO[cho_idx]
+    jung = JUNG[jung_idx]
+    jong = JONG[jong_idx] if jong_idx > 0 else ""
+    return (cho, jung, jong)
+
+
+def _normalize_coda(coda: str) -> str:
+    """복합 종성을 표준 7자음 중 하나로 정규화 (표준발음법 제8항)."""
+    if not coda:
+        return ""
+    # 표준 7자음 매핑 (대표 변환만 — 정확성 위해 보수적)
+    mapping = {
+        "ㄲ": "ㄱ", "ㅋ": "ㄱ", "ㄳ": "ㄱ", "ㄺ": "ㄱ",
+        "ㄵ": "ㄴ", "ㄶ": "ㄴ",
+        "ㅅ": "ㄷ", "ㅆ": "ㄷ", "ㅈ": "ㄷ", "ㅊ": "ㄷ", "ㅌ": "ㄷ", "ㅎ": "ㄷ",
+        "ㄻ": "ㅁ", "ㄼ": "ㅂ", "ㄽ": "ㄹ", "ㄾ": "ㄹ", "ㄿ": "ㅂ", "ㅀ": "ㄹ",
+        "ㅄ": "ㅂ", "ㅍ": "ㅂ",
+    }
+    return mapping.get(coda, coda if coda in _VALID_CODA else "")
+
+
+def phonetic_combination_score(name_korean: str) -> dict:
+    """음절 결합 자연스러움 점수 — 보고서 §1 기반.
+
+    분석:
+      - 음절 N개 사이 N-1 결합 페어 검사
+      - 자연 결합 (smooth) → +1
+      - 어색 결합 (awkward) → -1
+      - 일반 결합 → 0
+
+    Returns:
+        {
+            "score": float,  # 정규화 [-1.0, 1.0]
+            "pairs": list[dict],  # 각 결합 페어 평가
+            "awkward_count": int,
+            "smooth_count": int,
+            "rationale": str,  # 면책 포함
+        }
+
+    면책 (ADR-016):
+        본 점수는 한국어 음운론 표준 기반 추세. 절대 평가 X.
+    """
+    syllables = [c for c in name_korean if "가" <= c <= "힣"]
+    if len(syllables) < 2:
+        return {
+            "score": 0.0,
+            "pairs": [],
+            "awkward_count": 0,
+            "smooth_count": 0,
+            "rationale": (
+                "음절 2개 이상이어야 결합 평가 가능합니다. "
+                f"※ {DISCLAIMER_KO}"
+            ),
+        }
+
+    pairs: list[dict] = []
+    awkward_count = 0
+    smooth_count = 0
+
+    for i in range(len(syllables) - 1):
+        s1 = syllables[i]
+        s2 = syllables[i + 1]
+        decomp1 = _decompose_jamo(s1)
+        decomp2 = _decompose_jamo(s2)
+        if not decomp1 or not decomp2:
+            continue
+        coda = _normalize_coda(decomp1[2])
+        initial = decomp2[0]
+        verdict = "normal"
+        if (coda, initial) in _AWKWARD_BATCHIM_INITIAL:
+            verdict = "awkward"
+            awkward_count += 1
+        elif (coda, initial) in _SMOOTH_BATCHIM_INITIAL:
+            verdict = "smooth"
+            smooth_count += 1
+        elif not coda and initial == "ㅇ":
+            # 종성 없고 다음 초성 ㅇ — 연음 자연
+            verdict = "smooth"
+            smooth_count += 1
+        pairs.append({
+            "pair": f"{s1}{s2}",
+            "coda": coda or "(없음)",
+            "initial": initial,
+            "verdict": verdict,
+        })
+
+    n_pairs = len(pairs)
+    if n_pairs == 0:
+        score = 0.0
+    else:
+        score = (smooth_count - awkward_count) / n_pairs
+        score = max(-1.0, min(1.0, score))
+
+    rationale = _build_phonetic_rationale(name_korean, score, smooth_count, awkward_count)
+    return {
+        "score": score,
+        "pairs": pairs,
+        "awkward_count": awkward_count,
+        "smooth_count": smooth_count,
+        "rationale": rationale,
+    }
+
+
+def _build_phonetic_rationale(name: str, score: float, smooth: int, awkward: int) -> str:
+    """음운 결합 사용자 출력 — 면책 자동 포함."""
+    if score > 0.3:
+        intensity = "자연스러운"
+    elif score < -0.3:
+        intensity = "다소 어색한"
+    else:
+        intensity = "보통의"
+    return (
+        f"'{name}'의 음절 결합은 {intensity} 발음 흐름을 보입니다 "
+        f"(자연 결합 {smooth}건, 어색 결합 {awkward}건). "
+        f"※ {DISCLAIMER_KO}"
+    )
