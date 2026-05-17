@@ -9033,6 +9033,68 @@ if (document.readyState === 'loading') {
   `;
   }
 
+  // ── Phase 23: 이미지 다운샘플링 (max 1280px, JPEG 0.85) ─────────────
+  // Railway 60초 프록시 타임아웃 회피 + Vision API 처리 속도↑
+  function downsampleDataUrl(dataUrl, maxSide = 1280, quality = 0.85) {
+  return new Promise((resolve, reject) => {
+  if (!dataUrl || typeof dataUrl !== 'string') {
+  resolve(dataUrl);
+  return;
+  }
+  const img = new Image();
+  img.onload = () => {
+  const w0 = img.naturalWidth || img.width;
+  const h0 = img.naturalHeight || img.height;
+  if (!w0 || !h0) { resolve(dataUrl); return; }
+  // 이미 작은 이미지는 변환 생략 (불필요 손실 방지)
+  if (w0 <= maxSide && h0 <= maxSide) { resolve(dataUrl); return; }
+  const scale = maxSide / Math.max(w0, h0);
+  const w = Math.round(w0 * scale);
+  const h = Math.round(h0 * scale);
+  const canvas = document.createElement('canvas');
+  canvas.width = w; canvas.height = h;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) { resolve(dataUrl); return; }
+  ctx.drawImage(img, 0, 0, w, h);
+  try {
+  resolve(canvas.toDataURL('image/jpeg', quality));
+  } catch (e) {
+  resolve(dataUrl);
+  }
+  };
+  img.onerror = () => resolve(dataUrl);
+  img.src = dataUrl;
+  });
+  }
+
+  // ── Phase 23: 자동 재시도 fetch (502/503/504/network, 1회 백오프 3초) ─
+  async function fetchWithRetry(url, init, opts) {
+  const { retries = 1, backoffMs = 3000, onRetry = null } = opts || {};
+  let lastErr = null;
+  for (let attempt = 0; attempt <= retries; attempt++) {
+  try {
+  const resp = await fetch(url, init);
+  // 5xx 일시 오류는 재시도, 4xx·2xx는 그대로 반환
+  if (resp.status >= 500 && resp.status < 600 && attempt < retries) {
+  if (onRetry) onRetry(attempt + 1, resp.status);
+  await new Promise(r => setTimeout(r, backoffMs));
+  continue;
+  }
+  return resp;
+  } catch (e) {
+  lastErr = e;
+  if (attempt < retries) {
+  if (onRetry) onRetry(attempt + 1, 'network');
+  await new Promise(r => setTimeout(r, backoffMs));
+  continue;
+  }
+  throw e;
+  }
+  }
+  if (lastErr) throw lastErr;
+  throw new Error('재시도 실패');
+  }
+
   async function requestReading() {
   if (!capturedDataUrl) {
   alert('사진을 먼저 담아주시게나.');
@@ -9044,16 +9106,31 @@ if (document.readyState === 'loading') {
   const question = ($('faceQuestion').value || '').trim() || null;
 
   showFaceStep('face-step-loading');
+  // 로딩 메시지 영역 (옵션) — 재시도 시 사용자에 알림
+  const loadingMsgEl = document.querySelector('#face-step-loading .face-loading-msg');
+  const originalLoadingMsg = loadingMsgEl ? loadingMsgEl.textContent : null;
   try {
-  const resp = await fetch('/api/face/reading', {
+  // 1) 이미지 다운샘플 (Railway 60s timeout 회피 + Vision API 가속)
+  const sentImage = await downsampleDataUrl(capturedDataUrl, 1280, 0.85);
+
+  // 2) 자동 재시도 fetch (502/503/504/network 1회)
+  const resp = await fetchWithRetry('/api/face/reading', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
-  image_base64: capturedDataUrl,
+  image_base64: sentImage,
   age: Number.isFinite(age) ? age : null,
   gender,
   question,
   }),
+  }, {
+  retries: 1,
+  backoffMs: 3000,
+  onRetry: (attempt, status) => {
+  if (loadingMsgEl) {
+  loadingMsgEl.textContent = `허허, 길이 잠시 막혔으니 다시 살펴보겠네… (${status})`;
+  }
+  },
   });
   if (!resp.ok) {
   const errText = await resp.text();
@@ -9072,6 +9149,11 @@ if (document.readyState === 'loading') {
   </div>
   `;
   showFaceStep('face-step-result');
+  } finally {
+  // 로딩 메시지 원복
+  if (loadingMsgEl && originalLoadingMsg != null) {
+  loadingMsgEl.textContent = originalLoadingMsg;
+  }
   }
   }
 
