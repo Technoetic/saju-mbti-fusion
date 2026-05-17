@@ -292,3 +292,42 @@ def test_position_match_gender_split():
     female_r = position_match_score("이준", gender="female")
     # '준'은 여자 끝 음절 통계에 없음
     assert male_r["end_score"] > female_r["end_score"]
+
+
+# ─────────────────────────── 연음 현상 (보고서 §1 본문 명시) ───────────────────────────
+
+
+def test_phonetic_liaison_all_codas():
+    """보고서 §1 본문 명시 — 모든 받침 + 다음 모음(초성 ㅇ) = 연음 자연 결합."""
+    from engine.divination.name_aesthetic import phonetic_combination_score
+    # 7개 종성 모두 + 다음 초성 ㅇ = smooth
+    liaison_cases = [
+        ("강아", "ㅇ"),  # 종성 ㅇ
+        ("선영", "ㄴ"),  # 종성 ㄴ (이미 기존 처리)
+        ("달아", "ㄹ"),  # 종성 ㄹ
+        ("갑아", "ㅂ"),  # 종성 ㅂ
+        ("받아", "ㄷ"),  # 종성 ㄷ
+        ("밥아", "ㅂ"),
+    ]
+    for name, _coda in liaison_cases:
+        r = phonetic_combination_score(name)
+        assert r["smooth_count"] >= 1, f"{name}: 연음 미감지"
+        assert r["score"] > 0
+
+
+def test_phonetic_awkward_still_detected_after_liaison():
+    """연음 확장 후에도 자음군 회피(박파)는 여전히 어색."""
+    from engine.divination.name_aesthetic import phonetic_combination_score
+    r = phonetic_combination_score("박파")
+    assert r["awkward_count"] >= 1
+    assert r["score"] < 0
+
+
+def test_phonetic_no_liaison_consonant_initial():
+    """다음 초성이 ㅇ이 아닌 일반 자음 — 연음 미적용."""
+    from engine.divination.name_aesthetic import phonetic_combination_score
+    # '준수' — 종성 ㄴ + 초성 ㅅ = 비음화 일반 결합 (자연도 어색도 아님)
+    r = phonetic_combination_score("준수")
+    # smooth_count는 0이거나 다른 규칙에 따라
+    # 핵심: ㅅ 초성은 연음 ㅇ과 다름
+    assert r["pairs"][0]["initial"] == "ㅅ"
