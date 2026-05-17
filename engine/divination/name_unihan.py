@@ -1,11 +1,14 @@
-"""Unihan 기반 한자 자동 매핑 — ADR-026 9,932자 풀 확장 본문화.
+"""Unihan 기반 한자 자동 매핑 — ADR-026 9,932자 풀 + ADR-027 KCI 옵션 C.
 
 data/korean_hanja_unihan.json에서 9,932자 (대법원 9,389자 + 변형자) 로드:
   · char: 한자
   · hangul: 한국어 음 (대표 1자)
   · kangxi_strokes: 강희자전 원획수 (또는 총획수)
   · radical: 부수 번호 (1~214, 신규 1,407자는 빈 문자열)
-  · resource_ohaeng: 자원오행 (자동 매핑 35%, 나머지 빈 문자열)
+  · resource_ohaeng: 자원오행 (부수 자동 매핑 옵션 A, 35.5%)
+  · resource_ohaeng_kci: KCI 학설 매핑 (옵션 C, ADR-027 94자)
+  · kci_reason: 옵션 C 매핑 근거 (자원·본의 형태론)
+  · kci_school_source: KCI 학설 출처 (김기승·이재승·김만태)
   · source: 'scourt_2024' (신규 추가분만)
   · is_scourt_approved: True (신규 추가분만)
 
@@ -107,7 +110,10 @@ def radical_of(char: str) -> int | None:
 
 
 def resource_ohaeng(char: str) -> str | None:
-    """단일 한자의 자원오행. 미수록·미정 시 None."""
+    """단일 한자의 자원오행. 미수록·미정 시 None.
+
+    부수 기반 자동 매핑(옵션 A). 학설 충돌 시 ``resource_ohaeng_kci`` 우선.
+    """
     if not isinstance(char, str) or not char:
         return None
     entry = _load_db().get(char)
@@ -115,6 +121,58 @@ def resource_ohaeng(char: str) -> str | None:
         return None
     val = entry.get("resource_ohaeng", "")
     return val if val else None
+
+
+def resource_ohaeng_kci(char: str) -> str | None:
+    """단일 한자의 KCI 학설 기반 자원오행 (옵션 C). 미수록 시 None.
+
+    ADR-027 기반. 옵션 C는 자원·본의 직접 매핑. 부수 자동 매핑(옵션 A)과
+    충돌 가능. 학설 출처는 ``kci_school_source()`` 조회.
+
+    학파 출처:
+      · 김기승 (2024): 『자원오행 성명학』 (다산글방, ISBN 9788932901138)
+      · 이재승 (2025): 『명리·용신 성명학 원론』 (ISBN 9791173182693)
+      · 김만태 (2018): KCI 「한국 성씨한자(姓氏漢字)의 자원오행에 대한 고찰」
+        (문화와융합 40권 3호, DOI 10.33645/cnc.2018.06.40.3.339)
+    """
+    if not isinstance(char, str) or not char:
+        return None
+    entry = _load_db().get(char)
+    if entry is None:
+        return None
+    val = entry.get("resource_ohaeng_kci", "")
+    return val if val else None
+
+
+def kci_reason(char: str) -> str | None:
+    """KCI 자원오행 배속 이유 (자원·본의 형태론 추적). 미수록 시 None."""
+    if not isinstance(char, str) or not char:
+        return None
+    entry = _load_db().get(char)
+    if entry is None:
+        return None
+    val = entry.get("kci_reason", "")
+    return val if val else None
+
+
+def kci_school_source(char: str) -> str | None:
+    """KCI 매핑 학파 출처 (예: '김기승(2024), 이재승(2025)'). 미수록 시 None."""
+    if not isinstance(char, str) or not char:
+        return None
+    entry = _load_db().get(char)
+    if entry is None:
+        return None
+    val = entry.get("kci_school_source", "")
+    return val if val else None
+
+
+def preferred_ohaeng(char: str) -> str | None:
+    """학설 우선 자원오행 — KCI 매핑이 있으면 그것, 없으면 부수 자동 매핑.
+
+    학설 충돌 시 옵션 C(자원·본의 KCI 학설) 우선. 사용자 출력에서는
+    ``kci_reason()`` 동반 노출 권장 (ADR-010 사실성 분리).
+    """
+    return resource_ohaeng_kci(char) or resource_ohaeng(char)
 
 
 def get_candidates_by_hangul(syllable: str) -> list[str]:
@@ -132,8 +190,13 @@ def total_chars() -> int:
 
 
 def total_with_ohaeng() -> int:
-    """자원오행이 매핑된 한자 수 (부수 기반)."""
+    """자원오행이 매핑된 한자 수 (부수 기반 옵션 A)."""
     return sum(1 for e in _load_db().values() if e.get("resource_ohaeng"))
+
+
+def total_with_kci() -> int:
+    """KCI 학설 매핑된 한자 수 (옵션 C). ADR-027 본문화 기준 94자."""
+    return sum(1 for e in _load_db().values() if e.get("resource_ohaeng_kci"))
 
 
 def is_loaded() -> bool:

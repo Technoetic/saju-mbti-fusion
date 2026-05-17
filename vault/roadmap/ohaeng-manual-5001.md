@@ -1,13 +1,36 @@
 ---
 type: roadmap
-status: waiting_external_input
+status: partial_completed
 priority: low
 report_section: §4
 created: 2026-05-17
+updated: 2026-05-17
 blocked_by: 학파 결정 + 자원오행 보고서
 estimated_effort: 1-2 weeks (5001자 정리)
-related_adr: [decisions/ADR-003-unihan-fallback]
+related_adr: [decisions/ADR-003-unihan-fallback, decisions/ADR-027-resource-ohaeng-kci-option-c]
+partial_applied:
+  - "94자 KCI 학설 매핑 본문화 (ADR-027, 2026-05-17)"
+  - "옵션 C 신규 필드 `resource_ohaeng_kci` 추가"
+  - "옵션 A 부수 매핑 보존 + 충돌 6건 명시"
+remaining:
+  - "~4,900자 잔여 (학파 자료 추가 의뢰 필요)"
+  - "신규 1,407자(ADR-026) KCI 매핑 (학술 출처 부재)"
+  - "§6 disputed 5자 primary+alternative 구조 (ADR-028 후보)"
 ---
+
+# 자원오행 5001자 수동 매핑 (§4) — 부분 완료
+
+## 진행 상황 (2026-05-17)
+
+✅ **1차 부분 완료**: 외부 보고서 "자원오행 5001자 매핑 조사" §대규모 매핑
+데이터 94자 KCI 학설 매핑 본문화 (ADR-027). 보고서 표제 5001자 대비
+1.9% 달성, 잔여 ~4,900자.
+
+→ [[../done/resource-ohaeng-kci-94chars]]
+→ [[../reports/resource-ohaeng-kci-mapping]]
+→ [[../references/name-resource-ohaeng-kci]]
+
+## 잔여 작업
 
 # 자원오행 5001자 수동 매핑 (§4)
 

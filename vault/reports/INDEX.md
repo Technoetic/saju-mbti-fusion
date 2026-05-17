@@ -25,6 +25,7 @@ last_updated: 2026-05-17
 | 2026-05-17 | [[saju-option-B-school]] (사주 용신 학파 채택) | 딥리서치 | ✅ ADR-015 본문화 — KCI 검증 통과 (최상 정합도) |
 | 2026-05-17 | [[name-aesthetic-data]] (어감·인기 음절) | 딥리서치 | 🟡 §2만 채택 (ADR-016) — 가짜 인용 2건 + 빈 약속 2건 발견 |
 | 2026-05-17 | [[face-golden-set-synthesis]] (관상 골든셋 합성 사양) | 딥리서치 | 🟡 ADR-018 정책·사양만 (실제 생성은 DEFER, 보고서 자체 권고) — `/squeeze-report` 첫 사용 |
+| 2026-05-17 | [[resource-ohaeng-kci-mapping]] (자원오행 5001자 매핑 조사) | 딥리서치 | 🟡 94자 본문화 (ADR-027) — 보고서 표제 5001자 vs 실 94자 정직 명시 + 옵션 A 보존 + 충돌 6건 |
 
 ## 대기 중인 보고서
 
@@ -33,7 +34,7 @@ last_updated: 2026-05-17
 | 항목 | 노트 |
 |---|---|
 | ~~§3 용신 학파 옵션 B~~ | ✅ 완료 [[saju-option-B-school]] → [[../done/saju-option-B-eokbu]] |
-| 자원오행 5001자 | [[../roadmap/ohaeng-manual-5001]] |
+| ~~자원오행 5001자~~ | 🟡 부분 완료 [[resource-ohaeng-kci-mapping]] → 94자 본문화 (ADR-027). 잔여 ~4,900자 학파 자료 추가 의뢰 필요 |
 
 ✅ §1 가족 서열 상대 불용 — 완료 ([[name-sibling-bulyong]] 보고서 → ADR-010 사실성 분리 적용 → [[../done/name-phase3-sibling-preference]])
 
