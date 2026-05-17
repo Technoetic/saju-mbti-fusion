@@ -152,6 +152,46 @@ ADR-016 검증에서 가짜 인용으로 폐기된 출처 → 진짜 출처 refe
 ### 회귀 (31 PASS, 23 → 31)
 - 위치별 음절 8개 신규 (끝 음절 1위 검증·위치 점수 정규화·면책·성별 분리)
 
+## 2026-05-17 추가 본문화 — §1 연음 현상 완전 반영
+
+이전 PR(7a849c2)에서 §1 본문 4규칙 채택했으나 **연음 현상의 부분 반영** 문제 발견.
+
+### 문제
+
+보고서 §1 본문 명시:
+> "받침 뒤에 모음으로 시작하는 음절이 오면 받침이 다음 음절의 초성으로
+>  이동하여 발음되는 연음 현상이 발생한다. 이는 이름의 발음을 더욱
+>  유창하게 만드는 중요한 요소이다."
+
+이전 모듈은 **종성 없음 + ㅇ**만 자연 처리:
+- 강아 (ㅇ+ㅇ): smooth ✅
+- 선영 (ㄴ+ㅇ): smooth ✅ (`_SMOOTH_BATCHIM_INITIAL`에 등록)
+- 달아 (ㄹ+ㅇ): **normal** ❌ (미반영)
+- 갑아 (ㅂ+ㅇ): **normal** ❌
+- 받아 (ㄷ+ㅇ): **normal** ❌
+
+### 수정
+
+`phonetic_combination_score`의 elif 분기 변경:
+```python
+elif initial == "ㅇ":
+    # 다음 초성 ㅇ (모음 시작) — 모든 종성에 적용되는 연음 현상
+    verdict = "smooth"
+    smooth_count += 1
+```
+
+자음군 회피(`_AWKWARD_BATCHIM_INITIAL`)는 우선 평가되므로 박파(ㄱ+ㅍ) 어색 처리 유지.
+
+### 검증 (34 PASS, 31 → 34)
+- `test_phonetic_liaison_all_codas`: 7개 종성 모두 + ㅇ 연음 확인
+- `test_phonetic_awkward_still_detected_after_liaison`: 박파 어색 유지
+- `test_phonetic_no_liaison_consonant_initial`: ㅇ 아닌 자음 미적용
+
+### 결과
+
+보고서 §1 본문 "모든 받침 + 모음 = 연음" 명시 완전 반영. 한국어 음운론
+표준에 더 정확한 알고리즘.
+
 ## ADR-010 의 정교한 적용
 
 본 작업은 ADR-010의 가장 정교한 적용 사례:
