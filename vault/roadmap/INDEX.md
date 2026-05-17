@@ -38,7 +38,7 @@ Session Handoff 정신 — "Needs Human Review" 명시 — 을 분류 라벨에 
 | 한국 성씨·인명 빈도 (name_uniqueness.py 신설) | (새 항목) | 중 | [[../templates/PROMPT_korean-surname-frequency]] |
 | ✅ 한국 화투 48매 결정론 점패 엔진 완료 (ADR-025, 회귀 30 PASS, 핵심 6패) | [[../done/hwapae-korean-deterministic]] | done | [[../templates/PROMPT_hwapae-card-meanings]] |
 | 한국어 표준발음법 §1~§30 작명 적용 (name_aesthetic.py 보강) | (새 항목) | 중 | [[../templates/PROMPT_korean-phonetic-rules]] |
-| §4 인명용 한자 9389자 추가 (saju-app-spec C1 DEFER) | [[../reports/saju-app-spec]] | **높음** | [[../templates/PROMPT_korean-hanja-9389-source]] |
+| §4 인명용 한자 9389자 추가 — 1차 보고서 빈 약속 차단 (DEFER), 강화 PROMPT 재의뢰 대기 | [[../reports/hanja-9389-source-research]] | **높음** | [[../templates/PROMPT_korean-hanja-9389-data-extraction]] |
 | ✅ 궁합 MBTI 16×16 매트릭스 v2 완료 (ADR-024, 회귀 29 PASS) | [[../done/saju-mbti-compat-v2]] | done | [[../templates/PROMPT_gunghap-mbti-matrix-academic]] |
 | §4 자원오행 5001자 수동 매핑 | [[ohaeng-manual-5001]] | 낮음 | [[../templates/PROMPT_ohaeng-manual-5001]] |
 | §5 음운 결합 규칙 (어감 §1 영역) | [[name-aesthetic-survey]] | 낮음 | [[../templates/PROMPT_aesthetic-survey]] |
