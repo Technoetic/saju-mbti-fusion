@@ -1423,3 +1423,64 @@ def test_face_system_includes_score_dispatch_policy():
     assert "ADR-004" in _FACE_SYSTEM or "ADR-022" in _FACE_SYSTEM
     # 점수 낮음 = 개성으로 해석 원칙
     assert "개성" in _FACE_SYSTEM
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Phase 17 — Opus 시각 객관 묘사 한정 (ADR-010 정밀 적용)
+#
+# 사용자 결정 (2026-05-17): Opus 4.7는 사전 학습된 관상학 운명 매핑 지식을
+# 사용하면 안 된다. 5형·12궁 명칭은 영역명으로만 사용하고, 운명 해석은 금지.
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+def test_face_system_forbids_fate_mapping_vocabulary():
+    """_FACE_SYSTEM이 운명 매핑 표현을 명시적으로 금지하고 있어야 한다.
+
+    Opus가 사전 학습한 마의상법·신상전편 등의 운명 해석을 차단하기 위해
+    "엄격 금지" 절에서 핵심 운명 매핑 키워드를 직접 명시한다.
+    """
+    from engine.divination.face_reading import _FACE_SYSTEM
+    # 운명 매핑 금지 절 존재
+    assert "엄격 금지" in _FACE_SYSTEM
+    assert "운명" in _FACE_SYSTEM and "매핑" in _FACE_SYSTEM
+    # 시간 차원·복록 어휘 명시 금지
+    assert "초년" in _FACE_SYSTEM  # 금지 목록에 명시
+    assert "학문복" in _FACE_SYSTEM  # 금지 목록에 명시
+    assert "재물복" in _FACE_SYSTEM  # 금지 목록에 명시
+    # 학파 직접 인용 금지
+    assert "마의상법" in _FACE_SYSTEM  # 금지 예시로 명시
+
+
+def test_face_system_enforces_objective_visual_only():
+    """_FACE_SYSTEM이 시각 객관 묘사만 허용하는 원칙을 명시해야 한다."""
+    from engine.divination.face_reading import _FACE_SYSTEM
+    # 근본 원칙 절 존재
+    assert "근본 원칙" in _FACE_SYSTEM
+    assert "ADR-010" in _FACE_SYSTEM
+    # 시각 객관 묘사 허용 절
+    assert "허용" in _FACE_SYSTEM and "시각 객관 묘사" in _FACE_SYSTEM
+    # 운명 거절 안전구
+    assert "운명의 길흉은 헤아리지 않는다" in _FACE_SYSTEM
+
+
+def test_face_system_keeps_region_names_without_fate_mapping():
+    """5형·12궁·삼정 명칭은 영역명으로 유지하되 운명 매핑 X 정책 명시."""
+    from engine.divination.face_reading import _FACE_SYSTEM
+    # 명칭 사용 절 존재 (Option B 결정)
+    assert "명칭 사용" in _FACE_SYSTEM
+    # 5형 / 12궁 / 삼정 명칭은 유지
+    assert "5형" in _FACE_SYSTEM or "오행" in _FACE_SYSTEM
+    assert "12궁" in _FACE_SYSTEM or "십이궁" in _FACE_SYSTEM
+    assert "삼정" in _FACE_SYSTEM
+    # 운명 매핑 X 정책 명시 (영역명으로만 사용)
+    assert "영역" in _FACE_SYSTEM
+
+
+def test_build_user_text_enforces_objective_description():
+    """_build_user_text 안내문에 시각 객관 묘사 한정 지시가 포함되어야 한다."""
+    from engine.divination.face_reading import _build_user_text
+    t = _build_user_text(30, "남성", "제 운은 어떤가요")
+    # 시각 객관 묘사 지시 명시
+    assert "시각 객관 묘사" in t
+    # 운명·길흉·시간 흐름 해석 금지 명시
+    assert "운명" in t and "금지" in t

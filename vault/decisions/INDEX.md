@@ -2,6 +2,7 @@
 type: index
 section: decisions
 last_updated: 2026-05-17
+note: ADR-005 Supplement 2 (Phase 17 Opus 시각 객관 묘사 한정) 추가
 ---
 
 # 의사결정 (ADR) 인덱스
@@ -44,8 +45,16 @@ last_updated: 2026-05-17
 | ADR-032 | [[ADR-032-korean-phonetic-priority-3]] | accepted | 2026-05-17 |
 | ADR-033 | [[ADR-033-korean-surname-300-extension]] | accepted | 2026-05-17 |
 
+## Supplement (parent ADR 본문은 immutable; 추가 결정만 supplement로 영속화)
+
+| Parent | 제목 | 상태 | 일자 |
+|---|---|---|---|
+| ADR-005 | [[ADR-005-supplement-multimodal-4-signal]] — Phase 12 4중 신호 멀티모달 | accepted | 2026-05-18 |
+| ADR-005 | [[ADR-005-supplement-2-objective-vision-only]] — Phase 17 Opus 시각 객관 묘사 한정 | accepted | 2026-05-17 |
+
 ## 원칙
 
 1. **ADR은 immutable** — deprecated 표시는 가능, 삭제·재작성 X
 2. 새 결정이 이전 결정을 무효화 → 새 ADR 작성하고 이전 것 `superseded_by` 표시
 3. 코드 PR에 ADR 번호 참조
+4. Parent ADR 본문 보존 + 추가 결정은 `ADR-NNN-supplement-주제.md` 형식으로 분리
