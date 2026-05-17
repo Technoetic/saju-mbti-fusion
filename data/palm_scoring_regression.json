@@ -1,0 +1,397 @@
+{
+  "source": "보고서 §7 회귀 검증 30쌍 (palm_001~palm_030)",
+  "adr": "ADR-030",
+  "extraction_date": "2026-05-17",
+  "tests": [
+    {
+      "id": "palm_001",
+      "hand_side": "right",
+      "keypoints_subset": {},
+      "expected_scores": {
+        "lifeline_arc": 0.85,
+        "headline_horizontal": 0.65,
+        "heartline_curve": 0.5,
+        "fateline_vertical": 0.2
+      },
+      "expected_label": "생명선 호가 뚜렷하고 긴 편",
+      "forbidden_interpretation_check": true
+    },
+    {
+      "id": "palm_002",
+      "hand_side": "left",
+      "keypoints_subset": {},
+      "expected_scores": {
+        "lifeline_arc": 0.35,
+        "headline_horizontal": 0.88,
+        "heartline_curve": 0.42,
+        "fateline_vertical": 0.77
+      },
+      "expected_label": "두뇌선 확장이 가장자리까지 길게 뻗은 형태",
+      "forbidden_interpretation_check": true
+    },
+    {
+      "id": "palm_003",
+      "hand_side": "right",
+      "keypoints_subset": {},
+      "expected_scores": {
+        "lifeline_arc": 0.55,
+        "headline_horizontal": 0.55,
+        "heartline_curve": 0.91,
+        "fateline_vertical": 0.5
+      },
+      "expected_label": "감정선 상승 곡률이 매우 뚜렷하며 깊이 패인 형태",
+      "forbidden_interpretation_check": true
+    },
+    {
+      "id": "palm_004",
+      "hand_side": "right",
+      "keypoints_subset": {},
+      "expected_scores": {
+        "lifeline_arc": 0.22,
+        "headline_horizontal": 0.22,
+        "heartline_curve": 0.3,
+        "fateline_vertical": 0.15
+      },
+      "expected_label": "전체적으로 주름 형태가 연하고 짧은 편",
+      "forbidden_interpretation_check": true
+    },
+    {
+      "id": "palm_005",
+      "hand_side": "left",
+      "keypoints_subset": {},
+      "expected_scores": {
+        "lifeline_arc": 0.95,
+        "headline_horizontal": 0.9,
+        "heartline_curve": 0.85,
+        "fateline_vertical": 0.88
+      },
+      "expected_label": "모든 주요 선이 뚜렷하게 강하게 직진하는 형태",
+      "forbidden_interpretation_check": true
+    },
+    {
+      "id": "palm_006",
+      "hand_side": "left",
+      "keypoints_subset": {},
+      "expected_scores": {
+        "lifeline_arc": 0.72,
+        "headline_horizontal": 0.53,
+        "heartline_curve": 0.6,
+        "fateline_vertical": 0.33
+      },
+      "expected_label": "생명선 전개가 뚜렷함 / 운명선 흐릿",
+      "forbidden_interpretation_check": true
+    },
+    {
+      "id": "palm_007",
+      "hand_side": "right",
+      "keypoints_subset": {},
+      "expected_scores": {
+        "lifeline_arc": 0.45,
+        "headline_horizontal": 0.75,
+        "heartline_curve": 0.78,
+        "fateline_vertical": 0.45
+      },
+      "expected_label": "두뇌선과 감정선이 도드라짐",
+      "forbidden_interpretation_check": true
+    },
+    {
+      "id": "palm_008",
+      "hand_side": "right",
+      "keypoints_subset": {},
+      "expected_scores": {
+        "lifeline_arc": 0.88,
+        "headline_horizontal": 0.35,
+        "heartline_curve": 0.4,
+        "fateline_vertical": 0.65
+      },
+      "expected_label": "가로 확장이 상대적으로 짧음 / 세로축 강세",
+      "forbidden_interpretation_check": true
+    },
+    {
+      "id": "palm_009",
+      "hand_side": "left",
+      "keypoints_subset": {},
+      "expected_scores": {
+        "lifeline_arc": 0.6,
+        "headline_horizontal": 0.82,
+        "heartline_curve": 0.55,
+        "fateline_vertical": 0.72
+      },
+      "expected_label": "한국인 평균에 수렴하는 전개 균형",
+      "forbidden_interpretation_check": true
+    },
+    {
+      "id": "palm_010",
+      "hand_side": "left",
+      "keypoints_subset": {},
+      "expected_scores": {
+        "lifeline_arc": 0.3,
+        "headline_horizontal": 0.45,
+        "heartline_curve": 0.85,
+        "fateline_vertical": 0.25
+      },
+      "expected_label": "곡률 적분값이 매우 두드러진 형태",
+      "forbidden_interpretation_check": true
+    },
+    {
+      "id": "palm_011",
+      "hand_side": "right",
+      "keypoints_subset": {},
+      "expected_scores": {
+        "lifeline_arc": 0.7,
+        "headline_horizontal": 0.6,
+        "heartline_curve": 0.5,
+        "fateline_vertical": 0.8
+      },
+      "expected_label": "수직 운명선의 선형성이 우수함",
+      "forbidden_interpretation_check": true
+    },
+    {
+      "id": "palm_012",
+      "hand_side": "right",
+      "keypoints_subset": {},
+      "expected_scores": {
+        "lifeline_arc": 0.55,
+        "headline_horizontal": 0.95,
+        "heartline_curve": 0.35,
+        "fateline_vertical": 0.45
+      },
+      "expected_label": "두뇌선 척측 가장자리까지 도달",
+      "forbidden_interpretation_check": true
+    },
+    {
+      "id": "palm_013",
+      "hand_side": "left",
+      "keypoints_subset": {},
+      "expected_scores": {
+        "lifeline_arc": 0.81,
+        "headline_horizontal": 0.7,
+        "heartline_curve": 0.65,
+        "fateline_vertical": 0.55
+      },
+      "expected_label": "기준 평균 편차 내 완벽한 조화",
+      "forbidden_interpretation_check": true
+    },
+    {
+      "id": "palm_014",
+      "hand_side": "left",
+      "keypoints_subset": {},
+      "expected_scores": {
+        "lifeline_arc": 0.25,
+        "headline_horizontal": 0.3,
+        "heartline_curve": 0.28,
+        "fateline_vertical": 0.2
+      },
+      "expected_label": "세그멘테이션 마스크 임계값 이하의 연한 주름",
+      "forbidden_interpretation_check": true
+    },
+    {
+      "id": "palm_015",
+      "hand_side": "right",
+      "keypoints_subset": {},
+      "expected_scores": {
+        "lifeline_arc": 0.65,
+        "headline_horizontal": 0.65,
+        "heartline_curve": 0.65,
+        "fateline_vertical": 0.65
+      },
+      "expected_label": "모든 지표가 정규 분포 중앙에 밀집",
+      "forbidden_interpretation_check": true
+    },
+    {
+      "id": "palm_016",
+      "hand_side": "right",
+      "keypoints_subset": {},
+      "expected_scores": {
+        "lifeline_arc": 0.92,
+        "headline_horizontal": 0.45,
+        "heartline_curve": 0.82,
+        "fateline_vertical": 0.35
+      },
+      "expected_label": "호 전개가 깊고 길며 곡률 높음",
+      "forbidden_interpretation_check": true
+    },
+    {
+      "id": "palm_017",
+      "hand_side": "left",
+      "keypoints_subset": {},
+      "expected_scores": {
+        "lifeline_arc": 0.4,
+        "headline_horizontal": 0.85,
+        "heartline_curve": 0.4,
+        "fateline_vertical": 0.9
+      },
+      "expected_label": "가로 및 수직 방향 직진성 강세",
+      "forbidden_interpretation_check": true
+    },
+    {
+      "id": "palm_018",
+      "hand_side": "left",
+      "keypoints_subset": {},
+      "expected_scores": {
+        "lifeline_arc": 0.88,
+        "headline_horizontal": 0.88,
+        "heartline_curve": 0.2,
+        "fateline_vertical": 0.1
+      },
+      "expected_label": "생명선/두뇌선 결합부 강세 / 나머지 약세",
+      "forbidden_interpretation_check": true
+    },
+    {
+      "id": "palm_019",
+      "hand_side": "right",
+      "keypoints_subset": {},
+      "expected_scores": {
+        "lifeline_arc": 0.35,
+        "headline_horizontal": 0.25,
+        "heartline_curve": 0.88,
+        "fateline_vertical": 0.85
+      },
+      "expected_label": "상단 가로축 약화 / 수직/곡률 강세",
+      "forbidden_interpretation_check": true
+    },
+    {
+      "id": "palm_020",
+      "hand_side": "right",
+      "keypoints_subset": {},
+      "expected_scores": {
+        "lifeline_arc": 0.5,
+        "headline_horizontal": 0.92,
+        "heartline_curve": 0.95,
+        "fateline_vertical": 0.5
+      },
+      "expected_label": "수평 영역 침투 및 곡선 적분값 극대",
+      "forbidden_interpretation_check": true
+    },
+    {
+      "id": "palm_021",
+      "hand_side": "left",
+      "keypoints_subset": {},
+      "expected_scores": {
+        "lifeline_arc": 0.75,
+        "headline_horizontal": 0.72,
+        "heartline_curve": 0.7,
+        "fateline_vertical": 0.68
+      },
+      "expected_label": "전반적으로 우수한 픽셀 명암비 두드러짐",
+      "forbidden_interpretation_check": true
+    },
+    {
+      "id": "palm_022",
+      "hand_side": "left",
+      "keypoints_subset": {},
+      "expected_scores": {
+        "lifeline_arc": 0.28,
+        "headline_horizontal": 0.65,
+        "heartline_curve": 0.6,
+        "fateline_vertical": 0.75
+      },
+      "expected_label": "운명선의 선형 도달 길이가 김",
+      "forbidden_interpretation_check": true
+    },
+    {
+      "id": "palm_023",
+      "hand_side": "right",
+      "keypoints_subset": {},
+      "expected_scores": {
+        "lifeline_arc": 0.85,
+        "headline_horizontal": 0.3,
+        "heartline_curve": 0.55,
+        "fateline_vertical": 0.4
+      },
+      "expected_label": "생명선의 뚜렷한 발달 및 두뇌선 조기 단절",
+      "forbidden_interpretation_check": true
+    },
+    {
+      "id": "palm_024",
+      "hand_side": "right",
+      "keypoints_subset": {},
+      "expected_scores": {
+        "lifeline_arc": 0.62,
+        "headline_horizontal": 0.8,
+        "heartline_curve": 0.25,
+        "fateline_vertical": 0.6
+      },
+      "expected_label": "두뇌선 확장이 넓고 감정선 평탄함",
+      "forbidden_interpretation_check": true
+    },
+    {
+      "id": "palm_025",
+      "hand_side": "left",
+      "keypoints_subset": {},
+      "expected_scores": {
+        "lifeline_arc": 0.99,
+        "headline_horizontal": 0.98,
+        "heartline_curve": 0.97,
+        "fateline_vertical": 0.96
+      },
+      "expected_label": "모든 선이 백분위 최상위 스케일에 도달",
+      "forbidden_interpretation_check": true
+    },
+    {
+      "id": "palm_026",
+      "hand_side": "left",
+      "keypoints_subset": {},
+      "expected_scores": {
+        "lifeline_arc": 0.05,
+        "headline_horizontal": 0.08,
+        "heartline_curve": 0.07,
+        "fateline_vertical": 0.02
+      },
+      "expected_label": "주름 스켈레톤 추출 한계 도달 (극미세 선)",
+      "forbidden_interpretation_check": true
+    },
+    {
+      "id": "palm_027",
+      "hand_side": "right",
+      "keypoints_subset": {},
+      "expected_scores": {
+        "lifeline_arc": 0.55,
+        "headline_horizontal": 0.55,
+        "heartline_curve": 0.55,
+        "fateline_vertical": 0.9
+      },
+      "expected_label": "수직 운명선만 독립적으로 강한 세그멘테이션",
+      "forbidden_interpretation_check": true
+    },
+    {
+      "id": "palm_028",
+      "hand_side": "right",
+      "keypoints_subset": {},
+      "expected_scores": {
+        "lifeline_arc": 0.78,
+        "headline_horizontal": 0.2,
+        "heartline_curve": 0.85,
+        "fateline_vertical": 0.2
+      },
+      "expected_label": "가로 확장 분기가 짧고 호 비율 강세",
+      "forbidden_interpretation_check": true
+    },
+    {
+      "id": "palm_029",
+      "hand_side": "left",
+      "keypoints_subset": {},
+      "expected_scores": {
+        "lifeline_arc": 0.33,
+        "headline_horizontal": 0.88,
+        "heartline_curve": 0.45,
+        "fateline_vertical": 0.88
+      },
+      "expected_label": "십자 교차되는 두 선의 독립적 강세",
+      "forbidden_interpretation_check": true
+    },
+    {
+      "id": "palm_030",
+      "hand_side": "right",
+      "keypoints_subset": {},
+      "expected_scores": {
+        "lifeline_arc": 0.8,
+        "headline_horizontal": 0.8,
+        "heartline_curve": 0.8,
+        "fateline_vertical": 0.8
+      },
+      "expected_label": "모든 스코어가 0.80선에 균일하게 수렴",
+      "forbidden_interpretation_check": true
+    }
+  ]
+}

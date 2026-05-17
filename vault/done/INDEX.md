@@ -35,6 +35,14 @@ last_updated: 2026-05-17
 
 → 자세히: [[face-phase1-keypoint-scoring]] / [[face-shape-5형-classifier]]
 
+## 손금 도메인
+
+| 일자 | 작업 | 모듈 | 회귀 | ADR |
+|---|---|---|---|---|
+| 2026-05-17 | 손금 4대 선 + 금성대 결정론 점수 엔진 — Size Korea + KCI + MediaPipe Hand 21 (palm-reading-app C1·C2 DEFER 해소) | engine/divination/palm_scoring.py (6 API + 5 라인) + data/palm_scoring_rules.json + regression.json | 21 (120/120 라벨 100%) | ADR-030 |
+
+→ 자세히: [[palm-scoring-deterministic]]
+
 ## 꿈해석 멀티에이전트 도메인
 
 | 일자 | 작업 | 모듈 | 회귀 | ADR |

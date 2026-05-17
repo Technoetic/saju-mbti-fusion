@@ -39,6 +39,7 @@ last_updated: 2026-05-17
 | ADR-027 | [[ADR-027-resource-ohaeng-kci-option-c]] | accepted | 2026-05-17 |
 | ADR-028 | [[ADR-028-korean-phonetic-rules-priority-1-2]] | accepted | 2026-05-17 |
 | ADR-029 | [[ADR-029-korean-name-uniqueness]] | accepted | 2026-05-17 |
+| ADR-030 | [[ADR-030-palm-scoring-deterministic]] | accepted | 2026-05-17 |
 
 ## 원칙
 

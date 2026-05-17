@@ -1,0 +1,143 @@
+{
+  "source": "Size Korea 7/8차 + Korean Palmar Anthropometry KCI + PubMed PMC",
+  "license": "공공 학술 출처 (KCI·Size Korea), 본 데이터 본문은 ADR-010 사실성 분리 객관 라벨",
+  "adr": "ADR-030",
+  "extracted_from": "손금 4대 선 및 보조선 결정론 점수 엔진 구축 명세서.md §4 (라인 113-213)",
+  "extraction_date": "2026-05-17",
+  "reference_palm_ratio_male": 0.77,
+  "reference_palm_ratio_female": 0.745,
+  "lines": [
+    {
+      "key": "lifeline",
+      "name": "생명선",
+      "metric": "arc_length_normalized",
+      "formula": "lifeline_arc_length / distance(kp5, kp0)",
+      "korean_baseline_mean": 0.81,
+      "korean_baseline_std": 0.08,
+      "thresholds": {
+        "low": 0.73,
+        "high": 0.89
+      },
+      "labels": {
+        "low": "생명선 호의 전개가 기준치 대비 짧고 얕은 편",
+        "medium": "생명선 호의 전개가 한국인 평균에 수렴하는 표준적 형태",
+        "high": "생명선 호의 전개가 기하학적으로 매우 뚜렷하고 긴 편"
+      },
+      "forbidden_interpretation": [
+        "단명",
+        "사고/질병 위험",
+        "선천적 건강 악화"
+      ],
+      "academic_source": "KCI NODE00559265: 한국인 손금 형태 조사"
+    },
+    {
+      "key": "headline",
+      "name": "두뇌선",
+      "metric": "horizontal_extent_normalized",
+      "formula": "headline_length / distance(kp5, kp17)",
+      "korean_baseline_mean": 0.65,
+      "korean_baseline_std": 0.12,
+      "thresholds": {
+        "low": 0.53,
+        "high": 0.77
+      },
+      "labels": {
+        "low": "가로 방향 확장이 상대적으로 짧고 횡축 중심에서 종료됨",
+        "medium": "가로 방향 확장이 손바닥의 약 65% 영역을 횡단하는 형태",
+        "high": "손바닥 척측(Ulnar side) 가장자리까지 길고 선명하게 뻗은 형태"
+      },
+      "forbidden_interpretation": [
+        "지능이 우수함",
+        "어리석음/학업 부진",
+        "우울증 징후"
+      ],
+      "academic_source": "Size Korea Report: Hand breadth to length correlations"
+    },
+    {
+      "key": "heartline",
+      "name": "감정선",
+      "metric": "curvature_prominence",
+      "formula": "curvature_integral / distance(kp17, kp5)",
+      "korean_baseline_mean": 0.58,
+      "korean_baseline_std": 0.15,
+      "thresholds": {
+        "low": 0.43,
+        "high": 0.73
+      },
+      "labels": {
+        "low": "주름의 곡률 적분값이 낮아 평면적이고 직선에 가까운 형태",
+        "medium": "검지와 중지 사이를 향해 완만한 호를 그리는 표준적 형태",
+        "high": "상승 곡률이 매우 뚜렷하며 깊이 패여 있는 형태"
+      },
+      "forbidden_interpretation": [
+        "연애운 부재/이혼수",
+        "감정 조절 장애",
+        "바람기/외도"
+      ],
+      "academic_source": "PubMed PMC7195958: Dermatoglyphics and Palmar Crease"
+    },
+    {
+      "key": "fateline",
+      "name": "운명선",
+      "metric": "vertical_linearity",
+      "formula": "fateline_length / distance(kp0, kp9)",
+      "korean_baseline_mean": 0.45,
+      "korean_baseline_std": 0.2,
+      "thresholds": {
+        "low": 0.25,
+        "high": 0.65
+      },
+      "labels": {
+        "low": "수직 세로축 주름이 세그멘테이션 임계값 이하로 흐릿하거나 단절됨",
+        "medium": "손바닥 중앙부까지 수직 선형성이 관찰되는 형태",
+        "high": "손목 기저부에서 중지 하단까지 강하고 일관되게 직진하는 형태"
+      },
+      "forbidden_interpretation": [
+        "파산/실직 예견",
+        "성공/부자 확정",
+        "타고난 관운"
+      ],
+      "academic_source": "PubMed PMC9256497: Palmar crease asymmetry"
+    },
+    {
+      "key": "girdle_of_venus",
+      "name": "금성대",
+      "metric": "arc_prominence",
+      "formula": "girdle_pixel_density / area_of_polygon(9, 13, 17, 5)",
+      "korean_baseline_mean": 0.2,
+      "korean_baseline_std": 0.1,
+      "thresholds": {
+        "low": 0.1,
+        "high": 0.3
+      },
+      "labels": {
+        "low": "상단 호 형태의 보조선이 식별되지 않음",
+        "medium": "부분적으로 단절된 형태의 상단 보조선 관찰",
+        "high": "검지 측과 소지 측을 온전한 호로 연결하는 뚜렷한 보조선 존재"
+      },
+      "forbidden_interpretation": [
+        "성욕 과다",
+        "바람기"
+      ],
+      "academic_source": "PubMed PMC7195958: Girdle of Venus"
+    }
+  ],
+  "forbidden_tokens_regex": [
+    "수명",
+    "단명",
+    "사망",
+    "치매",
+    "유전병",
+    "다운증후군",
+    "이혼",
+    "파산",
+    "사고",
+    "과부",
+    "절연",
+    "횡사",
+    "호르몬 이상",
+    "지능 저하",
+    "어리석음"
+  ],
+  "disclaimer_palm_ko": "본 손금 분석 지표는 MediaPipe Vision AI와 Size Korea 한국인 인체측정학 통계를 기반으로 손바닥 주름의 형태적 비율을 0.0~1.0 점수로 변환한 정량적 데이터입니다. 이는 전통적 학파 이론을 참조하여 흥미 목적으로 재구성되었을 뿐, 어떠한 의학적 진단이나 미래에 대한 절대적 예언을 포함하지 않습니다. 촬영 시 조명, 각도, 손의 굴곡에 따라 비전 인식 오차가 발생할 수 있습니다."
+}
