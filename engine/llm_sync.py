@@ -41,8 +41,14 @@ def call_llm_sync(
     system_prompt: str,
     model: str | None = None,
     max_tokens: int = _MAX_TOKENS,
+    usage_sink: list | None = None,
 ) -> str:
-    """동기 LLM 호출. Bizrouter 우선, Anthropic fallback."""
+    """동기 LLM 호출. Bizrouter 우선, Anthropic fallback.
+
+    Args:
+        usage_sink: ADR-013. Anthropic 호출의 usage 객체 sink.
+            Bizrouter는 OpenAI 형식이라 append 안 함.
+    """
     if _bizrouter_enabled():
         client = bizrouter_client()
         chosen: str = (
@@ -87,4 +93,6 @@ def call_llm_sync(
     )
     if not text:
         raise ValueError("empty model response")
+    if usage_sink is not None:
+        usage_sink.append(getattr(msg, "usage", None))
     return text

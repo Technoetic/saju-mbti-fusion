@@ -166,7 +166,11 @@ def _bizrouter_enabled() -> bool:
     return bool((os.environ.get("BIZROUTER_API_KEY") or "").strip())
 
 
-def _call_llm(system_prompt: str, user_text: str) -> str:
+def _call_llm(
+    system_prompt: str,
+    user_text: str,
+    usage_sink: list[Any] | None = None,
+) -> str:
     """텍스트 전용 LLM 호출 — Bizrouter 우선, Anthropic fallback."""
     if _bizrouter_enabled():
         client = _bizrouter_client()
@@ -212,6 +216,8 @@ def _call_llm(system_prompt: str, user_text: str) -> str:
     )
     if not text:
         raise ValueError("empty model response")
+    if usage_sink is not None:
+        usage_sink.append(getattr(msg, "usage", None))
     return text
 
 
@@ -251,6 +257,7 @@ def generate_name_reading(
                 "matched_count": len(crisis["matched_keywords"]),
             },
             "legal_notice": None,
+            "prompt_cache_usage": None,
         }
 
     key = _hash_payload(fullname_ko, fullname_han, gender, birth, saju_day_master)
@@ -258,18 +265,27 @@ def generate_name_reading(
     if cached is not None:
         cached.setdefault("crisis_alert", None)
         cached.setdefault("legal_notice", None)
+        cached.setdefault("prompt_cache_usage", None)
         return cached
 
     user_text = _build_user_text(
         fullname_ko, fullname_han, gender, birth, saju_day_master, saju_summary
     )
-    text = _call_llm(_NAME_SYSTEM, user_text)
+    # ADR-013 prompt cache telemetry sink 동반
+    usage_sink: list[Any] = []
+    text = _call_llm(_NAME_SYSTEM, user_text, usage_sink=usage_sink)
     legal = build_legal_footer(is_crisis=False)
     full_text = (text or "").strip() + legal
+
+    prompt_cache_usage: dict[str, Any] | None = None
+    if usage_sink:
+        from engine.safety.prompt_cache_telemetry import extract_usage, summarize
+        prompt_cache_usage = summarize(extract_usage(usage_sink[0]))
 
     out = {
         "text": full_text,
         "cached": False,
+        "prompt_cache_usage": prompt_cache_usage,
         "crisis_alert": None,
         "legal_notice": legal,
     }

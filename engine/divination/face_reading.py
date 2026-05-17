@@ -164,12 +164,22 @@ def _bizrouter_enabled() -> bool:
     return bool((os.environ.get("BIZROUTER_API_KEY") or "").strip())
 
 
-def _call_vision(system_prompt: str, user_text: str, image_b64: str) -> str:
+def _call_vision(
+    system_prompt: str,
+    user_text: str,
+    image_b64: str,
+    usage_sink: list[Any] | None = None,
+) -> str:
     """비전 LLM 호출 — Bizrouter(claude-opus-4.7) 우선, Anthropic SDK 자동 fallback.
 
     BIZROUTER_VISION_MODEL이 timeout·5xx·권한 부재 등으로 실패하면 즉시
     Anthropic SDK 직접 호출(claude-opus-4-7)로 fallback. 사용자 의도와
     실제 가용성 사이의 갭을 코드 수준에서 회복.
+
+    Args:
+        usage_sink: 옵션. 빈 리스트 전달 시 Anthropic SDK 호출의 usage
+            객체를 append. Bizrouter 경로는 OpenAI 형식이라 append 안 함.
+            ADR-013 prompt cache telemetry 통합.
     """
     mime, raw_b64 = _normalize_image_b64(image_b64)
     data_url = f"data:{mime};base64,{raw_b64}"
@@ -245,6 +255,8 @@ def _call_vision(system_prompt: str, user_text: str, image_b64: str) -> str:
     )
     if not text:
         raise ValueError("empty model response")
+    if usage_sink is not None:
+        usage_sink.append(getattr(msg, "usage", None))
     return text
 
 
@@ -285,6 +297,7 @@ def generate_face_reading(
             },
             "legal_notice": None,
             "palace_scores": None,
+            "prompt_cache_usage": None,
         }
 
     if not (image_b64 or "").strip():
@@ -302,6 +315,7 @@ def generate_face_reading(
             "legal_notice": None,
             "palace_scores": None,
             "file_integrity_error": integrity.error_code,
+            "prompt_cache_usage": None,
         }
 
     # 키포인트 → 12궁 결정론 점수 (LLM 호출 전, 캐시와 무관하게 항상 산출)
@@ -315,20 +329,28 @@ def generate_face_reading(
     if cached is not None:
         cached.setdefault("crisis_alert", None)
         cached.setdefault("legal_notice", None)
+        cached.setdefault("prompt_cache_usage", None)
         cached["text"] = cached.get("text", "") + ""
         # palace_scores는 결정론이므로 항상 최신 재산출 (캐시 본문 그대로 + 점수만 갱신)
         cached["palace_scores"] = palace_scores
         return cached
 
-    # 2. LLM 호출
+    # 2. LLM 호출 — ADR-013 prompt cache telemetry sink 동반
     user_text = _build_user_text(age, gender, question)
-    text = _call_vision(_FACE_SYSTEM, user_text, image_b64)
+    usage_sink: list[Any] = []
+    text = _call_vision(_FACE_SYSTEM, user_text, image_b64, usage_sink=usage_sink)
     legal = build_legal_footer(is_crisis=False)
     full_text = (text or "").strip() + legal
+
+    prompt_cache_usage: dict[str, Any] | None = None
+    if usage_sink:
+        from engine.safety.prompt_cache_telemetry import extract_usage, summarize
+        prompt_cache_usage = summarize(extract_usage(usage_sink[0]))
 
     out = {
         "text": full_text,
         "cached": False,
+        "prompt_cache_usage": prompt_cache_usage,
         "crisis_alert": None,
         "legal_notice": legal,
         "palace_scores": palace_scores,
