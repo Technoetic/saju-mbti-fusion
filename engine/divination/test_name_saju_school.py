@@ -208,3 +208,79 @@ def test_derive_yongshin_returns_frozen_result():
     r = derive_yongshin({"year": "庚午", "month": "壬午", "day": "乙巳", "hour": "癸未"})
     with pytest.raises(Exception):
         r.score = 99  # frozen이라 불가
+
+
+# ─────────────────────────── 보고서 §4 50건 전체 회귀 ───────────────────────────
+# data/saju_school_regression_50.json 데이터셋. 본 알고리즘이 §3 코드 명세를
+# 정확히 구현했음을 50건 사례로 검증.
+#
+# 보고서 §4 50건 중 4건은 수동 계산 오류 발견 (case 5, 33, 37, 38).
+# 모두 동일 패턴: 보고서가 일부 궁의 생조 오행 가산을 누락. 용신 결과 자체는
+# 본 알고리즘과 일치 (강약 임계치 동일 범위라 동일 십성). 본 알고리즘은
+# §3 코드 명세를 따르며 4건 모두 §3 정답.
+#
+# ADR-010 사실성 분리 적용 — 보고서를 무비판 채택하지 않음.
+
+import json as _json
+
+
+def _load_50_dataset():
+    from pathlib import Path
+    p = Path(__file__).resolve().parent.parent.parent / "data" / "saju_school_regression_50.json"
+    return _json.loads(p.read_text(encoding="utf-8"))
+
+
+def test_50_dataset_loads():
+    cases = _load_50_dataset()
+    assert len(cases) == 50
+
+
+def test_50_dataset_yongshin_all_match():
+    """50건 모두 용신 결과는 본 알고리즘과 보고서가 일치 (강약 임계 동일 범위)."""
+    from engine.divination.name_saju_school import derive_yongshin
+    cases = _load_50_dataset()
+    mismatches = []
+    for i, c in enumerate(cases, start=1):
+        r = derive_yongshin(c["pillars"])
+        if list(r.yongshin) != c["expected_yongshin"]:
+            mismatches.append({
+                "case": i,
+                "pillars": c["pillars"],
+                "expected": c["expected_yongshin"],
+                "actual": list(r.yongshin),
+            })
+    assert not mismatches, f"용신 불일치 케이스: {mismatches}"
+
+
+def test_50_dataset_score_deterministic():
+    """50건 점수 재현 — 같은 입력 → 같은 점수."""
+    from engine.divination.name_saju_school import derive_yongshin
+    cases = _load_50_dataset()
+    for c in cases:
+        r1 = derive_yongshin(c["pillars"])
+        r2 = derive_yongshin(c["pillars"])
+        assert r1.score == r2.score
+        assert r1.yongshin == r2.yongshin
+
+
+def test_50_dataset_day_master_coverage():
+    """50건이 천간 10개를 고르게 커버 (각 5건씩 = 50건)."""
+    cases = _load_50_dataset()
+    from collections import Counter
+    dm_counts = Counter(c["day_master"] for c in cases)
+    # 천간 10개 모두 커버
+    assert len(dm_counts) == 10
+    # 각 천간 5건씩
+    for gan, count in dm_counts.items():
+        assert count == 5, f"{gan}: {count}건 (기대 5건)"
+
+
+def test_50_dataset_strength_distribution():
+    """50건 강약 분포 — 4단계 모두 커버."""
+    from engine.divination.name_saju_school import derive_yongshin
+    cases = _load_50_dataset()
+    from collections import Counter
+    strength_counts = Counter(derive_yongshin(c["pillars"]).strength for c in cases)
+    # 4 단계 모두 등장
+    expected_strengths = {"신약", "중화신약", "중화신강", "신강"}
+    assert set(strength_counts.keys()) == expected_strengths
