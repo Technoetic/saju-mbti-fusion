@@ -37,6 +37,7 @@ last_updated: 2026-05-17
 | 일자 | 작업 | 모듈 | 회귀 | ADR |
 |---|---|---|---|---|
 | 2026-05-17 | B6 DreamNet v4 멀티모달 통합 (HVDC + 한국 KCI 규준 + disclaimers 강제) | engine/agents/dreamnet_multimodal.py + dreambank.py NORMS_KOREAN | 17 | ADR-021 |
+| 2026-05-17 | A8 Freud v2 — 4기제 결정론 + 보편 상징 6건 + ISBN 3종 + output filter | engine/agents/freud_v2.py | 26 | ADR-023 |
 
 → 자세히: [[dream-b6-dreamnet-v4]]
 
