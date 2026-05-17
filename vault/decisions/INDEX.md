@@ -2,7 +2,7 @@
 type: index
 section: decisions
 last_updated: 2026-05-18
-note: ADR-035 (Phase 4회차 클라이언트 UX) 추가
+note: ADR-036 (Phase 5회차 LLM 출력 샘플러) 추가
 ---
 
 # 의사결정 (ADR) 인덱스
@@ -58,6 +58,7 @@ note: ADR-035 (Phase 4회차 클라이언트 UX) 추가
 | ADR-005 | [[ADR-005-supplement-5-no-region-school-mapping]] — Phase 20 Stage 2 영역-학파명 매핑 예시 제거 | accepted | 2026-05-17 |
 | ADR-005 | [[ADR-005-supplement-6-test-findings-fixes]] — Phase 21 실측 테스트 5문제 + PNG MIME 버그 해결 | accepted | 2026-05-17 |
 | ADR-005 | [[ADR-005-supplement-7-character-synthesis-and-visualizations]] — Phase 22 캐릭터화 단락 + 시각화 6종 | accepted | 2026-05-17 |
+| ADR-036 | [[ADR-036-llm-output-sampler]] — LLM 운영 출력 샘플러 (운명 어휘 모니터링 의무 이행, ADR-005 Sup 2~7) | accepted | 2026-05-18 |
 
 ## 원칙
 
