@@ -27,9 +27,10 @@ last_updated: 2026-05-17
 |---|---|---|
 | 2026-05-16 | claude-opus-4.7 vision primary | face_reading._call_vision |
 | 2026-05-16 | 12궁 결정론 점수표 (Phase 1) | face_scoring.py |
+| 2026-05-17 | 5형(목·화·토·금·수) 결정론 분류 — ADR-022, ADR-018 DEFER 해소 | engine/divination/face_shape.py / 18 테스트 |
 | 합성 얼굴 검증 | 균형/비대칭/표정 + 길상/흉상 시각 | pipeline-viz/test-faces/ |
 
-→ 자세히: [[face-phase1-keypoint-scoring]]
+→ 자세히: [[face-phase1-keypoint-scoring]] / [[face-shape-5형-classifier]]
 
 ## 꿈해석 멀티에이전트 도메인
 
