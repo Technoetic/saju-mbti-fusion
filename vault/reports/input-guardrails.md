@@ -4,12 +4,15 @@ status: received_with_caveats
 date: 2026-05-17
 source: deepresearch
 domain: safety
-applied_to: []
+applied_to:
+  - L1 → ADR-011 + engine/safety/file_integrity.py (2026-05-17)
 neo4j_synced: false
 factuality: mostly_verified
 related:
   - decisions/ADR-010-name-sibling-factuality.md
+  - decisions/ADR-011-l1-file-integrity.md
   - reports/saju-app-spec.md
+  - done/safety-l1-file-integrity.md
 original_file: ../../AI 운세 앱 입력값 가드레일 설정.md
 ---
 
