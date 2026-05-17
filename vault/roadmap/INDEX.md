@@ -28,11 +28,11 @@ Session Handoff 정신 — "Needs Human Review" 명시 — 을 분류 라벨에 
 
 ## 🟢 외부 입력 대기 (3건)
 
-| 항목 | 노트 | 우선도 |
-|---|---|---|
-| §3 용신 학파 옵션 B (단일 학파 채택) | [[saju-option-B-school]] | 중 |
-| §4 자원오행 5001자 수동 매핑 | [[ohaeng-manual-5001]] | 낮음 |
-| §5 어감·선호도 데이터 수집 | [[name-aesthetic-survey]] | 낮음 |
+| 항목 | 노트 | 우선도 | 딥리서치 프롬프트 |
+|---|---|---|---|
+| §3 용신 학파 옵션 B (단일 학파 채택) | [[saju-option-B-school]] | 중 | [[../templates/PROMPT_saju-option-B]] |
+| §4 자원오행 5001자 수동 매핑 | [[ohaeng-manual-5001]] | 낮음 | [[../templates/PROMPT_ohaeng-manual-5001]] |
+| §5 어감·선호도 데이터 수집 | [[name-aesthetic-survey]] | 낮음 | [[../templates/PROMPT_aesthetic-survey]] |
 
 > ✅ §1 가족 서열 상대 불용한자 — **완료** (ADR-010 사실성 분리 적용) → [[../done/name-phase3-sibling-preference]]
 

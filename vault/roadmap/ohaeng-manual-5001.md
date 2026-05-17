@@ -23,6 +23,8 @@ related_adr: [decisions/ADR-003-unihan-fallback]
 
 ## 필요한 외부 입력
 
+→ **정밀 프롬프트**: [[../templates/PROMPT_ohaeng-manual-5001]] (ADR-010 사실성 분리 요구사항 포함)
+
 ### 학파별 추상 부수 → 자원오행 매핑 합의
 
 - 亠·勹·宀·力·土·又 같은 추상 부수
