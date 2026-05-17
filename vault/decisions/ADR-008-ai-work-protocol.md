@@ -6,6 +6,8 @@ date: 2026-05-17
 authors: [Technoetic]
 domain: [meta, ai]
 related: [ADR-007-obsidian-vault-introduced]
+supplemented_by:
+  - done/roadmap-human-review-labels.md (2026-05-17, roadmap에 AI vs Human 분담 명시)
 related_file: ../../CLAUDE.md
 ---
 

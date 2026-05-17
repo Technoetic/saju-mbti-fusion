@@ -6,6 +6,7 @@ source: deepresearch
 domain: meta
 applied_to:
   - permissions.deny → ADR-012 + .claude/settings.json (2026-05-17, .claudeignore는 공식 미지원이라 거부)
+  - §2.2 Human Review 패턴 → roadmap 라벨 보강 (2026-05-17, Session_Handoff.md 신설 거부 / 분류 라벨에 통합) → done/roadmap-human-review-labels.md
 neo4j_synced: false
 factuality: mixed
 related:
