@@ -1,0 +1,171 @@
+한국인 얼굴 부위별 형상 분류를 위한 MediaPipe Face Landmarker 478 키포인트
+임계값과 학술·인체측정학 출처를 조사하라.
+
+[배경 컨텍스트]
+
+얼굴 사진을 입력받아 한국 인상·운세 분석을 제공하는 한국어 SaaS 제품의
+관상 모듈에서, 부위별 형상을 결정론적 분류기로 분류하려 함. 분류 결과는
+후속 자연어 LLM이 사극풍 풀이를 작성할 때 인용할 객관 라벨로 사용됨.
+
+이미 얼굴 윤곽 5형(목·화·토·금·수) 분류는 MediaPipe 키포인트 비율 기반
+결정론으로 구현됨 (한국인 안면 인체측정학 KCI 출처 4종 기반).
+본 의뢰는 그 패턴을 부위 단위로 확장하는 것.
+
+[조사 목표]
+
+다음 6개 부위에 대해 한국 통설 또는 동양 관상학에서 표준 분류 명칭과
+각 분류의 해부학적 정의 + MediaPipe 키포인트 비율 임계값을 도출한다.
+
+각 분류는 반드시 다음을 충족:
+1. MediaPipe Face Landmarker 478 키포인트 인덱스로 정량 측정 가능
+2. 한국인 안면 인체측정학 통계 또는 KCI 학술 출처로 임계값 도출 가능
+3. 학파 통설 명칭 차용 (객관 분류 라벨로만, 운명 매핑은 별도 영역)
+4. 검증 가능한 학술·문화재 출처 URL 제시
+
+[부위 6종 + 분류 명칭 풀]
+
+부위 1. 코 (Nose)
+- 복코, 매부리코, 들창코, 마늘코, 사자코, 화살코, 주먹코 등
+- 키포인트 후보: 코끝(1, 2), 콧대(168, 6, 197, 195, 5),
+  콧방울(115, 220, 219, 218, 237 / 344, 440, 439, 438, 457),
+  콧구멍(60, 290 등)
+- 측정 가능 비율:
+  - bridge_curvature (콧대 굽음 정도)
+  - nostril_wing_width (콧방울 너비 / 얼굴 너비)
+  - nose_tip_roundness (코끝 둥금 정도)
+  - nostril_visibility (콧구멍 노출도 — 위쪽 방향 카메라 각도 의존)
+  - nose_length (코끝~미간 / 얼굴 세로)
+
+부위 2. 눈썹 (Eyebrow)
+- 초승달 눈썹(신월미), 일자 눈썹, 청수미(끝이 가늘어지는), 옅은 눈썹,
+  짙은 눈썹, 끊긴 눈썹
+- 키포인트 후보: 눈썹 위 외곽 (46, 53, 52, 65, 55 / 285, 295, 282, 283, 276)
+- 측정 가능 비율:
+  - eyebrow_curvature (곡률)
+  - eyebrow_length / face_width
+  - eyebrow_thickness (수직 높이 / 눈썹 길이)
+  - eyebrow_tilt_angle (수평 대비 기울기)
+
+부위 3. 눈 (Eye) — 동양 관상학 13가지 안상 포함
+- 단봉안, 봉안, 용안, 음양안, 도화안, 우안, 귀안, 원앙안,
+  상안, 사자안, 사안, 마안, 삼백안(상·하·사방)
+- 키포인트 후보: 눈 외곽 (33, 7, 163, 144, 145, 153, 154, 155, 133 /
+  362, 382, 381, 380, 374, 373, 390, 249, 263), 홍채(468~477)
+- 측정 가능 비율:
+  - eye_aspect_ratio (가로/세로)
+  - inner_outer_corner_tilt (눈매 각도)
+  - white_visible_above_iris / below_iris (삼백안 검출)
+  - iris_position_relative (홍채 위치)
+
+부위 4. 입꼬리·입술 (Mouth)
+- 앙월구(상향), 복주구(하향), 일자구, 사자구, 잉어구
+- 키포인트 후보: 입꼬리(61, 291), 윗입술(0, 13, 14, 17, 18 / 위쪽 405, 321 등),
+  아랫입술(17, 84, 91, 146, 96)
+- 측정 가능:
+  - mouth_corner_lift_angle (입꼬리 각도, 수평 대비)
+  - upper_lip_thickness, lower_lip_thickness
+  - lip_color (RGB 픽셀 분석, 키포인트 인근 샘플링)
+  - mouth_width / face_width
+
+부위 5. 귀 (Ear)
+- 칼귀, 후귀(귓볼 두툼), 송곳귀, 부처귀 (귀의 부드러운 정도)
+- 키포인트: MediaPipe Face Landmarker는 귀 키포인트 미포함 가능성 ★
+  → 본 부위는 LOW_CONFIDENCE 가능성 명시. Holistic 모델 또는 별도
+  분류기 필요할 수 있음
+- 측정 후보 (있다면):
+  - earlobe_thickness
+  - ear_length / face_height
+  - ear_shape_angle
+
+부위 6. 턱·하정 추가 분류 (face_shape.py 5형과 별개)
+- 이중턱, 갈라진 턱(딤플), 사각턱, 무턱 등 형태
+- 키포인트: 턱선 (152, 148, 176, 149, 150 / 377, 400, 378, 379, 365)
+- 측정 가능:
+  - chin_double_indicator
+  - chin_cleft_depth
+  - jaw_squareness
+
+[요구사항 — 각 분류 항목별 반드시 답할 것]
+
+각 부위 6종 안에서 분류 명칭별로 다음을 도출:
+
+1. 분류 명칭 (한글·한자, 학파 통설 명칭 — 예: 복코 福鼻, 앙월구 仰月口):
+2. 해부학적 정의 (학파 통설 본문 인용):
+3. MediaPipe 478 키포인트로 측정 가능한 비율·각도·거리:
+   - 사용 키포인트 인덱스 명시 (예: 콧방울 너비 = dist(115, 344) / dist(234, 454))
+   - 측정 단위 (정규화된 비율, 각도 degrees, 픽셀 RGB 등)
+4. 분류 임계값 (해당 분류로 판정하는 측정값 범위):
+   - 한국인 인체측정학 평균 + 표준편차 기반 권장 (예: 콧방울 너비 비율 > 평균 + 0.5 SD → 복코)
+   - 임계값 출처 (KCI 논문 DBpia URL 우선)
+5. 임계값 학술 출처 (저자·연도·학술지·DBpia URL):
+6. 한국인 표본 통계 (가능하면 표본 크기·평균·SD·연구 연도):
+7. MediaPipe 한계 (예: 카메라 각도 의존, 폐색, 표정 변화 영향):
+8. 측정 신뢰도 (HIGH/MEDIUM/LOW + 사유):
+
+[참고할 한국 인체측정학 출처 (이미 확인된 것 — 본 시스템 ADR-022 영속화)]
+
+다음 출처는 본 시스템에 이미 사용 중. 본 의뢰는 이를 부위 단위로 확장:
+
+- 송우철 외 (2017). 한국 성인의 얼굴 형태 인체측정학 분석.
+  https://www.dbpia.co.kr/journal/articleDetail?nodeId=NODE07133895
+- 최윤경, 이경희 (2009). 한국 여성 안면 형태 분류 연구.
+  https://www.dbpia.co.kr/journal/articleDetail?nodeId=NODE09916734
+- 노상훈 외 (1998). 한국인 하악각 통계 분석.
+  https://www.jkaoms.org/journal/download_pdf.php?spage=129&volume=32&number=2
+- POSTECH HFES (2012). 한국인 안면 측정 데이터.
+  http://center.postech.ac.kr/homepage_data/publication_proceedings_international/12_HFES_OxygenMask.pdf
+
+위 출처 외 추가로 부위별(코·눈썹·눈·입·귀·턱) 한국인 표본 인체측정학
+연구 또는 한국인 대상 형태 분류 학술 자료 발굴.
+
+[출력 형식 — YAML 스켈레톤]
+
+부위별 6개 카테고리, 각 카테고리 안 분류 3~7종:
+
+```yaml
+- region: nose
+  classification:
+    - name_ko: 복코
+      name_hanja: 福鼻
+      anatomical_definition: "콧방울이 두툼하고 둥글며 콧구멍이 잘 보이지 않는 형태"
+      mediapipe_metrics:
+        - metric: nostril_wing_width_ratio
+          formula: "dist(KP_115, KP_344) / dist(KP_234, KP_454)"
+          threshold: "> mean + 0.5*SD"
+        - metric: nose_tip_roundness
+          formula: "..."
+          threshold: "..."
+      threshold_source:
+        - author: 송우철 외
+          year: 2017
+          journal: 한국디자인포럼
+          url: https://www.dbpia.co.kr/journal/articleDetail?nodeId=NODE07133895
+          sample_size: N=...
+          mean_sd: "mean=..., SD=..."
+      mediapipe_limitations:
+        - "카메라가 정면이 아닌 경우 콧구멍 노출도 측정 오차"
+        - "Face Landmarker는 콧구멍 자체 키포인트 미포함, 콧방울로 간접 추정"
+      reliability: HIGH | MEDIUM | LOW
+      reliability_rationale: "..."
+```
+
+전체 6개 부위 × 평균 4개 분류 = 약 24개 분류 항목.
+
+[검증 기준]
+
+- 모든 임계값은 한국인 인체측정학 학술 출처에서 도출 (가짜 통계 금지)
+- MediaPipe Face Landmarker 478 키포인트 인덱스는 공식 문서 기준
+  (https://developers.google.com/mediapipe/solutions/vision/face_landmarker)
+- 귀 부위는 Face Landmarker가 키포인트 미포함 시 LOW_CONFIDENCE 또는
+  "Holistic/별도 분류기 필요" 정직 명시
+- 임계값 출처가 한국인 표본이 아니면 명시 (예: 백인·중국인 표본 사용 시 한계 명시)
+- 학파 통설 분류 명칭만 차용, 운명 매핑은 본 의뢰 범위 외 (별도 의뢰)
+- "찾지 못한 분류는 정직히 보고" — 빈 약속 금지
+
+[최종 제출물]
+
+- 부위 6종 × 분류 3~7개 = 24+ 항목 YAML 블록
+- 마크다운 요약 표 (부위 / 분류 수 / 임계값 출처 수 / 평균 신뢰도)
+- MediaPipe 한계 종합 (예: 귀 키포인트 부재 시 대안)
+- 임계값 출처 URL 목록 (라이브 검증 통과 분만)
+- 한계 명시 (찾지 못한 영역·표본 한정·MediaPipe 측정 한계)
