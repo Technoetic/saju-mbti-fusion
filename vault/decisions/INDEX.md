@@ -25,6 +25,7 @@ last_updated: 2026-05-17
 | ADR-013 | [[ADR-013-prompt-cache-telemetry]] | accepted | 2026-05-17 |
 | ADR-014 | [[ADR-014-saju-mbti-prediction-exception]] | accepted | 2026-05-17 |
 | ADR-015 | [[ADR-015-saju-option-B-eokbu]] | accepted | 2026-05-17 |
+| ADR-016 | [[ADR-016-name-aesthetic-partial]] | accepted | 2026-05-17 |
 
 ## 원칙
 
