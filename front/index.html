@@ -2449,6 +2449,309 @@
   #starReadBtn { padding: 12px 22px; font-size: 14px; letter-spacing: 4px; }
   #starResultBoard .star-result-card { padding: 20px 16px; }
   }
+
+  /* ═══════════════════════════════════════════════════════
+   카드 갤러리 — 7명 점술가 회전목마 (스와이프·드래그·키보드)
+   ═══════════════════════════════════════════════════════ */
+  .card-gallery {
+  position: relative;
+  width: 100%;
+  max-width: 560px;
+  margin: 12px auto 32px;
+  padding: 0 16px;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: pan-y; /* 세로 스크롤은 유지, 가로는 우리가 처리 */
+  }
+  .card-deck {
+  display: flex;
+  gap: 0;
+  will-change: transform;
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .card-deck.is-dragging {
+  transition: none;
+  cursor: grabbing;
+  }
+  .char-card {
+  flex: 0 0 100%;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  position: relative;
+  border: 1px solid var(--gold-dp);
+  border-radius: 6px;
+  overflow: hidden;
+  background: linear-gradient(180deg, rgba(20,15,10,0.75), rgba(10,8,5,0.85));
+  box-shadow:
+  0 8px 32px rgba(0,0,0,0.55),
+  inset 0 0 0 1px rgba(212,175,55,0.10),
+  0 0 28px rgba(212,175,55,0.08);
+  cursor: grab;
+  }
+  .char-card:active { cursor: grabbing; }
+  .char-card-video {
+  position: absolute;
+  inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+  }
+  .char-card.is-active .char-card-video { opacity: 0.85; }
+  .char-card-veil {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+  linear-gradient(180deg,
+  rgba(10,15,30,0.30) 0%,
+  rgba(10,15,30,0.10) 35%,
+  rgba(10,15,30,0.55) 70%,
+  rgba(10,8,5,0.90) 100%);
+  }
+  .char-card-body {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 32px 26px 28px;
+  text-align: center;
+  pointer-events: none;
+  }
+  .char-card-emblem {
+  position: absolute;
+  top: 30px; left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 44px;
+  letter-spacing: 14px;
+  color: var(--gold-bri);
+  text-shadow:
+  0 0 14px rgba(244,211,94,0.55),
+  0 0 28px rgba(212,175,55,0.30);
+  line-height: 1;
+  }
+  .char-card-name {
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 24px;
+  letter-spacing: 8px;
+  color: var(--gold);
+  margin: 0 0 6px;
+  font-weight: 700;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.65);
+  }
+  .char-card-sub {
+  font-size: 12px;
+  letter-spacing: 2px;
+  color: var(--text-soft);
+  margin: 0 0 14px;
+  font-family: 'Nanum Myeongjo', serif;
+  text-shadow: 0 1px 6px rgba(0,0,0,0.7);
+  }
+  .char-card-quote {
+  font-size: 13.5px;
+  letter-spacing: 0.5px;
+  color: rgba(232,219,180,0.92);
+  margin: 0 0 22px;
+  font-family: 'Nanum Myeongjo', serif;
+  line-height: 1.75;
+  text-shadow: 0 1px 6px rgba(0,0,0,0.75);
+  max-width: 320px;
+  }
+  .char-card-enter {
+  pointer-events: auto;
+  padding: 14px 32px;
+  background: linear-gradient(180deg, rgba(40,30,15,0.85), rgba(20,15,8,0.90));
+  color: var(--gold-bri);
+  border: 1px solid var(--gold);
+  border-radius: 3px;
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 14px;
+  letter-spacing: 5px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow:
+  inset 0 0 0 1px rgba(244,211,94,0.10),
+  0 0 18px rgba(212,175,55,0.20);
+  }
+  .char-card-enter:hover {
+  background: linear-gradient(180deg, rgba(212,175,55,0.30), rgba(139,105,20,0.55));
+  color: #fff;
+  border-color: var(--gold-bri);
+  box-shadow:
+  inset 0 0 0 1px rgba(244,211,94,0.25),
+  0 0 28px rgba(212,175,55,0.55);
+  }
+  .char-card-enter:active { transform: translateY(1px); }
+
+  /* 성하 공자 카드 — 자줏빛/은빛 톤 */
+  .star-card {
+  background: linear-gradient(180deg, rgba(14,21,48,0.85), rgba(10,8,20,0.92));
+  border-color: var(--starh-violet);
+  box-shadow:
+  0 8px 32px rgba(0,0,0,0.60),
+  inset 0 0 0 1px rgba(169,134,212,0.12),
+  0 0 30px rgba(169,134,212,0.18);
+  }
+  .star-card .char-card-emblem {
+  color: var(--starh-glow);
+  text-shadow: 0 0 14px rgba(169,134,212,0.65), 0 0 28px rgba(169,134,212,0.35);
+  }
+  .star-card .char-card-name { color: var(--starh-silver); }
+  .star-card .char-card-sub { color: var(--starh-silver-dp); }
+  .star-card .char-card-quote { color: rgba(232,224,255,0.92); }
+  .star-card .char-card-enter {
+  background: linear-gradient(180deg, rgba(107,74,138,0.40), rgba(26,36,82,0.65));
+  color: var(--starh-glow);
+  border-color: var(--starh-violet);
+  box-shadow:
+  inset 0 0 0 1px rgba(232,224,255,0.10),
+  0 0 18px rgba(169,134,212,0.25);
+  }
+  .star-card .char-card-enter:hover {
+  background: linear-gradient(180deg, rgba(169,134,212,0.55), rgba(107,74,138,0.70));
+  color: #fff;
+  border-color: var(--starh-violet-bri);
+  box-shadow:
+  inset 0 0 0 1px rgba(232,224,255,0.25),
+  0 0 28px rgba(169,134,212,0.55);
+  }
+  /* 성하 카드는 영상이 없으니 별빛 라디언스로 채움 */
+  .star-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+  radial-gradient(2px 2px at 18% 22%, rgba(232,224,255,0.85), transparent 60%),
+  radial-gradient(1.5px 1.5px at 38% 12%, rgba(232,224,255,0.7), transparent 60%),
+  radial-gradient(1px 1px at 62% 36%, rgba(232,224,255,0.85), transparent 60%),
+  radial-gradient(2.5px 2.5px at 82% 18%, rgba(232,224,255,0.9), transparent 60%),
+  radial-gradient(1px 1px at 14% 64%, rgba(232,224,255,0.7), transparent 60%),
+  radial-gradient(2px 2px at 48% 78%, rgba(232,224,255,0.85), transparent 60%),
+  radial-gradient(1.5px 1.5px at 76% 62%, rgba(232,224,255,0.8), transparent 60%),
+  radial-gradient(ellipse 70% 50% at 50% 10%, rgba(107,74,138,0.40), transparent 70%),
+  radial-gradient(ellipse 60% 40% at 80% 80%, rgba(26,36,82,0.50), transparent 70%);
+  }
+
+  /* 화살표 버튼 */
+  .gallery-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px; height: 44px;
+  background: rgba(10,15,30,0.65);
+  color: var(--gold);
+  border: 1px solid var(--gold-dp);
+  border-radius: 50%;
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 28px;
+  line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  padding: 0;
+  }
+  .gallery-arrow:hover { color: var(--gold-bri); border-color: var(--gold); background: rgba(20,25,45,0.85); }
+  .gallery-arrow:active { transform: translateY(-50%) scale(0.92); }
+  .gallery-arrow-prev { left: 4px; }
+  .gallery-arrow-next { right: 4px; }
+  .gallery-arrow[disabled] { opacity: 0.25; cursor: not-allowed; }
+
+  /* 점 인디케이터 */
+  .gallery-dots {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 20px;
+  }
+  .gallery-dots button {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  border: 1px solid var(--gold-dp);
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.25s ease;
+  }
+  .gallery-dots button.is-active {
+  background: var(--gold-bri);
+  border-color: var(--gold);
+  box-shadow: 0 0 10px rgba(244,211,94,0.55);
+  transform: scale(1.15);
+  }
+  .gallery-dots button:hover { border-color: var(--gold); }
+
+  .gallery-hint {
+  text-align: center;
+  font-size: 11px;
+  letter-spacing: 3px;
+  color: var(--text-dim);
+  margin: 14px 0 0;
+  font-family: 'Nanum Myeongjo', serif;
+  opacity: 0.7;
+  }
+
+  /* 풀이 모드 진입 시 — 갤러리·탭바 숨기고 풀이 화면만 노출 */
+  body.in-app:not(.gallery-mode) .card-gallery { display: none; }
+  body.gallery-mode .tab-bar { display: none; }
+  body.gallery-mode .tab-content { display: none !important; }
+  /* 갤러리 모드일 때 인트로 배경 영상을 옅게 유지 (기존 in-app과 동일 효과) */
+
+  /* 풀이 화면 상단 — 갤러리로 돌아가기 floating 버튼 */
+  .to-gallery-btn {
+  position: fixed;
+  top: 18px; left: 18px;
+  z-index: 30;
+  padding: 9px 18px 9px 14px;
+  background: rgba(10,15,30,0.75);
+  color: var(--gold);
+  border: 1px solid var(--gold-dp);
+  border-radius: 999px;
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 13px;
+  letter-spacing: 2.5px;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.45);
+  transition: all 0.2s ease;
+  display: none; /* 갤러리 모드가 아닐 때만 노출 */
+  }
+  body.in-app:not(.gallery-mode) .to-gallery-btn { display: inline-block; }
+  .to-gallery-btn:hover {
+  color: var(--gold-bri);
+  border-color: var(--gold);
+  background: rgba(20,25,45,0.85);
+  }
+  .to-gallery-btn:active { transform: translateY(1px); }
+
+  @media (max-width: 720px) {
+  .card-gallery { max-width: 92vw; padding: 0 8px; margin: 8px auto 24px; }
+  .char-card { aspect-ratio: 3 / 4.2; }
+  .char-card-emblem { font-size: 36px; letter-spacing: 11px; top: 22px; }
+  .char-card-name { font-size: 20px; letter-spacing: 6px; }
+  .char-card-sub { font-size: 11px; letter-spacing: 1.5px; margin-bottom: 10px; }
+  .char-card-quote { font-size: 12.5px; margin-bottom: 18px; }
+  .char-card-enter { padding: 11px 22px; font-size: 13px; letter-spacing: 3px; }
+  .char-card-body { padding: 26px 18px 22px; }
+  .gallery-arrow { width: 38px; height: 38px; font-size: 22px; }
+  .gallery-arrow-prev { left: 0; }
+  .gallery-arrow-next { right: 0; }
+  .gallery-hint { font-size: 10px; letter-spacing: 2px; }
+  .to-gallery-btn { top: 12px; left: 12px; padding: 7px 14px 7px 11px; font-size: 12px; letter-spacing: 2px; }
+  }
 </style>
 <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 </head>
@@ -2486,10 +2789,127 @@
   </div>
 </div>
 
+<!-- 풀이 모드에서 점술가 선택 화면(카드 갤러리)로 돌아가는 버튼 -->
+<button id="toGalleryBtn" class="to-gallery-btn" type="button" aria-label="점술가 고르러 가기">← 점술가 고르러</button>
+
 <div class="app-container" id="appMain">
 <div class="header-ornament"></div>
 <h1>月 下 夢</h1>
 <p class="subtitle">월 하 몽 · 달 아 래 의  꿈</p>
+
+<!-- 카드 갤러리 — 7명 점술가를 큰 카드로 한 명씩 표시, 스와이프로 전환 -->
+<section id="cardGallery" class="card-gallery" aria-label="점술가 선택">
+  <button class="gallery-arrow gallery-arrow-prev" aria-label="이전 점술가" type="button">‹</button>
+  <button class="gallery-arrow gallery-arrow-next" aria-label="다음 점술가" type="button">›</button>
+
+  <div class="card-deck" id="cardDeck">
+  <!-- 만월 아씨 -->
+  <article class="char-card" data-go="saju" data-character="saju">
+  <video class="char-card-video" muted loop playsinline preload="metadata">
+  <source src="./만월 아씨.mp4" type="video/mp4">
+  </video>
+  <div class="char-card-veil"></div>
+  <div class="char-card-body">
+  <div class="char-card-emblem">滿 月</div>
+  <h2 class="char-card-name">만월 아씨</h2>
+  <p class="char-card-sub">달빛 아래 사주를 짚어드리는 정자의 아씨 · 사주 풀이</p>
+  <p class="char-card-quote">"이리 오시지요. 그대의 사주를 풀어드리겠사옵니다."</p>
+  <button class="char-card-enter" type="button">사주 풀이 들어가기</button>
+  </div>
+  </article>
+
+  <!-- 몽이 도령 -->
+  <article class="char-card" data-go="dream" data-character="dream">
+  <video class="char-card-video" muted loop playsinline preload="metadata">
+  <source src="./몽이 도령.mp4" type="video/mp4">
+  </video>
+  <div class="char-card-veil"></div>
+  <div class="char-card-body">
+  <div class="char-card-emblem">夢 蝶</div>
+  <h2 class="char-card-name">몽이 도령</h2>
+  <p class="char-card-sub">호접몽을 거니는 꿈의 길잡이 · 꿈 풀이</p>
+  <p class="char-card-quote">"꾸셨던 꿈을 들려주십시오. 그 신호를 풀어드립니다."</p>
+  <button class="char-card-enter" type="button">꿈 풀이 들어가기</button>
+  </div>
+  </article>
+
+  <!-- 화선 낭자 -->
+  <article class="char-card" data-go="hwapae" data-character="hwapae">
+  <video class="char-card-video" muted loop playsinline preload="metadata">
+  <source src="./화선 낭자.mp4" type="video/mp4">
+  </video>
+  <div class="char-card-veil"></div>
+  <div class="char-card-body">
+  <div class="char-card-emblem">花 牌</div>
+  <h2 class="char-card-name">화선 낭자</h2>
+  <p class="char-card-sub">꽃패를 펼치는 낭자 · 꽃패(타로) 풀이</p>
+  <p class="char-card-quote">"마음의 길을 카드가 비춰드릴게요."</p>
+  <button class="char-card-enter" type="button">꽃패 풀이 들어가기</button>
+  </div>
+  </article>
+
+  <!-- 성하 공자 -->
+  <article class="char-card star-card" data-go="star" data-character="star">
+  <div class="char-card-veil"></div>
+  <div class="char-card-body">
+  <div class="char-card-emblem">星 河</div>
+  <h2 class="char-card-name">성하 공자</h2>
+  <p class="char-card-sub">별의 강(銀河)의 귀공자 · 별빛(점성) 풀이</p>
+  <p class="char-card-quote">"하늘의 별이 그대 운명의 지도이옵니다."</p>
+  <button class="char-card-enter" type="button">별빛 풀이 들어가기</button>
+  </div>
+  </article>
+
+  <!-- 운학 도사 -->
+  <article class="char-card" data-go="face" data-character="face">
+  <video class="char-card-video" muted loop playsinline preload="metadata">
+  <source src="./운학 도사.mp4" type="video/mp4">
+  </video>
+  <div class="char-card-veil"></div>
+  <div class="char-card-body">
+  <div class="char-card-emblem">雲 鶴</div>
+  <h2 class="char-card-name">운학 도사</h2>
+  <p class="char-card-sub">구름과 학을 벗삼은 산중 노도사 · 얼굴(관상) 풀이</p>
+  <p class="char-card-quote">"허허, 그대 얼굴 한 번 풀어드리지."</p>
+  <button class="char-card-enter" type="button">얼굴 풀이 들어가기</button>
+  </div>
+  </article>
+
+  <!-- 옥선 할미 -->
+  <article class="char-card" data-go="palm" data-character="palm">
+  <video class="char-card-video" muted loop playsinline preload="metadata">
+  <source src="./옥선 할미.mp4" type="video/mp4">
+  </video>
+  <div class="char-card-veil"></div>
+  <div class="char-card-body">
+  <div class="char-card-emblem">玉 仙</div>
+  <h2 class="char-card-name">옥선 할미</h2>
+  <p class="char-card-sub">길고 깊은 손금을 풀어주는 할미 · 손금 풀이</p>
+  <p class="char-card-quote">"아이고, 그대 손 한번 펴 보시게."</p>
+  <button class="char-card-enter" type="button">손금 풀이 들어가기</button>
+  </div>
+  </article>
+
+  <!-- 묵향 선생 -->
+  <article class="char-card" data-go="name" data-character="name">
+  <video class="char-card-video" muted loop playsinline preload="metadata">
+  <source src="./묵향 선생.mp4" type="video/mp4">
+  </video>
+  <div class="char-card-veil"></div>
+  <div class="char-card-body">
+  <div class="char-card-emblem">墨 香</div>
+  <h2 class="char-card-name">묵향 선생</h2>
+  <p class="char-card-sub">붓끝의 깊이를 헤아리는 선생 · 이름(작명) 풀이</p>
+  <p class="char-card-quote">"그대의 이름이 어떻게 흐르는지 살펴드리리다."</p>
+  <button class="char-card-enter" type="button">이름 풀이 들어가기</button>
+  </div>
+  </article>
+  </div>
+
+  <!-- 점 인디케이터 -->
+  <div class="gallery-dots" id="galleryDots" role="tablist" aria-label="점술가 인디케이터"></div>
+  <p class="gallery-hint">← 옆으로 넘기면 다른 점술가가 나옵니다 →</p>
+</section>
 
 <div class="tab-bar">
   <button class="tab-btn active" data-tab="saju">만월 아씨의 사주 풀이</button>
@@ -8057,6 +8477,192 @@ window.WHM = window.WHM || {};
   } else {
   init();
   }
+})();
+
+// ─────────────────────────────────────────────────────────
+// 月下夢 카드 갤러리 캐러셀 — 7명 점술가 카드 스와이프 UI
+// 인트로 진입 시 갤러리 모드 → 카드 클릭/들어가기 → 풀이 화면
+// ─────────────────────────────────────────────────────────
+(function setupCardGallery() {
+  const deck = document.getElementById('cardDeck');
+  const dots = document.getElementById('galleryDots');
+  const prevArrow = document.querySelector('.gallery-arrow-prev');
+  const nextArrow = document.querySelector('.gallery-arrow-next');
+  const gallery = document.getElementById('cardGallery');
+  const toGalleryBtn = document.getElementById('toGalleryBtn');
+  if (!deck || !gallery) return;
+
+  const cards = Array.from(deck.querySelectorAll('.char-card'));
+  const N = cards.length;
+  let idx = 0;
+  let drag = null;
+
+  // 점 인디케이터 생성
+  cards.forEach((c, i) => {
+  const b = document.createElement('button');
+  b.type = 'button';
+  b.setAttribute('role', 'tab');
+  b.setAttribute('aria-label', `${c.querySelector('.char-card-name')?.innerText || '카드'} ${i + 1}`);
+  b.addEventListener('click', () => goTo(i));
+  dots.appendChild(b);
+  });
+  const dotBtns = Array.from(dots.children);
+
+  function render() {
+  deck.style.transform = `translateX(${-idx * 100}%)`;
+  cards.forEach((c, i) => c.classList.toggle('is-active', i === idx));
+  dotBtns.forEach((b, i) => b.classList.toggle('is-active', i === idx));
+  if (prevArrow) prevArrow.disabled = idx === 0;
+  if (nextArrow) nextArrow.disabled = idx === N - 1;
+  // 활성 카드 영상만 재생
+  cards.forEach((c, i) => {
+  const v = c.querySelector('.char-card-video');
+  if (!v) return;
+  if (i === idx) {
+  try { v.currentTime = 0; } catch (_) {}
+  v.play().catch(() => {});
+  } else {
+  v.pause();
+  }
+  });
+  }
+  function goTo(i) {
+  idx = Math.max(0, Math.min(N - 1, i));
+  render();
+  }
+  function next() { goTo(idx + 1); }
+  function prev() { goTo(idx - 1); }
+
+  // 화살표
+  if (prevArrow) prevArrow.addEventListener('click', prev);
+  if (nextArrow) nextArrow.addEventListener('click', next);
+
+  // 키보드 (갤러리 모드일 때만)
+  document.addEventListener('keydown', (e) => {
+  if (!document.body.classList.contains('gallery-mode')) return;
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
+  if (e.key === 'ArrowRight') { e.preventDefault(); next(); }
+  else if (e.key === 'ArrowLeft') { e.preventDefault(); prev(); }
+  });
+
+  // 드래그/터치 스와이프
+  function getPoint(e) {
+  if (e.touches && e.touches[0]) return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+  return { x: e.clientX, y: e.clientY };
+  }
+  function onDown(e) {
+  const p = getPoint(e);
+  drag = { startX: p.x, startY: p.y, deltaX: 0, deltaY: 0, locked: null, width: gallery.clientWidth };
+  deck.classList.add('is-dragging');
+  }
+  function onMove(e) {
+  if (!drag) return;
+  const p = getPoint(e);
+  drag.deltaX = p.x - drag.startX;
+  drag.deltaY = p.y - drag.startY;
+  if (drag.locked === null) {
+  if (Math.abs(drag.deltaX) > 8 || Math.abs(drag.deltaY) > 8) {
+  drag.locked = Math.abs(drag.deltaX) > Math.abs(drag.deltaY) ? 'x' : 'y';
+  }
+  }
+  if (drag.locked === 'x') {
+  e.preventDefault();
+  // 끝단에서는 저항 (idx 0에서 오른쪽 드래그, idx N-1에서 왼쪽 드래그)
+  let dx = drag.deltaX;
+  if ((idx === 0 && dx > 0) || (idx === N - 1 && dx < 0)) dx *= 0.35;
+  const pct = (dx / drag.width) * 100;
+  deck.style.transform = `translateX(calc(${-idx * 100}% + ${pct}%))`;
+  }
+  }
+  function onUp() {
+  if (!drag) return;
+  deck.classList.remove('is-dragging');
+  if (drag.locked === 'x') {
+  const threshold = drag.width * 0.18;
+  if (drag.deltaX < -threshold) next();
+  else if (drag.deltaX > threshold) prev();
+  else render();
+  }
+  drag = null;
+  }
+  // 마우스
+  deck.addEventListener('mousedown', (e) => {
+  // 버튼 클릭은 드래그로 가로채지 않음
+  if (e.target.closest('.char-card-enter')) return;
+  e.preventDefault();
+  onDown(e);
+  });
+  window.addEventListener('mousemove', onMove);
+  window.addEventListener('mouseup', onUp);
+  // 터치
+  deck.addEventListener('touchstart', onDown, { passive: true });
+  deck.addEventListener('touchmove', onMove, { passive: false });
+  deck.addEventListener('touchend', onUp);
+  deck.addEventListener('touchcancel', onUp);
+
+  // 카드 클릭 → 해당 풀이 진입 (들어가기 버튼 또는 카드 본체)
+  function enterCard(card) {
+  const target = card.dataset.go;
+  if (!target) return;
+  exitGalleryMode();
+  const tabBtn = document.querySelector(`.tab-btn[data-tab="${target}"]`);
+  if (tabBtn) tabBtn.click();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  deck.addEventListener('click', (e) => {
+  // 드래그 직후 우발 클릭 방지: 드래그가 일정 거리 이상이면 클릭 무시
+  // (mouseup → click 흐름에서 drag 객체는 이미 null 이지만, lastMoveX 변수 활용은 생략하고
+  //  데드존을 onUp 시점에 처리하는 게 단순함. 여기선 단순 처리)
+  const enterBtn = e.target.closest('.char-card-enter');
+  if (enterBtn) {
+  const card = enterBtn.closest('.char-card');
+  if (card) enterCard(card);
+  return;
+  }
+  // 카드 본체 클릭은 들어가기 버튼이 있으니 굳이 진입시키지 않음 (스와이프 우선)
+  });
+
+  // 갤러리 모드 전환
+  function enterGalleryMode() {
+  document.body.classList.add('gallery-mode');
+  goTo(idx);
+  }
+  function exitGalleryMode() {
+  document.body.classList.remove('gallery-mode');
+  }
+  window.__galleryEnter = enterGalleryMode;
+  window.__galleryExit = exitGalleryMode;
+  window.__galleryGoTo = goTo;
+
+  // ← 점술가 고르러 버튼
+  if (toGalleryBtn) {
+  toGalleryBtn.addEventListener('click', () => {
+  enterGalleryMode();
+  // 활성 탭의 영상이 있다면 멈춤 처리는 활성 탭 전환 측에 위임
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+  }
+
+  // 인트로 → 메인 진입 시 자동으로 갤러리 모드 진입
+  // (질문하러 가기 버튼 클릭 시점에 setupIntro가 in-app 클래스 부여)
+  const introBtn = document.getElementById('enterBtn');
+  if (introBtn) {
+  introBtn.addEventListener('click', () => {
+  // body.in-app 부여 직후 갤러리 모드도 같이
+  setTimeout(enterGalleryMode, 50);
+  });
+  } else {
+  // 이미 in-app인 경우(개발/리로드)
+  if (document.body.classList.contains('in-app')) enterGalleryMode();
+  }
+
+  // 페이지가 in-app 상태로 로드된 경우 (새로고침 후)
+  if (document.readyState !== 'loading' && document.body.classList.contains('in-app')) {
+  enterGalleryMode();
+  }
+
+  // 초기 렌더
+  render();
 })();
 
 // 화패 (花牌) 풀이 — 78장 정통 타로 + 한국 사극·신화 모티프
