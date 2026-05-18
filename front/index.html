@@ -2913,7 +2913,8 @@
 
   /* 풀이 모드 진입 시 — 갤러리·탭바 숨기고 풀이 화면만 노출 */
   body.in-app:not(.gallery-mode) .card-gallery { display: none; }
-  body.gallery-mode .tab-bar { display: none; }
+  /* 풀이 모드(in-app, gallery-mode 아님)에서도 상단 탭바 숨김 — 카드 갤러리로 대체된 UI */
+  body.in-app .tab-bar { display: none; }
   body.gallery-mode .tab-content { display: none !important; }
   /* 갤러리 모드일 때 인트로 배경 영상을 옅게 유지 (기존 in-app과 동일 효과) */
 
