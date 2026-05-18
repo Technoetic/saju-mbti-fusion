@@ -2458,11 +2458,12 @@
   width: 100%;
   max-width: 560px;
   margin: 12px auto 32px;
-  padding: 0 16px;
+  padding: 0; /* 양옆 다음 카드 비침 방지 — 패딩 0, 컨테이너 자체 한계만 사용 */
   overflow: hidden;
   user-select: none;
   -webkit-user-select: none;
-  touch-action: pan-y; /* 세로 스크롤은 유지, 가로는 우리가 처리 */
+  touch-action: pan-y;
+  /* 가운데 정렬 안정화: 한 카드만 정확히 보이도록 */
   }
   .card-deck {
   display: flex;
@@ -2642,42 +2643,47 @@
   radial-gradient(ellipse 60% 40% at 80% 80%, rgba(26,36,82,0.50), transparent 70%);
   }
 
-  /* 화살표 버튼 */
+  /* 하단 컨트롤 — 화살표 + 점 인디케이터를 한 줄에 통합 */
+  .gallery-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin: 18px auto 0;
+  padding: 0 8px;
+  }
   .gallery-arrow {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 44px; height: 44px;
-  background: rgba(10,15,30,0.65);
+  width: 32px; height: 32px;
+  background: transparent;
   color: var(--gold);
   border: 1px solid var(--gold-dp);
   border-radius: 50%;
   font-family: 'Nanum Myeongjo', serif;
-  font-size: 28px;
+  font-size: 18px;
   line-height: 1;
   display: flex; align-items: center; justify-content: center;
   cursor: pointer;
-  z-index: 10;
   transition: all 0.2s ease;
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
   padding: 0;
+  flex-shrink: 0;
   }
-  .gallery-arrow:hover { color: var(--gold-bri); border-color: var(--gold); background: rgba(20,25,45,0.85); }
-  .gallery-arrow:active { transform: translateY(-50%) scale(0.92); }
-  .gallery-arrow-prev { left: 4px; }
-  .gallery-arrow-next { right: 4px; }
-  .gallery-arrow[disabled] { opacity: 0.25; cursor: not-allowed; }
+  .gallery-arrow:hover:not([disabled]) {
+  color: var(--gold-bri);
+  border-color: var(--gold);
+  background: rgba(212,175,55,0.08);
+  box-shadow: 0 0 12px rgba(244,211,94,0.18);
+  }
+  .gallery-arrow:active:not([disabled]) { transform: scale(0.92); }
+  .gallery-arrow[disabled] { opacity: 0.22; cursor: not-allowed; }
 
   /* 점 인디케이터 */
   .gallery-dots {
   display: flex;
   justify-content: center;
-  gap: 10px;
-  margin-top: 20px;
+  gap: 9px;
   }
   .gallery-dots button {
-  width: 10px; height: 10px;
+  width: 9px; height: 9px;
   border-radius: 50%;
   border: 1px solid var(--gold-dp);
   background: transparent;
@@ -2689,7 +2695,7 @@
   background: var(--gold-bri);
   border-color: var(--gold);
   box-shadow: 0 0 10px rgba(244,211,94,0.55);
-  transform: scale(1.15);
+  transform: scale(1.18);
   }
   .gallery-dots button:hover { border-color: var(--gold); }
 
@@ -2738,7 +2744,7 @@
   .to-gallery-btn:active { transform: translateY(1px); }
 
   @media (max-width: 720px) {
-  .card-gallery { max-width: 92vw; padding: 0 8px; margin: 8px auto 24px; }
+  .card-gallery { max-width: 92vw; padding: 0; margin: 8px auto 24px; }
   .char-card { aspect-ratio: 3 / 4.2; }
   .char-card-emblem { font-size: 36px; letter-spacing: 11px; top: 22px; }
   .char-card-name { font-size: 20px; letter-spacing: 6px; }
@@ -2746,9 +2752,8 @@
   .char-card-quote { font-size: 12.5px; margin-bottom: 18px; }
   .char-card-enter { padding: 11px 22px; font-size: 13px; letter-spacing: 3px; }
   .char-card-body { padding: 26px 18px 22px; }
-  .gallery-arrow { width: 38px; height: 38px; font-size: 22px; }
-  .gallery-arrow-prev { left: 0; }
-  .gallery-arrow-next { right: 0; }
+  .gallery-controls { gap: 12px; margin-top: 14px; }
+  .gallery-arrow { width: 28px; height: 28px; font-size: 16px; }
   .gallery-hint { font-size: 10px; letter-spacing: 2px; }
   .to-gallery-btn { top: 12px; left: 12px; padding: 7px 14px 7px 11px; font-size: 12px; letter-spacing: 2px; }
   }
@@ -2799,9 +2804,6 @@
 
 <!-- 카드 갤러리 — 7명 점술가를 큰 카드로 한 명씩 표시, 스와이프로 전환 -->
 <section id="cardGallery" class="card-gallery" aria-label="점술가 선택">
-  <button class="gallery-arrow gallery-arrow-prev" aria-label="이전 점술가" type="button">‹</button>
-  <button class="gallery-arrow gallery-arrow-next" aria-label="다음 점술가" type="button">›</button>
-
   <div class="card-deck" id="cardDeck">
   <!-- 만월 아씨 -->
   <article class="char-card" data-go="saju" data-character="saju">
@@ -2906,8 +2908,12 @@
   </article>
   </div>
 
-  <!-- 점 인디케이터 -->
+  <!-- 하단 컨트롤 — 화살표 + 점 인디케이터 통합 (카드 그림을 가리지 않음) -->
+  <div class="gallery-controls">
+  <button class="gallery-arrow gallery-arrow-prev" aria-label="이전 점술가" type="button">‹</button>
   <div class="gallery-dots" id="galleryDots" role="tablist" aria-label="점술가 인디케이터"></div>
+  <button class="gallery-arrow gallery-arrow-next" aria-label="다음 점술가" type="button">›</button>
+  </div>
   <p class="gallery-hint">← 옆으로 넘기면 다른 점술가가 나옵니다 →</p>
 </section>
 
