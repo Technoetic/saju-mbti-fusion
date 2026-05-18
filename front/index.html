@@ -2467,9 +2467,8 @@
   opacity: 0;
   transition: opacity 0.8s ease;
   }
-  body.gallery-mode.char-saju .char-bg-layer[data-for="saju"] {
-  opacity: 1;
-  }
+  body.gallery-mode.char-saju .char-bg-layer[data-for="saju"] { opacity: 1; }
+  body.gallery-mode.char-dream .char-bg-layer[data-for="dream"] { opacity: 1; }
   .cbg-sym {
   position: absolute;
   font-family: 'Nanum Myeongjo', serif;
@@ -2504,6 +2503,22 @@
   @keyframes cbgFade {
   0%, 100% { opacity: 0.45; }
   50% { opacity: 0.95; }
+  }
+
+  /* 몽이 도령 — 달빛 푸른·은빛·연보라 (꿈의 몽환적 톤) */
+  .char-bg-layer[data-for="dream"] .cbg-sym {
+  color: rgba(189, 213, 255, 0.55);
+  text-shadow:
+  0 0 14px rgba(189, 213, 255, 0.65),
+  0 0 28px rgba(135, 168, 222, 0.40);
+  }
+  .char-bg-layer[data-for="dream"] .cbg-sym:nth-child(2n) {
+  color: rgba(212, 200, 245, 0.50);
+  text-shadow: 0 0 14px rgba(212, 200, 245, 0.55);
+  }
+  .char-bg-layer[data-for="dream"] .cbg-sym:nth-child(3n) {
+  color: rgba(232, 232, 248, 0.50);
+  text-shadow: 0 0 16px rgba(232, 232, 248, 0.55);
   }
   @media (max-width: 720px) {
   .cbg-sym { font-size: 80% !important; /* 모바일은 살짝 작게 */ }
@@ -2842,6 +2857,26 @@
   <span class="cbg-sym" style="left:52%;top:94%;animation-delay:-2s;animation-duration:34s;font-size:36px">☾</span>
   <span class="cbg-sym" style="left:28%;top:58%;animation-delay:-25s;animation-duration:40s;font-size:22px">☵</span>
   <span class="cbg-sym" style="left:68%;top:62%;animation-delay:-11s;animation-duration:44s;font-size:22px">☴</span>
+  </div>
+
+  <!-- 몽이 도령 — 구름·꿈·나비 (호접몽) 문양 -->
+  <div class="char-bg-layer" data-for="dream">
+  <span class="cbg-sym" style="left:10%;top:16%;animation-delay:0s;animation-duration:38s;font-size:54px">雲</span>
+  <span class="cbg-sym" style="left:84%;top:22%;animation-delay:-8s;animation-duration:44s;font-size:48px">夢</span>
+  <span class="cbg-sym" style="left:16%;top:72%;animation-delay:-15s;animation-duration:40s;font-size:42px">蝶</span>
+  <span class="cbg-sym" style="left:78%;top:78%;animation-delay:-4s;animation-duration:46s;font-size:36px">霞</span>
+  <span class="cbg-sym" style="left:5%;top:44%;animation-delay:-22s;animation-duration:36s;font-size:32px">☁</span>
+  <span class="cbg-sym" style="left:92%;top:50%;animation-delay:-11s;animation-duration:42s;font-size:34px">☾</span>
+  <span class="cbg-sym" style="left:24%;top:30%;animation-delay:-18s;animation-duration:48s;font-size:28px">眠</span>
+  <span class="cbg-sym" style="left:72%;top:38%;animation-delay:-6s;animation-duration:34s;font-size:30px">蝶</span>
+  <span class="cbg-sym" style="left:38%;top:88%;animation-delay:-12s;animation-duration:50s;font-size:32px">雲</span>
+  <span class="cbg-sym" style="left:62%;top:10%;animation-delay:-26s;animation-duration:38s;font-size:36px">☁</span>
+  <span class="cbg-sym" style="left:4%;top:88%;animation-delay:-9s;animation-duration:44s;font-size:24px">夢</span>
+  <span class="cbg-sym" style="left:96%;top:8%;animation-delay:-16s;animation-duration:36s;font-size:26px">蝶</span>
+  <span class="cbg-sym" style="left:50%;top:6%;animation-delay:-20s;animation-duration:50s;font-size:22px">寢</span>
+  <span class="cbg-sym" style="left:48%;top:94%;animation-delay:-3s;animation-duration:34s;font-size:30px">☾</span>
+  <span class="cbg-sym" style="left:30%;top:56%;animation-delay:-25s;animation-duration:42s;font-size:24px">霞</span>
+  <span class="cbg-sym" style="left:68%;top:60%;animation-delay:-13s;animation-duration:46s;font-size:26px">☁</span>
   </div>
 </div>
 
