@@ -2451,6 +2451,65 @@
   }
 
   /* ═══════════════════════════════════════════════════════
+   캐릭터별 떠다니는 배경 문양 (#charBg)
+   body.char-{key} 클래스로 활성 레이어만 노출
+   ═══════════════════════════════════════════════════════ */
+  .char-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 2; /* bg-video(0), bg-overlay(1) 위, app-container(3) 아래 */
+  pointer-events: none;
+  overflow: hidden;
+  }
+  .char-bg-layer {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.8s ease;
+  }
+  body.gallery-mode.char-saju .char-bg-layer[data-for="saju"] {
+  opacity: 1;
+  }
+  .cbg-sym {
+  position: absolute;
+  font-family: 'Nanum Myeongjo', serif;
+  color: rgba(244, 211, 94, 0.55);
+  text-shadow:
+  0 0 14px rgba(244, 211, 94, 0.65),
+  0 0 28px rgba(212, 175, 55, 0.40);
+  user-select: none;
+  pointer-events: none;
+  will-change: transform, opacity;
+  animation-name: cbgFloat, cbgFade;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  /* 개별 animation-duration·delay 는 inline style 로 주입됨 */
+  }
+  /* 일부 글리프는 살짝 더 옅게 — 깊이감 */
+  .cbg-sym:nth-child(2n) {
+  color: rgba(232, 219, 180, 0.45);
+  text-shadow: 0 0 12px rgba(232,219,180,0.50);
+  }
+  .cbg-sym:nth-child(3n) {
+  color: rgba(244, 211, 94, 0.50);
+  text-shadow: 0 0 18px rgba(244,211,94,0.55);
+  }
+  @keyframes cbgFloat {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  25% { transform: translate(-22px, -32px) rotate(6deg); }
+  50% { transform: translate(24px, -18px) rotate(-4deg); }
+  75% { transform: translate(-10px, 26px) rotate(3deg); }
+  100% { transform: translate(0, 0) rotate(0deg); }
+  }
+  @keyframes cbgFade {
+  0%, 100% { opacity: 0.45; }
+  50% { opacity: 0.95; }
+  }
+  @media (max-width: 720px) {
+  .cbg-sym { font-size: 80% !important; /* 모바일은 살짝 작게 */ }
+  }
+
+  /* ═══════════════════════════════════════════════════════
    카드 갤러리 — 7명 점술가 회전목마 (스와이프·드래그·키보드)
    ═══════════════════════════════════════════════════════ */
   .card-gallery {
@@ -2762,6 +2821,29 @@
   <source src="./kling_20260512_作品_Subtle_amb_3395_0.mp4" type="video/mp4">
 </video>
 <div class="bg-overlay" aria-hidden="true"></div>
+
+<!-- 캐릭터별 떠다니는 배경 문양 (활성 카드에 맞춰 body.char-{key} 클래스로 분기) -->
+<div id="charBg" class="char-bg" aria-hidden="true">
+  <!-- 만월 아씨 — 한국 전통 사주 문양 -->
+  <div class="char-bg-layer" data-for="saju">
+  <span class="cbg-sym" style="left:8%;top:14%;animation-delay:0s;animation-duration:34s;font-size:64px">☯</span>
+  <span class="cbg-sym" style="left:88%;top:22%;animation-delay:-7s;animation-duration:42s;font-size:46px">月</span>
+  <span class="cbg-sym" style="left:14%;top:72%;animation-delay:-14s;animation-duration:38s;font-size:38px">甲</span>
+  <span class="cbg-sym" style="left:78%;top:78%;animation-delay:-3s;animation-duration:46s;font-size:34px">子</span>
+  <span class="cbg-sym" style="left:6%;top:46%;animation-delay:-22s;animation-duration:36s;font-size:28px">☰</span>
+  <span class="cbg-sym" style="left:92%;top:54%;animation-delay:-10s;animation-duration:40s;font-size:30px">☷</span>
+  <span class="cbg-sym" style="left:22%;top:28%;animation-delay:-18s;animation-duration:44s;font-size:24px">乙</span>
+  <span class="cbg-sym" style="left:72%;top:38%;animation-delay:-5s;animation-duration:32s;font-size:26px">丑</span>
+  <span class="cbg-sym" style="left:36%;top:88%;animation-delay:-12s;animation-duration:48s;font-size:32px">木</span>
+  <span class="cbg-sym" style="left:62%;top:12%;animation-delay:-26s;animation-duration:38s;font-size:30px">火</span>
+  <span class="cbg-sym" style="left:4%;top:88%;animation-delay:-9s;animation-duration:42s;font-size:22px">土</span>
+  <span class="cbg-sym" style="left:96%;top:8%;animation-delay:-15s;animation-duration:36s;font-size:24px">金</span>
+  <span class="cbg-sym" style="left:48%;top:6%;animation-delay:-20s;animation-duration:50s;font-size:20px">水</span>
+  <span class="cbg-sym" style="left:52%;top:94%;animation-delay:-2s;animation-duration:34s;font-size:36px">☾</span>
+  <span class="cbg-sym" style="left:28%;top:58%;animation-delay:-25s;animation-duration:40s;font-size:22px">☵</span>
+  <span class="cbg-sym" style="left:68%;top:62%;animation-delay:-11s;animation-duration:44s;font-size:22px">☴</span>
+  </div>
+</div>
 
 <audio id="bgAudio" loop preload="auto">
   <source src="./Moon Over Han.wav" type="audio/wav">
@@ -8504,6 +8586,15 @@ window.WHM = window.WHM || {};
   });
   const dotBtns = Array.from(dots.children);
 
+  // body에 카드별 클래스 부여 (배경 문양 분기용)
+  const CHAR_KEYS = ['saju', 'dream', 'hwapae', 'star', 'face', 'palm', 'name'];
+  function syncBodyCharClass() {
+  CHAR_KEYS.forEach(k => document.body.classList.remove(`char-${k}`));
+  const active = cards[idx];
+  const key = active?.dataset?.character;
+  if (key) document.body.classList.add(`char-${key}`);
+  }
+
   function render() {
   deck.style.transform = `translateX(${-idx * 100}%)`;
   cards.forEach((c, i) => c.classList.toggle('is-active', i === idx));
@@ -8521,6 +8612,7 @@ window.WHM = window.WHM || {};
   v.pause();
   }
   });
+  syncBodyCharClass();
   }
   function goTo(i) {
   idx = Math.max(0, Math.min(N - 1, i));
