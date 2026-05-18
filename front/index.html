@@ -1484,6 +1484,145 @@
   .after-card-lead { font-size: 13px; }
   }
 
+  /* ───── 릴레이 풀이 — 다음 풀이 추천 카드 (.next-card) ───── */
+  .next-card {
+  margin-top: 36px;
+  padding: 26px 26px 22px;
+  background: linear-gradient(180deg, rgba(20,15,30,0.55), rgba(40,30,60,0.45));
+  border: 1px solid var(--gold-dp);
+  border-radius: 4px;
+  box-shadow: 0 4px 22px rgba(0,0,0,0.35), inset 0 0 0 1px rgba(212,175,55,0.06);
+  position: relative;
+  }
+  .next-card::before {
+  content: '';
+  position: absolute;
+  inset: 8px;
+  border: 1px dashed rgba(212,175,55,0.16);
+  pointer-events: none;
+  border-radius: 2px;
+  }
+  .next-card-title {
+  text-align: center;
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 19px;
+  letter-spacing: 5px;
+  color: var(--gold-bri);
+  margin: 4px 0 8px;
+  }
+  .next-card-lead {
+  text-align: center;
+  color: var(--text-soft);
+  font-size: 13.5px;
+  line-height: 1.8;
+  margin: 0 0 20px;
+  letter-spacing: 0.4px;
+  font-family: 'Nanum Myeongjo', serif;
+  }
+  .next-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+  }
+  .next-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 18px 16px 16px;
+  background: rgba(10,15,30,0.65);
+  border: 1px solid var(--gold-dp);
+  border-radius: 3px;
+  color: var(--text-main);
+  cursor: pointer;
+  font-family: 'Nanum Myeongjo', serif;
+  text-align: center;
+  transition: all 0.25s ease;
+  }
+  .next-btn:hover {
+  border-color: var(--gold);
+  background: rgba(212,175,55,0.10);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(212,175,55,0.18);
+  }
+  .next-btn .next-emblem {
+  font-size: 22px;
+  letter-spacing: 6px;
+  color: var(--gold-bri);
+  line-height: 1;
+  margin-bottom: 4px;
+  }
+  .next-btn .next-name {
+  font-size: 14px;
+  letter-spacing: 3px;
+  color: var(--gold);
+  }
+  .next-btn .next-reason {
+  font-size: 12px;
+  color: var(--text-soft);
+  line-height: 1.65;
+  margin-top: 4px;
+  letter-spacing: 0.3px;
+  }
+  /* 성하 공자 탭 안의 next-card 는 자줏빛 톤으로 */
+  #tab-star .next-card {
+  background: linear-gradient(180deg, rgba(14,21,48,0.65), rgba(26,36,82,0.50));
+  border-color: rgba(169,134,212,0.40);
+  box-shadow: 0 4px 22px rgba(0,0,0,0.40), inset 0 0 0 1px rgba(232,224,255,0.05);
+  }
+  #tab-star .next-card::before { border-color: rgba(201,201,217,0.18); }
+  #tab-star .next-card-title { color: var(--starh-violet-bri); }
+  #tab-star .next-card-lead { color: var(--starh-silver); }
+  #tab-star .next-btn {
+  background: rgba(10,15,30,0.55);
+  border-color: rgba(169,134,212,0.30);
+  color: var(--starh-glow);
+  }
+  #tab-star .next-btn:hover {
+  border-color: var(--starh-violet-bri);
+  background: rgba(169,134,212,0.12);
+  box-shadow: 0 4px 16px rgba(169,134,212,0.22);
+  }
+  #tab-star .next-btn .next-emblem { color: var(--starh-glow); text-shadow: 0 0 12px rgba(169,134,212,0.40); }
+  #tab-star .next-btn .next-name { color: var(--starh-silver); }
+  #tab-star .next-btn .next-reason { color: var(--starh-silver-dp); }
+  @media (max-width: 720px) {
+  .next-card { padding: 20px 16px 16px; margin-top: 26px; }
+  .next-card-title { font-size: 16px; letter-spacing: 3px; }
+  .next-card-lead { font-size: 12.5px; }
+  .next-btn { padding: 14px 12px 12px; }
+  .next-btn .next-emblem { font-size: 19px; letter-spacing: 4px; }
+  .next-btn .next-name { font-size: 13px; letter-spacing: 2px; }
+  .next-btn .next-reason { font-size: 11.5px; }
+  }
+
+  /* ───── 릴레이 풀이 — 진행도 표시 (.whm-progress) ───── */
+  .whm-progress {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin: -8px auto 20px;
+  padding: 8px 18px;
+  background: rgba(10,15,30,0.45);
+  border: 1px solid rgba(212,175,55,0.18);
+  border-radius: 999px;
+  width: fit-content;
+  font-family: 'Nanum Myeongjo', serif;
+  letter-spacing: 1.5px;
+  color: var(--text-soft);
+  font-size: 12px;
+  }
+  .whm-progress-label { letter-spacing: 3px; color: var(--text-dim); }
+  .whm-dots { letter-spacing: 4px; font-size: 14px; color: var(--gold-dp); }
+  .whm-dots .whm-dot.done { color: var(--gold-bri); text-shadow: 0 0 8px rgba(244,211,94,0.45); }
+  .whm-dots .whm-dot.pending { color: var(--gold-dp); }
+  .whm-progress-count { color: var(--gold); letter-spacing: 2px; }
+  @media (max-width: 720px) {
+  .whm-progress { gap: 8px; padding: 6px 14px; font-size: 11px; }
+  .whm-dots { font-size: 13px; letter-spacing: 3px; }
+  }
+
   /* ───── 모바일 반응형 ───── */
   @media (max-width: 720px) {
   body { padding: 16px 10px 48px; font-size: 15px; }
@@ -2379,6 +2518,13 @@
 <h1>月 下 夢</h1>
 <p class="subtitle">월 하 몽 · 달 아 래 의  꿈</p>
 
+<!-- 릴레이 풀이 진행도 (7인 점술가 순차 풀이) -->
+<div class="whm-progress" id="whmProgress" aria-label="릴레이 풀이 진행도">
+  <span class="whm-progress-label">받은 풀이</span>
+  <span class="whm-dots" id="whmProgressDots">○○○○○○○</span>
+  <span class="whm-progress-count" id="whmProgressCount">0 / 7</span>
+</div>
+
 <div class="tab-bar">
   <button class="tab-btn active" data-tab="saju">만월 아씨의 사주 풀이</button>
   <button class="tab-btn" data-tab="dream">몽이 도령의 꿈 풀이</button>
@@ -2800,6 +2946,29 @@
   </div>
   </div>
   </div>
+
+  <!-- 다음 풀이 추천 (릴레이 풀이 시스템) -->
+  <div class="next-card" data-from="saju">
+  <h3 class="next-card-title">이어서 살펴보시면 좋은 풀이</h3>
+  <p class="next-card-lead">사주가 그대의 운명의 뼈대를 보여주었다면, 다른 점술이 그 위로 흐르는 시기와 마음의 길을 비추어줍니다.</p>
+  <div class="next-grid">
+  <button class="next-btn" data-go="star">
+  <div class="next-emblem">星 河</div>
+  <div class="next-name">성하 공자의 별빛 풀이</div>
+  <div class="next-reason">"별의 흐름이 그대의 시기를 더 자세히 가르쳐줄 것입니다"</div>
+  </button>
+  <button class="next-btn" data-go="hwapae">
+  <div class="next-emblem">花 牌</div>
+  <div class="next-name">화선 낭자의 꽃패 풀이</div>
+  <div class="next-reason">"꽃패가 그대 선택의 답을 비추어줄 거예요"</div>
+  </button>
+  <button class="next-btn" data-go="name">
+  <div class="next-emblem">墨 香</div>
+  <div class="next-name">묵향 선생의 이름 풀이</div>
+  <div class="next-reason">"부족한 오행을 보완할 이름인지 살펴보지요"</div>
+  </button>
+  </div>
+  </div>
 </div><!-- /step-result -->
 
 </div><!-- /tab-saju -->
@@ -2833,6 +3002,24 @@
   </div>
 
   <div id="dreamResult"></div>
+
+  <!-- 다음 풀이 추천 (릴레이 풀이 시스템 — 풀이 완료 시 JS가 노출) -->
+  <div class="next-card" data-from="dream" style="display:none">
+  <h3 class="next-card-title">이어서 살펴보시면 좋은 풀이</h3>
+  <p class="next-card-lead">꿈은 무의식의 신호이옵니다. 그 신호의 뿌리와 선택을 다른 점술가께도 여쭤보시지요.</p>
+  <div class="next-grid">
+  <button class="next-btn" data-go="saju">
+  <div class="next-emblem">滿 月</div>
+  <div class="next-name">만월 아씨의 사주 풀이</div>
+  <div class="next-reason">"꿈이 어디서 오는지는 사주가 알려드리지요"</div>
+  </button>
+  <button class="next-btn" data-go="hwapae">
+  <div class="next-emblem">花 牌</div>
+  <div class="next-name">화선 낭자의 꽃패 풀이</div>
+  <div class="next-reason">"꿈이 비추는 선택의 길을 카드가 답해드릴 거예요"</div>
+  </button>
+  </div>
+  </div>
 
   <!-- ────────── 추가 도구 ────────── -->
   <div id="dreamTools" style="margin-top:36px;padding:20px;background:rgba(40,30,80,0.25);border-radius:12px">
@@ -3069,6 +3256,29 @@
   </div>
   <div id="hwapaeBoard"></div>
   <div id="hwapaeResult"></div>
+
+  <!-- 다음 풀이 추천 (릴레이 풀이 시스템) -->
+  <div class="next-card" data-from="tarot">
+  <h3 class="next-card-title">이어서 살펴보시면 좋은 풀이</h3>
+  <p class="next-card-lead">꽃패가 마음의 길을 비추었어요. 그 길의 뿌리와 신호를 다른 점술가께도 여쭤보시지요.</p>
+  <div class="next-grid">
+  <button class="next-btn" data-go="saju">
+  <div class="next-emblem">滿 月</div>
+  <div class="next-name">만월 아씨의 사주 풀이</div>
+  <div class="next-reason">"카드가 가리키는 큰 변화가 그대 운명의 어디쯤인지 살펴보지요"</div>
+  </button>
+  <button class="next-btn" data-go="dream">
+  <div class="next-emblem">夢 蝶</div>
+  <div class="next-name">몽이 도령의 꿈 풀이</div>
+  <div class="next-reason">"카드가 '꿈을 따르라' 하니, 최근 꿈을 풀어보시지요"</div>
+  </button>
+  <button class="next-btn" data-go="star">
+  <div class="next-emblem">星 河</div>
+  <div class="next-name">성하 공자의 별빛 풀이</div>
+  <div class="next-reason">"선택의 시기를 별이 또렷이 비춰드릴 것이옵니다"</div>
+  </button>
+  </div>
+  </div>
   </div><!-- /hwapae-step-result -->
 
 </div><!-- /tab-hwapae -->
@@ -3179,6 +3389,29 @@
   <button id="starRestartBtn">← 다시 풀이</button>
   </div>
   <div id="starResultBoard"></div>
+
+  <!-- 다음 풀이 추천 -->
+  <div class="next-card" data-from="astrology">
+  <h3 class="next-card-title">이어서 살펴보시면 좋은 풀이</h3>
+  <p class="next-card-lead">"별의 흐름은 알았으나, 그 별이 어디에 뿌리내리는지·지금 기색이 어떠한지도 보아야 하지요."</p>
+  <div class="next-grid">
+  <button class="next-btn" data-go="saju">
+  <div class="next-emblem">滿 月</div>
+  <div class="next-name">만월 아씨의 사주 풀이</div>
+  <div class="next-reason">"별이 뿌리내리는 자리는 사주가 알려주옵니다"</div>
+  </button>
+  <button class="next-btn" data-go="face">
+  <div class="next-emblem">雲 鶴</div>
+  <div class="next-name">운학 도사의 얼굴 풀이</div>
+  <div class="next-reason">"지금의 기색은 운학 도사께서 살펴봐주실 것이옵니다"</div>
+  </button>
+  <button class="next-btn" data-go="hwapae">
+  <div class="next-emblem">花 牌</div>
+  <div class="next-name">화선 낭자의 꽃패 풀이</div>
+  <div class="next-reason">"별이 가리키는 선택의 답을 꽃패가 비추어줄 거예요"</div>
+  </button>
+  </div>
+  </div>
   </div><!-- /star-step-result -->
 
 </div><!-- /tab-star -->
@@ -3280,6 +3513,29 @@
   <button id="faceRestartBtn">← 다시 풀이</button>
   </div>
   <div id="faceResultBoard"></div>
+
+  <!-- 다음 풀이 추천 -->
+  <div class="next-card" data-from="physiognomy">
+  <h3 class="next-card-title">이어서 살펴보시면 좋은 풀이</h3>
+  <p class="next-card-lead">"얼굴은 보았네. 얼굴과 짝을 이루는 손금·이름도 함께 보면 더욱 깊이 보이지."</p>
+  <div class="next-grid">
+  <button class="next-btn" data-go="palm">
+  <div class="next-emblem">玉 線</div>
+  <div class="next-name">옥선 할미의 손금 풀이</div>
+  <div class="next-reason">"얼굴과 손은 짝이니, 함께 보면 깊이 보이지"</div>
+  </button>
+  <button class="next-btn" data-go="name">
+  <div class="next-emblem">墨 香</div>
+  <div class="next-name">묵향 선생의 이름 풀이</div>
+  <div class="next-reason">"부족한 기운을 이름이 보완해줄 수 있다네"</div>
+  </button>
+  <button class="next-btn" data-go="saju">
+  <div class="next-emblem">滿 月</div>
+  <div class="next-name">만월 아씨의 사주 풀이</div>
+  <div class="next-reason">"기색의 뿌리는 사주에 있다네"</div>
+  </button>
+  </div>
+  </div>
   </div><!-- /face-step-result -->
 
 </div><!-- /tab-face -->
@@ -3396,6 +3652,24 @@
   <button id="palmRestartBtn">← 다시 풀이</button>
   </div>
   <div id="palmResultBoard"></div>
+
+  <!-- 다음 풀이 추천 -->
+  <div class="next-card" data-from="palmistry">
+  <h3 class="next-card-title">이어서 살펴보시면 좋은 풀이</h3>
+  <p class="next-card-lead">"아이고, 손금은 봤지만 그 뿌리는 사주에 있다네. 얼굴과도 짝이라 함께 보면 좋지."</p>
+  <div class="next-grid">
+  <button class="next-btn" data-go="saju">
+  <div class="next-emblem">滿 月</div>
+  <div class="next-name">만월 아씨의 사주 풀이</div>
+  <div class="next-reason">"손금의 뿌리는 사주에 있다네"</div>
+  </button>
+  <button class="next-btn" data-go="face">
+  <div class="next-emblem">雲 鶴</div>
+  <div class="next-name">운학 도사의 얼굴 풀이</div>
+  <div class="next-reason">"손과 얼굴은 한 짝이라, 함께 보면 더 깊이 보이지"</div>
+  </button>
+  </div>
+  </div>
   </div><!-- /palm-step-result -->
 
 </div><!-- /tab-palm -->
@@ -3483,6 +3757,24 @@
   <button id="nameRestartBtn">← 다시 풀이</button>
   </div>
   <div id="nameResultBoard"></div>
+
+  <!-- 다음 풀이 추천 -->
+  <div class="next-card" data-from="naming">
+  <h3 class="next-card-title">이어서 살펴보시면 좋은 풀이</h3>
+  <p class="next-card-lead">"이름을 풀어드렸으나, 사주와 잘 맞는지 별과 호응하는지도 살펴보시지요."</p>
+  <div class="next-grid">
+  <button class="next-btn" data-go="saju">
+  <div class="next-emblem">滿 月</div>
+  <div class="next-name">만월 아씨의 사주 풀이</div>
+  <div class="next-reason">"이름이 그대 사주와 잘 맞는지 살펴봐주실 것이외다"</div>
+  </button>
+  <button class="next-btn" data-go="star">
+  <div class="next-emblem">星 河</div>
+  <div class="next-name">성하 공자의 별빛 풀이</div>
+  <div class="next-reason">"좋은 이름은 별과도 호응한다오"</div>
+  </button>
+  </div>
+  </div>
   </div><!-- /name-step-result -->
 
 </div><!-- /tab-name -->
@@ -7173,6 +7465,11 @@ document.getElementById('goResultBtn').addEventListener('click', async () => {
   document.getElementById('step-input').classList.remove('active');
   document.getElementById('step-result').classList.add('active');
   window.scrollTo({ top: 0, behavior: 'smooth' });
+  // 릴레이 시스템 — 사주 풀이 완료 표시 (요약은 백엔드 결과 들어오면 채워짐)
+  if (window.WHM) window.WHM.markCompleted('saju', {
+  name: document.getElementById('fullName')?.value || '',
+  ilju: null, keyMessage: null,
+  });
   // AI 풀이 자동 시작
   await triggerAICall();
 });
@@ -7527,6 +7824,7 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
   // 백엔드 연결 전 — 로딩 화면을 잠시 보여준 뒤 placeholder 결과 표시
   showStarStep('star-step-loading');
   setTimeout(() => {
+  if (window.WHM) window.WHM.markCompleted('astrology', { name });
   if (board) {
   board.innerHTML = `
   <div class="star-result-card">
@@ -7587,6 +7885,206 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
 
   function init() {
   document.querySelectorAll('select[data-ymd]').forEach(fillSelect);
+  }
+  if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+  } else {
+  init();
+  }
+})();
+
+// ─────────────────────────────────────────────────────────
+// 月下夢 릴레이 풀이 시스템 — 사용자 정보·풀이 결과 공유 모듈
+// 기획서 데이터 모델: userProfile + readings
+// 모든 캐릭터가 동일한 기본 정보를 공유, 풀이 결과는 다음 캐릭터의 컨텍스트로 활용
+// ─────────────────────────────────────────────────────────
+window.WHM = window.WHM || {};
+(function initRelaySystem() {
+  const STORAGE_KEY = 'whm.userSession.v1';
+  const CHARACTERS = ['saju', 'astrology', 'tarot', 'naming', 'physiognomy', 'palmistry', 'dream'];
+  const CHAR_LABEL = {
+  saju: '만월 아씨', astrology: '성하 공자', tarot: '화선 낭자',
+  naming: '묵향 선생', physiognomy: '운학 도사', palmistry: '옥선 할미', dream: '몽이 도령',
+  };
+  const CHAR_TAB = {
+  saju: 'saju', astrology: 'star', tarot: 'hwapae',
+  naming: 'name', physiognomy: 'face', palmistry: 'palm', dream: 'dream',
+  };
+
+  function emptySession() {
+  return {
+  profile: {
+  name: '',
+  birth: { year: null, month: null, day: null, hourBranch: null, gender: null, birthplace: null },
+  mbti: null,
+  concern: null,
+  },
+  readings: Object.fromEntries(CHARACTERS.map(c => [c, { completed: false, summary: null, completedAt: null }])),
+  storyContext: [],
+  };
+  }
+  function load() {
+  try {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (!raw) return emptySession();
+  const parsed = JSON.parse(raw);
+  // 스키마 호환을 위해 기본 구조와 머지
+  const base = emptySession();
+  return Object.assign(base, parsed, {
+  profile: Object.assign(base.profile, parsed.profile || {}),
+  readings: Object.assign(base.readings, parsed.readings || {}),
+  storyContext: parsed.storyContext || [],
+  });
+  } catch (_) { return emptySession(); }
+  }
+  function save(session) {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(session)); } catch (_) {}
+  }
+  function reset() {
+  localStorage.removeItem(STORAGE_KEY);
+  }
+
+  // 만월 아씨 입력 폼 → profile 동기화 (실시간)
+  function bindProfileSync() {
+  const ids = ['fullName', 'year', 'month', 'day', 'hourBranch', 'gender', 'birthplaceQuery', 'mbti', 'userConcern'];
+  ids.forEach(id => {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.addEventListener('change', captureProfile);
+  if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+  el.addEventListener('input', captureProfile);
+  }
+  });
+  // 성하 폼도 동기화
+  ['starName', 'starYear', 'starMonth', 'starDay', 'starHourBranch', 'starGender', 'starBirthplace'].forEach(id => {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.addEventListener('change', captureProfileFromStar);
+  if (el.tagName === 'INPUT') el.addEventListener('input', captureProfileFromStar);
+  });
+  }
+  function captureProfile() {
+  const s = load();
+  s.profile.name = (document.getElementById('fullName')?.value || '').trim();
+  s.profile.birth = {
+  year: parseInt(document.getElementById('year')?.value, 10) || null,
+  month: parseInt(document.getElementById('month')?.value, 10) || null,
+  day: parseInt(document.getElementById('day')?.value, 10) || null,
+  hourBranch: document.getElementById('hourBranch')?.value || null,
+  gender: document.getElementById('gender')?.value || null,
+  birthplace: document.getElementById('birthplaceQuery')?.value || null,
+  };
+  s.profile.mbti = document.getElementById('mbti')?.value || null;
+  s.profile.concern = (document.getElementById('userConcern')?.value || '').trim() || null;
+  save(s);
+  // 성하 폼에도 같은 정보 자동 반영 (사용자가 한 번 입력 후 다른 도사로 가도 재입력 불필요)
+  mirrorToStar(s.profile);
+  }
+  function captureProfileFromStar() {
+  const s = load();
+  s.profile.name = (document.getElementById('starName')?.value || '').trim() || s.profile.name;
+  const y = parseInt(document.getElementById('starYear')?.value, 10);
+  const m = parseInt(document.getElementById('starMonth')?.value, 10);
+  const d = parseInt(document.getElementById('starDay')?.value, 10);
+  if (y) s.profile.birth.year = y;
+  if (m) s.profile.birth.month = m;
+  if (d) s.profile.birth.day = d;
+  const hb = document.getElementById('starHourBranch')?.value;
+  if (hb) s.profile.birth.hourBranch = hb;
+  const gn = document.getElementById('starGender')?.value;
+  if (gn) s.profile.birth.gender = (gn === '남성' ? 'M' : gn === '여성' ? 'F' : s.profile.birth.gender);
+  const bp = document.getElementById('starBirthplace')?.value;
+  if (bp) s.profile.birth.birthplace = bp;
+  save(s);
+  // 만월 폼에도 미러
+  mirrorToSaju(s.profile);
+  }
+  function mirrorToStar(p) {
+  const set = (id, v) => { const el = document.getElementById(id); if (el && v != null && el.value !== String(v)) el.value = String(v); };
+  if (p.name) set('starName', p.name);
+  if (p.birth?.year) set('starYear', p.birth.year);
+  if (p.birth?.month) set('starMonth', p.birth.month);
+  if (p.birth?.day) set('starDay', p.birth.day);
+  if (p.birth?.hourBranch) set('starHourBranch', p.birth.hourBranch);
+  if (p.birth?.gender) {
+  const gn = p.birth.gender === 'M' ? '남성' : p.birth.gender === 'F' ? '여성' : '';
+  if (gn) set('starGender', gn);
+  }
+  if (p.birth?.birthplace) set('starBirthplace', p.birth.birthplace);
+  }
+  function mirrorToSaju(p) {
+  const set = (id, v) => { const el = document.getElementById(id); if (el && v != null && el.value !== String(v)) el.value = String(v); };
+  if (p.name) set('fullName', p.name);
+  if (p.birth?.year) set('year', p.birth.year);
+  if (p.birth?.month) set('month', p.birth.month);
+  if (p.birth?.day) set('day', p.birth.day);
+  if (p.birth?.hourBranch) set('hourBranch', p.birth.hourBranch);
+  if (p.birth?.gender) set('gender', p.birth.gender);
+  if (p.birth?.birthplace) set('birthplaceQuery', p.birth.birthplace);
+  }
+
+  // 풀이 완료 표시 (각 캐릭터 결과 화면 진입 시 호출)
+  function markCompleted(charKey, summary) {
+  const s = load();
+  if (!s.readings[charKey]) s.readings[charKey] = {};
+  s.readings[charKey].completed = true;
+  s.readings[charKey].summary = summary || null;
+  s.readings[charKey].completedAt = new Date().toISOString();
+  save(s);
+  refreshProgressUI();
+  }
+
+  // 진행도 UI 새로고침 (E단계에서 추가)
+  function refreshProgressUI() {
+  const dotsEl = document.getElementById('whmProgressDots');
+  if (!dotsEl) return;
+  const s = load();
+  const order = ['saju', 'astrology', 'tarot', 'naming', 'physiognomy', 'palmistry', 'dream'];
+  dotsEl.innerHTML = order.map(k => {
+  const done = s.readings[k]?.completed;
+  return `<span class="whm-dot ${done ? 'done' : 'pending'}" title="${CHAR_LABEL[k]}: ${done ? '완료' : '미완'}">${done ? '●' : '○'}</span>`;
+  }).join('');
+  const completedCount = order.filter(k => s.readings[k]?.completed).length;
+  const counter = document.getElementById('whmProgressCount');
+  if (counter) counter.textContent = `${completedCount} / 7`;
+  }
+
+  // 페이지 진입 시 저장된 profile을 폼에 복원
+  function restoreToForms() {
+  const s = load();
+  if (!s.profile?.name) return;
+  mirrorToSaju(s.profile);
+  mirrorToStar(s.profile);
+  }
+
+  // 외부 노출 API
+  window.WHM = {
+  load, save, reset, emptySession,
+  captureProfile, captureProfileFromStar,
+  markCompleted, refreshProgressUI, restoreToForms,
+  CHARACTERS, CHAR_LABEL, CHAR_TAB,
+  };
+
+  // next-btn 클릭 → 해당 탭으로 이동 (탭바의 .tab-btn 클릭과 동일 효과)
+  function bindNextButtons() {
+  document.addEventListener('click', (e) => {
+  const btn = e.target.closest('.next-btn[data-go]');
+  if (!btn) return;
+  const target = btn.dataset.go;
+  if (!target) return;
+  const tabBtn = document.querySelector(`.tab-btn[data-tab="${target}"]`);
+  if (tabBtn) {
+  tabBtn.click();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  });
+  }
+
+  function init() {
+  bindProfileSync();
+  bindNextButtons();
+  restoreToForms();
+  refreshProgressUI();
   }
   if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', init);
@@ -8048,6 +8546,7 @@ async function goToHwResult() {
   `;
 
   showHwStep('hwapae-step-result');
+  if (window.WHM) window.WHM.markCompleted('tarot', {});
 
   // 카테고리/메뉴 라벨 추출 (백엔드 컨텍스트용) — menu 는 이미 위에서 선언됨
   const cat = 화패_카테고리[lastHwapaeCategory] || 화패_카테고리.other;
@@ -8392,6 +8891,10 @@ document.getElementById('dreamBtn').addEventListener('click', async () => {
   const d = await res.json();
   clearInterval(stageTimer);
   out.innerHTML = renderDreamResultV2(d);
+  // 릴레이 시스템 — 꿈 풀이 완료 표시 + next-card 노출
+  if (window.WHM) window.WHM.markCompleted('dream', {});
+  const dreamNextCard = document.querySelector('#tab-dream .next-card[data-from="dream"]');
+  if (dreamNextCard) dreamNextCard.style.display = '';
   } catch (err) {
   clearInterval(stageTimer);
   out.innerHTML = `
@@ -9728,6 +10231,7 @@ if (document.readyState === 'loading') {
   const data = await resp.json();
   renderResult(data);
   showFaceStep('face-step-result');
+  if (window.WHM) window.WHM.markCompleted('physiognomy', {});
   } catch (err) {
   $('faceResultBoard').innerHTML = `
   <div class="face-result-card">
@@ -10144,6 +10648,7 @@ if (document.readyState === 'loading') {
       const data = await resp.json();
       renderResult(data);
       showStep('palm-step-result');
+      if (window.WHM) window.WHM.markCompleted('palmistry', {});
     } catch (err) {
       $('palmResultBoard').innerHTML = `
         <div class="face-result-card">
@@ -10354,6 +10859,7 @@ if (document.readyState === 'loading') {
       const data = await resp.json();
       renderResult(data);
       showStep('name-step-result');
+      if (window.WHM) window.WHM.markCompleted('naming', {});
     } catch (err) {
       $('nameResultBoard').innerHTML = `
         <div class="face-result-card">
