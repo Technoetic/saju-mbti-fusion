@@ -2423,9 +2423,9 @@
   <legend>二. 출생 生</legend>
   <div class="row">
   <label>생년월일</label>
-  <input type="number" id="year" value="1990" min="1900" max="2100" style="width:80px"> 년
-  <input type="number" id="month" value="5" min="1" max="12" style="width:60px"> 월
-  <input type="number" id="day" value="15" min="1" max="31" style="width:60px"> 일
+  <select id="year" data-ymd="year" style="width:100px"></select> 년
+  <select id="month" data-ymd="month" style="width:80px"></select> 월
+  <select id="day" data-ymd="day" style="width:80px"></select> 일
   <span class="hint">(양력 기준)</span>
   </div>
   <div class="row">
@@ -2618,9 +2618,9 @@
   <div id="pStrokeTotal" class="row stroke-total">한자를 골라주세요</div>
   <div class="row">
   <label>생년월일</label>
-  <input type="number" id="pYear" value="1990" min="1900" max="2100" style="width:80px"> 년
-  <input type="number" id="pMonth" value="5" min="1" max="12" style="width:60px"> 월
-  <input type="number" id="pDay" value="15" min="1" max="31" style="width:60px"> 일
+  <select id="pYear" data-ymd="year" style="width:100px"></select> 년
+  <select id="pMonth" data-ymd="month" style="width:80px"></select> 월
+  <select id="pDay" data-ymd="day" style="width:80px"></select> 일
   <span class="hint">(양력)</span>
   </div>
   <div class="row">
@@ -3110,9 +3110,9 @@
   <legend>二. 출생 生</legend>
   <div class="row">
   <label>생년월일</label>
-  <input type="number" id="starYear" value="1990" min="1900" max="2100" style="width:80px"> 년
-  <input type="number" id="starMonth" value="5" min="1" max="12" style="width:60px"> 월
-  <input type="number" id="starDay" value="15" min="1" max="31" style="width:60px"> 일
+  <select id="starYear" data-ymd="year" style="width:100px"></select> 년
+  <select id="starMonth" data-ymd="month" style="width:80px"></select> 월
+  <select id="starDay" data-ymd="day" style="width:80px"></select> 일
   <span class="hint">(양력 기준)</span>
   </div>
   <div class="row">
@@ -7556,6 +7556,42 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
   return String(s).replace(/[&<>"']/g, c => ({
   '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
   })[c]);
+  }
+})();
+
+// 생년월일 드롭다운 — 모든 [data-ymd] select 에 옵션 자동 주입 (만월·궁합상대·성하 공통)
+(function populateYmdSelects() {
+  const CURRENT_YEAR = new Date().getFullYear();
+  const YEAR_MIN = 1920;
+  // 기본값: 기존 input 의 value (1990·5·15) 와 동일하게 맞춰 백엔드 호환 유지
+  const DEFAULTS = { year: 1990, month: 5, day: 15 };
+
+  function fillSelect(sel) {
+  if (!sel || sel.options.length > 0) return; // 이미 채워졌으면 skip
+  const kind = sel.dataset.ymd;
+  let start, end;
+  if (kind === 'year')  { start = CURRENT_YEAR; end = YEAR_MIN; } // 최신 연도 위로
+  else if (kind === 'month') { start = 1; end = 12; }
+  else if (kind === 'day') { start = 1; end = 31; }
+  else return;
+
+  const step = start <= end ? 1 : -1;
+  for (let v = start; step > 0 ? v <= end : v >= end; v += step) {
+  const opt = document.createElement('option');
+  opt.value = String(v);
+  opt.textContent = String(v);
+  if (v === DEFAULTS[kind]) opt.selected = true;
+  sel.appendChild(opt);
+  }
+  }
+
+  function init() {
+  document.querySelectorAll('select[data-ymd]').forEach(fillSelect);
+  }
+  if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+  } else {
+  init();
   }
 })();
 
