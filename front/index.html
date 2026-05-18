@@ -1596,33 +1596,6 @@
   .next-btn .next-reason { font-size: 11.5px; }
   }
 
-  /* ───── 릴레이 풀이 — 진행도 표시 (.whm-progress) ───── */
-  .whm-progress {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  margin: -8px auto 20px;
-  padding: 8px 18px;
-  background: rgba(10,15,30,0.45);
-  border: 1px solid rgba(212,175,55,0.18);
-  border-radius: 999px;
-  width: fit-content;
-  font-family: 'Nanum Myeongjo', serif;
-  letter-spacing: 1.5px;
-  color: var(--text-soft);
-  font-size: 12px;
-  }
-  .whm-progress-label { letter-spacing: 3px; color: var(--text-dim); }
-  .whm-dots { letter-spacing: 4px; font-size: 14px; color: var(--gold-dp); }
-  .whm-dots .whm-dot.done { color: var(--gold-bri); text-shadow: 0 0 8px rgba(244,211,94,0.45); }
-  .whm-dots .whm-dot.pending { color: var(--gold-dp); }
-  .whm-progress-count { color: var(--gold); letter-spacing: 2px; }
-  @media (max-width: 720px) {
-  .whm-progress { gap: 8px; padding: 6px 14px; font-size: 11px; }
-  .whm-dots { font-size: 13px; letter-spacing: 3px; }
-  }
-
   /* ───── 모바일 반응형 ───── */
   @media (max-width: 720px) {
   body { padding: 16px 10px 48px; font-size: 15px; }
@@ -2517,13 +2490,6 @@
 <div class="header-ornament"></div>
 <h1>月 下 夢</h1>
 <p class="subtitle">월 하 몽 · 달 아 래 의  꿈</p>
-
-<!-- 릴레이 풀이 진행도 (7인 점술가 순차 풀이) -->
-<div class="whm-progress" id="whmProgress" aria-label="릴레이 풀이 진행도">
-  <span class="whm-progress-label">받은 풀이</span>
-  <span class="whm-dots" id="whmProgressDots">○○○○○○○</span>
-  <span class="whm-progress-count" id="whmProgressCount">0 / 7</span>
-</div>
 
 <div class="tab-bar">
   <button class="tab-btn active" data-tab="saju">만월 아씨의 사주 풀이</button>
