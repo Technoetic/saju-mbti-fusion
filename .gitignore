@@ -62,7 +62,9 @@ data/app.db-journal
 data/app.db-wal
 data/app.db-shm
 
-# Obsidian Vault 설정 (개인 워크스페이스만, 노트는 commit)
-vault/.obsidian/workspace*.json
-vault/.obsidian/graph.json
+# Obsidian Vault — 본 시스템 ADR·reports·references·done·roadmap·templates
+# 로컬에는 보존 (Obsidian으로 ADR 35건 + Supplement 7건 등 열람),
+# GitHub repo는 빌드+CI/CD 필수만 푸시 (사용자 결정 2026-05-18).
+# 본 패턴은 vault/ 전체 자동 무시 — git history는 commit eb14e80 직전까지 영구 보존.
+vault/
 vault/.trash/
