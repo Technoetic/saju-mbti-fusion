@@ -35,6 +35,14 @@
   --o-to:  #d4a857;
   --o-geum:  #d0d0d0;
   --o-su:  #6fb8ff;
+  /* 성하 공자 · 별빛 풀이 (짙은 남색·자줏빛·은빛 테마) */
+  --starh-indigo:  #1a2452;
+  --starh-indigo-dp: #0e1530;
+  --starh-violet:  #6b4a8a;
+  --starh-violet-bri: #a986d4;
+  --starh-silver:  #c9c9d9;
+  --starh-silver-dp: #6c6c84;
+  --starh-glow:  #e8e0ff;
   }
   *, *::before, *::after { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; min-height: 100%; }
@@ -2111,6 +2119,224 @@
   .face-bar-row { grid-template-columns: 100px 1fr 36px; font-size: 11px; }
   .face-samjeong-donut { width: 92px; height: 92px; }
   }
+
+  /* ───── 성하 공자 · 별빛 풀이 (짙은 남색·자줏빛·은빛) ───── */
+  .star-step { display: none; }
+  .star-step.active { display: block; }
+
+  /* 성하 공자 탭 — 짙은 남색 + 자줏빛 vignette + 별빛 라디언스 */
+  /* 영상이 없으므로 인트로 bg-video를 어둡게 덮어 자기만의 분위기를 만든다 */
+  body.in-app.star-active .bg-video { opacity: 0.04 !important; }
+  body.in-app.star-active::after {
+  background:
+  linear-gradient(180deg,
+  rgba(10,12,28,0.92) 0%,
+  rgba(14,21,48,0.78) 20%,
+  rgba(14,21,48,0.55) 50%,
+  rgba(14,21,48,0.78) 80%,
+  rgba(10,12,28,0.92) 100%) !important;
+  }
+  #tab-star {
+  position: relative;
+  }
+  #tab-star::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+  radial-gradient(2px 2px at 18% 22%, rgba(232,224,255,0.85), transparent 60%),
+  radial-gradient(1.5px 1.5px at 38% 12%, rgba(232,224,255,0.7), transparent 60%),
+  radial-gradient(1px 1px at 62% 36%, rgba(232,224,255,0.85), transparent 60%),
+  radial-gradient(2.5px 2.5px at 82% 18%, rgba(232,224,255,0.9), transparent 60%),
+  radial-gradient(1px 1px at 14% 64%, rgba(232,224,255,0.7), transparent 60%),
+  radial-gradient(2px 2px at 48% 78%, rgba(232,224,255,0.85), transparent 60%),
+  radial-gradient(1.5px 1.5px at 76% 62%, rgba(232,224,255,0.8), transparent 60%),
+  radial-gradient(ellipse 70% 50% at 50% 10%, rgba(107,74,138,0.30), transparent 70%),
+  radial-gradient(ellipse 60% 40% at 80% 80%, rgba(26,36,82,0.40), transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.75;
+  }
+  #tab-star > * { position: relative; z-index: 1; }
+
+  .star-master-card {
+  border: 1px solid var(--starh-violet);
+  background: linear-gradient(180deg, rgba(14,21,48,0.78), rgba(26,36,82,0.62));
+  border-radius: 3px;
+  padding: 24px 26px 22px;
+  margin: 18px auto 28px;
+  max-width: 560px;
+  text-align: center;
+  box-shadow:
+  0 4px 22px rgba(0,0,0,0.4),
+  inset 0 0 0 1px rgba(232,224,255,0.05),
+  0 0 30px rgba(169,134,212,0.10);
+  position: relative;
+  }
+  .star-master-card::before {
+  content: '';
+  position: absolute;
+  inset: 6px;
+  border: 1px dashed rgba(201,201,217,0.20);
+  border-radius: 2px;
+  pointer-events: none;
+  }
+  body.in-app .star-master-card {
+  background: linear-gradient(180deg, rgba(14,21,48,0.55), rgba(26,36,82,0.45));
+  }
+  .star-master-emblem {
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 30px;
+  letter-spacing: 9px;
+  color: var(--starh-glow);
+  text-shadow:
+  0 0 12px rgba(169,134,212,0.55),
+  0 0 24px rgba(169,134,212,0.30);
+  line-height: 1;
+  }
+  .star-master-name {
+  margin-top: 12px;
+  font-size: 15px;
+  letter-spacing: 6px;
+  color: var(--starh-silver);
+  font-family: 'Nanum Myeongjo', serif;
+  }
+  .star-master-sub {
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: var(--starh-silver-dp);
+  margin-top: 6px;
+  }
+  .star-master-quote {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px dashed rgba(201,201,217,0.25);
+  font-size: 14px;
+  color: rgba(232,224,255,0.85);
+  line-height: 1.9;
+  font-family: 'Nanum Myeongjo', serif;
+  letter-spacing: 0.5px;
+  }
+
+  /* 성하 탭의 fieldset — 자줏빛/은빛 톤으로 재정의 (만월의 금색 톤과 짝) */
+  #tab-star fieldset {
+  border-color: rgba(169,134,212,0.35);
+  background: linear-gradient(180deg, rgba(14,21,48,0.42), rgba(10,15,30,0.35));
+  }
+  #tab-star fieldset legend {
+  color: var(--starh-violet-bri);
+  background: rgba(14,21,48,0.85);
+  border-color: rgba(169,134,212,0.45);
+  letter-spacing: 4px;
+  }
+  #tab-star label { color: var(--starh-silver); }
+  #tab-star .hint { color: var(--starh-silver-dp); }
+  #tab-star input[type=text],
+  #tab-star input[type=number],
+  #tab-star select,
+  #tab-star textarea {
+  border-color: rgba(169,134,212,0.30);
+  background: rgba(10,15,30,0.55);
+  color: var(--starh-glow);
+  }
+  #tab-star input:focus,
+  #tab-star select:focus,
+  #tab-star textarea:focus {
+  outline: none;
+  border-color: var(--starh-violet-bri);
+  box-shadow: 0 0 0 1px rgba(169,134,212,0.25);
+  }
+
+  /* 별빛 풀이 받기 큰 버튼 — 만월의 금색 버튼과 짝, 자줏빛/은빛 */
+  #starReadBtn {
+  font-family: 'Nanum Myeongjo', serif;
+  letter-spacing: 6px;
+  font-size: 16px;
+  padding: 14px 36px;
+  background: linear-gradient(180deg, rgba(107,74,138,0.30), rgba(26,36,82,0.55));
+  color: var(--starh-glow);
+  border: 1px solid var(--starh-violet);
+  border-radius: 3px;
+  cursor: pointer;
+  box-shadow:
+  inset 0 0 0 1px rgba(232,224,255,0.10),
+  0 0 18px rgba(169,134,212,0.20);
+  transition: all 0.25s ease;
+  }
+  #starReadBtn:hover {
+  background: linear-gradient(180deg, rgba(169,134,212,0.40), rgba(107,74,138,0.55));
+  color: #fff;
+  border-color: var(--starh-violet-bri);
+  box-shadow:
+  inset 0 0 0 1px rgba(232,224,255,0.20),
+  0 0 28px rgba(169,134,212,0.45);
+  }
+  #starReadBtn:active { transform: translateY(1px); }
+
+  .star-loading-block {
+  text-align: center;
+  padding: 80px 20px;
+  }
+  .star-loading-emblem {
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 36px;
+  letter-spacing: 9px;
+  color: var(--starh-glow);
+  text-shadow: 0 0 16px rgba(169,134,212,0.55);
+  margin-bottom: 22px;
+  animation: starPulse 2.4s ease-in-out infinite;
+  }
+  @keyframes starPulse {
+  0%, 100% { opacity: 0.6; text-shadow: 0 0 12px rgba(169,134,212,0.40); }
+  50% { opacity: 1; text-shadow: 0 0 28px rgba(169,134,212,0.85); }
+  }
+  .star-loading-msg {
+  font-size: 16px;
+  color: var(--starh-silver);
+  letter-spacing: 2px;
+  font-family: 'Nanum Myeongjo', serif;
+  margin-bottom: 8px;
+  }
+
+  /* 성하 결과 보드 placeholder */
+  #starResultBoard {
+  padding: 24px;
+  color: var(--starh-silver);
+  font-family: 'Nanum Myeongjo', serif;
+  line-height: 1.9;
+  }
+  #starResultBoard .star-result-card {
+  border: 1px solid var(--starh-violet);
+  background: linear-gradient(180deg, rgba(14,21,48,0.65), rgba(10,15,30,0.55));
+  border-radius: 3px;
+  padding: 28px 26px;
+  margin-bottom: 18px;
+  position: relative;
+  }
+  #starResultBoard .star-result-card::before {
+  content: '';
+  position: absolute;
+  inset: 6px;
+  border: 1px dashed rgba(201,201,217,0.15);
+  border-radius: 2px;
+  pointer-events: none;
+  }
+  #starResultBoard h3 {
+  color: var(--starh-violet-bri);
+  letter-spacing: 4px;
+  font-family: 'Nanum Myeongjo', serif;
+  margin: 0 0 12px;
+  }
+
+  @media (max-width: 600px) {
+  .star-master-card { padding: 18px 16px; margin: 12px 0 22px; }
+  .star-master-emblem { font-size: 26px; letter-spacing: 7px; }
+  .star-master-name { font-size: 13px; letter-spacing: 4px; }
+  .star-master-quote { font-size: 13px; }
+  .star-loading-emblem { font-size: 28px; letter-spacing: 6px; }
+  #starReadBtn { padding: 12px 22px; font-size: 14px; letter-spacing: 4px; }
+  #starResultBoard .star-result-card { padding: 20px 16px; }
+  }
 </style>
 <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 </head>
@@ -2157,6 +2383,7 @@
   <button class="tab-btn active" data-tab="saju">만월 아씨의 사주 풀이</button>
   <button class="tab-btn" data-tab="dream">몽이 도령의 꿈 풀이</button>
   <button class="tab-btn" data-tab="hwapae">화선 낭자의 꽃패 풀이</button>
+  <button class="tab-btn" data-tab="star">성하 공자의 별빛 풀이</button>
   <button class="tab-btn" data-tab="face">운학 도사의 얼굴 풀이</button>
   <button class="tab-btn" data-tab="palm">옥선 할미의 손금 풀이</button>
   <button class="tab-btn" data-tab="name">묵향 선생의 이름 풀이</button>
@@ -2845,6 +3072,116 @@
   </div><!-- /hwapae-step-result -->
 
 </div><!-- /tab-hwapae -->
+
+<!-- ───────────────────────── 성하 공자 · 별빛 풀이 ───────────────────────── -->
+<div id="tab-star" class="tab-content">
+
+<!-- 영상 파일은 아직 없음 — #tab-star::before 의 별빛 그라데이션이 배경 역할.
+  성하 공자.mp4 추가 시 아래 <video> 주석 해제만 하면 자동 활성화됩니다.
+<video class="tab-bg-video" data-character="star" muted loop playsinline preload="metadata">
+  <source src="./성하 공자.mp4" type="video/mp4">
+</video>
+-->
+
+  <!-- 1단계: 입력 -->
+  <div id="star-step-input" class="star-step active">
+  <div class="paper-scroll" data-paper="star-input">
+
+  <div class="star-master-card">
+  <div class="star-master-emblem">星 河</div>
+  <div class="star-master-name">성하 공자</div>
+  <div class="star-master-sub">별의 강(銀河)의 귀공자 · 점성(占星)</div>
+  <div class="star-master-quote">
+  "오시었군요. 이 사람을 성하라 부르지요.<br>
+  그대의 별을 한 번 살펴드리리다."
+  </div>
+  </div>
+
+  <fieldset>
+  <legend>一. 이름 名</legend>
+  <div class="row">
+  <label>이름</label>
+  <input id="starName" type="text" placeholder="한글로 적으세요. 예: 박형민" autocomplete="off" style="width:240px">
+  <span class="hint">별빛 풀이에서는 이름을 가볍게 부르는 호칭으로만 씁니다.</span>
+  </div>
+  </fieldset>
+
+  <fieldset>
+  <legend>二. 출생 生</legend>
+  <div class="row">
+  <label>생년월일</label>
+  <input type="number" id="starYear" value="1990" min="1900" max="2100" style="width:80px"> 년
+  <input type="number" id="starMonth" value="5" min="1" max="12" style="width:60px"> 월
+  <input type="number" id="starDay" value="15" min="1" max="31" style="width:60px"> 일
+  <span class="hint">(양력 기준)</span>
+  </div>
+  <div class="row">
+  <label>태어난 시각</label>
+  <select id="starHourBranch" style="min-width:220px">
+  <option value="子" data-hour="0">자시 (子) · 23 ~ 01시</option>
+  <option value="丑" data-hour="2">축시 (丑) · 01 ~ 03시</option>
+  <option value="寅" data-hour="4">인시 (寅) · 03 ~ 05시</option>
+  <option value="卯" data-hour="6">묘시 (卯) · 05 ~ 07시</option>
+  <option value="辰" data-hour="8">진시 (辰) · 07 ~ 09시</option>
+  <option value="巳" data-hour="10">사시 (巳) · 09 ~ 11시</option>
+  <option value="午" data-hour="12">오시 (午) · 11 ~ 13시</option>
+  <option value="未" data-hour="14" selected>미시 (未) · 13 ~ 15시</option>
+  <option value="申" data-hour="16">신시 (申) · 15 ~ 17시</option>
+  <option value="酉" data-hour="18">유시 (酉) · 17 ~ 19시</option>
+  <option value="戌" data-hour="20">술시 (戌) · 19 ~ 21시</option>
+  <option value="亥" data-hour="22">해시 (亥) · 21 ~ 23시</option>
+  <option value="unknown" data-hour="12">시각 모름 (정오로 처리)</option>
+  </select>
+  <div class="hint">상승(어센던트)은 시각이 정확할수록 또렷이 보이지요.</div>
+  </div>
+  <div class="row">
+  <label>성별</label>
+  <select id="starGender" style="width:140px">
+  <option value="">— 선택 안 함 —</option>
+  <option value="남성">남성</option>
+  <option value="여성">여성</option>
+  <option value="기타">그 외 / 말 안 함</option>
+  </select>
+  </div>
+  <div class="row">
+  <label>태어난 곳</label>
+  <input type="text" id="starBirthplace" placeholder="예: 서울 / 부산 / Tokyo" autocomplete="off" style="width:260px">
+  <span class="hint">도시 이름만으로도 충분하지요. (천공의 좌표를 잡는 데 씁니다)</span>
+  </div>
+  </fieldset>
+
+  <div class="big-action">
+  <button id="starReadBtn">별 빛 풀 이 받 기</button>
+  <div class="hint" style="margin-top:14px">
+  하늘의 별은 그대 운명의 지도이옵니다.
+  <br>
+  <small style="opacity:0.7" id="starBackendHint">백엔드 연결 전 — 화면 흐름만 미리 살펴보실 수 있습니다.</small>
+  </div>
+  </div>
+
+  </div><!-- /paper-scroll star-input -->
+  </div><!-- /star-step-input -->
+
+  <!-- 2단계: 풀이 중 -->
+  <div id="star-step-loading" class="star-step">
+  <div class="star-loading-block">
+  <div class="star-loading-emblem">星 河</div>
+  <div class="star-loading-msg">
+  성하 공자가 그대의 별을 살피는 중이옵니다 <span class="dots">⋯</span>
+  </div>
+  <div class="hint">하늘이 이르되, 잠시 별빛을 받으시지요.</div>
+  </div>
+  </div><!-- /star-step-loading -->
+
+  <!-- 3단계: 결과 -->
+  <div id="star-step-result" class="star-step">
+  <div class="back-bar">
+  <button id="starRestartBtn">← 다시 풀이</button>
+  </div>
+  <div id="starResultBoard"></div>
+  </div><!-- /star-step-result -->
+
+</div><!-- /tab-star -->
 
 <!-- ───────────────────────── 운학 도사 · 얼굴 풀이 ───────────────────────── -->
 <div id="tab-face" class="tab-content">
@@ -7163,6 +7500,65 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
   });
 });
 
+// 성하 공자 · 별빛 풀이 — step 전환 (백엔드 미연결, 화면 흐름만)
+(function setupStar() {
+  const readBtn = document.getElementById('starReadBtn');
+  const restartBtn = document.getElementById('starRestartBtn');
+  const board = document.getElementById('starResultBoard');
+  if (!readBtn) return;
+
+  function showStarStep(id) {
+  document.querySelectorAll('#tab-star .star-step').forEach(s => {
+  s.classList.toggle('active', s.id === id);
+  });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  readBtn.addEventListener('click', () => {
+  const name = (document.getElementById('starName').value || '').trim();
+  const year = document.getElementById('starYear').value;
+  const month = document.getElementById('starMonth').value;
+  const day = document.getElementById('starDay').value;
+  if (!name) {
+  document.getElementById('starName').focus();
+  document.getElementById('starName').placeholder = '이름을 적어주시지요 (필수)';
+  return;
+  }
+  // 백엔드 연결 전 — 로딩 화면을 잠시 보여준 뒤 placeholder 결과 표시
+  showStarStep('star-step-loading');
+  setTimeout(() => {
+  if (board) {
+  board.innerHTML = `
+  <div class="star-result-card">
+  <h3>${escapeHtml(name)}님의 별빛 풀이</h3>
+  <p>오시었군요. 이 사람을 성하라 부르지요.<br>
+  그대의 별을 한 번 살펴드리리다.</p>
+  <p>하늘의 별은 그대 운명의 지도이옵니다.
+  천공에 흩뿌려진 빛 하나하나가 그대의 길을 가리키지요.</p>
+  <p style="margin-top:18px;color:var(--starh-silver-dp);font-size:13px">
+  ※ 별빛 풀이는 곧 깊이 있게 펼쳐집니다. 지금은 화면 흐름만 살펴보실 수 있어요.<br>
+  생년월일 ${year}.${month}.${day} 의 천공도를 살핀 풀이를 준비 중이옵니다.
+  </p>
+  </div>`;
+  }
+  showStarStep('star-step-result');
+  }, 1400);
+  });
+
+  if (restartBtn) {
+  restartBtn.addEventListener('click', () => {
+  if (board) board.innerHTML = '';
+  showStarStep('star-step-input');
+  });
+  }
+
+  function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({
+  '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  })[c]);
+  }
+})();
+
 // 화패 (花牌) 풀이 — 78장 정통 타로 + 한국 사극·신화 모티프
 //  메이저 22장: 한국·동양 신화·역사 인물 + 각 카드별 꽃·꽃말
 //  마이너 56장: 4슈트 — 봉(棒·동백)·잔(盞·연꽃)·도(刀·국화)·전(錢·모란)
@@ -8737,27 +9133,47 @@ if (document.readyState === 'loading') {
     });
     document.querySelectorAll('.paper-scroll').forEach(p => p.classList.remove('unrolled'));
 
+    // body의 탭별 상태 클래스 갱신 (CSS에서 탭별 배경 처리에 활용)
+    document.body.classList.remove('star-active');
+
     const video = getTabVideo(tabId);
     if (video) {
+      // 영상 없는 탭에서 적용된 inline 숨김/transition 차단 해제 (모든 영상)
+      document.querySelectorAll('.tab-bg-video').forEach(v => {
+        v.style.transition = '';
+        v.style.opacity = '';
+        v.style.visibility = '';
+      });
       try { video.currentTime = 0; } catch(_) {}
       const p = video.play();
       if (p && p.catch) p.catch(() => {});
       requestAnimationFrame(() => video.classList.add('show'));
-    }
 
-    // 히어로 모드 진입 — 헤더/탭바 fade out, 영상만 풀스크린
-    document.body.classList.add('hero-mode');
-
-    // 잠시 후 자동 — 영상 dim + 종이 펼침 + 헤더/탭바 등장
-    autoUnrollTimer = setTimeout(() => {
-      const paper = getTabPaper(tabId);
-      if (paper) paper.classList.add('unrolled');
-      if (video) {
+      // 히어로 모드 — 영상이 있을 때만 풀스크린 인트로 연출
+      document.body.classList.add('hero-mode');
+      autoUnrollTimer = setTimeout(() => {
+        const paper = getTabPaper(tabId);
+        if (paper) paper.classList.add('unrolled');
         video.classList.remove('show');
         video.classList.add('dim');
-      }
+        document.body.classList.remove('hero-mode');
+      }, AUTO_UNROLL_MS);
+    } else {
+      // 영상 없는 탭(성하 공자 등) — 헤더/탭바 유지, paper 즉시 펼침
+      // 이전 탭 영상의 1.2s opacity transition 잔상을 막기 위해 transition도 즉시 끔
+      document.querySelectorAll('.tab-bg-video').forEach(v => {
+        v.style.transition = 'none';
+        v.style.opacity = '0';
+        v.style.visibility = 'hidden';
+      });
       document.body.classList.remove('hero-mode');
-    }, AUTO_UNROLL_MS);
+      // 성하 공자 탭 — body에 표식 (CSS에서 인트로 bg-video를 더 어둡게 덮음)
+      if (tabId === 'star') document.body.classList.add('star-active');
+      requestAnimationFrame(() => {
+        const paper = getTabPaper(tabId);
+        if (paper) paper.classList.add('unrolled');
+      });
+    }
   }
 
   function bindTabSwitch() {
