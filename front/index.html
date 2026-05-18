@@ -2471,6 +2471,9 @@
   body.gallery-mode.char-dream .char-bg-layer[data-for="dream"] { opacity: 1; }
   body.gallery-mode.char-hwapae .char-bg-layer[data-for="hwapae"] { opacity: 1; }
   body.gallery-mode.char-star .char-bg-layer[data-for="star"] { opacity: 1; }
+  body.gallery-mode.char-face .char-bg-layer[data-for="face"] { opacity: 1; }
+  body.gallery-mode.char-palm .char-bg-layer[data-for="palm"] { opacity: 1; }
+  body.gallery-mode.char-name .char-bg-layer[data-for="name"] { opacity: 1; }
   .cbg-sym {
   position: absolute;
   font-family: 'Nanum Myeongjo', serif;
@@ -2598,6 +2601,54 @@
   .char-bg-layer[data-for="hwapae"] .cbg-sym:nth-child(3n) {
   color: rgba(247, 200, 215, 0.55);
   text-shadow: 0 0 16px rgba(247, 200, 215, 0.60);
+  }
+
+  /* 운학 도사 — 청록·옥색·연한 백록 (구름·학·산의 자연 톤) */
+  .char-bg-layer[data-for="face"] .cbg-sym {
+  color: rgba(165, 220, 200, 0.60);
+  text-shadow:
+  0 0 14px rgba(165, 220, 200, 0.65),
+  0 0 28px rgba(105, 180, 165, 0.40);
+  }
+  .char-bg-layer[data-for="face"] .cbg-sym:nth-child(2n) {
+  color: rgba(200, 232, 215, 0.55);
+  text-shadow: 0 0 14px rgba(200, 232, 215, 0.60);
+  }
+  .char-bg-layer[data-for="face"] .cbg-sym:nth-child(3n) {
+  color: rgba(130, 200, 175, 0.55);
+  text-shadow: 0 0 16px rgba(130, 200, 175, 0.60);
+  }
+
+  /* 옥선 할미 — 옥빛 연한 청록·은은한 백색 (옥·손금의 정갈한 톤) */
+  .char-bg-layer[data-for="palm"] .cbg-sym {
+  color: rgba(180, 230, 220, 0.60);
+  text-shadow:
+  0 0 14px rgba(180, 230, 220, 0.70),
+  0 0 28px rgba(120, 200, 195, 0.45);
+  }
+  .char-bg-layer[data-for="palm"] .cbg-sym:nth-child(2n) {
+  color: rgba(220, 240, 235, 0.55);
+  text-shadow: 0 0 14px rgba(220, 240, 235, 0.60);
+  }
+  .char-bg-layer[data-for="palm"] .cbg-sym:nth-child(3n) {
+  color: rgba(155, 215, 205, 0.55);
+  text-shadow: 0 0 16px rgba(155, 215, 205, 0.60);
+  }
+
+  /* 묵향 선생 — 묵빛 + 은은한 한지색 (먹·붓·서예의 묵직한 톤) */
+  .char-bg-layer[data-for="name"] .cbg-sym {
+  color: rgba(232, 219, 180, 0.55);
+  text-shadow:
+  0 0 14px rgba(232, 219, 180, 0.60),
+  0 0 28px rgba(140, 105, 60, 0.45);
+  }
+  .char-bg-layer[data-for="name"] .cbg-sym:nth-child(2n) {
+  color: rgba(200, 180, 130, 0.50);
+  text-shadow: 0 0 14px rgba(180, 145, 90, 0.55);
+  }
+  .char-bg-layer[data-for="name"] .cbg-sym:nth-child(3n) {
+  color: rgba(245, 230, 195, 0.55);
+  text-shadow: 0 0 16px rgba(245, 230, 195, 0.60);
   }
   @media (max-width: 720px) {
   .cbg-sym { font-size: 80% !important; /* 모바일은 살짝 작게 */ }
@@ -3057,6 +3108,66 @@
   <span class="cbg-sparkle" style="left:88%;top:32%;animation-delay:-2.5s"></span>
   <span class="cbg-sparkle" style="left:18%;top:46%;animation-delay:-4s"></span>
   <span class="cbg-sparkle" style="left:58%;top:18%;animation-delay:-0.5s"></span>
+  </div>
+
+  <!-- 운학 도사 — 구름·학·산·도(道) 문양 -->
+  <div class="char-bg-layer" data-for="face">
+  <span class="cbg-sym" style="left:8%;top:14%;animation-delay:0s;animation-duration:42s;font-size:58px">雲</span>
+  <span class="cbg-sym" style="left:84%;top:20%;animation-delay:-8s;animation-duration:48s;font-size:50px">鶴</span>
+  <span class="cbg-sym" style="left:16%;top:74%;animation-delay:-15s;animation-duration:40s;font-size:44px">山</span>
+  <span class="cbg-sym" style="left:78%;top:78%;animation-delay:-4s;animation-duration:46s;font-size:40px">道</span>
+  <span class="cbg-sym" style="left:5%;top:46%;animation-delay:-22s;animation-duration:38s;font-size:34px">仙</span>
+  <span class="cbg-sym" style="left:92%;top:52%;animation-delay:-11s;animation-duration:44s;font-size:36px">松</span>
+  <span class="cbg-sym" style="left:24%;top:28%;animation-delay:-18s;animation-duration:50s;font-size:30px">霧</span>
+  <span class="cbg-sym" style="left:72%;top:36%;animation-delay:-6s;animation-duration:36s;font-size:32px">峯</span>
+  <span class="cbg-sym" style="left:38%;top:88%;animation-delay:-12s;animation-duration:52s;font-size:30px">禪</span>
+  <span class="cbg-sym" style="left:62%;top:8%;animation-delay:-26s;animation-duration:40s;font-size:34px">雲</span>
+  <span class="cbg-sym" style="left:4%;top:86%;animation-delay:-9s;animation-duration:44s;font-size:24px">鶴</span>
+  <span class="cbg-sym" style="left:96%;top:8%;animation-delay:-16s;animation-duration:38s;font-size:26px">道</span>
+  <span class="cbg-sym" style="left:50%;top:5%;animation-delay:-20s;animation-duration:50s;font-size:22px">山</span>
+  <span class="cbg-sym" style="left:48%;top:94%;animation-delay:-3s;animation-duration:36s;font-size:30px">霧</span>
+  <span class="cbg-sym" style="left:30%;top:56%;animation-delay:-25s;animation-duration:42s;font-size:24px">松</span>
+  <span class="cbg-sym" style="left:68%;top:62%;animation-delay:-13s;animation-duration:46s;font-size:26px">仙</span>
+  </div>
+
+  <!-- 옥선 할미 — 손·장(掌)·옥·운명선 문양 -->
+  <div class="char-bg-layer" data-for="palm">
+  <span class="cbg-sym" style="left:10%;top:14%;animation-delay:0s;animation-duration:44s;font-size:56px">手</span>
+  <span class="cbg-sym" style="left:84%;top:20%;animation-delay:-8s;animation-duration:40s;font-size:48px">掌</span>
+  <span class="cbg-sym" style="left:16%;top:72%;animation-delay:-15s;animation-duration:46s;font-size:42px">玉</span>
+  <span class="cbg-sym" style="left:78%;top:78%;animation-delay:-4s;animation-duration:38s;font-size:38px">命</span>
+  <span class="cbg-sym" style="left:5%;top:46%;animation-delay:-22s;animation-duration:42s;font-size:34px">線</span>
+  <span class="cbg-sym" style="left:92%;top:50%;animation-delay:-11s;animation-duration:36s;font-size:36px">紋</span>
+  <span class="cbg-sym" style="left:24%;top:30%;animation-delay:-18s;animation-duration:48s;font-size:30px">壽</span>
+  <span class="cbg-sym" style="left:72%;top:36%;animation-delay:-6s;animation-duration:50s;font-size:32px">福</span>
+  <span class="cbg-sym" style="left:38%;top:88%;animation-delay:-12s;animation-duration:44s;font-size:30px">길</span>
+  <span class="cbg-sym" style="left:62%;top:10%;animation-delay:-26s;animation-duration:38s;font-size:34px">運</span>
+  <span class="cbg-sym" style="left:4%;top:88%;animation-delay:-9s;animation-duration:40s;font-size:24px">玉</span>
+  <span class="cbg-sym" style="left:96%;top:8%;animation-delay:-16s;animation-duration:46s;font-size:26px">手</span>
+  <span class="cbg-sym" style="left:50%;top:6%;animation-delay:-20s;animation-duration:50s;font-size:22px">紋</span>
+  <span class="cbg-sym" style="left:48%;top:94%;animation-delay:-3s;animation-duration:34s;font-size:30px">線</span>
+  <span class="cbg-sym" style="left:30%;top:58%;animation-delay:-25s;animation-duration:42s;font-size:24px">壽</span>
+  <span class="cbg-sym" style="left:68%;top:62%;animation-delay:-13s;animation-duration:46s;font-size:26px">福</span>
+  </div>
+
+  <!-- 묵향 선생 — 붓·먹·서예·이름 문양 -->
+  <div class="char-bg-layer" data-for="name">
+  <span class="cbg-sym" style="left:8%;top:12%;animation-delay:0s;animation-duration:46s;font-size:60px">墨</span>
+  <span class="cbg-sym" style="left:84%;top:18%;animation-delay:-8s;animation-duration:42s;font-size:48px">香</span>
+  <span class="cbg-sym" style="left:16%;top:72%;animation-delay:-15s;animation-duration:40s;font-size:44px">筆</span>
+  <span class="cbg-sym" style="left:78%;top:78%;animation-delay:-4s;animation-duration:48s;font-size:40px">名</span>
+  <span class="cbg-sym" style="left:5%;top:46%;animation-delay:-22s;animation-duration:36s;font-size:34px">書</span>
+  <span class="cbg-sym" style="left:92%;top:50%;animation-delay:-11s;animation-duration:44s;font-size:36px">字</span>
+  <span class="cbg-sym" style="left:24%;top:30%;animation-delay:-18s;animation-duration:50s;font-size:30px">道</span>
+  <span class="cbg-sym" style="left:72%;top:38%;animation-delay:-6s;animation-duration:38s;font-size:32px">硯</span>
+  <span class="cbg-sym" style="left:38%;top:88%;animation-delay:-12s;animation-duration:52s;font-size:30px">紙</span>
+  <span class="cbg-sym" style="left:62%;top:8%;animation-delay:-26s;animation-duration:40s;font-size:34px">畵</span>
+  <span class="cbg-sym" style="left:4%;top:88%;animation-delay:-9s;animation-duration:42s;font-size:24px">墨</span>
+  <span class="cbg-sym" style="left:96%;top:8%;animation-delay:-16s;animation-duration:36s;font-size:26px">名</span>
+  <span class="cbg-sym" style="left:50%;top:6%;animation-delay:-20s;animation-duration:50s;font-size:22px">筆</span>
+  <span class="cbg-sym" style="left:48%;top:94%;animation-delay:-3s;animation-duration:34s;font-size:30px">香</span>
+  <span class="cbg-sym" style="left:30%;top:56%;animation-delay:-25s;animation-duration:42s;font-size:24px">書</span>
+  <span class="cbg-sym" style="left:68%;top:62%;animation-delay:-13s;animation-duration:46s;font-size:26px">字</span>
   </div>
 </div>
 
