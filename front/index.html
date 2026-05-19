@@ -3650,6 +3650,128 @@
   100% { opacity: 0.85; letter-spacing: 6px; }
   }
 
+  /* ─── 퇴장 전환 애니메이션 (취선루 → 월하몽) ─── */
+  /* 톤: 짙은 남보라 + 달빛 흰빛 + 금색 (월하몽 본관 컨셉) */
+  .chwiseon-exit-transition {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  /* 시작은 취선루 진홍에서 → 끝은 월하몽 남보라로 자연스럽게 페이드 */
+  background: linear-gradient(180deg, #1a0e22 0%, #0e0a1c 50%, #050410 100%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+  overflow: hidden;
+  }
+  .chwiseon-exit-transition.is-active { opacity: 1; pointer-events: auto; }
+
+  /* 떠오르는 큰 달 — 천천히 차오름 */
+  .cxtrans-moon {
+  position: absolute;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%) scale(0.4);
+  width: 180px; height: 180px;
+  border-radius: 50%;
+  background:
+  radial-gradient(circle at 38% 35%, #fff8e0 0%, #f4d35e 35%, #d4af37 75%, rgba(212,175,55,0.4) 100%);
+  box-shadow:
+  0 0 60px rgba(244,211,94,0.55),
+  0 0 120px rgba(212,175,55,0.35),
+  inset 0 0 30px rgba(255,248,224,0.5);
+  opacity: 0;
+  animation: cxtransMoon 2.4s ease-out 0.2s forwards;
+  }
+  @keyframes cxtransMoon {
+  0% { opacity: 0; transform: translate(-50%, 80%) scale(0.4); }
+  40% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  80% { opacity: 1; transform: translate(-50%, -50%) scale(1.05); }
+  100% { opacity: 0.95; transform: translate(-50%, -50%) scale(1); }
+  }
+
+  /* 달 주위 후광 (확장하며 페이드) */
+  .cxtrans-glow {
+  position: absolute;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  width: 200px; height: 200px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(244,211,94,0.40) 0%, rgba(212,175,55,0.10) 40%, transparent 70%);
+  opacity: 0;
+  animation: cxtransGlow 2.6s ease-out 0.4s forwards;
+  }
+  @keyframes cxtransGlow {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.4); }
+  60% { opacity: 1; transform: translate(-50%, -50%) scale(3.5); }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(5); }
+  }
+
+  /* 비단 장막 — 좌우에서 가운데로 닫힘 (들어올 때의 역순) */
+  .cxtrans-curtain {
+  position: absolute;
+  top: 0; bottom: 0;
+  width: 50%;
+  background:
+  repeating-linear-gradient(180deg,
+  rgba(30,18,48,0.92) 0px, rgba(30,18,48,0.92) 24px,
+  rgba(50,32,80,0.92) 24px, rgba(50,32,80,0.92) 48px),
+  linear-gradient(180deg, rgba(50,32,80,0.92), rgba(20,12,32,0.96));
+  box-shadow: inset 0 0 60px rgba(244,211,94,0.20);
+  }
+  .cxtrans-curtain-left { left: 0; transform: translateX(-100%); animation: cxtransCurtainCloseL 1.6s ease-in-out 0.6s forwards; }
+  .cxtrans-curtain-right { right: 0; transform: translateX(100%); animation: cxtransCurtainCloseR 1.6s ease-in-out 0.6s forwards; }
+  @keyframes cxtransCurtainCloseL { 0% { transform: translateX(-100%); } 100% { transform: translateX(0); } }
+  @keyframes cxtransCurtainCloseR { 0% { transform: translateX(100%); } 100% { transform: translateX(0); } }
+
+  /* 흩날리는 꽃잎/매화 (월하몽 본관 분위기) */
+  .cxtrans-petal {
+  position: absolute;
+  width: 14px; height: 14px;
+  border-radius: 50% 0 50% 50%;
+  background: linear-gradient(135deg, #f4d35e, rgba(244,211,94,0.6));
+  box-shadow: 0 0 10px rgba(244,211,94,0.55);
+  opacity: 0;
+  }
+  .cxtrans-petal-1 { left: 18%; top: -20px; animation: cxtransPetal 2.6s ease-in 0.5s forwards; }
+  .cxtrans-petal-2 { left: 36%; top: -20px; animation: cxtransPetal 2.8s ease-in 0.9s forwards; }
+  .cxtrans-petal-3 { left: 58%; top: -20px; animation: cxtransPetal 2.4s ease-in 0.3s forwards; }
+  .cxtrans-petal-4 { left: 76%; top: -20px; animation: cxtransPetal 3.0s ease-in 0.7s forwards; }
+  .cxtrans-petal-5 { left: 88%; top: -20px; animation: cxtransPetal 2.5s ease-in 1.1s forwards; }
+  @keyframes cxtransPetal {
+  0% { opacity: 0; transform: translateY(0) rotate(0deg); }
+  20% { opacity: 0.85; }
+  100% { opacity: 0; transform: translateY(110vh) rotate(360deg); }
+  }
+
+  /* 작별 인사 */
+  .cxtrans-farewell {
+  position: absolute;
+  left: 50%; top: 55%;
+  transform: translate(-50%, -50%);
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 22px;
+  letter-spacing: 6px;
+  color: #f4d35e;
+  text-shadow:
+  0 0 14px rgba(244,211,94,0.65),
+  0 0 28px rgba(212,175,55,0.45),
+  0 2px 6px rgba(0,0,0,0.7);
+  opacity: 0;
+  animation: cxtransFarewell 2.2s ease-in-out 1.3s forwards;
+  z-index: 5;
+  }
+  @keyframes cxtransFarewell {
+  0% { opacity: 0; letter-spacing: 16px; }
+  50% { opacity: 1; letter-spacing: 6px; }
+  100% { opacity: 0.92; letter-spacing: 6px; }
+  }
+
+  @media (max-width: 720px) {
+  .cxtrans-moon { width: 130px; height: 130px; }
+  .cxtrans-glow { width: 150px; height: 150px; }
+  .cxtrans-farewell { font-size: 18px; letter-spacing: 5px; }
+  .cxtrans-petal { width: 11px; height: 11px; }
+  }
+
   /* ─── 취선루 메인 공간 ─── */
   .chwiseon-main {
   position: relative;
@@ -4216,6 +4338,20 @@
   <div class="ctrans-curtain ctrans-curtain-right"></div>
   <div class="ctrans-incense"></div>
   <div class="ctrans-greeting">환영합니다, 손님…</div>
+</div>
+
+<!-- 퇴장 전환 애니메이션 (취선루 → 월하몽 — 달빛/보라/금색 톤) -->
+<div id="chwiseonExitTransition" class="chwiseon-exit-transition" aria-hidden="true" hidden>
+  <div class="cxtrans-moon"></div>
+  <div class="cxtrans-glow"></div>
+  <div class="cxtrans-curtain cxtrans-curtain-left"></div>
+  <div class="cxtrans-curtain cxtrans-curtain-right"></div>
+  <div class="cxtrans-petal cxtrans-petal-1"></div>
+  <div class="cxtrans-petal cxtrans-petal-2"></div>
+  <div class="cxtrans-petal cxtrans-petal-3"></div>
+  <div class="cxtrans-petal cxtrans-petal-4"></div>
+  <div class="cxtrans-petal cxtrans-petal-5"></div>
+  <div class="cxtrans-farewell">또 오십시오, 손님…</div>
 </div>
 
 <!-- 취선루 메인 컨테이너 (인증 후 표시) -->
@@ -11743,6 +11879,21 @@ window.CHWISEON_CONTENTS = {
   window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
+  // 퇴장 전환 애니메이션 (월하몽 톤 — 달·금색·꽃잎·장막)
+  const exitTrans = document.getElementById('chwiseonExitTransition');
+  function playExitTransition(onDone) {
+  if (!exitTrans) { onDone(); return; }
+  exitTrans.hidden = false;
+  requestAnimationFrame(() => exitTrans.classList.add('is-active'));
+  // 본관 전환 시점: 2.2초 (장막 거의 다 닫힘 + 달 자리잡음 + 작별 인사 시작)
+  setTimeout(() => { onDone(); }, 2200);
+  // 애니 종료 + 정리: 3.0초
+  setTimeout(() => {
+  exitTrans.classList.remove('is-active');
+  setTimeout(() => { exitTrans.hidden = true; }, 350);
+  }, 2900);
+  }
+
   // 진입 문 클릭
   gate.addEventListener('click', () => {
   if (isVerified()) {
@@ -11765,7 +11916,7 @@ window.CHWISEON_CONTENTS = {
   auth.querySelector('.cauth-backdrop').addEventListener('click', closeAuth);
 
   // 본관으로 돌아가기
-  exitBtn.addEventListener('click', exitChwiseon);
+  exitBtn.addEventListener('click', () => playExitTransition(exitChwiseon));
 
   // ───────────── 취선루 카드 갤러리 (5인) ─────────────
   const deck = document.getElementById('chwiseonDeck');
@@ -12061,7 +12212,8 @@ window.CHWISEON_CONTENTS = {
 
   // 외부 노출 (디버깅·테스트용)
   window.__chwiseonEnter = () => playTransition(enterChwiseon);
-  window.__chwiseonExit = exitChwiseon;
+  window.__chwiseonExit = () => playExitTransition(exitChwiseon);
+  window.__chwiseonExitInstant = exitChwiseon; // 애니 없이 즉시
   window.__chwiseonGoTo = setChwiseonIdx;
   window.__chwiseonOpenMenu = openChwiseonMenu;
   window.__chwiseonResetAuth = () => setVerified(false);
