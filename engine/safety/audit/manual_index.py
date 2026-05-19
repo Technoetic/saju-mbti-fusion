@@ -291,7 +291,7 @@ _MANUAL: tuple[ManualEntry, ...] = (
 
     # ── observability ──
     ManualEntry(
-        module="engine.safety.slo.slo.tracing", standard_ref="§7.3.4",
+        module="engine.safety.slo.tracing", standard_ref="§7.3.4",
         title="요청 트레이싱 (JSON line)",
         category=CATEGORY_OBSERVABILITY, timing=(TIMING_RUNTIME,),
         use_when="모든 face_reading 호출에 트레이스 이벤트 emit",
@@ -305,7 +305,7 @@ _MANUAL: tuple[ManualEntry, ...] = (
         key_apis=("compute_slo", "parse_log_line"),
     ),
     ManualEntry(
-        module="engine.safety.slo.slo.latency_audit", standard_ref="§7.2.24",
+        module="engine.safety.slo.latency_audit", standard_ref="§7.2.24",
         title="단계별 latency 감사",
         category=CATEGORY_OBSERVABILITY, timing=(TIMING_RUNTIME,),
         use_when="6개 단계별 latency 측정 + 임계 위반 감지",

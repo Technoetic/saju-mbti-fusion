@@ -208,7 +208,7 @@ _PLAYBOOKS: tuple[IncidentPlaybook, ...] = (
         verify="5분 윈도우 compute_slo가 p95 < 5000ms 복귀",
         postmortem_required=False,
         related_modules=("engine.safety.slo.slo",
-                         "engine.safety.slo.slo.latency_audit",
+                         "engine.safety.slo.latency_audit",
                          "engine.safety.input_guards.canary_guard",
                          "engine.safety.incident.rollback_trigger"),
     ),

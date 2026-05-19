@@ -125,7 +125,7 @@ _CHECKLIST: tuple[ChecklistItem, ...] = (
             "quick_check를 호출해 시스템 헬스를 한 화면으로 확인한다."
         ),
         modules=("engine.safety.slo.slo", "engine.safety.misc.quick_check",
-                 "engine.safety.slo.slo.latency_audit"),
+                 "engine.safety.slo.latency_audit"),
         practice_command="railway ssh \"python -c 'from engine.safety import run_quick_check; print(run_quick_check())'\"",
         estimated_minutes=60,
         references=("§7.3.2", "§7.3.5", "§7.2.24"),
