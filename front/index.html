@@ -7138,7 +7138,32 @@ ${concern && concern.trim() ? '2000~2500자' : (nameAnalysis ? '1700~2200자' : 
     }, opts);
   }
 
-  window.LLMUtils = { fetchWithRetry, postJSON };
+  // Phase 23: 이미지 다운샘플링 (Railway 60s 타임아웃 회피 + Vision API 가속)
+  function downsampleDataUrl(dataUrl, maxSide = 1280, quality = 0.85) {
+    return new Promise((resolve) => {
+      if (!dataUrl || typeof dataUrl !== 'string') { resolve(dataUrl); return; }
+      const img = new Image();
+      img.onload = () => {
+        const w0 = img.naturalWidth || img.width;
+        const h0 = img.naturalHeight || img.height;
+        if (!w0 || !h0) { resolve(dataUrl); return; }
+        if (w0 <= maxSide && h0 <= maxSide) { resolve(dataUrl); return; }
+        const scale = maxSide / Math.max(w0, h0);
+        const w = Math.round(w0 * scale), h = Math.round(h0 * scale);
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) { resolve(dataUrl); return; }
+        ctx.drawImage(img, 0, 0, w, h);
+        try { resolve(canvas.toDataURL('image/jpeg', quality)); }
+        catch (e) { resolve(dataUrl); }
+      };
+      img.onerror = () => resolve(dataUrl);
+      img.src = dataUrl;
+    });
+  }
+
+  window.LLMUtils = { fetchWithRetry, postJSON, downsampleDataUrl };
 })();
 
 /**
@@ -14205,140 +14230,193 @@ if (document.readyState === 'loading') {
 
 
 // ============================================================
-// SECTION: 운학 도사 · 얼굴 풀이 (관상)
+// SECTION: 운학 도사 · 얼굴 풀이 (관상) — class+async (ADR-037 Phase 1c)
 // ============================================================
 (function initFaceReading() {
-  let stream = null;
-  let capturedDataUrl = null;
-
   const $ = (id) => document.getElementById(id);
 
+  /**
+   * FaceReader — 운학 도사 (관상)
+   *  - 카메라(전면) + 사진 업로드 → 얼굴 캡처 → Opus Vision + Gemini 풀이
+   *  - 다운샘플 1280px (Railway 60s 타임아웃 회피) — LLMUtils 사용
+   *  - 시각화 7개 헬퍼는 IIFE-local 함수 유지 (DOM 다중 의존)
+   *  - window.BaseReader 글로벌 추상 class 상속
+   */
+  class FaceReader extends window.BaseReader {
+    constructor() {
+      super({
+        persona: '운학 도사',
+        endpoint: '/api/face/reading',
+        tabId: 'tab-face',
+        stepPrefix: 'face-step-',
+        boardId: 'faceResultBoard',
+        WHMKey: 'physiognomy',
+      });
+      this.stream = null;
+      this.capturedDataUrl = null;
+      this.renderResultFn = null;  // IIFE-local renderResult 주입 (DOM 의존 多)
+    }
+    updateReadButton() {
+      const btn = $('faceReadBtn');
+      if (!btn) return;
+      btn.disabled = !this.capturedDataUrl;
+    }
+    async startCamera() {
+      try {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          alert('이 브라우저에서는 카메라를 쓸 수 없네. 사진 파일을 올려주시게나.');
+          return;
+        }
+        this.stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: 'user', width: { ideal: 1024 }, height: { ideal: 1024 } },
+          audio: false,
+        });
+        const video = $('faceVideo');
+        video.srcObject = this.stream;
+        $('faceCameraArea').style.display = 'block';
+        $('facePreviewArea').style.display = 'none';
+      } catch (err) {
+        alert('카메라를 열 수 없네: ' + (err.message || err));
+        console.error(err);
+      }
+    }
+    stopCamera() {
+      if (this.stream) {
+        this.stream.getTracks().forEach(t => t.stop());
+        this.stream = null;
+      }
+      $('faceCameraArea').style.display = 'none';
+    }
+    captureFromVideo() {
+      const video = $('faceVideo');
+      if (!video || !video.videoWidth) return;
+      const canvas = $('faceCanvas');
+      const maxSide = 1024;
+      let w = video.videoWidth, h = video.videoHeight;
+      const scale = Math.min(1, maxSide / Math.max(w, h));
+      w = Math.round(w * scale); h = Math.round(h * scale);
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(video, 0, 0, w, h);
+      this.capturedDataUrl = canvas.toDataURL('image/jpeg', 0.85);
+      this.showCapturedPreview();
+      this.stopCamera();
+    }
+    showCapturedPreview() {
+      if (!this.capturedDataUrl) return;
+      $('facePreviewImg').src = this.capturedDataUrl;
+      $('facePreviewArea').style.display = 'block';
+      this.updateReadButton();
+    }
+    loadFromFile(file) {
+      if (!file) return;
+      if (!file.type.startsWith('image/')) { alert('사진 파일만 올려주시게나.'); return; }
+      const maxFileSize = 5 * 1024 * 1024;
+      if (file.size > maxFileSize) {
+        alert('사진이 커서 자동으로 크기를 조정했습니다. 선명한 사진이라면 다시 올려주시게나.');
+      }
+      const fr = new FileReader();
+      fr.onload = () => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = $('faceCanvas');
+          const maxSide = 1024;
+          let w = img.naturalWidth, h = img.naturalHeight;
+          const scale = Math.min(1, maxSide / Math.max(w, h));
+          w = Math.round(w * scale); h = Math.round(h * scale);
+          canvas.width = w; canvas.height = h;
+          canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+          this.capturedDataUrl = canvas.toDataURL('image/jpeg', 0.85);
+          const originalMaxSide = Math.max(img.naturalWidth, img.naturalHeight);
+          if (originalMaxSide > maxSide) {
+            const infoDiv = document.createElement('div');
+            infoDiv.style.cssText = 'margin-top: 10px; padding: 8px 12px; background: #fff3cd; border: 1px solid #ffc107; border-radius: 4px; font-size: 13px; color: #856404; text-align: center;';
+            infoDiv.textContent = `(${originalMaxSide}px에서 ${maxSide}px로 자동 조정됨)`;
+            const preview = $('facePreviewArea');
+            if (preview && !preview.querySelector('[style*="ffc107"]')) preview.appendChild(infoDiv);
+          }
+          this.showCapturedPreview();
+          this.stopCamera();
+        };
+        img.onerror = () => alert('사진을 읽을 수 없네.');
+        img.src = fr.result;
+      };
+      fr.onerror = () => alert('사진을 읽을 수 없네.');
+      fr.readAsDataURL(file);
+    }
+    resetAll() {
+      this.capturedDataUrl = null;
+      this.stopCamera();
+      $('facePreviewArea').style.display = 'none';
+      const upload = $('faceUploadInput');
+      if (upload) upload.value = '';
+      $(this.boardId).innerHTML = '';
+      this.updateReadButton();
+      this.showStep('input');
+    }
+    async request() {
+      if (!this.capturedDataUrl) { alert('사진을 먼저 담아주시게나.'); return; }
+      const ageRaw = ($('faceAge').value || '').trim();
+      const age = ageRaw ? parseInt(ageRaw, 10) : null;
+      const gender = ($('faceGender').value || '').trim() || null;
+      const question = ($('faceQuestion').value || '').trim() || null;
+
+      this.showStep('loading');
+      const loadingMsgEl = document.querySelector('#face-step-loading .face-loading-msg');
+      const originalLoadingMsg = loadingMsgEl ? loadingMsgEl.textContent : null;
+      try {
+        // 1) 이미지 다운샘플 (LLMUtils 글로벌)
+        const sentImage = await window.LLMUtils.downsampleDataUrl(this.capturedDataUrl, 1280, 0.85);
+        // 2) 자동 재시도 fetch
+        const resp = await this.post({
+          image_base64: sentImage,
+          age: Number.isFinite(age) ? age : null,
+          gender,
+          question,
+        }, {
+          retries: 1,
+          backoffMs: 3000,
+          onRetry: (attempt, status) => {
+            if (loadingMsgEl) loadingMsgEl.textContent = `허허, 길이 잠시 막혔으니 다시 살펴보겠네… (${status})`;
+          },
+        });
+        if (!resp.ok) {
+          const errText = await resp.text();
+          throw new Error(`서버 오류 (${resp.status}): ${errText}`);
+        }
+        const data = await resp.json();
+        if (this.renderResultFn) this.renderResultFn(data);
+        this.showStep('result');
+        this.markCompleted({});
+      } catch (err) {
+        $(this.boardId).innerHTML = `
+          <div class="face-result-card">
+            <div class="face-result-text" style="color:#ffb3b3">
+              허허, 풀이 도중 길이 막혔구먼.<br><br>
+              <code style="font-size:12px;color:#ffd6d6">${(err.message || err).toString().replace(/</g, '&lt;')}</code>
+            </div>
+          </div>`;
+        this.showStep('result');
+      } finally {
+        if (loadingMsgEl && originalLoadingMsg != null) loadingMsgEl.textContent = originalLoadingMsg;
+      }
+    }
+  }
+
+  const reader = new FaceReader();
+
+  // ── thin wrapper (기존 함수 호출처 0 변경) ──
   function showFaceStep(stepId) {
-  document.querySelectorAll('#tab-face .face-step').forEach(s => {
-  s.classList.toggle('active', s.id === stepId);
-  });
+    document.querySelectorAll('#tab-face .face-step').forEach(s => {
+      s.classList.toggle('active', s.id === stepId);
+    });
   }
-
-  function updateReadButton() {
-  const btn = $('faceReadBtn');
-  if (!btn) return;
-  btn.disabled = !capturedDataUrl;
-  }
-
-  async function startCamera() {
-  try {
-  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-  alert('이 브라우저에서는 카메라를 쓸 수 없네. 사진 파일을 올려주시게나.');
-  return;
-  }
-  stream = await navigator.mediaDevices.getUserMedia({
-  video: { facingMode: 'user', width: { ideal: 1024 }, height: { ideal: 1024 } },
-  audio: false
-  });
-  const video = $('faceVideo');
-  video.srcObject = stream;
-  $('faceCameraArea').style.display = 'block';
-  $('facePreviewArea').style.display = 'none';
-  } catch (err) {
-  alert('카메라를 열 수 없네: ' + (err.message || err));
-  console.error(err);
-  }
-  }
-
-  function stopCamera() {
-  if (stream) {
-  stream.getTracks().forEach(t => t.stop());
-  stream = null;
-  }
-  $('faceCameraArea').style.display = 'none';
-  }
-
-  function captureFromVideo() {
-  const video = $('faceVideo');
-  if (!video || !video.videoWidth) return;
-  const canvas = $('faceCanvas');
-  // 너무 큰 사진은 비전 API 비용·전송 시간 모두 부담 — 최대 1024px로 다운스케일
-  const maxSide = 1024;
-  let w = video.videoWidth;
-  let h = video.videoHeight;
-  const scale = Math.min(1, maxSide / Math.max(w, h));
-  w = Math.round(w * scale);
-  h = Math.round(h * scale);
-  canvas.width = w;
-  canvas.height = h;
-  const ctx = canvas.getContext('2d');
-  // 비디오는 거울 모드로 보여주지만, 저장 시에는 원본 방향으로 (관상에서 좌우 중요)
-  ctx.drawImage(video, 0, 0, w, h);
-  capturedDataUrl = canvas.toDataURL('image/jpeg', 0.85);
-  showCapturedPreview();
-  stopCamera();
-  }
-
-  function showCapturedPreview() {
-  if (!capturedDataUrl) return;
-  $('facePreviewImg').src = capturedDataUrl;
-  $('facePreviewArea').style.display = 'block';
-  updateReadButton();
-  }
-
-  function loadFromFile(file) {
-  if (!file) return;
-  if (!file.type.startsWith('image/')) {
-  alert('사진 파일만 올려주시게나.');
-  return;
-  }
-  // Phase 4회차: 파일 크기 경고 (ADR-035 보조)
-  const maxFileSize = 5 * 1024 * 1024; // 5MB
-  if (file.size > maxFileSize) {
-  alert('사진이 커서 자동으로 크기를 조정했습니다. 선명한 사진이라면 다시 올려주시게나.');
-  }
-  const reader = new FileReader();
-  reader.onload = () => {
-  // 큰 파일은 다운스케일 후 base64로
-  const img = new Image();
-  img.onload = () => {
-  const canvas = $('faceCanvas');
-  const maxSide = 1024;
-  let w = img.naturalWidth;
-  let h = img.naturalHeight;
-  const scale = Math.min(1, maxSide / Math.max(w, h));
-  w = Math.round(w * scale);
-  h = Math.round(h * scale);
-  canvas.width = w;
-  canvas.height = h;
-  canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-  capturedDataUrl = canvas.toDataURL('image/jpeg', 0.85);
-  // Phase 4회차: 다운스케일 안내 메시지 (1024px 초과 시)
-  const originalMaxSide = Math.max(img.naturalWidth, img.naturalHeight);
-  if (originalMaxSide > maxSide) {
-  const infoDiv = document.createElement('div');
-  infoDiv.style.cssText = 'margin-top: 10px; padding: 8px 12px; background: #fff3cd; border: 1px solid #ffc107; border-radius: 4px; font-size: 13px; color: #856404; text-align: center;';
-  infoDiv.textContent = `(${originalMaxSide}px에서 ${maxSide}px로 자동 조정됨)`;
-  const preview = $('facePreviewArea');
-  if (preview && !preview.querySelector('[style*="ffc107"]')) {
-  preview.appendChild(infoDiv);
-  }
-  }
-  showCapturedPreview();
-  stopCamera();
-  };
-  img.onerror = () => alert('사진을 읽을 수 없네.');
-  img.src = reader.result;
-  };
-  reader.onerror = () => alert('사진을 읽을 수 없네.');
-  reader.readAsDataURL(file);
-  }
-
-  function resetAll() {
-  capturedDataUrl = null;
-  stopCamera();
-  $('facePreviewArea').style.display = 'none';
-  const upload = $('faceUploadInput');
-  if (upload) upload.value = '';
-  $('faceResultBoard').innerHTML = '';
-  updateReadButton();
-  showFaceStep('face-step-input');
-  }
+  function updateReadButton() { reader.updateReadButton(); }
+  const startCamera = () => reader.startCamera();
+  const stopCamera = () => reader.stopCamera();
+  const captureFromVideo = () => reader.captureFromVideo();
+  const showCapturedPreview = () => reader.showCapturedPreview();
+  const loadFromFile = (file) => reader.loadFromFile(file);
+  const resetAll = () => reader.resetAll();
 
   // ── Phase 22a 시각화 헬퍼 ────────────────────────────────────────
   function _esc(s) {
@@ -14579,130 +14657,11 @@ if (document.readyState === 'loading') {
   `;
   }
 
-  // ── Phase 23: 이미지 다운샘플링 (max 1280px, JPEG 0.85) ─────────────
-  // Railway 60초 프록시 타임아웃 회피 + Vision API 처리 속도↑
-  function downsampleDataUrl(dataUrl, maxSide = 1280, quality = 0.85) {
-  return new Promise((resolve, reject) => {
-  if (!dataUrl || typeof dataUrl !== 'string') {
-  resolve(dataUrl);
-  return;
-  }
-  const img = new Image();
-  img.onload = () => {
-  const w0 = img.naturalWidth || img.width;
-  const h0 = img.naturalHeight || img.height;
-  if (!w0 || !h0) { resolve(dataUrl); return; }
-  // 이미 작은 이미지는 변환 생략 (불필요 손실 방지)
-  if (w0 <= maxSide && h0 <= maxSide) { resolve(dataUrl); return; }
-  const scale = maxSide / Math.max(w0, h0);
-  const w = Math.round(w0 * scale);
-  const h = Math.round(h0 * scale);
-  const canvas = document.createElement('canvas');
-  canvas.width = w; canvas.height = h;
-  const ctx = canvas.getContext('2d');
-  if (!ctx) { resolve(dataUrl); return; }
-  ctx.drawImage(img, 0, 0, w, h);
-  try {
-  resolve(canvas.toDataURL('image/jpeg', quality));
-  } catch (e) {
-  resolve(dataUrl);
-  }
-  };
-  img.onerror = () => resolve(dataUrl);
-  img.src = dataUrl;
-  });
-  }
+  // renderResult는 IIFE-local 시각화 헬퍼 의존 → reader에 주입
+  reader.renderResultFn = renderResult;
 
-  // ── Phase 23: 자동 재시도 fetch (502/503/504/network, 1회 백오프 3초) ─
-  async function fetchWithRetry(url, init, opts) {
-  const { retries = 1, backoffMs = 3000, onRetry = null } = opts || {};
-  let lastErr = null;
-  for (let attempt = 0; attempt <= retries; attempt++) {
-  try {
-  const resp = await fetch(url, init);
-  // 5xx 일시 오류는 재시도, 4xx·2xx는 그대로 반환
-  if (resp.status >= 500 && resp.status < 600 && attempt < retries) {
-  if (onRetry) onRetry(attempt + 1, resp.status);
-  await new Promise(r => setTimeout(r, backoffMs));
-  continue;
-  }
-  return resp;
-  } catch (e) {
-  lastErr = e;
-  if (attempt < retries) {
-  if (onRetry) onRetry(attempt + 1, 'network');
-  await new Promise(r => setTimeout(r, backoffMs));
-  continue;
-  }
-  throw e;
-  }
-  }
-  if (lastErr) throw lastErr;
-  throw new Error('재시도 실패');
-  }
-
-  async function requestReading() {
-  if (!capturedDataUrl) {
-  alert('사진을 먼저 담아주시게나.');
-  return;
-  }
-  const ageRaw = ($('faceAge').value || '').trim();
-  const age = ageRaw ? parseInt(ageRaw, 10) : null;
-  const gender = ($('faceGender').value || '').trim() || null;
-  const question = ($('faceQuestion').value || '').trim() || null;
-
-  showFaceStep('face-step-loading');
-  // 로딩 메시지 영역 (옵션) — 재시도 시 사용자에 알림
-  const loadingMsgEl = document.querySelector('#face-step-loading .face-loading-msg');
-  const originalLoadingMsg = loadingMsgEl ? loadingMsgEl.textContent : null;
-  try {
-  // 1) 이미지 다운샘플 (Railway 60s timeout 회피 + Vision API 가속)
-  const sentImage = await downsampleDataUrl(capturedDataUrl, 1280, 0.85);
-
-  // 2) 자동 재시도 fetch (502/503/504/network 1회)
-  const resp = await fetchWithRetry('/api/face/reading', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({
-  image_base64: sentImage,
-  age: Number.isFinite(age) ? age : null,
-  gender,
-  question,
-  }),
-  }, {
-  retries: 1,
-  backoffMs: 3000,
-  onRetry: (attempt, status) => {
-  if (loadingMsgEl) {
-  loadingMsgEl.textContent = `허허, 길이 잠시 막혔으니 다시 살펴보겠네… (${status})`;
-  }
-  },
-  });
-  if (!resp.ok) {
-  const errText = await resp.text();
-  throw new Error(`서버 오류 (${resp.status}): ${errText}`);
-  }
-  const data = await resp.json();
-  renderResult(data);
-  showFaceStep('face-step-result');
-  if (window.WHM) window.WHM.markCompleted('physiognomy', {});
-  } catch (err) {
-  $('faceResultBoard').innerHTML = `
-  <div class="face-result-card">
-  <div class="face-result-text" style="color:#ffb3b3">
-  허허, 풀이 도중 길이 막혔구먼.<br><br>
-  <code style="font-size:12px;color:#ffd6d6">${(err.message || err).toString().replace(/</g, '&lt;')}</code>
-  </div>
-  </div>
-  `;
-  showFaceStep('face-step-result');
-  } finally {
-  // 로딩 메시지 원복
-  if (loadingMsgEl && originalLoadingMsg != null) {
-  loadingMsgEl.textContent = originalLoadingMsg;
-  }
-  }
-  }
+  // thin wrapper — requestReading 위임
+  const requestReading = () => reader.request();
 
   function bind() {
   if (!$('faceStartCameraBtn')) return; // 탭이 없는 페이지
@@ -14711,24 +14670,24 @@ if (document.readyState === 'loading') {
   $('faceCancelCameraBtn').addEventListener('click', stopCamera);
   $('faceCaptureBtn').addEventListener('click', captureFromVideo);
   $('faceRetakeBtn').addEventListener('click', () => {
-  capturedDataUrl = null;
-  $('facePreviewArea').style.display = 'none';
-  const upload = $('faceUploadInput');
-  if (upload) upload.value = '';
-  updateReadButton();
-  startCamera();
+    reader.capturedDataUrl = null;
+    $('facePreviewArea').style.display = 'none';
+    const upload = $('faceUploadInput');
+    if (upload) upload.value = '';
+    reader.updateReadButton();
+    reader.startCamera();
   });
   $('faceUploadInput').addEventListener('change', (e) => {
-  loadFromFile(e.target.files && e.target.files[0]);
+    reader.loadFromFile(e.target.files && e.target.files[0]);
   });
   $('faceReadBtn').addEventListener('click', requestReading);
   $('faceRestartBtn').addEventListener('click', resetAll);
 
   // 탭에서 벗어나면 카메라 닫기 (개인정보·전력)
   document.querySelectorAll('.tab-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-  if (btn.dataset.tab !== 'face') stopCamera();
-  });
+    btn.addEventListener('click', () => {
+      if (btn.dataset.tab !== 'face') reader.stopCamera();
+    });
   });
   }
 
