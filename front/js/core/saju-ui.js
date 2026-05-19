@@ -804,6 +804,9 @@ window.SAJU = {
   // 데이터
   천간, 지지, 천간_한자, 지지_한자, 천간_오행, 지지_오행,
   십성명, 십이운성명, 십이신살명, 지지_장간, 오행명,
+  // ADR-052: UI 핸들러 (인라인 autoInit 호출 호환)
+  performCalculation, triggerAICall,
+  fmtPillar, fmtJD, renderResult,
 };
 
 
