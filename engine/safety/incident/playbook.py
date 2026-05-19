@@ -120,9 +120,9 @@ _PLAYBOOKS: tuple[IncidentPlaybook, ...] = (
             "alert_router에서 crisis_block_failed 미발생 24시간"
         ),
         postmortem_required=True,
-        related_modules=("engine.safety.crisis_detector",
-                         "engine.safety.crisis_resources",
-                         "engine.safety.rollback_trigger"),
+        related_modules=("engine.safety.crisis.detector",
+                         "engine.safety.crisis.resources",
+                         "engine.safety.incident.rollback_trigger"),
     ),
     # ── P0: PII 누출 ──
     IncidentPlaybook(
@@ -165,9 +165,9 @@ _PLAYBOOKS: tuple[IncidentPlaybook, ...] = (
         ),
         verify="라이브 N개 응답 샘플링 + scan_response_pii 0건",
         postmortem_required=True,
-        related_modules=("engine.safety.response_pii_leak",
-                         "engine.safety.cache_integrity",
-                         "engine.safety.llm_fallback_router"),
+        related_modules=("engine.safety.llm.response_pii_leak",
+                         "engine.safety.input_guards.cache_integrity",
+                         "engine.safety.incident.llm_fallback_router"),
     ),
     # ── P1: SLO p95 latency ──
     IncidentPlaybook(
@@ -207,10 +207,10 @@ _PLAYBOOKS: tuple[IncidentPlaybook, ...] = (
         ),
         verify="5분 윈도우 compute_slo가 p95 < 5000ms 복귀",
         postmortem_required=False,
-        related_modules=("engine.safety.slo",
-                         "engine.safety.latency_audit",
-                         "engine.safety.canary_guard",
-                         "engine.safety.rollback_trigger"),
+        related_modules=("engine.safety.slo.slo",
+                         "engine.safety.slo.slo.latency_audit",
+                         "engine.safety.input_guards.canary_guard",
+                         "engine.safety.incident.rollback_trigger"),
     ),
     # ── P1: jailbreak 누출 ──
     IncidentPlaybook(
@@ -247,8 +247,8 @@ _PLAYBOOKS: tuple[IncidentPlaybook, ...] = (
         ),
         verify="라이브 trace에서 jailbreak_blocked 적절히 증가, 응답 누출 0건",
         postmortem_required=False,
-        related_modules=("engine.safety.jailbreak_defense",
-                         "engine.safety.output_safety_gate"),
+        related_modules=("engine.safety.llm.jailbreak_defense",
+                         "engine.safety.llm.output_safety_gate"),
     ),
     # ── P1: 비용 한도 도달 ──
     IncidentPlaybook(
@@ -283,7 +283,7 @@ _PLAYBOOKS: tuple[IncidentPlaybook, ...] = (
         ),
         verify="cost_guard.status가 ok/warn으로 복귀, 24시간 stub fallback 사용률 감소",
         postmortem_required=False,
-        related_modules=("engine.safety.cost_guard", "engine.safety.rate_limiter"),
+        related_modules=("engine.safety.input_guards.cost_guard", "engine.safety.input_guards.rate_limiter"),
     ),
     # ── P2: 캐시 무결성 위반 ──
     IncidentPlaybook(
@@ -318,8 +318,8 @@ _PLAYBOOKS: tuple[IncidentPlaybook, ...] = (
         ),
         verify="audit_cache_directory 손상율 < 1%",
         postmortem_required=False,
-        related_modules=("engine.safety.cache_integrity",
-                         "engine.safety.cache_janitor"),
+        related_modules=("engine.safety.input_guards.cache_integrity",
+                         "engine.safety.input_guards.cache_janitor"),
     ),
     # ── P2: 백업 RPO 초과 ──
     IncidentPlaybook(
@@ -352,7 +352,7 @@ _PLAYBOOKS: tuple[IncidentPlaybook, ...] = (
         ),
         verify="overdue_backups 빈 리스트, 모든 자원 RPO 내",
         postmortem_required=False,
-        related_modules=("engine.safety.backup_manifest",),
+        related_modules=("engine.safety.incident.backup_manifest",),
     ),
     # ── P2: rate abuse ──
     IncidentPlaybook(
@@ -379,7 +379,7 @@ _PLAYBOOKS: tuple[IncidentPlaybook, ...] = (
         ),
         verify="해당 uid 24시간 rate_limit 미발생, 정상 트래픽만",
         postmortem_required=False,
-        related_modules=("engine.safety.rate_limiter",),
+        related_modules=("engine.safety.input_guards.rate_limiter",),
     ),
 )
 

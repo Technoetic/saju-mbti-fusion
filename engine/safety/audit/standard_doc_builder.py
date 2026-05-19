@@ -37,7 +37,7 @@ def build_markdown_report(
         lang: 'ko'/'en' 헤더 언어
         include_evidence: 각 항목에 발견된 심볼 목록 포함 여부
     """
-    from engine.safety.compliance_report import generate_report
+    from engine.safety.audit.compliance_report import generate_report
     report = generate_report()
     lines: list[str] = []
 
@@ -82,7 +82,7 @@ def build_markdown_report(
 
 def build_json_summary() -> dict[str, Any]:
     """구조화 JSON 요약 — 외부 시스템 인제스트용 (Datadog/Splunk)."""
-    from engine.safety.compliance_report import generate_report
+    from engine.safety.audit.compliance_report import generate_report
     report = generate_report()
     return {
         "service": "face_reading",
@@ -119,7 +119,7 @@ def build_audit_letter(*, organization: str = "내부 감사팀") -> str:
 
     GDPR Art.30 처리 활동 기록 / KR PIPA §31 자료 제출 시 사용.
     """
-    from engine.safety.compliance_report import generate_report
+    from engine.safety.audit.compliance_report import generate_report
     report = generate_report()
     now_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
 

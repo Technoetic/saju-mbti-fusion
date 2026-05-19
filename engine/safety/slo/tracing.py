@@ -21,7 +21,7 @@ import sys
 import time
 from typing import Any
 
-from engine.safety.pii import hash_uid, hash_question, mask_pii
+from engine.safety.gdpr.pii import hash_uid, hash_question, mask_pii
 
 
 def _now_ms() -> int:

@@ -995,7 +995,7 @@ def generate_face_reading(
 
     # L1 파일 무결성 — 매직 넘버·크기·MIME 검증 (LLM 호출 전 결정론 가드레일)
     # reports/input-guardrails.md L1 계층. ADR-010 사실성 분리 적용.
-    from engine.safety.file_integrity import validate_image_base64
+    from engine.safety.input_guards.file_integrity import validate_image_base64
     integrity = validate_image_base64(image_b64)
     if not integrity.valid:
         return {
@@ -1100,7 +1100,7 @@ def generate_face_reading(
 
     prompt_cache_usage: dict[str, Any] | None = None
     if usage_sink:
-        from engine.safety.prompt_cache_telemetry import extract_usage, summarize
+        from engine.safety.slo.slo.prompt_cache_telemetry import extract_usage, summarize
         prompt_cache_usage = summarize(extract_usage(usage_sink[0]))
 
     out = {

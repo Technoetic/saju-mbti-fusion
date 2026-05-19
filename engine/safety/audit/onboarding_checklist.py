@@ -57,7 +57,7 @@ _CHECKLIST: tuple[ChecklistItem, ...] = (
             "응답 톤이 회귀하지 않도록 persona_self_eval로 측정한다."
         ),
         modules=("engine.divination.face.reading._FACE_SYSTEM",
-                 "engine.safety.persona_self_eval"),
+                 "engine.safety.llm.persona_self_eval"),
         practice_command=(
             "python -c 'from engine.safety import evaluate_persona_tone; "
             "print(evaluate_persona_tone(\"허허, 그대, 자네의 결이로구먼.\"))'"
@@ -73,8 +73,8 @@ _CHECKLIST: tuple[ChecklistItem, ...] = (
             "ko/en/ja/zh 4언어 위기 키워드 사전이 어떤 표현을 차단하는지 익히고, "
             "false positive(꿈/3인칭) 회피 패턴을 확인한다."
         ),
-        modules=("engine.safety.crisis_detector",
-                 "engine.safety.crisis_resources"),
+        modules=("engine.safety.crisis.detector",
+                 "engine.safety.crisis.resources"),
         practice_command=(
             "python -c 'from engine.safety import detect_crisis; "
             "print(detect_crisis(\"자살하고 싶다\"))'"
@@ -90,7 +90,7 @@ _CHECKLIST: tuple[ChecklistItem, ...] = (
             "입력의 PII는 mask_pii로 마스킹하고, 응답에 PII가 들어오면 "
             "scan_response_pii로 검출해 폐기한다."
         ),
-        modules=("engine.safety.pii", "engine.safety.response_pii_leak"),
+        modules=("engine.safety.gdpr.pii", "engine.safety.llm.response_pii_leak"),
         practice_command=(
             "python -c 'from engine.safety import scan_response_pii; "
             "print(scan_response_pii(\"010-1234-5678\").leaks)'"
@@ -106,7 +106,7 @@ _CHECKLIST: tuple[ChecklistItem, ...] = (
             "ko/en/ja/zh 4언어 면책 텍스트가 모든 응답에 자동 첨부되는지 확인. "
             "위기 응답에는 별도 위기 면책이 더해진다."
         ),
-        modules=("engine.safety.legal_notice",),
+        modules=("engine.safety.gdpr.legal_notice",),
         practice_command=(
             "python -c 'from engine.safety import build_legal_footer; "
             "print(build_legal_footer(is_crisis=False, lang=\"ko\")[:50])'"
@@ -124,8 +124,8 @@ _CHECKLIST: tuple[ChecklistItem, ...] = (
             "운영 윈도우의 P95/P99 latency와 crisis_rate를 산출하고, SSH로 "
             "quick_check를 호출해 시스템 헬스를 한 화면으로 확인한다."
         ),
-        modules=("engine.safety.slo", "engine.safety.quick_check",
-                 "engine.safety.latency_audit"),
+        modules=("engine.safety.slo.slo", "engine.safety.misc.quick_check",
+                 "engine.safety.slo.slo.latency_audit"),
         practice_command="railway ssh \"python -c 'from engine.safety import run_quick_check; print(run_quick_check())'\"",
         estimated_minutes=60,
         references=("§7.3.2", "§7.3.5", "§7.2.24"),
@@ -138,7 +138,7 @@ _CHECKLIST: tuple[ChecklistItem, ...] = (
             "SLO 위반 / 비용 초과 / 백업 실패 등의 이벤트가 P0~P3 어느 채널로 "
             "라우팅되는지 학습. Slack/PagerDuty 페이로드 형식 확인."
         ),
-        modules=("engine.safety.alert_router",),
+        modules=("engine.safety.crisis.alert_router",),
         practice_command=(
             "python -c 'from engine.safety import classify_event; "
             "print(classify_event(\"crisis_block_failed\"))'"
@@ -154,7 +154,7 @@ _CHECKLIST: tuple[ChecklistItem, ...] = (
             "1%→5%→25%→100% 카나리 단계와 PROMOTE/HOLD/ROLLBACK 결정, "
             "rollback_trigger의 AUTO/APPROVAL/NEVER 정책을 학습."
         ),
-        modules=("engine.safety.canary_guard", "engine.safety.rollback_trigger"),
+        modules=("engine.safety.input_guards.canary_guard", "engine.safety.incident.rollback_trigger"),
         practice_command="pytest engine/safety/test_canary_guard.py -v",
         estimated_minutes=60,
         references=("§7.3.6", "§7.3.2.1"),
@@ -167,7 +167,7 @@ _CHECKLIST: tuple[ChecklistItem, ...] = (
             "Gemini/Claude 가격, 일/월 한도, exhausted 시 stub 폴백을 학습. "
             "uid별 분당/시간당 한도와 sliding window 알고리즘 이해."
         ),
-        modules=("engine.safety.cost_guard", "engine.safety.rate_limiter"),
+        modules=("engine.safety.input_guards.cost_guard", "engine.safety.input_guards.rate_limiter"),
         practice_command="pytest engine/safety/test_cost_guard.py -q",
         estimated_minutes=45,
         references=("§7.2.17", "§7.2.19"),
@@ -182,8 +182,8 @@ _CHECKLIST: tuple[ChecklistItem, ...] = (
             "데이터 주체 요청(DSR) 7권리(access/rectify/erase/restrict/portability/"
             "object/withdraw_consent)와 지역별 SLA(KR 10일 / EU 30일)를 학습."
         ),
-        modules=("engine.safety.rights_information",
-                 "engine.safety.dsr_processor"),
+        modules=("engine.safety.gdpr.rights_information",
+                 "engine.safety.gdpr.dsr_processor"),
         practice_command=(
             "python -c 'from engine.safety import DSRRequest, process_dsr; "
             "print(process_dsr(DSRRequest(right_key=\"access\", subject_id=\"u\", "
@@ -200,7 +200,7 @@ _CHECKLIST: tuple[ChecklistItem, ...] = (
             "EU 27개 회원국 + 'EU' 코드 지역의 사용자에게는 감정 추론이 포함되어 "
             "있다는 명시 고지가 응답에 자동 첨부되는지 확인."
         ),
-        modules=("engine.safety.emotion_disclosure",),
+        modules=("engine.safety.crisis.emotion_disclosure",),
         practice_command=(
             "python -c 'from engine.safety import inject_emotion_disclosure; "
             "print(inject_emotion_disclosure(\"허허\", region=\"DE\", lang=\"en\"))'"
@@ -216,8 +216,8 @@ _CHECKLIST: tuple[ChecklistItem, ...] = (
             "골든 셋·평가셋의 출처/동의/라이선스 검증, 백업 RPO/RTO 매트릭스, "
             "감사 7년 보관(KR §21/EU AI Act §12)을 학습."
         ),
-        modules=("engine.safety.data_governance",
-                 "engine.safety.backup_manifest"),
+        modules=("engine.safety.gdpr.data_governance",
+                 "engine.safety.incident.backup_manifest"),
         practice_command=(
             "python -c 'from engine.safety import audit_dataset; "
             "print(audit_dataset([]))'"
@@ -233,8 +233,8 @@ _CHECKLIST: tuple[ChecklistItem, ...] = (
             "processing/storage/training/third_party_sharing 4개 동의 항목, "
             "필수 vs 선택, 4언어 텍스트를 학습."
         ),
-        modules=("engine.safety.consent_screen",
-                 "engine.safety.rights_information"),
+        modules=("engine.safety.gdpr.consent_screen",
+                 "engine.safety.gdpr.rights_information"),
         practice_command=(
             "python -c 'from engine.safety import get_consent_screen; "
             "print(get_consent_screen(\"ko\")[\"items\"])'"
@@ -252,8 +252,8 @@ _CHECKLIST: tuple[ChecklistItem, ...] = (
             "compliance_report로 41개 항목 자체 점검. coverage 100% 미만이면 "
             "alert_router를 통해 P2 알람 발송."
         ),
-        modules=("engine.safety.compliance_report",
-                 "engine.safety.standard_doc_builder"),
+        modules=("engine.safety.audit.compliance_report",
+                 "engine.safety.audit.standard_doc_builder"),
         practice_command=(
             "python -c 'from engine.safety import generate_compliance_report; "
             "r = generate_compliance_report(); print(r.coverage_percent)'"
@@ -269,7 +269,7 @@ _CHECKLIST: tuple[ChecklistItem, ...] = (
             "새 프롬프트나 LLM 백엔드 교체는 control vs candidate 페어 평가를 "
             "거쳐 promote_recommended=True일 때만 카나리 진입."
         ),
-        modules=("engine.safety.shadow_eval",),
+        modules=("engine.safety.audit.shadow_eval",),
         practice_command="pytest engine/safety/test_shadow_eval.py -q",
         estimated_minutes=45,
         references=("§7.3.9",),

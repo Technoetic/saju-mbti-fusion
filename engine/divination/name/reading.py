@@ -279,7 +279,7 @@ def generate_name_reading(
 
     prompt_cache_usage: dict[str, Any] | None = None
     if usage_sink:
-        from engine.safety.prompt_cache_telemetry import extract_usage, summarize
+        from engine.safety.slo.slo.prompt_cache_telemetry import extract_usage, summarize
         prompt_cache_usage = summarize(extract_usage(usage_sink[0]))
 
     out = {

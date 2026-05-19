@@ -8,12 +8,12 @@
 을 수행한다. 우회 금지.
 """
 
-from engine.safety.crisis_detector import (
+from engine.safety.crisis.detector import (
     detect_crisis,
     CRISIS_RESPONSE_KO,
     EMERGENCY_HOTLINES_KR,
 )
-from engine.safety.legal_notice import (
+from engine.safety.gdpr.legal_notice import (
     MEDICAL_DISCLAIMER_KO,
     FORTUNE_DISCLAIMER_KO,
     LEGAL_NOTICE_FOOTER_KO,

@@ -29,33 +29,33 @@ from typing import Any
 COMPLIANCE_MANIFEST: dict[str, dict[str, Any]] = {
     # ── §5 LLM 안전 ──
     "5.2.4_jailbreak_defense": {
-        "module": "engine.safety.jailbreak_defense",
+        "module": "engine.safety.llm.jailbreak_defense",
         "symbols": ("detect_jailbreak", "build_jailbreak_response"),
         "anchors": ("OWASP LLM01", "NIST AI RMF Map-1"),
     },
     "5.2.5_persona_self_eval": {
-        "module": "engine.safety.persona_self_eval",
+        "module": "engine.safety.llm.persona_self_eval",
         "symbols": ("evaluate_persona_tone", "PersonaEvalResult"),
         "anchors": ("internal_quality_gate",),
     },
     "5.2.6_output_token_guard": {
-        "module": "engine.safety.output_token_guard",
+        "module": "engine.safety.llm.output_token_guard",
         "symbols": ("evaluate_output", "TokenGuardResult"),
         "anchors": ("OWASP LLM04",),
     },
     "5.2.7_crisis_multilingual": {
-        "module": "engine.safety.crisis_detector",
+        "module": "engine.safety.crisis.detector",
         "symbols": ("detect_crisis", "DIRECT_SUICIDE_KEYWORDS_ZH"),
         "anchors": ("KR PIPA §22-2", "Character.AI 2024 precedent"),
     },
     "5.2.8_response_fact_check": {
-        "module": "engine.safety.response_fact_check",
+        "module": "engine.safety.llm.response_fact_check",
         "symbols": ("check_response", "FACT_AGE", "FACT_GENDER"),
         "anchors": ("OWASP LLM09",),
     },
     # ── §7.1 법정 면책 ──
     "7.1_legal_notice": {
-        "module": "engine.safety.legal_notice",
+        "module": "engine.safety.gdpr.legal_notice",
         "symbols": ("build_legal_footer", "MEDICAL_DISCLAIMER_KO"),
         "anchors": ("의료법 §27", "변호사법 §109"),
     },
@@ -66,12 +66,12 @@ COMPLIANCE_MANIFEST: dict[str, dict[str, Any]] = {
         "anchors": ("internal_quality_gate",),
     },
     "7.2.3_language_detection": {
-        "module": "engine.safety.language",
+        "module": "engine.safety.misc.language",
         "symbols": ("detect_language", "get_language_advisory"),
         "anchors": ("internal_i18n",),
     },
     "7.2.5_pii": {
-        "module": "engine.safety.pii",
+        "module": "engine.safety.gdpr.pii",
         "symbols": ("mask_pii", "hash_uid"),
         "anchors": ("KR PIPA §29", "GDPR Art.32"),
     },
@@ -81,161 +81,161 @@ COMPLIANCE_MANIFEST: dict[str, dict[str, Any]] = {
         "anchors": ("WCAG 2.1 AA", "KR §16-3"),
     },
     "7.2.9_photo_guide": {
-        "module": "engine.safety.photo_guide",
+        "module": "engine.safety.photo.guide",
         "symbols": ("build_photo_guidance", "get_photo_checklist"),
         "anchors": ("internal_quality_gate",),
     },
     "7.2.10_model_card": {
-        "module": "engine.safety.model_card",
+        "module": "engine.safety.audit.model_card",
         "symbols": ("get_face_reading_model_card", "validate_model_card"),
         "anchors": ("EU AI Act Annex IV", "NIST AI RMF Govern-1.1"),
     },
     "7.2.11_llm_fallback": {
-        "module": "engine.safety.llm_fallback_router",
+        "module": "engine.safety.incident.llm_fallback_router",
         "symbols": ("plan_llm_calls", "deterministic_stub_response"),
         "anchors": ("internal_resilience",),
     },
     "7.2.12_cache_janitor": {
-        "module": "engine.safety.cache_janitor",
+        "module": "engine.safety.input_guards.cache_janitor",
         "symbols": ("run_janitor", "find_expired_files"),
         "anchors": ("KR PIPA §21",),
     },
     "7.2.13_response_envelope": {
-        "module": "engine.safety.response_envelope",
+        "module": "engine.safety.llm.response_envelope",
         "symbols": ("validate_envelope", "detect_branch"),
         "anchors": ("internal_api_contract",),
     },
     "7.2.14_idempotency": {
-        "module": "engine.safety.idempotency_key",
+        "module": "engine.safety.input_guards.idempotency_key",
         "symbols": ("IdempotencyManager", "compute_idempotency_key"),
         "anchors": ("internal_resilience",),
     },
     "7.2.15_input_sanitizer": {
-        "module": "engine.safety.input_sanitizer",
+        "module": "engine.safety.input_guards.input_sanitizer",
         "symbols": ("sanitize_question", "has_injection_attempt"),
         "anchors": ("OWASP LLM01",),
     },
     "7.2.16_cache_integrity": {
-        "module": "engine.safety.cache_integrity",
+        "module": "engine.safety.input_guards.cache_integrity",
         "symbols": ("verify_cache_file", "audit_cache_directory"),
         "anchors": ("internal_data_quality",),
     },
     "7.2.17_cost_guard": {
-        "module": "engine.safety.cost_guard",
+        "module": "engine.safety.input_guards.cost_guard",
         "symbols": ("CostTracker", "CostBudget"),
         "anchors": ("internal_cost_control",),
     },
     "7.2.18_response_pii_leak": {
-        "module": "engine.safety.response_pii_leak",
+        "module": "engine.safety.llm.response_pii_leak",
         "symbols": ("scan_response_pii", "has_pii_leak"),
         "anchors": ("OWASP LLM06", "GDPR Art.32"),
     },
     "7.2.19_rate_limiter": {
-        "module": "engine.safety.rate_limiter",
+        "module": "engine.safety.input_guards.rate_limiter",
         "symbols": ("RateLimiter", "RateLimitConfig"),
         "anchors": ("OWASP LLM04",),
     },
     "7.2.20_response_alignment": {
-        "module": "engine.safety.response_alignment",
+        "module": "engine.safety.llm.response_alignment",
         "symbols": ("evaluate_alignment", "detect_topic"),
         "anchors": ("internal_quality_gate",),
     },
     "7.2.21_output_safety_gate": {
-        "module": "engine.safety.output_safety_gate",
+        "module": "engine.safety.llm.output_safety_gate",
         "symbols": ("run_safety_gates", "SafetyGateResult"),
         "anchors": ("internal_quality_gate",),
     },
     "7.2.22_request_pipeline": {
-        "module": "engine.safety.request_pipeline",
+        "module": "engine.safety.misc.request_pipeline",
         "symbols": ("preflight", "PipelineDecision"),
         "anchors": ("internal_quality_gate",),
     },
     "7.2.23_cache_key_resolver": {
-        "module": "engine.safety.cache_key_resolver",
+        "module": "engine.safety.input_guards.cache_key_resolver",
         "symbols": ("resolve_cache_key", "invalidates_on_prompt_change"),
         "anchors": ("internal_data_quality",),
     },
     # ── §7.3 운영 ──
     "7.3.2_slo": {
-        "module": "engine.safety.slo",
+        "module": "engine.safety.slo.slo",
         "symbols": ("compute_slo", "SLO_THRESHOLDS"),
         "anchors": ("Google SRE SLO",),
     },
     "7.3.2.1_rollback_trigger": {
-        "module": "engine.safety.rollback_trigger",
+        "module": "engine.safety.incident.rollback_trigger",
         "symbols": ("decide_rollback", "classify_rollback_policy"),
         "anchors": ("internal_resilience",),
     },
     "7.3.3_data_governance": {
-        "module": "engine.safety.data_governance",
+        "module": "engine.safety.gdpr.data_governance",
         "symbols": ("audit_dataset", "DataProvenance"),
         "anchors": ("GDPR Art.7", "EU AI Act §10(5)", "KR PIPA §15"),
     },
     "7.3.4_tracing": {
-        "module": "engine.safety.tracing",
+        "module": "engine.safety.slo.slo.tracing",
         "symbols": ("emit_face_reading_event", "FaceReadingTrace"),
         "anchors": ("internal_observability",),
     },
     "7.3.5_quick_check": {
-        "module": "engine.safety.quick_check",
+        "module": "engine.safety.misc.quick_check",
         "symbols": ("run_quick_check", "format_quick_check_text"),
         "anchors": ("internal_observability",),
     },
     "7.3.6_canary_guard": {
-        "module": "engine.safety.canary_guard",
+        "module": "engine.safety.input_guards.canary_guard",
         "symbols": ("decide_canary", "CanaryMetrics"),
         "anchors": ("Google SRE canary",),
     },
     "7.3.8_backup_manifest": {
-        "module": "engine.safety.backup_manifest",
+        "module": "engine.safety.incident.backup_manifest",
         "symbols": ("get_face_reading_manifest", "overdue_backups"),
         "anchors": ("KR PIPA §21", "EU AI Act §12"),
     },
     "7.3.9_shadow_eval": {
-        "module": "engine.safety.shadow_eval",
+        "module": "engine.safety.audit.shadow_eval",
         "symbols": ("compare_pair", "aggregate_shadow_results"),
         "anchors": ("Google SRE shadow",),
     },
     # ── §10 DSR ──
     "10_dsr_processor": {
-        "module": "engine.safety.dsr_processor",
+        "module": "engine.safety.gdpr.dsr_processor",
         "symbols": ("process_dsr", "DSRRequest"),
         "anchors": ("GDPR Art.15-22", "KR PIPA §35-37", "CCPA §1798"),
     },
     # ── §14 동의/권리/알람 ──
     "14.1_consent_screen": {
-        "module": "engine.safety.consent_screen",
+        "module": "engine.safety.gdpr.consent_screen",
         "symbols": ("get_consent_screen", "validate_consent_payload"),
         "anchors": ("GDPR Art.7", "KR PIPA §22"),
     },
     "14.2_rights_information": {
-        "module": "engine.safety.rights_information",
+        "module": "engine.safety.gdpr.rights_information",
         "symbols": ("get_rights_information", "list_automatable_rights"),
         "anchors": ("GDPR Art.15-22", "KR PIPA §35-37"),
     },
     "14.3_alert_router": {
-        "module": "engine.safety.alert_router",
+        "module": "engine.safety.crisis.alert_router",
         "symbols": ("route_alert", "AlertEvent"),
         "anchors": ("internal_incident_response",),
     },
     # ── 별도 규제 ──
     "EU_AI_Act_Art50_3": {
-        "module": "engine.safety.emotion_disclosure",
+        "module": "engine.safety.crisis.emotion_disclosure",
         "symbols": ("is_emotion_disclosure_required", "build_emotion_disclosure"),
         "anchors": ("EU AI Act Art.50(3)", "EU AI Act §5(f)"),
     },
     "crisis_resources_multimarket": {
-        "module": "engine.safety.crisis_resources",
+        "module": "engine.safety.crisis.resources",
         "symbols": ("get_crisis_resources", "format_hotlines_text"),
         "anchors": ("KR §1393", "US §988", "EU §116-111"),
     },
     "regulation_profile": {
-        "module": "engine.safety.regulation",
+        "module": "engine.safety.gdpr.regulation",
         "symbols": ("get_regulation_profile", "is_biometric_inference_restricted"),
         "anchors": ("EU AI Act §5", "KR PIPA", "US-CA CCPA", "US-IL BIPA"),
     },
     "feedback_anonymous": {
-        "module": "engine.safety.feedback",
+        "module": "engine.safety.misc.feedback",
         "symbols": ("record_feedback", "get_aggregate_stats"),
         "anchors": ("internal_quality_gate",),
     },

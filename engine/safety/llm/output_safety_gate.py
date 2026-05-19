@@ -78,7 +78,7 @@ def run_safety_gates(
     has_minor = False
 
     # 1) output_token_guard
-    from engine.safety.output_token_guard import (
+    from engine.safety.llm.output_token_guard import (
         evaluate_output, ISSUE_TOO_SHORT, ISSUE_TRUNCATED,
     )
     token_r = evaluate_output(response_text, lang=lang)
@@ -95,7 +95,7 @@ def run_safety_gates(
             has_warn = True
 
     # 2) response_pii_leak — PII는 즉시 critical
-    from engine.safety.response_pii_leak import scan_response_pii
+    from engine.safety.llm.response_pii_leak import scan_response_pii
     pii_r = scan_response_pii(response_text)
     details["pii_leak"] = {
         "leaks": list(pii_r.leaks),
@@ -106,7 +106,7 @@ def run_safety_gates(
         has_critical = True
 
     # 3) persona_self_eval
-    from engine.safety.persona_self_eval import evaluate_persona_tone
+    from engine.safety.llm.persona_self_eval import evaluate_persona_tone
     persona_r = evaluate_persona_tone(response_text)
     details["persona"] = {
         "passed": persona_r.passed,
@@ -119,7 +119,7 @@ def run_safety_gates(
         has_warn = True
 
     # 4) response_fact_check
-    from engine.safety.response_fact_check import check_response
+    from engine.safety.llm.response_fact_check import check_response
     fact_r = check_response(
         response_text,
         age=age,
@@ -136,7 +136,7 @@ def run_safety_gates(
         has_warn = True
 
     # 5) response_alignment
-    from engine.safety.response_alignment import evaluate_alignment
+    from engine.safety.llm.response_alignment import evaluate_alignment
     align_r = evaluate_alignment(question=question, response_text=response_text)
     details["alignment"] = {
         "topic_detected": align_r.topic_detected,
