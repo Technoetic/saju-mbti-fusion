@@ -2912,7 +2912,7 @@
   }
 
   /* 풀이 모드 진입 시 — 갤러리·탭바 숨기고 풀이 화면만 노출 */
-  body.in-app:not(.gallery-mode) .card-gallery { display: none; }
+  body.in-app:not(.gallery-mode) #cardGallery { display: none; } /* 본관 갤러리만 해당 */
   /* 풀이 모드(in-app, gallery-mode 아님)에서도 상단 탭바 숨김 — 카드 갤러리로 대체된 UI */
   body.in-app .tab-bar { display: none; }
   body.gallery-mode .tab-content { display: none !important; }
@@ -2967,10 +2967,10 @@
   .menu-view, .content-view { display: none; }
   body.menu-mode .menu-view { display: block; }
   body.content-mode .content-view { display: block; }
-  /* menu/content 모드에서는 카드 갤러리·풀이 탭 숨김 */
-  body.menu-mode .card-gallery,
+  /* menu/content 모드에서는 본관 카드 갤러리·풀이 탭 숨김 (취선루 갤러리는 별도 제어) */
+  body.menu-mode #cardGallery,
   body.menu-mode .tab-content,
-  body.content-mode .card-gallery,
+  body.content-mode #cardGallery,
   body.content-mode .tab-content { display: none !important; }
 
   .menu-view {
@@ -3313,6 +3313,518 @@
   .content-master-quote { font-size: 13px; }
   .content-cta { padding: 11px 26px; font-size: 13.5px; letter-spacing: 3.5px; }
   }
+
+  /* ════════════════════════════════════════════════════════
+   취선루 (醉仙樓) — 19금 별도 공간
+   진홍 / 검정 / 황금 / 자줏빛 톤
+   ════════════════════════════════════════════════════════ */
+  :root {
+  --cs-crimson: #b8232b;
+  --cs-crimson-bri: #e63a3a;
+  --cs-crimson-dp: #6b0f14;
+  --cs-gold: #c89c4a;
+  --cs-gold-bri: #f0c14b;
+  --cs-black: #0a0606;
+  --cs-violet-deep: #4a1832;
+  --cs-ivory: #f3e5c8;
+  --cs-ivory-soft: #d9c79a;
+  }
+
+  /* ─── 우측 하단 진입 문 ─── */
+  .chwiseon-gate {
+  position: fixed;
+  right: 22px; bottom: 22px;
+  z-index: 25;
+  width: 72px; height: 96px;
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: none; /* 메인 in-app 갤러리 모드에서만 표시 */
+  font-family: 'Nanum Myeongjo', serif;
+  transition: transform 0.25s ease;
+  }
+  body.in-app.gallery-mode .chwiseon-gate { display: block; }
+  .chwiseon-gate:hover { transform: translateY(-2px); }
+  .cgate-door {
+  position: relative;
+  display: block;
+  width: 60px; height: 78px;
+  margin: 0 auto 4px;
+  border-radius: 30px 30px 6px 6px;
+  background: linear-gradient(180deg, #5a1218 0%, #3a0a0e 80%);
+  border: 2px solid var(--cs-gold-bri);
+  box-shadow:
+  0 0 16px rgba(230, 58, 58, 0.55),
+  0 0 32px rgba(184, 35, 43, 0.35),
+  inset 0 0 8px rgba(240, 193, 75, 0.35);
+  overflow: hidden;
+  animation: cgateBreath 2.6s ease-in-out infinite;
+  }
+  @keyframes cgateBreath {
+  0%, 100% { box-shadow: 0 0 16px rgba(230,58,58,0.45), 0 0 32px rgba(184,35,43,0.25), inset 0 0 8px rgba(240,193,75,0.30); }
+  50% { box-shadow: 0 0 22px rgba(230,58,58,0.75), 0 0 46px rgba(184,35,43,0.55), inset 0 0 14px rgba(240,193,75,0.55); }
+  }
+  .cgate-door-frame {
+  position: absolute; inset: 6px;
+  border: 1px solid rgba(240, 193, 75, 0.45);
+  border-radius: 24px 24px 4px 4px;
+  }
+  .cgate-door-inner {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 6px; height: 36px;
+  background: linear-gradient(180deg, var(--cs-gold-bri), var(--cs-gold-bri));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  border-radius: 3px;
+  box-shadow: 0 0 10px var(--cs-gold-bri);
+  }
+  .chwiseon-gate:hover .cgate-door-inner { opacity: 0.85; }
+  .cgate-door-glow {
+  position: absolute;
+  inset: -20px;
+  background: radial-gradient(circle, rgba(240,193,75,0.30), transparent 70%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+  }
+  .chwiseon-gate:hover .cgate-door-glow { opacity: 1; }
+  .cgate-lantern {
+  position: absolute;
+  top: -6px; left: 50%;
+  transform: translateX(-50%);
+  width: 14px; height: 18px;
+  background: radial-gradient(ellipse at 50% 40%, var(--cs-gold-bri), var(--cs-crimson) 70%);
+  border-radius: 50%;
+  border: 1px solid var(--cs-gold);
+  box-shadow: 0 0 12px rgba(240,193,75,0.75);
+  animation: cgateLanternSway 3.4s ease-in-out infinite;
+  }
+  @keyframes cgateLanternSway {
+  0%, 100% { transform: translateX(-50%) rotate(-3deg); }
+  50% { transform: translateX(-50%) rotate(3deg); }
+  }
+  .cgate-label {
+  display: block;
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: var(--cs-gold-bri);
+  text-shadow: 0 0 6px rgba(184,35,43,0.65);
+  font-weight: 700;
+  }
+  @media (max-width: 720px) {
+  .chwiseon-gate { right: 14px; bottom: 14px; width: 56px; height: 78px; }
+  .cgate-door { width: 48px; height: 64px; }
+  .cgate-door-inner { height: 28px; }
+  .cgate-label { font-size: 8px; letter-spacing: 2px; }
+  }
+
+  /* ─── 성인 인증 게이트 (오버레이) ─── */
+  .chwiseon-auth {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+  }
+  .chwiseon-auth.is-open { opacity: 1; pointer-events: auto; }
+  .cauth-backdrop {
+  position: absolute; inset: 0;
+  background:
+  radial-gradient(ellipse at 50% 0%, rgba(184,35,43,0.25), transparent 60%),
+  rgba(10, 6, 6, 0.88);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  }
+  .cauth-card {
+  position: relative;
+  max-width: 420px;
+  width: calc(100% - 40px);
+  padding: 36px 32px 28px;
+  background: linear-gradient(180deg, rgba(40,12,16,0.96), rgba(20,6,8,0.98));
+  border: 1px solid var(--cs-gold);
+  border-radius: 4px;
+  text-align: center;
+  font-family: 'Nanum Myeongjo', serif;
+  box-shadow:
+  0 12px 48px rgba(0,0,0,0.65),
+  0 0 36px rgba(184,35,43,0.30),
+  inset 0 0 0 1px rgba(240,193,75,0.10);
+  }
+  .cauth-card::before {
+  content: '';
+  position: absolute;
+  inset: 8px;
+  border: 1px dashed rgba(240,193,75,0.18);
+  pointer-events: none;
+  border-radius: 2px;
+  }
+  .cauth-emblem {
+  font-size: 30px;
+  letter-spacing: 10px;
+  color: var(--cs-gold-bri);
+  text-shadow: 0 0 14px rgba(230,58,58,0.55), 0 0 28px rgba(184,35,43,0.40);
+  margin-bottom: 18px;
+  line-height: 1;
+  }
+  .cauth-lead {
+  font-size: 16px;
+  color: var(--cs-ivory);
+  line-height: 1.8;
+  letter-spacing: 1px;
+  margin: 0 0 8px;
+  }
+  .cauth-lead b { color: var(--cs-gold-bri); font-weight: 700; }
+  .cauth-sub {
+  font-size: 13px;
+  color: var(--cs-ivory-soft);
+  letter-spacing: 1.5px;
+  margin: 0 0 24px;
+  }
+  .cauth-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 18px;
+  }
+  .cauth-btn {
+  padding: 13px 24px;
+  border-radius: 3px;
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 14px;
+  letter-spacing: 4px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  }
+  .cauth-btn-primary {
+  background: linear-gradient(180deg, var(--cs-crimson-bri), var(--cs-crimson-dp));
+  color: var(--cs-ivory);
+  border: 1px solid var(--cs-gold-bri);
+  font-weight: 700;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+  box-shadow: 0 0 16px rgba(184,35,43,0.45);
+  }
+  .cauth-btn-primary:hover {
+  background: linear-gradient(180deg, var(--cs-crimson-bri), var(--cs-crimson));
+  box-shadow: 0 0 28px rgba(230,58,58,0.70);
+  }
+  .cauth-btn-secondary {
+  background: transparent;
+  color: var(--cs-ivory-soft);
+  border: 1px solid rgba(240,193,75,0.30);
+  }
+  .cauth-btn-secondary:hover { color: var(--cs-gold-bri); border-color: var(--cs-gold); }
+  .cauth-disclaimer {
+  font-size: 11px;
+  color: rgba(217, 199, 154, 0.7);
+  letter-spacing: 1.5px;
+  margin: 0;
+  line-height: 1.7;
+  border-top: 1px dashed rgba(240,193,75,0.18);
+  padding-top: 14px;
+  }
+  .cauth-disclaimer small { color: rgba(217, 199, 154, 0.5); }
+
+  /* ─── 공간 전환 애니메이션 ─── */
+  .chwiseon-transition {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: var(--cs-black);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  overflow: hidden;
+  }
+  .chwiseon-transition.is-active { opacity: 1; pointer-events: auto; }
+  .ctrans-lantern {
+  position: absolute;
+  width: 80px; height: 110px;
+  border-radius: 50% 50% 30% 30% / 60% 60% 40% 40%;
+  background: radial-gradient(ellipse at 50% 40%, var(--cs-gold-bri), var(--cs-crimson) 60%, var(--cs-crimson-dp) 100%);
+  box-shadow: 0 0 60px rgba(230,58,58,0.75), inset 0 0 20px rgba(240,193,75,0.55);
+  opacity: 0;
+  animation: ctransLantern 2.4s ease-out forwards;
+  }
+  .ctrans-lantern-1 { left: 16%; top: 18%; animation-delay: 0.1s; }
+  .ctrans-lantern-2 { right: 16%; top: 22%; animation-delay: 0.5s; }
+  .ctrans-lantern-3 { left: 50%; top: 12%; transform: translateX(-50%); animation-delay: 0.9s; }
+  @keyframes ctransLantern {
+  0% { opacity: 0; transform: translateY(40px) scale(0.6); }
+  50% { opacity: 1; transform: translateY(0) scale(1.1); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .ctrans-curtain {
+  position: absolute;
+  top: 0; bottom: 0;
+  width: 50%;
+  background:
+  repeating-linear-gradient(180deg,
+  rgba(40,8,12,0.95) 0px, rgba(40,8,12,0.95) 24px,
+  rgba(60,14,20,0.95) 24px, rgba(60,14,20,0.95) 48px),
+  linear-gradient(180deg, rgba(60,14,20,0.95), rgba(20,4,6,0.98));
+  box-shadow: inset 0 0 60px rgba(230,58,58,0.30);
+  animation: ctransCurtainOpen 2.5s ease-in-out 0.6s forwards;
+  }
+  .ctrans-curtain-left { left: 0; transform-origin: left center; }
+  .ctrans-curtain-right { right: 0; transform-origin: right center; }
+  @keyframes ctransCurtainOpen {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-100%); }
+  }
+  .ctrans-curtain-right { animation-name: ctransCurtainOpenR; }
+  @keyframes ctransCurtainOpenR {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(100%); }
+  }
+  .ctrans-incense {
+  position: absolute;
+  left: 50%; bottom: 0;
+  width: 200px; height: 280px;
+  transform: translateX(-50%);
+  background:
+  radial-gradient(ellipse at 50% 100%, rgba(240,193,75,0.20) 0%, rgba(184,35,43,0.10) 30%, transparent 70%);
+  opacity: 0;
+  animation: ctransIncense 2.8s ease-in 0.3s forwards;
+  filter: blur(8px);
+  }
+  @keyframes ctransIncense {
+  0% { opacity: 0; transform: translateX(-50%) translateY(40px); }
+  100% { opacity: 0.85; transform: translateX(-50%) translateY(0); }
+  }
+  .ctrans-greeting {
+  position: absolute;
+  left: 50%; top: 55%;
+  transform: translate(-50%, -50%);
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 22px;
+  letter-spacing: 6px;
+  color: var(--cs-gold-bri);
+  text-shadow: 0 0 14px rgba(230,58,58,0.65), 0 0 28px rgba(184,35,43,0.45);
+  opacity: 0;
+  animation: ctransGreeting 2s ease-in-out 1.1s forwards;
+  }
+  @keyframes ctransGreeting {
+  0% { opacity: 0; letter-spacing: 16px; }
+  50% { opacity: 1; letter-spacing: 6px; }
+  100% { opacity: 0.85; letter-spacing: 6px; }
+  }
+
+  /* ─── 취선루 메인 공간 ─── */
+  .chwiseon-main {
+  position: relative;
+  display: none;
+  min-height: 100vh;
+  padding: 60px 16px 40px;
+  background:
+  radial-gradient(ellipse at 50% 0%, rgba(184,35,43,0.20), transparent 50%),
+  radial-gradient(ellipse at 50% 100%, rgba(74,24,50,0.30), transparent 60%),
+  linear-gradient(180deg, var(--cs-black), #18080c 50%, var(--cs-black));
+  z-index: 50;
+  overflow: hidden;
+  }
+  body.chwiseon-on .chwiseon-main { display: block; }
+  body.chwiseon-on .app-container,
+  body.chwiseon-on #cardGallery,
+  body.chwiseon-on .tab-bar,
+  body.chwiseon-on .tab-content,
+  body.chwiseon-on #menuView,
+  body.chwiseon-on #contentView,
+  body.chwiseon-on .chwiseon-gate,
+  body.chwiseon-on .to-gallery-btn,
+  body.chwiseon-on .bg-video,
+  body.chwiseon-on .char-bg { display: none !important; }
+
+  /* 취선루 배경 — 떠다니는 붉은 등불 */
+  .chwiseon-main::before,
+  .chwiseon-main::after {
+  content: '';
+  position: absolute;
+  pointer-events: none;
+  border-radius: 50% 50% 30% 30% / 60% 60% 40% 40%;
+  background: radial-gradient(ellipse at 50% 40%, var(--cs-gold-bri), var(--cs-crimson) 65%);
+  filter: blur(0.5px);
+  opacity: 0.55;
+  animation: csLanternFloat 8s ease-in-out infinite;
+  z-index: 0;
+  }
+  .chwiseon-main::before {
+  left: 6%; top: 28%;
+  width: 36px; height: 50px;
+  box-shadow: 0 0 24px rgba(230,58,58,0.55);
+  }
+  .chwiseon-main::after {
+  right: 8%; top: 60%;
+  width: 28px; height: 40px;
+  box-shadow: 0 0 18px rgba(230,58,58,0.45);
+  animation-delay: -3s;
+  animation-duration: 10s;
+  }
+  @keyframes csLanternFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-14px); }
+  }
+
+  .chwiseon-exit {
+  position: fixed;
+  top: 18px; left: 18px;
+  z-index: 60;
+  padding: 9px 18px 9px 14px;
+  background: rgba(20,8,10,0.85);
+  color: var(--cs-gold-bri);
+  border: 1px solid var(--cs-gold);
+  border-radius: 999px;
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 13px;
+  letter-spacing: 2.5px;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.55), 0 0 12px rgba(184,35,43,0.30);
+  }
+  .chwiseon-exit:hover {
+  color: #fff;
+  border-color: var(--cs-gold-bri);
+  background: rgba(40,12,16,0.95);
+  }
+
+  .chwiseon-header {
+  text-align: center;
+  padding: 6px 0 20px;
+  position: relative;
+  z-index: 1;
+  }
+  .chwiseon-emblem {
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 40px;
+  letter-spacing: 14px;
+  color: var(--cs-gold-bri);
+  text-shadow: 0 0 18px rgba(230,58,58,0.55), 0 0 36px rgba(184,35,43,0.40);
+  margin-bottom: 8px;
+  line-height: 1;
+  }
+  .chwiseon-subtitle {
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 11px;
+  letter-spacing: 6px;
+  color: var(--cs-ivory-soft);
+  margin: 0;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.65);
+  }
+
+  /* 취선루 카드 — 본관 카드와 톤만 다름 */
+  .chwiseon-gallery { max-width: 560px; margin: 12px auto 24px; position: relative; z-index: 1; }
+  .chwiseon-card {
+  background: linear-gradient(180deg, rgba(40,12,16,0.85), rgba(15,5,7,0.95));
+  border: 1px solid var(--cs-gold);
+  box-shadow:
+  0 8px 32px rgba(0,0,0,0.60),
+  inset 0 0 0 1px rgba(240,193,75,0.12),
+  0 0 30px rgba(184,35,43,0.22);
+  }
+  .chwiseon-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+  radial-gradient(ellipse at 30% 20%, rgba(230,58,58,0.18), transparent 60%),
+  radial-gradient(ellipse at 80% 80%, rgba(74,24,50,0.30), transparent 60%);
+  }
+  .chwiseon-card .char-card-name { color: var(--cs-gold-bri); text-shadow: 0 2px 6px rgba(0,0,0,0.85), 0 0 16px rgba(230,58,58,0.35); }
+  .chwiseon-card .char-card-sub { color: var(--cs-ivory); }
+  .chwiseon-card .char-card-quote { color: #f3e5c8; }
+  .chwiseon-card .char-card-enter {
+  background: linear-gradient(180deg, var(--cs-crimson), var(--cs-crimson-dp));
+  color: var(--cs-ivory);
+  border-color: var(--cs-gold-bri);
+  box-shadow:
+  inset 0 0 0 1px rgba(240,193,75,0.20),
+  0 0 18px rgba(184,35,43,0.45);
+  }
+  .chwiseon-card .char-card-enter:hover {
+  background: linear-gradient(180deg, var(--cs-crimson-bri), var(--cs-crimson));
+  color: #fff;
+  box-shadow: 0 0 28px rgba(230,58,58,0.65);
+  }
+
+  /* 취선루 메뉴/콘텐츠 — 본관과 같은 시스템, 톤만 다름 */
+  body.chwiseon-on.chwiseon-menu-mode #chwiseonMenu { display: block; }
+  body.chwiseon-on.chwiseon-content-mode #chwiseonContent { display: block; }
+  body.chwiseon-on.chwiseon-menu-mode .chwiseon-gallery,
+  body.chwiseon-on.chwiseon-content-mode .chwiseon-gallery { display: none !important; }
+  body.chwiseon-on.chwiseon-content-mode #chwiseonMenu { display: none !important; }
+
+  .chwiseon-menu .menu-master-name { color: var(--cs-gold-bri); text-shadow: 0 0 16px rgba(230,58,58,0.40); }
+  .chwiseon-menu .menu-master-sub { color: var(--cs-ivory-soft); }
+  .chwiseon-menu .menu-header { border-bottom-color: rgba(240,193,75,0.30); }
+  .chwiseon-menu .menu-card {
+  background: linear-gradient(180deg, rgba(40,12,16,0.85), rgba(15,5,7,0.95));
+  border-color: var(--cs-gold);
+  }
+  .chwiseon-menu .menu-card:hover {
+  background: linear-gradient(180deg, rgba(60,18,22,0.95), rgba(30,8,12,0.98));
+  border-color: var(--cs-gold-bri);
+  box-shadow: 0 6px 20px rgba(184,35,43,0.40);
+  }
+  .chwiseon-menu .menu-card-glyph { color: var(--cs-gold-bri); text-shadow: 0 0 12px rgba(230,58,58,0.40); }
+  .chwiseon-menu .menu-card-name { color: var(--cs-ivory); }
+  .chwiseon-menu .menu-card-desc { color: var(--cs-ivory-soft); }
+
+  .chwiseon-content .content-card {
+  background: rgba(15,5,7,0.85);
+  border-color: var(--cs-gold);
+  }
+  .chwiseon-content .content-glyph { color: var(--cs-gold-bri); text-shadow: 0 0 16px rgba(230,58,58,0.45); }
+  .chwiseon-content .content-title { color: var(--cs-ivory); }
+  .chwiseon-content .content-master-quote { color: var(--cs-ivory-soft); }
+  .chwiseon-content .content-section { background: rgba(30,8,12,0.65); border-color: rgba(240,193,75,0.22); }
+  .chwiseon-content .content-section-title { color: var(--cs-gold-bri); border-bottom-color: rgba(240,193,75,0.24); }
+  .chwiseon-content .content-section p { color: var(--cs-ivory); }
+  .chwiseon-content .content-back { color: var(--cs-gold-bri); border-color: var(--cs-gold); }
+  .chwiseon-content .content-cta {
+  background: linear-gradient(180deg, var(--cs-crimson), var(--cs-crimson-dp));
+  color: var(--cs-ivory);
+  border-color: var(--cs-gold-bri);
+  }
+  .chwiseon-content .content-cta:hover { background: linear-gradient(180deg, var(--cs-crimson-bri), var(--cs-crimson)); color: #fff; }
+  .chwiseon-content .content-form input,
+  .chwiseon-content .content-form select,
+  .chwiseon-content .content-form textarea {
+  background: rgba(0,0,0,0.5);
+  border-color: rgba(240,193,75,0.30);
+  color: var(--cs-ivory);
+  }
+  .chwiseon-content .content-form label { color: var(--cs-gold-bri); }
+  .chwiseon-content .content-recommend {
+  background: rgba(40,12,16,0.65);
+  border-color: rgba(240,193,75,0.30);
+  }
+  .chwiseon-content .content-recommend-title { color: var(--cs-gold-bri); }
+  .chwiseon-content .content-recommend-card { background: rgba(15,5,7,0.65); border-color: var(--cs-gold); }
+  .chwiseon-content .content-recommend-card:hover { background: rgba(30,8,12,0.85); border-color: var(--cs-gold-bri); }
+  .chwiseon-content .content-recommend-glyph { color: var(--cs-gold-bri); }
+  .chwiseon-content .content-recommend-name { color: var(--cs-ivory); }
+
+  @media (max-width: 720px) {
+  .chwiseon-emblem { font-size: 30px; letter-spacing: 10px; }
+  .chwiseon-subtitle { font-size: 10px; letter-spacing: 4px; }
+  .chwiseon-main { padding: 52px 12px 32px; }
+  .chwiseon-exit { top: 12px; left: 12px; padding: 7px 14px 7px 11px; font-size: 12px; letter-spacing: 2px; }
+  .cauth-card { padding: 28px 20px 22px; }
+  .cauth-emblem { font-size: 26px; letter-spacing: 8px; }
+  .cauth-lead { font-size: 14px; }
+  .cauth-sub { font-size: 12px; }
+  .ctrans-greeting { font-size: 18px; letter-spacing: 5px; }
+  .ctrans-lantern { width: 60px; height: 80px; }
+  }
 </style>
 <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 </head>
@@ -3556,6 +4068,136 @@
 
 <!-- 풀이 모드에서 점술가 선택 화면(카드 갤러리)로 돌아가는 버튼 -->
 <button id="toGalleryBtn" class="to-gallery-btn" type="button" aria-label="점술가 고르러 가기">← 점술가 고르러</button>
+
+<!-- ════════════════════════════════════════════════════════
+  취선루 (醉仙樓) — 19금 별도 공간
+  진입: 우측 하단 붉은 문 → 성인 인증 게이트 → 공간 전환 → 메인
+  ════════════════════════════════════════════════════════ -->
+
+<!-- 취선루 진입 문 (메인 화면 우측 하단에 떠 있음) -->
+<button id="chwiseonGate" class="chwiseon-gate" type="button" aria-label="취선루로 향하는 작은 붉은 문">
+  <span class="cgate-door">
+  <span class="cgate-door-frame"></span>
+  <span class="cgate-door-inner"></span>
+  <span class="cgate-door-glow"></span>
+  <span class="cgate-lantern"></span>
+  </span>
+  <span class="cgate-label">醉 仙 樓</span>
+</button>
+
+<!-- 성인 인증 게이트 (오버레이) -->
+<div id="chwiseonAuth" class="chwiseon-auth" role="dialog" aria-label="성인 인증" hidden>
+  <div class="cauth-backdrop"></div>
+  <div class="cauth-card">
+  <div class="cauth-emblem">醉 仙 樓</div>
+  <p class="cauth-lead">
+  이곳은 <b>신선이 취하는 누각</b>,<br>
+  어른들의 공간이옵니다.
+  </p>
+  <p class="cauth-sub">들어가시려면 먼저 신분을 확인해주세요.</p>
+  <div class="cauth-actions">
+  <button class="cauth-btn cauth-btn-primary" type="button" id="cauthVerifyBtn">성인 인증하기 ▶</button>
+  <button class="cauth-btn cauth-btn-secondary" type="button" id="cauthBackBtn">돌아가기</button>
+  </div>
+  <p class="cauth-disclaimer">
+  💎 만 19세 이상만 입장 가능 · 본인 인증 후 출입<br>
+  <small>※ 인증 시스템은 곧 연결됩니다 (백엔드 영역)</small>
+  </p>
+  </div>
+</div>
+
+<!-- 공간 전환 애니메이션 (붉은 등불 켜짐) -->
+<div id="chwiseonTransition" class="chwiseon-transition" aria-hidden="true" hidden>
+  <div class="ctrans-lantern ctrans-lantern-1"></div>
+  <div class="ctrans-lantern ctrans-lantern-2"></div>
+  <div class="ctrans-lantern ctrans-lantern-3"></div>
+  <div class="ctrans-curtain ctrans-curtain-left"></div>
+  <div class="ctrans-curtain ctrans-curtain-right"></div>
+  <div class="ctrans-incense"></div>
+  <div class="ctrans-greeting">환영합니다, 손님…</div>
+</div>
+
+<!-- 취선루 메인 컨테이너 (인증 후 표시) -->
+<section id="chwiseonMain" class="chwiseon-main" hidden>
+  <!-- 좌상단: 본관으로 돌아가기 -->
+  <button id="chwiseonExit" class="chwiseon-exit" type="button" aria-label="월하몽 본관으로 돌아가기">← 본관으로</button>
+
+  <header class="chwiseon-header">
+  <div class="chwiseon-emblem">醉 仙 樓</div>
+  <p class="chwiseon-subtitle">취 선 루 · 신 선 이  취 하 는  누 각</p>
+  </header>
+
+  <!-- 5인 캐릭터 카드 갤러리 (본관과 동일 구조 — 별도 인스턴스) -->
+  <section class="card-gallery chwiseon-gallery" aria-label="취선루 점술가 선택">
+  <div class="card-deck" id="chwiseonDeck">
+  <article class="char-card chwiseon-card" data-go="ya" data-character="ya">
+  <div class="char-card-veil"></div>
+  <div class="char-card-body">
+  <h2 class="char-card-name">야선 아씨</h2>
+  <p class="char-card-sub">밤의 점술가 · 욕망을 풀어드리는 매혹의 아씨</p>
+  <p class="char-card-quote">"이리 오시지요. 그대 깊은 곳을 풀어드리겠사옵니다."</p>
+  <button class="char-card-enter" type="button">야선 아씨 만나러</button>
+  </div>
+  </article>
+  <article class="char-card chwiseon-card" data-go="unu" data-character="unu">
+  <div class="char-card-veil"></div>
+  <div class="char-card-body">
+  <h2 class="char-card-name">운우 공자</h2>
+  <p class="char-card-sub">밀애의 점술가 · 금단의 사랑을 보는 공자</p>
+  <p class="char-card-quote">"숨겨둔 마음, 이 사람이 풀어드리리다."</p>
+  <button class="char-card-enter" type="button">운우 공자 만나러</button>
+  </div>
+  </article>
+  <article class="char-card chwiseon-card" data-go="hahong" data-character="hahong">
+  <div class="char-card-veil"></div>
+  <div class="char-card-body">
+  <h2 class="char-card-name">화홍 낭자</h2>
+  <p class="char-card-sub">욕망의 타로 · 정열의 꽃패 낭자</p>
+  <p class="char-card-quote">"불꽃 같은 카드 한 장, 함께 뽑아봐요."</p>
+  <button class="char-card-enter" type="button">화홍 낭자 만나러</button>
+  </div>
+  </article>
+  <article class="char-card chwiseon-card" data-go="hyangran" data-character="hyangran">
+  <div class="char-card-veil"></div>
+  <div class="char-card-body">
+  <h2 class="char-card-name">향란 마담</h2>
+  <p class="char-card-sub">취선루의 주인 · 손님을 맞이하는 신비의 마담</p>
+  <p class="char-card-quote">"또 오셨군요, 손님… 안으로 드시지요."</p>
+  <button class="char-card-enter" type="button">향란 마담 만나러</button>
+  </div>
+  </article>
+  <article class="char-card chwiseon-card" data-go="muk" data-character="muk">
+  <div class="char-card-veil"></div>
+  <div class="char-card-body">
+  <h2 class="char-card-name">묵향</h2>
+  <p class="char-card-sub">비밀의 작가 · 야릇한 시를 적는 시인</p>
+  <p class="char-card-quote">"붓끝에 담을 한 줄, 그대를 위해 적어드리리다."</p>
+  <button class="char-card-enter" type="button">묵향 만나러</button>
+  </div>
+  </article>
+  </div>
+  <div class="gallery-controls">
+  <button class="gallery-arrow gallery-arrow-prev" type="button" data-chwiseon-prev>‹</button>
+  <div class="gallery-dots" id="chwiseonDots" role="tablist" aria-label="취선루 점술가 인디케이터"></div>
+  <button class="gallery-arrow gallery-arrow-next" type="button" data-chwiseon-next>›</button>
+  </div>
+  <p class="gallery-hint">← 옆으로 넘기면 다른 점술가가 나옵니다 →</p>
+  </section>
+
+  <!-- 취선루 메뉴 그리드 -->
+  <section id="chwiseonMenu" class="menu-view chwiseon-menu" hidden>
+  <header class="menu-header">
+  <h2 class="menu-master-name" id="chwiseonMasterName"></h2>
+  <p class="menu-master-sub" id="chwiseonMasterSub"></p>
+  </header>
+  <div class="menu-grid" id="chwiseonMenuGrid"></div>
+  </section>
+
+  <!-- 취선루 콘텐츠 뷰 -->
+  <section id="chwiseonContent" class="content-view chwiseon-content" hidden>
+  <div id="chwiseonContentBody"></div>
+  </section>
+</section>
 
 <div class="app-container" id="appMain">
 <div class="header-ornament"></div>
@@ -10422,6 +11064,246 @@ window.WHM_FIELDS = {
   ],
 };
 
+// ═══════════════════════════════════════════════════════════
+// 醉仙樓 (취선루) 19금 별도 공간 — 5인 × 14개 콘텐츠
+// 본관과 별개의 공간. 진입: 우측 하단 붉은 문 → 성인 인증 → 공간 전환
+// 톤: 진홍·검정·황금·자줏빛. 더미 sample 만 표시 (실제 풀이는 백엔드 영역)
+// ═══════════════════════════════════════════════════════════
+window.CHWISEON_CONTENTS = {
+  ya: {
+  master: '야선 아씨',
+  masterSub: '밤의 점술가 · 욕망을 풀어드리는 매혹의 아씨',
+  charKey: 'ya',
+  items: [
+  {
+  key: 'sok-gunghap', name: '야선 아씨의 속궁합 풀이', glyph: '深 緣',
+  desc: '두 사람의 깊은 인연 — 사주로 보는 진짜 궁합.',
+  tier: 'premium', badges: ['hot'], est: '15분', price: '$10~15',
+  quote: '"두 사람의 별이 어떻게 얽히는지, 깊이 들여다보겠사옵니다."',
+  fields: [
+  { key: 'fullName', label: '내 이름', type: 'text', share: 'name' },
+  { key: 'birth', label: '내 생년월일', type: 'ymd' },
+  { key: 'gender', label: '내 성별', type: 'gender' },
+  { key: 'partnerName', label: '상대 이름 (또는 호칭)', type: 'text' },
+  { key: 'partnerBirth', label: '상대 생년월일', type: 'ymd' },
+  { key: 'partnerGender', label: '상대 성별', type: 'gender' },
+  ],
+  cta: '속궁합 풀이 받기',
+  sample: '두 사람의 일주(日柱)가 서로의 깊은 곳에 닿는 별자리에 놓여있사옵니다. 겉으로 보이는 호감보다 훨씬 깊은 인연의 결이지요.\n\n다만 그대의 화(火)와 상대의 수(水)가 만나는 자리엔 작은 긴장이 흐르옵니다. 그 긴장이 두 분을 깊이 끌어당기는 힘이기도 하지요.',
+  },
+  {
+  key: 'desire-saju', name: '야선 아씨의 욕망 사주', glyph: '渴 望',
+  desc: '내 안의 욕망과 갈망 — 사주가 비추는 진짜 본성.',
+  tier: 'premium', est: '10~15분', price: '$12~18',
+  quote: '"마음 깊은 곳에 잠든 그대의 본성, 한 번 깨워드리지요."',
+  fields: [
+  { key: 'fullName', label: '이름', type: 'text', share: 'name' },
+  { key: 'birth', label: '생년월일', type: 'ymd' },
+  { key: 'hourBranch', label: '태어난 시각', type: 'hour-branch' },
+  { key: 'gender', label: '성별', type: 'gender' },
+  ],
+  cta: '욕망 사주 받기',
+  sample: '그대의 사주엔 편관(偏官)과 도화(桃花)가 함께 머무니, 겉으론 단정하시나 안으론 강한 욕망을 지닌 분이외다. 그 욕망을 부끄러워 마시지요. 그게 그대를 살아있게 하는 별이옵니다.\n\n다만 그 별이 어디로 흐르게 할지는 그대의 선택이지요. 정식 풀이에서 그대 안의 다섯 갈래 욕망을 깊이 들여다드리오리다.',
+  },
+  {
+  key: 'unu-jijeong', name: '야선 아씨의 운우지정 풀이', glyph: '雲 雨',
+  desc: '깊은 관계의 운명 — 구름과 비가 만나는 자리.',
+  tier: 'premium', badges: ['hot'], est: '15~20분', price: '$15~20',
+  quote: '"구름과 비가 만나야 비로소 풍경이 됩니다. 그 운명을 풀어드리지요."',
+  fields: [
+  { key: 'fullName', label: '내 이름', type: 'text', share: 'name' },
+  { key: 'birth', label: '내 생년월일', type: 'ymd' },
+  { key: 'partnerBirth', label: '상대 생년월일', type: 'ymd' },
+  { key: 'situation', label: '현재 관계 상황', type: 'textarea', rows: 3, placeholder: '예: 깊어지는 관계인지 흐려지는 관계인지…' },
+  ],
+  cta: '운우지정 풀이 받기',
+  sample: '두 분의 별이 같은 강물 위에 놓여있사옵니다. 한 분은 구름, 한 분은 비 — 만나야 비로소 한 풍경이 되시는 분들이지요.\n\n다만 운우지정엔 시기가 있사옵니다. 지금은 구름이 모이는 시기, 보름 안에 한 차례 강한 흐름이 다가올 것이외다.',
+  },
+  {
+  key: 'jeongin-saju', name: '야선 아씨의 정인 사주', glyph: '正 人',
+  desc: '진짜 내 사람을 보는 풀이 — 평생 함께할 인연.',
+  tier: 'premium', est: '15분', price: '$10~15',
+  quote: '"그대 별과 짝을 이룰 진짜 사람을 살펴드리지요."',
+  fields: [
+  { key: 'fullName', label: '이름', type: 'text', share: 'name' },
+  { key: 'birth', label: '생년월일', type: 'ymd' },
+  { key: 'hourBranch', label: '태어난 시각', type: 'hour-branch' },
+  { key: 'gender', label: '성별', type: 'gender' },
+  ],
+  cta: '정인 사주 받기',
+  sample: '그대의 일지(日支)에 정관(正官)이 깊이 자리하고 있사옵니다. 그대의 진짜 사람은 화려한 분이 아니라, 조용히 곁을 지키는 분이외다.\n\n그 사람은 그대와 다섯 살 차이 안에 있고, 직업은 손으로 무언가를 만들거나 가르치는 분이지요. 정식 풀이에서 외모·만나는 시기·계기를 더 깊이 풀어드리오리다.',
+  },
+  ],
+  },
+  unu: {
+  master: '운우 공자',
+  masterSub: '밀애의 점술가 · 금단의 사랑을 보는 공자',
+  charKey: 'unu',
+  items: [
+  {
+  key: 'secret-inyeon', name: '운우 공자의 비밀 인연 풀이', glyph: '秘 緣',
+  desc: '숨겨진 인연 — 드러나지 않은 마음을 풀어드립니다.',
+  tier: 'premium', est: '10~15분', price: '$10~15',
+  quote: '"숨겨둔 마음일수록 또렷이 보이는 법이지요."',
+  fields: [
+  { key: 'fullName', label: '내 이름', type: 'text', share: 'name' },
+  { key: 'birth', label: '내 생년월일', type: 'ymd' },
+  { key: 'concern', label: '숨겨둔 마음 (선택)', type: 'textarea', rows: 4, placeholder: '예: 말 못한 사람이 있다 / 비밀스러운 관계…' },
+  ],
+  cta: '비밀 인연 풀이',
+  sample: '그대의 별 흐름엔 숨겨둔 인연의 자국이 또렷이 남아있사옵니다. 한 사람의 그림자가 마음 깊은 곳에 깃들어 있지요.\n\n그 인연을 드러낼지 묻어둘지는 그대의 결정이지만, 카드는 지금이 새로운 흐름의 시작점이라 가리키고 있사옵니다.',
+  },
+  {
+  key: 'same-sex-saju', name: '운우 공자의 동성 사주', glyph: '同 心',
+  desc: '동성애 풀이 — 퀴어 시장 특화 정통 사주.',
+  tier: 'premium', badges: ['new'], est: '15분', price: '$12~18',
+  quote: '"별엔 성별이 없사옵니다. 그대의 인연을 있는 그대로 풀어드리지요."',
+  fields: [
+  { key: 'fullName', label: '내 이름', type: 'text', share: 'name' },
+  { key: 'birth', label: '내 생년월일', type: 'ymd' },
+  { key: 'hourBranch', label: '태어난 시각', type: 'hour-branch' },
+  { key: 'partnerBirth', label: '상대 생년월일 (선택)', type: 'ymd' },
+  ],
+  cta: '동성 사주 받기',
+  sample: '그대 사주엔 정관과 편관이 함께 흐르니, 마음이 향하는 자리가 한 갈래로 정해지지 않는 분이외다. 그 흐름이 그대의 진실이지요.\n\n인연의 시기는 봄(寅卯) — 사주는 성별을 가리지 않습니다. 그대 별과 어울리는 별을 만나는 시기가 정확히 보이옵니다.',
+  },
+  {
+  key: 'forbidden-love', name: '운우 공자의 금단의 사랑 풀이', glyph: '禁 愛',
+  desc: '사회가 인정하지 않는 사랑 — 그 운명의 결을 짚어드립니다.',
+  tier: 'premium', badges: ['hot'], est: '15~20분', price: '$15~20',
+  quote: '"금단이라는 말 안엔 가장 또렷한 마음이 있사옵니다."',
+  fields: [
+  { key: 'fullName', label: '내 이름', type: 'text', share: 'name' },
+  { key: 'birth', label: '내 생년월일', type: 'ymd' },
+  { key: 'situation', label: '관계 상황 (선택)', type: 'textarea', rows: 4, placeholder: '예: 사회적으로 받아들여지지 않는 관계 / 비밀스러운 사랑…' },
+  ],
+  cta: '금단의 사랑 풀이',
+  sample: '두 분의 별이 너무 가까이 있어, 세상이 떼어놓으려 하는 자리이외다. 다만 별의 흐름은 사회의 흐름보다 깊지요.\n\n금단이라 부르는 자리에 머무신다면, 시간이 걸리되 결국 한 자리를 찾으실 분들입니다. 그 시기와 길을 정식 풀이에서 안내해드리오리다.',
+  },
+  ],
+  },
+  hahong: {
+  master: '화홍 낭자',
+  masterSub: '욕망의 타로 · 정열의 꽃패 낭자',
+  charKey: 'hahong',
+  items: [
+  {
+  key: 'tarot19', name: '화홍 낭자의 19금 타로', glyph: '紅 牌',
+  desc: '야릇한 타로 풀이 — 깊은 곳의 카드를 함께 뽑아봐요.',
+  tier: 'premium', badges: ['hot'], est: '10~15분', price: '$8~12',
+  quote: '"불꽃 같은 카드 한 장, 함께 뽑아봐요."',
+  fields: [
+  { key: 'concern', label: '마음에 둔 질문', type: 'textarea', rows: 3, placeholder: '예: 그 사람과의 깊은 관계가 어떻게 흐를까…' },
+  ],
+  cta: '19금 타로 뽑기',
+  sample: '카드 한 장이 "戀理(연리)"의 자리에 떨어졌어요. 두 마음이 한 줄기로 엮이는 카드 — 다만 빛이 비치는 면이 평소보다 깊고 야릇해요.\n\n그대가 묻으신 질문엔 "지금이 가장 또렷한 시기"라는 답이에요. 두려워하지 마시고 마음을 따라가 보세요. 정식 풀이에서 세 장의 깊은 카드를 펼쳐드릴게요.',
+  },
+  {
+  key: 'temptation', name: '화홍 낭자의 유혹의 카드', glyph: '誘 惑',
+  desc: '누군가를 사로잡는 매력 — 그대 안의 끌어당기는 힘.',
+  tier: 'premium', est: '10~15분', price: '$10~15',
+  quote: '"누군가를 끌어당기는 그대의 힘이 어디서 오는지, 카드가 비춰드릴게요."',
+  fields: [
+  { key: 'fullName', label: '이름', type: 'text', share: 'name' },
+  { key: 'birth', label: '생년월일', type: 'ymd' },
+  { key: 'target', label: '사로잡고 싶은 사람 (선택)', type: 'text', placeholder: '특정한 사람이 있다면…' },
+  ],
+  cta: '유혹의 카드 뽑기',
+  sample: '그대의 유혹의 카드는 "月(달)" — 신비롭고 또렷이 떠오르지 않는 매혹이에요. 그대는 직접적으로 다가가기보다, 자기다운 분위기를 지킬 때 가장 끌리는 분이에요.\n\n옷차림이나 말투를 바꾸시기보다, 그대만의 색을 더 깊이 지키세요. 그게 가장 강한 유혹이에요.',
+  },
+  {
+  key: 'desire-tarot', name: '화홍 낭자의 욕망의 타로', glyph: '慾 心',
+  desc: '진짜 욕망 찾기 — 카드가 비추는 마음 깊은 곳.',
+  tier: 'premium', est: '15분', price: '$12~18',
+  quote: '"그대가 정말 바라는 것이 무엇인지, 카드 세 장으로 찾아드릴게요."',
+  fields: [
+  { key: 'concern', label: '평소 망설이는 것 (선택)', type: 'textarea', rows: 3, placeholder: '예: 이렇게 살아도 될지, 진짜 원하는 게 뭔지 모르겠어요…' },
+  ],
+  cta: '욕망의 타로 뽑기',
+  sample: '세 장이 펼쳐졌어요 — "표면"엔 君王(군왕), "마음"엔 戀理(연리), "진짜 욕망"엔 狂客(광객).\n\n겉으론 안정과 책임을 추구하시지만, 진짜 그대가 바라는 건 자유와 새로운 시작이에요. 그 두 마음 사이의 균형이 그대의 과제예요. 정식 풀이에서 깊이 풀어드릴게요.',
+  },
+  ],
+  },
+  hyangran: {
+  master: '향란 마담',
+  masterSub: '취선루의 주인 · 손님을 맞이하는 신비의 마담',
+  charKey: 'hyangran',
+  items: [
+  {
+  key: 'secret-puli', name: '향란 마담의 비밀 풀이', glyph: '秘 占',
+  desc: '프리미엄 종합 풀이 — 취선루 모든 점술가의 진수.',
+  tier: 'premium', badges: ['hot'], est: '20~30분', price: '$20~30',
+  quote: '"이 누각의 모든 술법을 모아, 그대 한 분께 드리지요."',
+  fields: [
+  { key: 'fullName', label: '이름', type: 'text', share: 'name' },
+  { key: 'birth', label: '생년월일', type: 'ymd' },
+  { key: 'hourBranch', label: '태어난 시각', type: 'hour-branch' },
+  { key: 'gender', label: '성별', type: 'gender' },
+  { key: 'wish', label: '간직한 깊은 질문', type: 'textarea', rows: 4, placeholder: '평생에 한 번 묻고 싶은 한 가지…' },
+  ],
+  cta: '비밀 풀이 받기',
+  sample: '취선루 다섯 점술가의 시각을 모아드립지요. 야선이 본 그대의 욕망, 운우가 본 그대의 인연, 화홍이 뽑은 그대의 매혹, 묵향이 적은 그대의 시.\n\n네 갈래가 한 자리로 모일 때, 비로소 그대의 진짜 풀이가 펼쳐집니다. 이 누각에서 한 분께 가장 깊은 시간을 드리는 자리이지요.',
+  },
+  {
+  key: 'yasanggok', name: '향란 마담의 야상곡', glyph: '夜 想',
+  desc: '밤의 풍수 / 침실 풍수 — 공간이 만드는 깊은 흐름.',
+  tier: 'premium', est: '15분', price: '$15~20',
+  quote: '"밤이 그대 공간에 어찌 흐르는지, 정성껏 살펴드리지요."',
+  fields: [
+  { key: 'fullName', label: '이름', type: 'text', share: 'name' },
+  { key: 'birth', label: '생년월일', type: 'ymd' },
+  { key: 'room', label: '풀이 받을 공간', type: 'select', options: [
+  { value: 'bed', label: '침실' }, { value: 'living', label: '거실' }, { value: 'whole', label: '집 전체' },
+  ] },
+  { key: 'concern', label: '특히 알고 싶은 것', type: 'textarea', rows: 3, placeholder: '예: 잠이 깊지 않아요 / 관계가 식어가는 것 같아요…' },
+  ],
+  cta: '야상곡 받기',
+  sample: '침실은 어두운 자줏빛과 짙은 청록이 어울리지요. 밤의 별빛이 부드럽게 머무는 색이옵니다. 침대는 동남쪽을 향해, 머리는 동쪽으로 두시지요.\n\n붉은 등불 하나를 침대 옆에 두시면, 두 분의 흐름이 깊어집니다. 단 향(香)은 약하고 부드러운 것으로 — 백단·침향이 좋사옵니다.',
+  },
+  ],
+  },
+  muk: {
+  master: '묵향',
+  masterSub: '비밀의 작가 · 야릇한 시를 적는 시인',
+  charKey: 'muk',
+  items: [
+  {
+  key: 'jeongin-letter', name: '묵향의 정인 편지', glyph: '情 書',
+  desc: 'AI가 정인에게 보낼 편지를 그대 사주로 적어드립니다.',
+  tier: 'premium', badges: ['hot'], est: '10~15분', price: '$10~15',
+  quote: '"붓끝에 담을 한 줄, 그대를 위해 적어드리리다."',
+  fields: [
+  { key: 'fullName', label: '내 이름', type: 'text', share: 'name' },
+  { key: 'theirName', label: '받을 사람 이름', type: 'text' },
+  { key: 'tone', label: '편지 톤', type: 'select', options: [
+  { value: 'tender', label: '담담하고 깊이 있게' }, { value: 'passionate', label: '뜨겁고 또렷이' },
+  { value: 'mysterious', label: '암시적이고 야릇하게' }, { value: 'confession', label: '진심 어린 고백' },
+  ] },
+  { key: 'mood', label: '전하고 싶은 마음', type: 'textarea', rows: 4, placeholder: '예: 보고 싶다, 미안하다, 다시 만나자, 처음 만난 날의 그 떨림…' },
+  ],
+  cta: '정인 편지 받기',
+  sample: '"그대에게,\n\n달이 차오르는 밤이면 마음 한 자락이 그대 쪽으로 흘러갑니다. 말로 다 못한 한 줄이 이 종이 끝에 머무니, 받아주시지요.\n\n그대 별과 내 별이 한 강물 위에 떠 있던 그날을, 이 사람이 기억합니다."\n\n정식 풀이에서 두 분의 사주를 바탕으로, 그대만을 위한 한 편의 편지를 정성껏 적어드리리다.',
+  },
+  {
+  key: 'yarit-shi', name: '묵향의 야릇한 시', glyph: '雅 詩',
+  desc: '사주 기반 야릇한 시 — 그대만을 위한 비밀스러운 한 편.',
+  tier: 'premium', est: '10분', price: '$8~12',
+  quote: '"붓이 그대 사주를 읽으면, 한 편의 시가 절로 나오지요."',
+  fields: [
+  { key: 'fullName', label: '이름', type: 'text', share: 'name' },
+  { key: 'birth', label: '생년월일', type: 'ymd' },
+  { key: 'theme', label: '시의 주제 (선택)', type: 'select', options: [
+  { value: 'love', label: '사랑' }, { value: 'desire', label: '욕망' }, { value: 'separation', label: '이별' },
+  { value: 'reunion', label: '재회' }, { value: 'mystery', label: '비밀' }, { value: 'night', label: '밤' },
+  ] },
+  ],
+  cta: '야릇한 시 받기',
+  sample: '"달 아래 정자엔 그림자 하나.\n그대 발자국이 종이 위에 머문다.\n\n붉은 등불 하나, 비단 자락 한 줄,\n이 밤 그대 별이 또렷이 떨어진다.\n\n취선루 누각에 묵향이 머무니,\n받으시지요, 이 한 줄의 마음을."\n\n정식 풀이에서 그대 사주를 깊이 읽어, 그대만을 위한 한 편의 시를 적어드리리다.',
+  },
+  ],
+  },
+};
+
 // ─────────────────────────────────────────────────────────
 // 메뉴·콘텐츠 라우팅 시스템
 // ─────────────────────────────────────────────────────────
@@ -10676,6 +11558,318 @@ window.WHM_FIELDS = {
   return;
   }
   });
+})();
+
+// ═══════════════════════════════════════════════════════════
+// 醉仙樓 (취선루) 진입·인증·전환·라우팅 시스템
+// 진입: chwiseonGate 클릭 → 인증 게이트 → (인증 OK) → 공간 전환 → 메인
+// 본관 시스템과 완전히 분리. localStorage 로 인증 상태 영속화 (프론트만).
+// ═══════════════════════════════════════════════════════════
+(function setupChwiseon() {
+  const STORAGE_KEY = 'whm.chwiseon.adultVerified.v1';
+  const gate = document.getElementById('chwiseonGate');
+  const auth = document.getElementById('chwiseonAuth');
+  const trans = document.getElementById('chwiseonTransition');
+  const main = document.getElementById('chwiseonMain');
+  const exitBtn = document.getElementById('chwiseonExit');
+  const verifyBtn = document.getElementById('cauthVerifyBtn');
+  const cancelBtn = document.getElementById('cauthBackBtn');
+  if (!gate || !auth || !main) return;
+
+  function isVerified() {
+  try { return localStorage.getItem(STORAGE_KEY) === '1'; } catch (_) { return false; }
+  }
+  function setVerified(v) {
+  try { v ? localStorage.setItem(STORAGE_KEY, '1') : localStorage.removeItem(STORAGE_KEY); } catch (_) {}
+  }
+
+  function openAuth() {
+  auth.hidden = false;
+  requestAnimationFrame(() => auth.classList.add('is-open'));
+  }
+  function closeAuth() {
+  auth.classList.remove('is-open');
+  setTimeout(() => { auth.hidden = true; }, 350);
+  }
+
+  function playTransition(onDone) {
+  trans.hidden = false;
+  requestAnimationFrame(() => trans.classList.add('is-active'));
+  setTimeout(() => {
+  onDone();
+  }, 2400);
+  setTimeout(() => {
+  trans.classList.remove('is-active');
+  setTimeout(() => { trans.hidden = true; }, 300);
+  }, 3000);
+  }
+
+  function enterChwiseon() {
+  // 본관 모든 모드 해제 + 취선루 켜기
+  document.body.classList.remove('gallery-mode', 'menu-mode', 'content-mode');
+  document.body.classList.add('chwiseon-on');
+  // 갤러리·메뉴·콘텐츠 서브 모드 초기화
+  document.body.classList.remove('chwiseon-menu-mode', 'chwiseon-content-mode');
+  // 첫 카드(야선)로 갤러리 리셋
+  setChwiseonIdx(0);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function exitChwiseon() {
+  document.body.classList.remove('chwiseon-on', 'chwiseon-menu-mode', 'chwiseon-content-mode');
+  // 본관 갤러리 모드로 복귀
+  if (typeof window.__galleryEnter === 'function') window.__galleryEnter();
+  else document.body.classList.add('gallery-mode');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // 진입 문 클릭
+  gate.addEventListener('click', () => {
+  if (isVerified()) {
+  playTransition(enterChwiseon);
+  } else {
+  openAuth();
+  }
+  });
+
+  // 인증 버튼 (백엔드 미연결 — 프론트 데모용)
+  verifyBtn.addEventListener('click', () => {
+  // TODO: 백엔드 본인·성인 인증 연결. 지금은 클라이언트 확인만.
+  const confirmed = confirm('본인 인증 시스템은 곧 연결됩니다 (백엔드 영역).\n\n프론트 데모로 만 19세 이상이심을 확인하시겠습니까?');
+  if (!confirmed) return;
+  setVerified(true);
+  closeAuth();
+  setTimeout(() => playTransition(enterChwiseon), 200);
+  });
+  cancelBtn.addEventListener('click', closeAuth);
+  auth.querySelector('.cauth-backdrop').addEventListener('click', closeAuth);
+
+  // 본관으로 돌아가기
+  exitBtn.addEventListener('click', exitChwiseon);
+
+  // ───────────── 취선루 카드 갤러리 (5인) ─────────────
+  const deck = document.getElementById('chwiseonDeck');
+  const dotsHost = document.getElementById('chwiseonDots');
+  const cards = Array.from(deck.querySelectorAll('.char-card'));
+  const N = cards.length;
+  let idx = 0;
+
+  // 점 인디케이터 생성
+  cards.forEach((c, i) => {
+  const b = document.createElement('button');
+  b.type = 'button';
+  b.addEventListener('click', () => setChwiseonIdx(i));
+  dotsHost.appendChild(b);
+  });
+  const dotBtns = Array.from(dotsHost.children);
+
+  function renderChwiseon() {
+  deck.style.transform = `translateX(${-idx * 100}%)`;
+  cards.forEach((c, i) => c.classList.toggle('is-active', i === idx));
+  dotBtns.forEach((b, i) => b.classList.toggle('is-active', i === idx));
+  }
+  function setChwiseonIdx(i) {
+  idx = Math.max(0, Math.min(N - 1, i));
+  renderChwiseon();
+  }
+  document.querySelector('[data-chwiseon-prev]').addEventListener('click', () => setChwiseonIdx(idx - 1));
+  document.querySelector('[data-chwiseon-next]').addEventListener('click', () => setChwiseonIdx(idx + 1));
+
+  // 카드 들어가기 → 메뉴 모드
+  deck.addEventListener('click', (e) => {
+  const enterBtn = e.target.closest('.char-card-enter');
+  if (!enterBtn) return;
+  const card = enterBtn.closest('.char-card');
+  const charKey = card?.dataset?.character;
+  if (charKey) openChwiseonMenu(charKey);
+  });
+
+  // ───────────── 취선루 메뉴/콘텐츠 라우팅 ─────────────
+  const menuView = document.getElementById('chwiseonMenu');
+  const menuGrid = document.getElementById('chwiseonMenuGrid');
+  const menuName = document.getElementById('chwiseonMasterName');
+  const menuSub = document.getElementById('chwiseonMasterSub');
+  const contentView = document.getElementById('chwiseonContent');
+  const contentBody = document.getElementById('chwiseonContentBody');
+  let currentMaster = null;
+
+  function escapeHtml(s) {
+  return String(s || '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[c]);
+  }
+  function badgeHtml(item) {
+  const out = [];
+  if (item.tier === 'free') out.push(`<span class="badge badge-free">무료</span>`);
+  if (item.tier === 'premium') out.push(`<span class="badge badge-premium">프리미엄</span>`);
+  if (item.tier === 'season') out.push(`<span class="badge badge-season">시즌</span>`);
+  (item.badges || []).forEach(b => {
+  if (b === 'hot') out.push(`<span class="badge badge-hot">인기</span>`);
+  if (b === 'new') out.push(`<span class="badge badge-new">NEW</span>`);
+  });
+  return out.join('');
+  }
+
+  function fieldHtml(field) {
+  const id = `cs_cf_${field.key}`;
+  const sess = (window.WHM && window.WHM.load) ? window.WHM.load() : null;
+  let prefill = '';
+  if (field.share === 'name' && sess?.profile?.name) prefill = sess.profile.name;
+  switch (field.type) {
+  case 'text':
+  return `<div class="row"><label for="${id}">${escapeHtml(field.label)}</label>
+  <input id="${id}" type="text" placeholder="${escapeHtml(field.placeholder || '')}" value="${escapeHtml(prefill)}"></div>`;
+  case 'textarea':
+  return `<div class="row"><label for="${id}">${escapeHtml(field.label)}</label>
+  <textarea id="${id}" rows="${field.rows || 3}" placeholder="${escapeHtml(field.placeholder || '')}"></textarea></div>`;
+  case 'select':
+  return `<div class="row"><label for="${id}">${escapeHtml(field.label)}</label>
+  <select id="${id}">
+  <option value="">— 선택 —</option>
+  ${(field.options || []).map(o => `<option value="${escapeHtml(o.value)}">${escapeHtml(o.label)}</option>`).join('')}
+  </select></div>`;
+  case 'ymd':
+  return `<div class="row"><label>${escapeHtml(field.label)}</label>
+  <div class="row-group">
+  <select id="${id}_y" data-ymd="year"></select>
+  <select id="${id}_m" data-ymd="month"></select>
+  <select id="${id}_d" data-ymd="day"></select>
+  </div></div>`;
+  case 'hour-branch':
+  return `<div class="row"><label for="${id}">${escapeHtml(field.label)}</label>
+  <select id="${id}">
+  <option value="子">자시 (子) · 23 ~ 01시</option><option value="丑">축시 (丑)</option>
+  <option value="寅">인시 (寅)</option><option value="卯">묘시 (卯)</option>
+  <option value="辰">진시 (辰)</option><option value="巳">사시 (巳)</option>
+  <option value="午">오시 (午)</option><option value="未" selected>미시 (未)</option>
+  <option value="申">신시 (申)</option><option value="酉">유시 (酉)</option>
+  <option value="戌">술시 (戌)</option><option value="亥">해시 (亥)</option>
+  <option value="unknown">시각 모름</option>
+  </select></div>`;
+  case 'gender':
+  return `<div class="row"><label for="${id}">${escapeHtml(field.label)}</label>
+  <select id="${id}"><option value="">— 선택 —</option><option value="M">남자</option><option value="F">여자</option></select></div>`;
+  default: return '';
+  }
+  }
+
+  function openChwiseonMenu(charKey) {
+  const data = window.CHWISEON_CONTENTS?.[charKey];
+  if (!data) return;
+  currentMaster = charKey;
+  menuName.textContent = data.master;
+  menuSub.textContent = data.masterSub;
+  menuGrid.innerHTML = (data.items || []).map(item => `
+  <button class="menu-card" type="button" data-content-key="${item.key}">
+  <div class="menu-card-badges">${badgeHtml(item)}</div>
+  <div class="menu-card-glyph">${item.glyph || ''}</div>
+  <div class="menu-card-name">${escapeHtml(item.name)}</div>
+  <p class="menu-card-desc">${escapeHtml(item.desc || '')}</p>
+  <div class="menu-card-meta">
+  <span class="menu-card-time">⏱ ${escapeHtml(item.est || '')}</span>
+  <span>${item.price ? `💎 ${escapeHtml(item.price)}` : '💎 프리미엄'}</span>
+  </div>
+  </button>`).join('');
+  document.body.classList.add('chwiseon-menu-mode');
+  document.body.classList.remove('chwiseon-content-mode');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function openChwiseonContent(charKey, contentKey) {
+  const data = window.CHWISEON_CONTENTS?.[charKey];
+  if (!data) return;
+  const item = (data.items || []).find(x => x.key === contentKey);
+  if (!item) return;
+  const recItems = data.items.filter(x => x.key !== contentKey).slice(0, 3);
+  const fieldsHtml = (item.fields || []).map(fieldHtml).join('');
+  contentBody.innerHTML = `
+  <article class="content-card">
+  <button class="content-back" type="button" id="csContentBack">← ${escapeHtml(data.master)} 메뉴로</button>
+  <div class="content-glyph">${item.glyph || ''}</div>
+  <h2 class="content-title">${escapeHtml(item.name)}</h2>
+  <p class="content-master-quote">${escapeHtml(item.quote || '')}</p>
+
+  ${fieldsHtml ? `<div class="content-section">
+  <div class="content-section-title">― 입력 ―</div>
+  <div class="content-form">${fieldsHtml}</div>
+  </div>` : ''}
+
+  ${item.sample ? `<div class="content-section">
+  <div class="content-section-title">― 풀이 미리보기 ―</div>
+  ${item.sample.split('\n\n').map(p => `<p>${escapeHtml(p)}</p>`).join('')}
+  </div>` : ''}
+
+  <div class="content-cta-wrap">
+  <button class="content-cta" type="button" id="csContentCta">${escapeHtml(item.cta || '풀이 받기')}</button>
+  <div class="content-cta-hint">
+  <span class="premium-mark">💎 ${escapeHtml(item.price || '프리미엄')} · 19금 콘텐츠</span><br>
+  결제 후 정식 풀이가 펼쳐집니다.
+  </div>
+  </div>
+
+  ${recItems.length ? `<div class="content-recommend">
+  <h3 class="content-recommend-title">${escapeHtml(data.master)}의 다른 풀이</h3>
+  <div class="content-recommend-grid">
+  ${recItems.map(r => `
+  <button class="content-recommend-card" type="button" data-recommend-key="${r.key}">
+  <div class="content-recommend-glyph">${r.glyph || ''}</div>
+  <div class="content-recommend-name">${escapeHtml(r.name)}</div>
+  </button>`).join('')}
+  </div>
+  </div>` : ''}
+  </article>
+  `;
+  document.body.classList.remove('chwiseon-menu-mode');
+  document.body.classList.add('chwiseon-content-mode');
+  // ymd 셀렉트 채움
+  requestAnimationFrame(() => {
+  contentBody.querySelectorAll('select[data-ymd]').forEach(sel => {
+  if (sel.options.length > 0) return;
+  const kind = sel.dataset.ymd;
+  const CY = new Date().getFullYear();
+  let s, e;
+  if (kind === 'year') { s = CY; e = 1920; }
+  else if (kind === 'month') { s = 1; e = 12; }
+  else if (kind === 'day') { s = 1; e = 31; }
+  else return;
+  const step = s <= e ? 1 : -1;
+  const def = { year: 1990, month: 5, day: 15 }[kind];
+  for (let v = s; step > 0 ? v <= e : v >= e; v += step) {
+  const opt = document.createElement('option');
+  opt.value = String(v); opt.textContent = String(v);
+  if (v === def) opt.selected = true;
+  sel.appendChild(opt);
+  }
+  });
+  });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // 메뉴 카드 / 콘텐츠 뒤로가기 / 추천 라우팅
+  menuGrid.addEventListener('click', (e) => {
+  const card = e.target.closest('.menu-card[data-content-key]');
+  if (!card) return;
+  if (currentMaster) openChwiseonContent(currentMaster, card.dataset.contentKey);
+  });
+  contentBody.addEventListener('click', (e) => {
+  if (e.target.closest('#csContentBack')) {
+  if (currentMaster) openChwiseonMenu(currentMaster);
+  return;
+  }
+  const rec = e.target.closest('.content-recommend-card[data-recommend-key]');
+  if (rec && currentMaster) {
+  openChwiseonContent(currentMaster, rec.dataset.recommendKey);
+  return;
+  }
+  });
+
+  // 외부 노출 (디버깅·테스트용)
+  window.__chwiseonEnter = () => playTransition(enterChwiseon);
+  window.__chwiseonExit = exitChwiseon;
+  window.__chwiseonGoTo = setChwiseonIdx;
+  window.__chwiseonOpenMenu = openChwiseonMenu;
+  window.__chwiseonResetAuth = () => setVerified(false);
+
+  // 초기 렌더
+  renderChwiseon();
 })();
 
 // 화패 (花牌) 풀이 — 78장 정통 타로 + 한국 사극·신화 모티프
