@@ -1,0 +1,251 @@
+/* ============================================================
+   result.css — ADR-055 main.css 영역 분리
+   결과 화면·표·critic 배지·AI 풀이 영역
+   원본 라인: 618 ~ 862
+   ============================================================ */
+
+  /* ───── 결과 화면 ───── */
+  .back-bar { margin-bottom: 18px; }
+  .back-bar button {
+  background: transparent;
+  color: var(--text-dim);
+  border: 1px solid var(--hanji-edge);
+  padding: 8px 16px;
+  font-size: 13px;
+  letter-spacing: 1px;
+  }
+  .back-bar button:hover { color: var(--gold); border-color: var(--gold); }
+
+  /* 결과 헤더 (이름) */
+  #result h1 {
+  font-size: 28px;
+  border-bottom: 1px solid var(--gold-dp);
+  padding-bottom: 14px;
+  margin: 20px 0 24px;
+  text-align: left;
+  letter-spacing: 4px;
+  }
+
+  /* 사주 4기둥 */
+  .pillars {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin: 18px 0 22px;
+  }
+  .pillar {
+  background:
+  linear-gradient(180deg, rgba(212,175,55,0.05), transparent),
+  linear-gradient(180deg, var(--hanji-lt), var(--hanji-md));
+  border: 1px solid var(--gold-dp);
+  border-radius: 3px;
+  padding: 14px 8px 12px;
+  text-align: center;
+  position: relative;
+  box-shadow:
+  0 6px 18px rgba(0,0,0,0.4),
+  inset 0 0 30px rgba(0,0,0,0.15);
+  }
+  .pillar .title {
+  color: var(--gold);
+  font-size: 12px;
+  letter-spacing: 4px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(212,175,55,0.25);
+  }
+  .pillar .sipsung {
+  color: var(--text-soft);
+  font-size: 11px;
+  margin: 4px auto;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid rgba(212,175,55,0.2);
+  padding: 2px 6px;
+  border-radius: 2px;
+  display: inline-block;
+  letter-spacing: 1px;
+  }
+  .pillar .stem, .pillar .branch {
+  font-size: 44px;
+  font-weight: 700;
+  margin: 6px 0 2px;
+  line-height: 1.05;
+  font-family: 'Nanum Myeongjo', 'Noto Serif KR', serif;
+  text-shadow: 0 0 10px currentColor, 0 0 2px rgba(0,0,0,0.6);
+  filter: brightness(1.05);
+  }
+  .pillar .kor {
+  font-size: 12px;
+  color: var(--text-dim);
+  font-weight: normal;
+  display: block;
+  margin-top: 2px;
+  letter-spacing: 1px;
+  }
+  .pillar .unseong, .pillar .shinsal {
+  font-size: 10px;
+  color: var(--text-dim);
+  margin: 2px 0;
+  letter-spacing: 1px;
+  }
+  .pillar .shinsal { color: #b89dd8; }
+  .pillar .janggan {
+  font-size: 9px;
+  color: var(--text-mute);
+  margin-top: 8px;
+  padding-top: 6px;
+  border-top: 1px dashed rgba(212,175,55,0.15);
+  }
+  .pillar .jg-row { display: flex; justify-content: space-between; gap: 4px; padding: 1px 0; }
+  .pillar .jg-lbl { color: var(--text-mute); }
+  .pillar .jg-sip { color: var(--text-dim); }
+
+  /* 오행 색 */
+  .o-목 { color: var(--o-mok); }
+  .o-화 { color: var(--o-hwa); }
+  .o-토 { color: var(--o-to); }
+  .o-금 { color: var(--o-geum); }
+  .o-수 { color: var(--o-su); }
+
+  /* ───── 분석/표 ───── */
+  table.kv { border-collapse: collapse; margin: 8px 0; width: 100%; max-width: 720px; }
+  table.kv td, table.kv th {
+  border: 1px solid var(--hanji-edge);
+  padding: 6px 12px;
+  font-size: 13px;
+  background: rgba(0,0,0,0.18);
+  color: var(--text-main);
+  }
+  table.kv th { background: rgba(212,175,55,0.1); color: var(--gold); font-weight: 700; letter-spacing: 1px; }
+  table.ohaeng td { text-align: center; min-width: 60px; }
+  table.ohaeng td b { font-size: 18px; }
+  table.daewoon-tbl, table.sewoon-tbl { width: 100%; max-width: 100%; }
+  table.daewoon-tbl td, table.sewoon-tbl td { text-align: center; }
+  table.daewoon-tbl .kor, table.sewoon-tbl .kor { font-size: 11px; color: var(--text-dim); font-weight: normal; }
+
+  details {
+  margin: 18px 0;
+  padding: 10px 14px;
+  background: rgba(0,0,0,0.2);
+  border: 1px solid var(--hanji-edge);
+  border-radius: 2px;
+  }
+  summary {
+  cursor: pointer; font-weight: 600;
+  color: var(--gold); letter-spacing: 2px;
+  padding: 4px 0;
+  }
+  summary:hover { color: var(--gold-bri); }
+
+  /* 해석 박스 (룰셋) */
+  .interp-box {
+  background:
+  linear-gradient(135deg, rgba(212,175,55,0.04), transparent 60%),
+  linear-gradient(180deg, rgba(0,0,0,0.25), rgba(0,0,0,0.1));
+  border: 1px solid var(--hanji-edge);
+  border-left: 3px solid var(--gold);
+  border-radius: 2px;
+  padding: 14px 20px;
+  margin: 10px 0;
+  }
+  .interp-box h3 {
+  border-bottom: 1px solid rgba(212,175,55,0.25);
+  padding-bottom: 8px;
+  margin: 0 0 10px;
+  }
+  .interp-box p { line-height: 1.75; font-size: 14px; margin: 6px 0; color: var(--text-main); }
+  .interp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  .sipsung-tbl { width: 100%; max-width: 380px; }
+  .sipsung-tbl td { padding: 3px 8px; font-size: 12px; }
+  .sip-bar {
+  background: linear-gradient(90deg, var(--gold), var(--gold-bri));
+  height: 10px; min-width: 1px; border-radius: 2px;
+  box-shadow: 0 0 6px rgba(244,211,94,0.4);
+  }
+
+  /* ───── 화패 critic 배지 ───── */
+  .hwapae-badge {
+  display: inline-block;
+  margin-bottom: 14px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-family: 'Gowun Batang', serif;
+  font-size: 11.5px;
+  letter-spacing: 0.04em;
+  border: 1px solid currentColor;
+  }
+  .hwapae-badge.critic-badge-pass { color: #8b6914; background: rgba(212,175,55,0.10); }
+  .hwapae-badge.critic-badge-fail { color: #b04f4f; background: rgba(176,79,79,0.08); }
+
+  /* ───── AI 풀이 영역 ───── */
+  .claude-output {
+  background:
+  linear-gradient(135deg, rgba(212,175,55,0.03), transparent 60%),
+  linear-gradient(180deg, var(--hanji-md), var(--hanji-dk));
+  border: 1px solid var(--gold-dp);
+  border-left: 4px solid var(--gold);
+  border-radius: 3px;
+  padding: 28px 32px;
+  line-height: 1.95;
+  font-size: 15.5px;
+  color: var(--text-main);
+  margin: 14px 0 22px;
+  font-family: 'Gowun Batang', 'Noto Serif KR', serif;
+  letter-spacing: 0.5px;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.4), inset 0 0 50px rgba(0,0,0,0.2);
+  position: relative;
+  }
+  .claude-output::before {
+  content: '';
+  position: absolute;
+  top: 12px; right: 18px;
+  color: var(--gold);
+  font-size: 14px;
+  opacity: 0.5;
+  }
+  .claude-output h2, .claude-output h3, .claude-output h4 {
+  color: var(--gold-bri);
+  margin: 18px 0 10px;
+  letter-spacing: 3px;
+  font-family: 'Nanum Myeongjo', serif;
+  text-shadow: 0 0 10px rgba(244,211,94,0.25);
+  }
+  .claude-output b { color: var(--gold-bri); font-weight: 700; }
+  .claude-output ul { margin: 8px 0; padding-left: 24px; }
+  .claude-output li { margin: 4px 0; }
+  .claude-output p { margin: 12px 0; }
+  .claude-loading {
+  color: var(--text-dim); font-style: italic;
+  text-align: center; padding: 40px 20px;
+  }
+  .cursor {
+  animation: blink 1s steps(2) infinite;
+  color: var(--gold-bri); font-weight: bold;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  pre.debug {
+  background: rgba(0,0,0,0.4);
+  padding: 12px;
+  font-size: 11px;
+  max-height: 320px;
+  overflow: auto;
+  border: 1px solid var(--hanji-edge);
+  color: var(--text-dim);
+  border-radius: 2px;
+  line-height: 1.5;
+  }
+  .story-title {
+  text-align: center;
+  font-size: 24px;
+  color: var(--gold-bri);
+  letter-spacing: 8px;
+  margin: 28px 0 18px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--gold-dp);
+  text-shadow: 0 0 14px rgba(244,211,94,0.4);
+  font-family: 'Nanum Myeongjo', serif;
+  }
+

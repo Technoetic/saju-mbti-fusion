@@ -1,0 +1,508 @@
+/* ============================================================
+   menu-content.css — ADR-055 main.css 영역 분리
+   60 콘텐츠 메뉴·컨텐츠 뷰·필드·폼
+   원본 라인: 2956 ~ 3457
+   ============================================================ */
+
+  /* ═══════════════════════════════════════════════════════
+   도사별 메뉴 그리드 (#menuView) + 콘텐츠 뷰 (#contentView)
+   60개 콘텐츠 라인업의 공통 인프라
+   ═══════════════════════════════════════════════════════ */
+  .menu-view, .content-view { display: none; }
+  body.menu-mode .menu-view { display: block; }
+  body.content-mode .content-view { display: block; }
+  /* menu/content 모드에서는 본관 카드 갤러리·풀이 탭 숨김 (취선루 갤러리는 별도 제어) */
+  body.menu-mode #cardGallery,
+  body.menu-mode .tab-content,
+  body.content-mode #cardGallery,
+  body.content-mode .tab-content { display: none !important; }
+
+  .menu-view {
+  max-width: 920px;
+  margin: 12px auto 40px;
+  padding: 0 16px;
+  }
+  .menu-header {
+  text-align: center;
+  padding: 14px 0 24px;
+  border-bottom: 1px dashed var(--gold-dp);
+  margin-bottom: 28px;
+  position: relative;
+  }
+  /* "← 점술가 고르기" — 메뉴 헤더 좌측 위 */
+  .menu-back-btn {
+  position: absolute;
+  top: 4px; left: 0;
+  padding: 7px 14px;
+  background: transparent;
+  color: var(--gold);
+  border: 1px solid var(--gold-dp);
+  border-radius: 999px;
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 12px;
+  letter-spacing: 2.5px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  }
+  .menu-back-btn:hover {
+  color: var(--gold-bri);
+  border-color: var(--gold);
+  background: rgba(212,175,55,0.08);
+  }
+  .menu-back-btn:active { transform: translateY(1px); }
+  /* 취선루 톤 */
+  .chwiseon-menu .menu-back-btn {
+  color: var(--cs-gold-bri);
+  border-color: var(--cs-gold);
+  }
+  .chwiseon-menu .menu-back-btn:hover {
+  background: rgba(200,156,74,0.12);
+  border-color: var(--cs-gold-bri);
+  }
+  @media (max-width: 720px) {
+  .menu-back-btn { position: static; display: inline-block; margin-bottom: 12px; font-size: 11px; padding: 6px 12px; letter-spacing: 2px; }
+  }
+  .menu-master-name {
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 28px;
+  letter-spacing: 8px;
+  color: var(--gold-bri);
+  margin: 0 0 8px;
+  text-shadow: 0 2px 6px rgba(0,0,0,0.6);
+  }
+  .menu-master-sub {
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 13px;
+  letter-spacing: 3px;
+  color: var(--text-soft);
+  margin: 0;
+  }
+  .menu-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+  }
+  .menu-card {
+  position: relative;
+  padding: 22px 20px 18px;
+  background: linear-gradient(180deg, rgba(20,15,10,0.78), rgba(10,8,5,0.85));
+  border: 1px solid var(--gold-dp);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  text-align: left;
+  font-family: 'Nanum Myeongjo', serif;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 180px;
+  }
+  .menu-card:hover {
+  border-color: var(--gold);
+  background: linear-gradient(180deg, rgba(40,30,15,0.85), rgba(20,15,8,0.90));
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(212,175,55,0.18);
+  }
+  .menu-card-glyph {
+  font-size: 26px;
+  letter-spacing: 6px;
+  color: var(--gold-bri);
+  line-height: 1;
+  text-shadow: 0 0 10px rgba(244,211,94,0.35);
+  margin-bottom: 4px;
+  }
+  .menu-card-name {
+  font-size: 16px;
+  letter-spacing: 3px;
+  color: var(--gold);
+  font-weight: 700;
+  line-height: 1.4;
+  }
+  .menu-card-desc {
+  font-size: 12.5px;
+  letter-spacing: 0.5px;
+  color: var(--text-soft);
+  line-height: 1.65;
+  margin: 0;
+  flex: 1;
+  }
+  .menu-card-meta {
+  font-size: 11px;
+  color: var(--text-dim);
+  letter-spacing: 1.5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px dashed rgba(212,175,55,0.18);
+  padding-top: 10px;
+  margin-top: 4px;
+  }
+  .menu-card-time { font-size: 11px; color: var(--text-mute); }
+
+  /* 뱃지 — 무료 / 프리미엄 / 시즌 / 추천 */
+  .menu-card-badges {
+  position: absolute;
+  top: 12px; right: 12px;
+  display: flex;
+  gap: 5px;
+  }
+  .badge {
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 10px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  letter-spacing: 1.5px;
+  font-weight: 700;
+  line-height: 1.4;
+  }
+  .badge-free {
+  background: rgba(109, 195, 117, 0.18);
+  color: #8edb96;
+  border: 1px solid rgba(109, 195, 117, 0.45);
+  }
+  .badge-premium {
+  background: linear-gradient(180deg, rgba(244,211,94,0.20), rgba(139,105,20,0.30));
+  color: var(--gold-bri);
+  border: 1px solid var(--gold);
+  text-shadow: 0 0 6px rgba(244,211,94,0.45);
+  }
+  .badge-season {
+  background: rgba(255, 125, 107, 0.18);
+  color: #ff9b89;
+  border: 1px solid rgba(255, 125, 107, 0.45);
+  }
+  .badge-hot {
+  background: rgba(232, 80, 120, 0.20);
+  color: #ff8ba0;
+  border: 1px solid rgba(232, 80, 120, 0.50);
+  }
+  .badge-new {
+  background: rgba(120, 184, 255, 0.18);
+  color: #9ec8ff;
+  border: 1px solid rgba(120, 184, 255, 0.45);
+  }
+
+  /* 캐릭터별 메뉴 테마 분기 — 만월(금색), 성하(자줏빛)는 별도 */
+  body.menu-mode.char-star .menu-card {
+  background: linear-gradient(180deg, rgba(14,21,48,0.78), rgba(10,8,20,0.92));
+  border-color: rgba(169,134,212,0.40);
+  }
+  body.menu-mode.char-star .menu-card:hover {
+  border-color: var(--starh-violet-bri);
+  background: linear-gradient(180deg, rgba(26,36,82,0.85), rgba(14,21,48,0.92));
+  box-shadow: 0 6px 18px rgba(169,134,212,0.30);
+  }
+  body.menu-mode.char-star .menu-card-glyph,
+  body.menu-mode.char-star .menu-master-name { color: var(--starh-glow); text-shadow: 0 0 10px rgba(169,134,212,0.45); }
+  body.menu-mode.char-star .menu-card-name { color: var(--starh-silver); }
+  body.menu-mode.char-star .menu-master-sub { color: var(--starh-silver-dp); }
+
+  /* ─── 콘텐츠 뷰 (#contentView) — placeholder + 입력 폼 ─── */
+  .content-view {
+  max-width: 760px;
+  margin: 12px auto 48px;
+  padding: 0 16px;
+  }
+  .content-card {
+  background: rgba(10,8,5,0.65);
+  border: 1px solid var(--gold-dp);
+  border-radius: 4px;
+  padding: 32px 30px;
+  position: relative;
+  }
+  .content-card::before {
+  content: '';
+  position: absolute;
+  inset: 8px;
+  border: 1px dashed rgba(212,175,55,0.14);
+  border-radius: 2px;
+  pointer-events: none;
+  }
+  .content-card > * { position: relative; }
+  .content-back {
+  display: inline-block;
+  margin-bottom: 18px;
+  padding: 7px 14px;
+  background: transparent;
+  color: var(--gold);
+  border: 1px solid var(--gold-dp);
+  border-radius: 999px;
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 12px;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  }
+  .content-back:hover { color: var(--gold-bri); border-color: var(--gold); }
+  .content-glyph {
+  text-align: center;
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 36px;
+  letter-spacing: 9px;
+  color: var(--gold-bri);
+  margin-bottom: 12px;
+  line-height: 1;
+  text-shadow: 0 0 14px rgba(244,211,94,0.40);
+  }
+  .content-title {
+  text-align: center;
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 22px;
+  letter-spacing: 5px;
+  color: var(--gold);
+  margin: 0 0 8px;
+  }
+  .content-master-quote {
+  text-align: center;
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 14px;
+  letter-spacing: 1px;
+  color: var(--text-soft);
+  margin: 0 0 24px;
+  line-height: 1.8;
+  font-style: italic;
+  }
+  .content-section {
+  margin: 20px 0;
+  padding: 18px 20px;
+  background: rgba(20,15,10,0.55);
+  border: 1px solid rgba(212,175,55,0.18);
+  border-radius: 3px;
+  }
+  .content-section-title {
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 13px;
+  letter-spacing: 3px;
+  color: var(--gold);
+  margin: 0 0 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px dashed rgba(212,175,55,0.20);
+  }
+  .content-section p { color: var(--text-main); line-height: 1.85; margin: 0 0 10px; font-size: 14.5px; }
+  .content-section p:last-child { margin-bottom: 0; }
+
+  .content-form .row { margin-bottom: 14px; }
+  .content-form label {
+  display: block;
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 12px;
+  letter-spacing: 2px;
+  color: var(--gold);
+  margin-bottom: 6px;
+  }
+  .content-form input[type=text],
+  .content-form input[type=number],
+  .content-form select,
+  .content-form textarea {
+  width: 100%;
+  padding: 11px 14px;
+  background: rgba(0,0,0,0.4);
+  border: 1px solid var(--gold-dp);
+  border-radius: 3px;
+  color: var(--text-main);
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 14px;
+  }
+  .content-form input:focus, .content-form select:focus, .content-form textarea:focus {
+  outline: none; border-color: var(--gold);
+  }
+  .content-form .row-group {
+  display: flex; gap: 10px; flex-wrap: wrap;
+  }
+  .content-form .row-group > * { flex: 1; min-width: 80px; }
+
+  /* 콘텐츠 폼 — 이름 input 옆 한자 셀렉터 */
+  .content-hanja { margin-top: 10px; }
+  .content-hanja-hint {
+  display: block;
+  font-size: 12px;
+  color: var(--text-dim);
+  letter-spacing: 0.5px;
+  }
+  .content-hanja-title {
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 13px;
+  letter-spacing: 2px;
+  color: var(--gold);
+  margin-bottom: 8px;
+  }
+  .content-hanja-title span { color: var(--text-dim); font-size: 11px; letter-spacing: 1px; margin-left: 4px; }
+  .content-hanja-cells {
+  display: flex; gap: 10px; flex-wrap: wrap;
+  }
+  .content-hanja-cell {
+  flex: 1; min-width: 130px;
+  display: flex; flex-direction: column; gap: 4px;
+  padding: 8px 10px;
+  background: rgba(0,0,0,0.30);
+  border: 1px solid var(--gold-dp);
+  border-radius: 3px;
+  }
+  .content-hanja-han {
+  text-align: center;
+  font-family: 'Nanum Myeongjo', serif;
+  color: var(--gold-bri);
+  }
+  .content-hanja-han b { font-size: 22px; letter-spacing: 2px; }
+  .content-hanja-han small { display: block; font-size: 10px; color: var(--text-dim); letter-spacing: 1px; }
+  .content-hanja-select {
+  width: 100%;
+  padding: 7px 8px;
+  background: rgba(0,0,0,0.40);
+  border: 1px solid var(--gold-dp);
+  border-radius: 3px;
+  color: var(--text-main);
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 13px;
+  }
+  .content-hanja-select:focus { outline: none; border-color: var(--gold); }
+  /* 총 획수·불용 영역 */
+  .content-hanja-total {
+  margin-top: 12px;
+  padding: 10px 12px;
+  background: rgba(0,0,0,0.30);
+  border: 1px dashed var(--gold-dp);
+  border-radius: 3px;
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 13px;
+  color: var(--text-main);
+  line-height: 1.7;
+  }
+  .content-hanja-total .cht-rows {
+  display: flex; flex-wrap: wrap; gap: 6px 14px;
+  margin-bottom: 6px;
+  }
+  .content-hanja-total .cht-row {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 12.5px;
+  letter-spacing: 0.5px;
+  }
+  .content-hanja-total .cht-row.cht-empty { color: var(--text-dim); }
+  .content-hanja-total .cht-row b { color: var(--gold-bri); }
+  .content-hanja-total .cht-num {
+  color: var(--text-dim); font-size: 11px;
+  background: rgba(212,175,55,0.10); padding: 1px 6px; border-radius: 3px;
+  }
+  .content-hanja-total .cht-row.cht-bad { color: #e9a8a8; }
+  .content-hanja-total .cht-row.cht-bad b { color: #ffb0b0; }
+  .content-hanja-total .cht-badge {
+  font-size: 10px; letter-spacing: 1px;
+  color: #ffd0d0; background: rgba(176,79,79,0.20);
+  border: 1px solid rgba(176,79,79,0.45);
+  padding: 1px 5px; border-radius: 2px; margin-left: 4px;
+  }
+  .content-hanja-total .cht-sum {
+  border-top: 1px dashed rgba(212,175,55,0.25);
+  padding-top: 6px; margin-top: 4px;
+  text-align: right;
+  font-size: 13px;
+  color: var(--gold);
+  letter-spacing: 1px;
+  }
+  .content-hanja-total .cht-sum b { color: var(--gold-bri); font-size: 16px; padding: 0 4px; }
+  .content-hanja-total .cht-sum-empty {
+  text-align: right;
+  font-size: 11.5px;
+  color: var(--text-dim);
+  letter-spacing: 0.5px;
+  }
+  .content-hanja-total .cht-warning {
+  margin-top: 8px;
+  padding: 7px 10px;
+  background: rgba(176,79,79,0.10);
+  border: 1px solid rgba(176,79,79,0.30);
+  border-radius: 3px;
+  color: #ffc0c0;
+  font-size: 12px;
+  line-height: 1.6;
+  letter-spacing: 0.3px;
+  }
+  .content-hanja-total .cht-warning b { color: #ffd5d5; }
+  /* 취선루 톤 분기 */
+  .chwiseon-content .content-hanja-title { color: var(--cs-gold-bri); }
+  .chwiseon-content .content-hanja-cell { border-color: var(--cs-gold-dp); background: rgba(0,0,0,0.40); }
+  .chwiseon-content .content-hanja-han { color: var(--cs-gold-bri); }
+  .chwiseon-content .content-hanja-select { background: rgba(0,0,0,0.50); border-color: var(--cs-gold-dp); color: var(--cs-ivory); }
+  .chwiseon-content .content-hanja-select:focus { border-color: var(--cs-gold-bri); }
+
+  .content-cta-wrap { text-align: center; margin-top: 24px; }
+  .content-cta {
+  padding: 13px 36px;
+  background: linear-gradient(180deg, rgba(40,30,15,0.85), rgba(20,15,8,0.90));
+  color: var(--gold-bri);
+  border: 1px solid var(--gold);
+  border-radius: 3px;
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 15px;
+  letter-spacing: 5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  }
+  .content-cta:hover {
+  background: linear-gradient(180deg, rgba(212,175,55,0.30), rgba(139,105,20,0.55));
+  color: #fff; box-shadow: 0 0 24px rgba(212,175,55,0.45);
+  }
+  .content-cta-hint {
+  margin-top: 12px;
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 12px;
+  color: var(--text-dim);
+  letter-spacing: 1.5px;
+  }
+  .content-cta-hint .premium-mark {
+  color: var(--gold-bri);
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  }
+
+  .content-recommend {
+  margin-top: 32px;
+  padding: 22px 22px 18px;
+  background: rgba(20,15,30,0.55);
+  border: 1px solid rgba(212,175,55,0.30);
+  border-radius: 4px;
+  }
+  .content-recommend-title {
+  text-align: center;
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 14px;
+  letter-spacing: 4px;
+  color: var(--gold-bri);
+  margin: 0 0 14px;
+  }
+  .content-recommend-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+  }
+  .content-recommend-card {
+  padding: 12px 14px;
+  background: rgba(10,8,5,0.55);
+  border: 1px solid var(--gold-dp);
+  border-radius: 3px;
+  cursor: pointer;
+  font-family: 'Nanum Myeongjo', serif;
+  text-align: center;
+  transition: all 0.2s ease;
+  }
+  .content-recommend-card:hover { border-color: var(--gold); background: rgba(212,175,55,0.10); }
+  .content-recommend-glyph { font-size: 16px; color: var(--gold-bri); letter-spacing: 4px; line-height: 1.2; }
+  .content-recommend-name { font-size: 12px; color: var(--gold); margin-top: 4px; letter-spacing: 2px; }
+
+  @media (max-width: 720px) {
+  .menu-view { padding: 0 12px; margin: 8px auto 32px; }
+  .menu-master-name { font-size: 22px; letter-spacing: 6px; }
+  .menu-master-sub { font-size: 12px; letter-spacing: 2px; }
+  .menu-grid { grid-template-columns: 1fr; gap: 12px; }
+  .menu-card { padding: 18px 16px 14px; min-height: 0; }
+  .menu-card-name { font-size: 15px; letter-spacing: 2px; }
+  .menu-card-desc { font-size: 12px; }
+  .content-view { padding: 0 12px; margin: 8px auto 36px; }
+  .content-card { padding: 22px 18px; }
+  .content-glyph { font-size: 28px; letter-spacing: 7px; }
+  .content-title { font-size: 18px; letter-spacing: 3.5px; }
+  .content-master-quote { font-size: 13px; }
+  .content-cta { padding: 11px 26px; font-size: 13.5px; letter-spacing: 3.5px; }
+  }
+

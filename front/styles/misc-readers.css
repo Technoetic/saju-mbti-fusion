@@ -1,0 +1,635 @@
+/* ============================================================
+   misc-readers.css — ADR-055 main.css 영역 분리
+   성명학·꿈 해몽·결과 카드·기타
+   원본 라인: 1391 ~ 2019
+   ============================================================ */
+
+  /* ───── 성명학 ───── */
+  table.name-tbl td { text-align: center; padding: 10px 14px; min-width: 56px; }
+  table.name-tbl td b { font-size: 22px; color: var(--gold-bri); font-family: 'Nanum Myeongjo', serif; }
+  table.ogyeok-tbl td, table.ogyeok-tbl th { padding: 6px 12px; }
+  .eval-daekil  { color: #fff; background: #2a8f3a; padding: 3px 8px; border-radius: 2px; font-weight: 700; }
+  .eval-gil  { color: #fff; background: #5cb85c; padding: 3px 8px; border-radius: 2px; font-weight: 700; }
+  .eval-pyong  { color: #fff; background: #888;  padding: 3px 8px; border-radius: 2px; font-weight: 700; }
+  .eval-hyung  { color: #fff; background: #d9534f; padding: 3px 8px; border-radius: 2px; font-weight: 700; }
+  .eval-daehyung{ color: #fff; background: #a02020; padding: 3px 8px; border-radius: 2px; font-weight: 700; }
+
+  /* ───── 자세한 분석 토글 ───── */
+  .saju-details {
+  margin-top: 32px;
+  border-top: 1px solid var(--hanji-edge);
+  padding-top: 18px;
+  background: transparent;
+  }
+  .saju-details > summary {
+  font-size: 15px; color: var(--text-soft);
+  padding: 12px 16px;
+  background: rgba(212,175,55,0.05);
+  border: 1px solid var(--hanji-edge);
+  border-radius: 2px;
+  letter-spacing: 2px;
+  }
+  .saju-details > summary:hover { color: var(--gold-bri); background: rgba(212,175,55,0.08); }
+
+  /* ───── 꿈 해몽 ───── */
+  textarea {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  padding: 14px 16px;
+  font-size: 15px;
+  font-family: inherit;
+  line-height: 1.7;
+  background: rgba(0,0,0,0.4);
+  resize: vertical;
+  box-sizing: border-box;
+  }
+  textarea#dreamText { min-height: 140px; }
+  textarea#userConcern { min-height: 80px; }
+  textarea#userConcernAfter { min-height: 80px; width: 100%; }
+  textarea#hwapaeQuestion { min-height: 110px; }
+
+  /* ───── 결과 후 추가 입력 카드 (만월 아씨) ───── */
+  .after-card {
+  margin-top: 40px;
+  padding: 28px 28px 24px;
+  background: linear-gradient(180deg, rgba(40,30,15,0.55), rgba(20,15,10,0.55));
+  border: 1px solid var(--gold-dp);
+  border-radius: 4px;
+  position: relative;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.35), inset 0 0 0 1px rgba(212,175,55,0.08);
+  }
+  .after-card::before {
+  content: '';
+  position: absolute;
+  top: 10px; left: 10px; right: 10px; bottom: 10px;
+  border: 1px dashed rgba(212,175,55,0.18);
+  pointer-events: none;
+  border-radius: 2px;
+  }
+  .after-card-title {
+  text-align: center;
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 20px;
+  letter-spacing: 4px;
+  color: var(--gold-bri);
+  margin: 4px 0 8px;
+  }
+  .after-card-lead {
+  text-align: center;
+  color: var(--text-soft);
+  font-size: 14px;
+  line-height: 1.7;
+  margin: 0 0 22px;
+  letter-spacing: 0.5px;
+  }
+  .after-card fieldset { margin-bottom: 16px; }
+  @media (max-width: 720px) {
+  .after-card { padding: 20px 16px 18px; margin-top: 28px; }
+  .after-card-title { font-size: 17px; letter-spacing: 3px; }
+  .after-card-lead { font-size: 13px; }
+  }
+
+  /* ───── 릴레이 풀이 — 다음 풀이 추천 카드 (.next-card) ───── */
+  .next-card {
+  margin-top: 36px;
+  padding: 26px 26px 22px;
+  background: linear-gradient(180deg, rgba(20,15,30,0.55), rgba(40,30,60,0.45));
+  border: 1px solid var(--gold-dp);
+  border-radius: 4px;
+  box-shadow: 0 4px 22px rgba(0,0,0,0.35), inset 0 0 0 1px rgba(212,175,55,0.06);
+  position: relative;
+  }
+  .next-card::before {
+  content: '';
+  position: absolute;
+  inset: 8px;
+  border: 1px dashed rgba(212,175,55,0.16);
+  pointer-events: none;
+  border-radius: 2px;
+  }
+  .next-card-title {
+  text-align: center;
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 19px;
+  letter-spacing: 5px;
+  color: var(--gold-bri);
+  margin: 4px 0 8px;
+  }
+  .next-card-lead {
+  text-align: center;
+  color: var(--text-soft);
+  font-size: 13.5px;
+  line-height: 1.8;
+  margin: 0 0 20px;
+  letter-spacing: 0.4px;
+  font-family: 'Nanum Myeongjo', serif;
+  }
+  .next-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+  }
+  .next-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 18px 16px 16px;
+  background: rgba(10,15,30,0.65);
+  border: 1px solid var(--gold-dp);
+  border-radius: 3px;
+  color: var(--text-main);
+  cursor: pointer;
+  font-family: 'Nanum Myeongjo', serif;
+  text-align: center;
+  transition: all 0.25s ease;
+  }
+  .next-btn:hover {
+  border-color: var(--gold);
+  background: rgba(212,175,55,0.10);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(212,175,55,0.18);
+  }
+  .next-btn .next-emblem {
+  font-size: 22px;
+  letter-spacing: 6px;
+  color: var(--gold-bri);
+  line-height: 1;
+  margin-bottom: 4px;
+  }
+  .next-btn .next-name {
+  font-size: 14px;
+  letter-spacing: 3px;
+  color: var(--gold);
+  }
+  .next-btn .next-reason {
+  font-size: 12px;
+  color: var(--text-soft);
+  line-height: 1.65;
+  margin-top: 4px;
+  letter-spacing: 0.3px;
+  }
+  /* 성하 공자 탭 안의 next-card 는 자줏빛 톤으로 */
+  #tab-star .next-card {
+  background: linear-gradient(180deg, rgba(14,21,48,0.65), rgba(26,36,82,0.50));
+  border-color: rgba(169,134,212,0.40);
+  box-shadow: 0 4px 22px rgba(0,0,0,0.40), inset 0 0 0 1px rgba(232,224,255,0.05);
+  }
+  #tab-star .next-card::before { border-color: rgba(201,201,217,0.18); }
+  #tab-star .next-card-title { color: var(--starh-violet-bri); }
+  #tab-star .next-card-lead { color: var(--starh-silver); }
+  #tab-star .next-btn {
+  background: rgba(10,15,30,0.55);
+  border-color: rgba(169,134,212,0.30);
+  color: var(--starh-glow);
+  }
+  #tab-star .next-btn:hover {
+  border-color: var(--starh-violet-bri);
+  background: rgba(169,134,212,0.12);
+  box-shadow: 0 4px 16px rgba(169,134,212,0.22);
+  }
+  #tab-star .next-btn .next-emblem { color: var(--starh-glow); text-shadow: 0 0 12px rgba(169,134,212,0.40); }
+  #tab-star .next-btn .next-name { color: var(--starh-silver); }
+  #tab-star .next-btn .next-reason { color: var(--starh-silver-dp); }
+  @media (max-width: 720px) {
+  .next-card { padding: 20px 16px 16px; margin-top: 26px; }
+  .next-card-title { font-size: 16px; letter-spacing: 3px; }
+  .next-card-lead { font-size: 12.5px; }
+  .next-btn { padding: 14px 12px 12px; }
+  .next-btn .next-emblem { font-size: 19px; letter-spacing: 4px; }
+  .next-btn .next-name { font-size: 13px; letter-spacing: 2px; }
+  .next-btn .next-reason { font-size: 11.5px; }
+  }
+
+  /* ───── 모바일 반응형 ───── */
+  @media (max-width: 720px) {
+  body { padding: 16px 10px 48px; font-size: 15px; }
+  h1 { font-size: 26px; letter-spacing: 5px; }
+  h2 { font-size: 18px; letter-spacing: 3px; }
+  .subtitle { font-size: 11px; letter-spacing: 6px; margin-bottom: 18px; padding-left: 6px; }
+  .header-ornament { font-size: 14px; letter-spacing: 14px; padding-left: 14px; }
+  .tab-btn { padding: 10px 12px; font-size: 13px; letter-spacing: 1px; }
+  fieldset { padding: 18px 16px 14px; }
+  legend { font-size: 13px; letter-spacing: 2px; padding: 4px 10px; }
+  label { min-width: 0; display: block; margin-bottom: 4px; }
+  .advanced-settings .hint { margin-left: 0; }
+  .pillars { grid-template-columns: repeat(4, 1fr); gap: 4px; }
+  .pillar { padding: 10px 4px 8px; }
+  .pillar .title { font-size: 10px; letter-spacing: 2px; }
+  .pillar .stem, .pillar .branch { font-size: 30px; }
+  .pillar .kor { font-size: 10px; }
+  .pillar .sipsung { font-size: 9px; padding: 1px 4px; }
+  .pillar .unseong, .pillar .shinsal { font-size: 9px; }
+  .pillar .janggan { font-size: 8px; }
+  .interp-grid { grid-template-columns: 1fr; }
+  .big-action button { padding: 13px 36px; font-size: 16px; letter-spacing: 6px; }
+  .claude-output { padding: 18px 18px; font-size: 14.5px; }
+  .hanja-cell { min-width: 0; width: calc(33.33% - 8px); padding: 8px 4px; }
+  .hanja-cell .hanja-han b { font-size: 22px; }
+  #result h1 { font-size: 22px; letter-spacing: 2px; }
+  table.kv { font-size: 12px; }
+  table.kv td, table.kv th { padding: 4px 6px; }
+  }
+  @media (max-width: 440px) {
+  .pillar .stem, .pillar .branch { font-size: 26px; }
+  .hanja-cell { width: calc(50% - 8px); }
+  }
+
+  /* ───── 캐릭터 배경 영상 (히어로 풀스크린) + 종이 펼침 ───── */
+  .tab-content { position: relative; }
+  /* 콘텐츠는 영상 위로 — 형제 stacking 보장 */
+  .tab-content > *:not(.tab-bg-video) {
+    position: relative;
+    z-index: 1;
+  }
+  .tab-bg-video {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    object-fit: cover;          /* 화면 가득 — 인트로 .bg-video와 동일 정책 */
+    z-index: 0;                 /* 형제 콘텐츠(z-index 1) 아래, 페이지 .bg-overlay 위 (stacking context: .app-container z-index 3) */
+    pointer-events: none;
+    opacity: 0;
+    background: #000;
+    transition:
+      opacity 1.2s ease,
+      filter 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: opacity, filter;
+  }
+  .tab-bg-video.show {
+    opacity: 1;
+    /* 영상 그대로 선명하게 — 색감만 살짝 풍부하게 */
+    filter: brightness(1) saturate(1.08) contrast(1.05);
+  }
+  /* 조작 후 → 영상은 그대로 계속 재생되고, 입력 카드만 그 위에 떠있는 구조.
+     blur 제거 / 살짝만 어둡게 (영상 캐릭터 표정/움직임이 잘 보임). */
+  .tab-bg-video.dim {
+    opacity: 1;
+    filter: brightness(0.62) saturate(0.95);
+  }
+
+  /* 영상 위 어두운 vignette — 위/아래만 어둡게 (헤더·콘텐츠 가독성), 가운데는 영상 살림 */
+  body.in-app::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    background:
+      linear-gradient(180deg,
+        rgba(10,15,30,0.85) 0%,
+        rgba(10,15,30,0.45) 14%,
+        rgba(10,15,30,0.10) 30%,
+        rgba(10,15,30,0.05) 55%,
+        rgba(10,15,30,0.30) 80%,
+        rgba(10,15,30,0.70) 100%);
+    transition: background 0.8s ease;
+  }
+
+  /* 인트로 .bg-video는 in-app 시 옅게 */
+  body.in-app .bg-video { opacity: 0.14; }
+
+  /* ───── 탭 선택(영상 풀히어로) 단계 — 헤더/탭바/vignette 잠시 가림. ───── */
+  .header-ornament,
+  body .app-container > h1,
+  body .app-container > .subtitle,
+  body .app-container > .tab-bar {
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+  body.hero-mode .header-ornament,
+  body.hero-mode .app-container > h1,
+  body.hero-mode .app-container > .subtitle,
+  body.hero-mode .app-container > .tab-bar {
+    opacity: 0;
+    transform: translateY(-8px);
+    pointer-events: none;
+  }
+  /* hero-mode 동안엔 vignette도 옅게 */
+  body.in-app::after { transition: background 0.6s ease; }
+  body.hero-mode.in-app::after {
+    background: rgba(10,15,30,0.04);
+  }
+  /* hero-mode 동안엔 영상 brightness 더 살림 (선명) */
+  body.hero-mode .tab-bg-video.show {
+    filter: brightness(1.05) saturate(1.12) contrast(1.08);
+  }
+
+  /* in-app 진입 시 카드들을 반투명 + backdrop-blur — 영상이 카드 뒤로 흐릿이 비침 */
+  body.in-app fieldset {
+    background:
+      linear-gradient(135deg, rgba(212,175,55,0.04), transparent 60%),
+      repeating-linear-gradient(45deg, rgba(212,175,55,0.022) 0 1px, transparent 1px 9px),
+      linear-gradient(180deg, rgba(58,47,31,0.62), rgba(42,34,24,0.74));
+    backdrop-filter: blur(8px) brightness(0.85);
+    -webkit-backdrop-filter: blur(8px) brightness(0.85);
+  }
+  /* 운학 도사 카드 / 결과 카드 / 화패 카드도 동일 처리 */
+  body.in-app .face-master-card,
+  body.in-app .face-result-card,
+  body.in-app .face-camera-area,
+  body.in-app .face-preview-area,
+  body.in-app .tool-panel-inner {
+    background: rgba(10,15,30,0.50);
+    backdrop-filter: blur(8px) brightness(0.92);
+    -webkit-backdrop-filter: blur(8px) brightness(0.92);
+  }
+
+
+  /* 종이 펼침 — 위에서 아래로 reveal */
+  .paper-scroll {
+    clip-path: inset(0 0 100% 0);
+    opacity: 0;
+    transition:
+      clip-path 1.0s cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 0.7s ease 0.15s;
+    will-change: clip-path, opacity;
+  }
+  .paper-scroll.unrolled {
+    clip-path: inset(0 0 0% 0);
+    opacity: 1;
+  }
+
+  /* ───── 묵향 선생 · 이름 풀이 — face/palm 과 동일 톤 ───── */
+  .name-step { display: none; }
+  .name-step.active { display: block; }
+
+  .name-master-card {
+    border: 1px solid var(--gold-dp);
+    background: rgba(10,15,30,0.55);
+    border-radius: 3px;
+    padding: 22px 24px 20px;
+    margin: 18px auto 26px;
+    max-width: 560px;
+    text-align: center;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.35);
+  }
+  .name-master-emblem {
+    font-family: 'Nanum Myeongjo', serif;
+    font-size: 30px;
+    letter-spacing: 8px;
+    color: var(--gold-bri);
+    line-height: 1;
+  }
+  .name-master-name {
+    margin-top: 8px;
+    font-size: 15px;
+    letter-spacing: 5px;
+    color: var(--gold);
+    font-family: 'Nanum Myeongjo', serif;
+  }
+  .name-master-sub {
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--text-dim);
+    margin-top: 6px;
+  }
+  .name-master-quote {
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px dashed var(--gold-dp);
+    font-size: 14px;
+    color: var(--text-soft);
+    line-height: 1.7;
+    font-family: 'Nanum Myeongjo', serif;
+  }
+  @media (max-width: 600px) {
+    .name-master-card { padding: 18px 16px; margin: 12px 0 20px; }
+    .name-master-emblem { font-size: 24px; letter-spacing: 6px; }
+    .name-master-name { font-size: 13px; letter-spacing: 4px; }
+    .name-master-quote { font-size: 13px; }
+  }
+  #nameResultBoard { max-width: 720px; margin: 18px auto 0; }
+  body.in-app .name-master-card {
+    background: rgba(10,15,30,0.50);
+    backdrop-filter: blur(8px) brightness(0.92);
+    -webkit-backdrop-filter: blur(8px) brightness(0.92);
+  }
+
+  /* ───── 옥선 할미 · 손금 풀이 — face-* 와 동일 톤 ───── */
+  .palm-step { display: none; }
+  .palm-step.active { display: block; }
+
+  .palm-master-card {
+    border: 1px solid var(--gold-dp);
+    background: rgba(10,15,30,0.55);
+    border-radius: 3px;
+    padding: 22px 24px 20px;
+    margin: 18px auto 26px;
+    max-width: 560px;
+    text-align: center;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.35);
+  }
+  .palm-master-emblem {
+    font-family: 'Nanum Myeongjo', serif;
+    font-size: 30px;
+    letter-spacing: 8px;
+    color: var(--gold-bri);
+    line-height: 1;
+  }
+  .palm-master-name {
+    margin-top: 8px;
+    font-size: 15px;
+    letter-spacing: 5px;
+    color: var(--gold);
+    font-family: 'Nanum Myeongjo', serif;
+  }
+  .palm-master-sub {
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--text-dim);
+    margin-top: 6px;
+  }
+  .palm-master-quote {
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px dashed var(--gold-dp);
+    font-size: 14px;
+    color: var(--text-soft);
+    line-height: 1.7;
+    font-family: 'Nanum Myeongjo', serif;
+  }
+  @media (max-width: 600px) {
+    .palm-master-card { padding: 18px 16px; margin: 12px 0 20px; }
+    .palm-master-emblem { font-size: 24px; letter-spacing: 6px; }
+    .palm-master-name { font-size: 13px; letter-spacing: 4px; }
+    .palm-master-quote { font-size: 13px; }
+  }
+  /* palm 결과 카드도 face-result-card 와 같은 톤 (별도 정의) */
+  #palmResultBoard {
+    max-width: 720px;
+    margin: 18px auto 0;
+  }
+  #palmResultBoard .face-result-card { /* result에 face 톤 클래스 같이 적용 */ }
+
+  /* in-app translucent (영상 뒤 비침) — face-master-card와 동일 처리 */
+  body.in-app .palm-master-card {
+    background: rgba(10,15,30,0.50);
+    backdrop-filter: blur(8px) brightness(0.92);
+    -webkit-backdrop-filter: blur(8px) brightness(0.92);
+  }
+
+  /* ───── 운학 도사 · 얼굴 풀이 (디자인 통일판) ───── */
+  .face-step { display: none; }
+  .face-step.active { display: block; }
+
+  .face-master-card {
+  border: 1px solid var(--gold-dp);
+  background: rgba(10,15,30,0.55);
+  border-radius: 3px;
+  padding: 22px 24px 20px;
+  margin: 18px auto 26px;
+  max-width: 560px;
+  text-align: center;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.35);
+  }
+  .face-master-emblem {
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 28px;
+  letter-spacing: 8px;
+  color: var(--gold-bri);
+  line-height: 1;
+  }
+  .face-master-name {
+  margin-top: 10px;
+  font-size: 15px;
+  letter-spacing: 5px;
+  color: var(--gold);
+  font-family: 'Nanum Myeongjo', serif;
+  }
+  .face-master-sub {
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: var(--text-dim);
+  margin-top: 6px;
+  }
+  .face-master-quote {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--gold-dp);
+  font-size: 14px;
+  color: var(--text-soft);
+  line-height: 1.7;
+  font-family: 'Nanum Myeongjo', serif;
+  }
+
+  .face-source-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 14px 0 8px;
+  }
+  .face-source-bar .or-sep {
+  color: var(--text-mute);
+  letter-spacing: 3px;
+  font-size: 12px;
+  font-family: 'Nanum Myeongjo', serif;
+  }
+  .face-btn {
+  background: rgba(10,15,30,0.65);
+  border: 1px solid var(--gold-dp);
+  color: var(--gold);
+  padding: 10px 22px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 14px;
+  letter-spacing: 3px;
+  transition: all 0.2s ease;
+  display: inline-block;
+  line-height: 1.4;
+  }
+  .face-btn:hover:not(:disabled) {
+  border-color: var(--gold);
+  color: var(--gold-bri);
+  background: rgba(212,175,55,0.12);
+  }
+  .face-btn:active:not(:disabled) { transform: translateY(1px); }
+  .face-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .face-camera-area,
+  .face-preview-area {
+  margin-top: 18px;
+  padding: 20px;
+  background: rgba(10,15,30,0.55);
+  border: 1px solid var(--gold-dp);
+  border-radius: 3px;
+  text-align: center;
+  }
+  .face-camera-area video {
+  width: 100%;
+  max-width: 480px;
+  border-radius: 3px;
+  background: #000;
+  aspect-ratio: 4/3;
+  object-fit: cover;
+  transform: scaleX(-1);
+  border: 1px solid var(--gold-dp);
+  }
+  .face-preview-area img {
+  width: 100%;
+  max-width: 320px;
+  border-radius: 3px;
+  border: 1px solid var(--gold-dp);
+  }
+  .face-camera-controls,
+  .face-preview-controls {
+  margin-top: 16px;
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+  }
+
+  .face-loading-block {
+  text-align: center;
+  padding: 80px 20px;
+  }
+  .face-loading-emblem {
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 38px;
+  letter-spacing: 10px;
+  color: var(--gold);
+  line-height: 1;
+  }
+  .face-loading-msg {
+  font-size: 15px;
+  color: var(--gold);
+  margin: 24px 0 10px;
+  letter-spacing: 2px;
+  font-family: 'Nanum Myeongjo', serif;
+  }
+
+  #faceResultBoard {
+  max-width: 720px;
+  margin: 18px auto 0;
+  }
+  .face-result-card {
+  border: 1px solid var(--gold-dp);
+  background: rgba(10,15,30,0.55);
+  border-radius: 3px;
+  padding: 28px 30px;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.35);
+  }
+  .face-result-text {
+  color: var(--text-main);
+  line-height: 1.9;
+  font-size: 15px;
+  white-space: pre-wrap;
+  word-break: keep-all;
+  font-family: 'Noto Serif KR', 'Nanum Myeongjo', serif;
+  }
+  .face-result-meta {
+  margin-top: 18px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--gold-dp);
+  font-size: 11px;
+  color: var(--text-mute);
+  text-align: right;
+  letter-spacing: 2px;
+  font-family: 'Nanum Myeongjo', serif;
+  }
+

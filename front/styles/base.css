@@ -1,0 +1,256 @@
+/* ============================================================
+   base.css — ADR-055 main.css 영역 분리
+   body·bg-video·intro·overlay·코너 버튼·전체화면
+   원본 라인: 61 ~ 310
+   ============================================================ */
+
+  }
+  /* 은은한 한자 워터마크 (영상 위에 살짝) */
+  body::before {
+  content: '月 下 夢';
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 26vw;
+  color: rgba(212, 175, 55, 0.04);
+  letter-spacing: 6vw;
+  font-weight: 800;
+  pointer-events: none;
+  z-index: 2;
+  white-space: nowrap;
+  font-family: 'Nanum Myeongjo', serif;
+  }
+
+  /* 배경 영상 (인트로엔 진하게, 메인 진입 후 옅게) */
+  .bg-video {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  object-fit: cover;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0;
+  animation: videoFadeIn 2s 0.2s ease forwards;
+  transition: opacity 1.4s ease;
+  }
+  @keyframes videoFadeIn {
+  from { opacity: 0; }
+  to  { opacity: 0.9; }
+  }
+  body.in-app .bg-video { opacity: 0.35; }
+
+  /* 영상 위 오버레이 (인트로엔 옅게, 메인엔 짙게) */
+  .bg-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+  radial-gradient(ellipse at center, rgba(10,15,30,0.15) 0%, rgba(10,15,30,0.5) 70%, rgba(10,15,30,0.7) 100%);
+  transition: background 1.4s ease;
+  }
+  body.in-app .bg-overlay {
+  background:
+  radial-gradient(ellipse at center, rgba(10,15,30,0.55) 0%, rgba(10,15,30,0.85) 70%, rgba(10,15,30,0.95) 100%),
+  linear-gradient(180deg, rgba(10,15,30,0.55) 0%, rgba(10,15,30,0.4) 50%, rgba(10,15,30,0.75) 100%);
+  }
+
+  /* 인트로 스플래시 */
+  .intro-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 1.1s ease, visibility 1.1s ease;
+  }
+  .intro-screen.hiding {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  }
+  .intro-content {
+  text-align: center;
+  padding: 0 20px;
+  animation: introUp 1.6s 0.5s ease both;
+  }
+  @keyframes introUp {
+  0%  { opacity: 0; transform: translateY(30px); }
+  100% { opacity: 1; transform: translateY(0); }
+  }
+  /* 영상 위 가독성: 텍스트 자체에 강한 검정 외곽선 + 금색 글로우만 */
+  .intro-ornament {
+  color: var(--gold-bri);
+  font-size: 28px;
+  letter-spacing: 32px;
+  padding-left: 32px;
+  margin-bottom: 30px;
+  text-shadow:
+  0 0 18px rgba(244,211,94,0.85),
+  -1px -1px 2px rgba(0,0,0,0.95),
+  1px -1px 2px rgba(0,0,0,0.95),
+  -1px 1px 2px rgba(0,0,0,0.95),
+  1px 1px 2px rgba(0,0,0,0.95),
+  0 2px 8px rgba(0,0,0,0.9);
+  }
+  .intro-title {
+  font-size: 96px;
+  color: #ffe89a;
+  letter-spacing: 24px;
+  margin: 0 0 20px;
+  padding-left: 24px;
+  font-weight: 800;
+  font-family: 'Nanum Myeongjo', serif;
+  text-shadow:
+  0 0 50px rgba(244,211,94,0.7),
+  0 0 20px rgba(244,211,94,1),
+  -2px -2px 3px rgba(0,0,0,0.95),
+  2px -2px 3px rgba(0,0,0,0.95),
+  -2px 2px 3px rgba(0,0,0,0.95),
+  2px 2px 3px rgba(0,0,0,0.95),
+  0 4px 14px rgba(0,0,0,0.9);
+  animation: titleGlow 4s ease-in-out infinite alternate;
+  }
+  @keyframes titleGlow {
+  from {
+  text-shadow:
+  0 0 40px rgba(244,211,94,0.6),
+  0 0 16px rgba(244,211,94,1),
+  -2px -2px 3px rgba(0,0,0,0.95),
+  2px -2px 3px rgba(0,0,0,0.95),
+  -2px 2px 3px rgba(0,0,0,0.95),
+  2px 2px 3px rgba(0,0,0,0.95),
+  0 4px 12px rgba(0,0,0,0.9);
+  }
+  to {
+  text-shadow:
+  0 0 80px rgba(244,211,94,0.95),
+  0 0 28px rgba(255,225,130,1),
+  -2px -2px 3px rgba(0,0,0,0.95),
+  2px -2px 3px rgba(0,0,0,0.95),
+  -2px 2px 3px rgba(0,0,0,0.95),
+  2px 2px 3px rgba(0,0,0,0.95),
+  0 4px 14px rgba(0,0,0,0.9);
+  }
+  }
+  .intro-subtitle {
+  color: #f5e6b0;
+  font-size: 16px;
+  letter-spacing: 14px;
+  padding-left: 14px;
+  margin: 0 0 60px;
+  font-weight: 600;
+  text-shadow:
+  0 0 12px rgba(244,211,94,0.5),
+  -1px -1px 2px rgba(0,0,0,0.95),
+  1px -1px 2px rgba(0,0,0,0.95),
+  -1px 1px 2px rgba(0,0,0,0.95),
+  1px 1px 2px rgba(0,0,0,0.95),
+  0 2px 6px rgba(0,0,0,0.9);
+  }
+  .enter-btn {
+  background: linear-gradient(180deg, var(--gold-bri), var(--gold), var(--gold-dp));
+  color: var(--bg-night);
+  border: 2px solid var(--gold-bri);
+  padding: 16px 56px;
+  font-size: 18px;
+  font-weight: 800;
+  font-family: 'Nanum Myeongjo', serif;
+  letter-spacing: 8px;
+  border-radius: 3px;
+  cursor: pointer;
+  box-shadow:
+  0 6px 24px rgba(212,175,55,0.4),
+  0 0 40px rgba(244,211,94,0.25),
+  inset 0 1px 0 rgba(255,255,255,0.4);
+  transition: all 0.3s ease;
+  text-shadow: 0 1px 0 rgba(255,255,255,0.3);
+  }
+  .enter-btn:hover {
+  transform: translateY(-2px);
+  box-shadow:
+  0 10px 32px rgba(212,175,55,0.55),
+  0 0 60px rgba(244,211,94,0.45),
+  inset 0 1px 0 rgba(255,255,255,0.5);
+  }
+  .enter-btn:active { transform: translateY(0); }
+
+  /* 메인 콘텐츠 — 처음엔 숨김, .visible 클래스 붙으면 페이드인 */
+  .app-container {
+  max-width: 920px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 3;
+  display: none;
+  }
+  .app-container.visible {
+  display: block;
+  animation: contentFadeIn 1.2s ease both;
+  }
+  @keyframes contentFadeIn {
+  0%  { opacity: 0; transform: translateY(24px); }
+  100% { opacity: 1; transform: translateY(0); }
+  }
+
+  /* 인트로 동안엔 워터마크/전체화면 버튼도 살짝 옅게 */
+  body:not(.in-app)::before { opacity: 0.5; }
+
+  @media (max-width: 720px) {
+  .intro-title { font-size: 56px; letter-spacing: 12px; padding-left: 12px; }
+  .intro-subtitle { font-size: 12px; letter-spacing: 8px; padding-left: 8px; margin-bottom: 40px; }
+  .intro-ornament { font-size: 18px; letter-spacing: 18px; padding-left: 18px; margin-bottom: 22px; }
+  .enter-btn { padding: 13px 38px; font-size: 16px; letter-spacing: 5px; }
+  }
+
+  /* 우측 상단 코너 버튼 (음소거 / 전체화면 공통) */
+  .corner-btn {
+  position: fixed;
+  top: 18px;
+  z-index: 1000;
+  width: 44px;
+  height: 44px;
+  background: rgba(10,15,30,0.65);
+  border: 1px solid var(--gold-dp);
+  color: var(--gold);
+  border-radius: 3px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.4);
+  animation: contentFadeIn 1.2s 0.4s ease both;
+  }
+  .corner-btn:hover {
+  border-color: var(--gold);
+  color: var(--gold-bri);
+  background: rgba(212,175,55,0.18);
+  box-shadow: 0 0 16px rgba(212,175,55,0.35), 0 4px 14px rgba(0,0,0,0.4);
+  transform: translateY(-1px);
+  }
+  .corner-btn:active { transform: translateY(0) scale(0.96); }
+  .corner-btn svg { display: block; }
+  .fullscreen-btn { right: 18px; }
+  .mute-btn { right: 72px; } /* 전체화면 버튼 왼쪽 (44+10+18) */
+  .mute-btn.muted { color: #b86060; border-color: #6d3030; }
+  .mute-btn.muted:hover { color: #e88080; border-color: #8d4040; background: rgba(184,96,96,0.12); box-shadow: 0 0 16px rgba(184,96,96,0.3), 0 4px 14px rgba(0,0,0,0.4); }
+  @media (max-width: 720px) {
+  .corner-btn { width: 38px; height: 38px; top: 12px; }
+  .corner-btn svg { width: 17px; height: 17px; }
+  .fullscreen-btn { right: 12px; }
+  .mute-btn { right: 60px; }
+  }
+
+  /* 전체화면 모드: 스크롤바 숨김 (스크롤 기능은 유지) */
+  body.is-fullscreen { scrollbar-width: none; -ms-overflow-style: none; }
+  body.is-fullscreen::-webkit-scrollbar { display: none; width: 0; height: 0; }
+  html:fullscreen, html:-webkit-full-screen { scrollbar-width: none; -ms-overflow-style: none; }
+  html:fullscreen::-webkit-scrollbar, html:-webkit-full-screen::-webkit-scrollbar { display: none; width: 0; height: 0; }
+  :fullscreen body, :-webkit-full-screen body { scrollbar-width: none; -ms-overflow-style: none; }
+  :fullscreen body::-webkit-scrollbar, :-webkit-full-screen body::-webkit-scrollbar { display: none; width: 0; height: 0; }
+
