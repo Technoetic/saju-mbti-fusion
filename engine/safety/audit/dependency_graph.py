@@ -63,7 +63,10 @@ def _extract_imports_from_source(source: str) -> set[str]:
 def collect_module_imports(
     safety_dir: Path,
 ) -> dict[str, set[str]]:
-    """engine/safety 디렉터리 안의 모든 .py에서 engine.safety.* import 추출.
+    """engine/safety 디렉터리 안의 모든 .py (서브폴더 재귀) 에서 engine.safety.* import 추출.
+
+    ADR-051: ADR-040 후 9 카테고리 서브폴더 구조 — iterdir() 단일 디렉토리 X,
+    rglob('*.py') 재귀 탐색으로 모든 카테고리·모듈 수집.
 
     Returns:
         {module_name: set_of_imported_modules}
@@ -72,20 +75,24 @@ def collect_module_imports(
     out: dict[str, set[str]] = {}
     if not safety_dir.exists():
         return out
-    for path in safety_dir.iterdir():
-        if not path.is_file() or path.suffix != ".py":
+    for path in safety_dir.rglob("*.py"):
+        if not path.is_file():
             continue
         if path.name in ("__init__.py", "quick_check.py"):
             continue
         if path.name.startswith("test_"):
             continue
+        if "__pycache__" in path.parts:
+            continue
         try:
             source = path.read_text(encoding="utf-8")
         except OSError:
             continue
-        module = f"engine.safety.{path.stem}"
+        # path → engine.safety.{cat}.{mod} 또는 engine.safety.{mod}
+        rel = path.relative_to(safety_dir)
+        parts = list(rel.parts[:-1]) + [rel.stem]
+        module = "engine.safety." + ".".join(parts)
         imports = _extract_imports_from_source(source)
-        # 자기 자신 제외
         imports.discard(module)
         out[module] = imports
     return out
@@ -161,9 +168,13 @@ def _topological_sort(
 def build_graph(
     safety_dir: Path | None = None,
 ) -> DependencyGraph:
-    """엔진 안전 모듈 그래프 분석."""
+    """엔진 안전 모듈 그래프 분석.
+
+    ADR-051: ADR-040 후 9 카테고리 서브폴더 구조 — safety_dir은 audit/ 가 아닌
+    engine/safety/ 루트여야 모든 모듈 수집.
+    """
     if safety_dir is None:
-        safety_dir = Path(__file__).resolve().parent
+        safety_dir = Path(__file__).resolve().parent.parent  # engine/safety/
     raw = collect_module_imports(safety_dir)
 
     # imported_by 역방향 인덱스
