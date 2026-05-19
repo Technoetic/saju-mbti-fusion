@@ -1802,8 +1802,11 @@
 
 </div><!-- /tab-name -->
 
-<script>
+<script type="module">
 'use strict';
+
+// ADR-053 Phase X: 인라인 module 전환 — top-level function·const·let 자동 글로벌 X.
+// 외부 함수 호출은 ADR-052에서 이미 window.SAJU.X 명시.
 
 // Saju + 해몽 핵심 엔진: js/core/saju-engine.js (ADR-043)
 // 데이터(SECTION 1-6) + AI prompt(SECTION 7) 외부 .js로 이동.

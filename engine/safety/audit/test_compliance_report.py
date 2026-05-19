@@ -99,15 +99,10 @@ def test_generate_report_high_coverage():
     assert r.implemented_count >= 30
 
 
-import pytest
-
-
-@pytest.mark.skip(reason="ADR-051: 3 items intentionally unimplemented — i18n (5.2.7 crisis_multilingual), photo_quality (7.2.1), a11y (7.2.6). 별도 phase.")
 def test_generate_report_all_known_items_implemented():
-    """모든 매니페스트 항목이 현재 구현되어 있어야 함 (i18n·a11y·photo_quality 미구현 영역).
+    """모든 매니페스트 항목이 구현되어 있어야 함.
 
-    ADR-051: 92.68% 구현률. 3 missing은 시간 차이가 아닌 의도적 미구현 (다국어·접근성·
-    사진 품질 모듈). 별도 phase로 i18n + a11y + photo_quality 구현 후 SKIP 제거.
+    ADR-053: 5.2.7 crisis_multilingual·7.2.1 photo_quality·7.2.6 a11y 모두 구현.
     """
     from engine.safety.audit.compliance_report import generate_report
     r = generate_report()
