@@ -10,18 +10,20 @@
 <link rel="stylesheet" href="styles/main.css">
 <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 <!-- ADR-038 Phase 2: 핵심 유틸 외부 모듈 (body inline script보다 먼저 로드) -->
-<script src="js/core/html-utils.js"></script>
-<script src="js/core/llm-utils.js"></script>
-<script src="js/core/base-reader.js"></script>
-<script src="js/core/saju-engine.js"></script>
-<script src="js/core/name-engine.js"></script>
-<script src="js/core/saju-ui.js" defer></script>
-<script src="js/readers/face-visualizations.js"></script>
-<script src="js/readers/face-reader.js" defer></script>
-<script src="js/readers/palm-reader.js" defer></script>
-<script src="js/readers/name-reader.js" defer></script>
-<script src="js/readers/dream-reader.js" defer></script>
-<script src="js/readers/hwapae-reader.js" defer></script>
+<!-- ADR-052: ES6 module 본격 전환 — function 자동 글로벌 X → Object.assign(window) 패턴 의무
+     인라인 호출자 호환 검증 완료 (window.SAJU.X prefix). -->
+<script type="module" src="js/core/html-utils.js"></script>
+<script type="module" src="js/core/llm-utils.js"></script>
+<script type="module" src="js/core/base-reader.js"></script>
+<script type="module" src="js/core/saju-engine.js"></script>
+<script type="module" src="js/core/name-engine.js"></script>
+<script type="module" src="js/core/saju-ui.js"></script>
+<script type="module" src="js/readers/face-visualizations.js"></script>
+<script type="module" src="js/readers/face-reader.js"></script>
+<script type="module" src="js/readers/palm-reader.js"></script>
+<script type="module" src="js/readers/name-reader.js"></script>
+<script type="module" src="js/readers/dream-reader.js"></script>
+<script type="module" src="js/readers/hwapae-reader.js"></script>
 </head>
 <body>
 <video class="bg-video" autoplay muted loop playsinline preload="auto" aria-hidden="true">
@@ -5322,8 +5324,9 @@ async function renderIncubationTool(panel) {
 function autoInit() {
   console.log('[사주 엔진] 로드 완료. SAJU 함수들:', Object.keys(window.SAJU || {}));
   try {
-  updateHanjaSelectors(); // 빈 이름 칸용 안내 표시
-  performCalculation();  // 기본값으로 백그라운드 계산만 (화면 전환 X)
+  // ADR-052: ES6 module 호환 — window.SAJU prefix 명시 (외부 .js는 module scope 격리)
+  window.SAJU.updateHanjaSelectors(); // 빈 이름 칸용 안내 표시
+  window.SAJU.performCalculation();   // 기본값으로 백그라운드 계산만 (화면 전환 X)
   console.log('[사주 엔진] 자동 계산 완료');
   } catch (e) {
   console.error('[사주 엔진] 자동 계산 실패:', e);
