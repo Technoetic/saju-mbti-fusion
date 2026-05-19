@@ -9125,7 +9125,7 @@ function updateHanjaSelectors() {
   if (sel.value) previous[sel.dataset.char + ':' + sel.dataset.idx] = sel.value;
   });
 
-  let html = '<div style="margin-bottom:6px;color:#444;font-weight:600">한자 고르기 <span style="font-weight:normal;color:#888;font-size:12px">(모르면 그냥 두세요)</span></div>';
+  let html = '<div style="margin-bottom:6px;color:var(--gold);font-weight:600">한자 고르기 <span style="font-weight:normal;color:var(--text-dim);font-size:12px">(모르면 그냥 두세요)</span></div>';
   let hasUnknown = false;
   for (let i = 0; i < allChars.length; i++) {
   const ch = allChars[i];
