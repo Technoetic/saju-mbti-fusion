@@ -3621,7 +3621,7 @@
   position: relative;
   display: none;
   min-height: 100vh;
-  padding: 60px 16px 40px;
+  padding: 30px 16px 130px; /* 하단은 좌하단 본관 복귀 문 공간 확보 */
   background:
   radial-gradient(ellipse at 50% 0%, rgba(184,35,43,0.20), transparent 50%),
   radial-gradient(ellipse at 50% 100%, rgba(74,24,50,0.30), transparent 60%),
@@ -3671,27 +3671,95 @@
   50% { transform: translateY(-14px); }
   }
 
-  .chwiseon-exit {
+  /* 본관 복귀 문 (좌하단) — 月下夢 톤 (금색·달빛 보라) */
+  .chwiseon-back-gate {
   position: fixed;
-  top: 18px; left: 18px;
+  left: 22px; bottom: 22px;
   z-index: 60;
-  padding: 9px 18px 9px 14px;
-  background: rgba(20,8,10,0.85);
-  color: var(--cs-gold-bri);
-  border: 1px solid var(--cs-gold);
-  border-radius: 999px;
-  font-family: 'Nanum Myeongjo', serif;
-  font-size: 13px;
-  letter-spacing: 2.5px;
+  width: 72px; height: 96px;
+  background: transparent;
+  border: none;
+  padding: 0;
   cursor: pointer;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  box-shadow: 0 4px 14px rgba(0,0,0,0.55), 0 0 12px rgba(184,35,43,0.30);
+  font-family: 'Nanum Myeongjo', serif;
+  transition: transform 0.25s ease;
   }
-  .chwiseon-exit:hover {
-  color: #fff;
-  border-color: var(--cs-gold-bri);
-  background: rgba(40,12,16,0.95);
+  .chwiseon-back-gate:hover { transform: translateY(-2px); }
+  .cback-door {
+  position: relative;
+  display: block;
+  width: 60px; height: 78px;
+  margin: 0 auto 4px;
+  border-radius: 30px 30px 6px 6px;
+  /* 월하몽 본관 색감 — 진보라/짙은 남보라 */
+  background: linear-gradient(180deg, #2a1f4a 0%, #1a1230 80%);
+  border: 2px solid var(--gold-bri);
+  box-shadow:
+  0 0 16px rgba(244, 211, 94, 0.40),
+  0 0 32px rgba(212, 175, 55, 0.25),
+  inset 0 0 8px rgba(244, 211, 94, 0.25);
+  overflow: hidden;
+  animation: cbackBreath 2.8s ease-in-out infinite;
+  }
+  @keyframes cbackBreath {
+  0%, 100% { box-shadow: 0 0 16px rgba(244,211,94,0.35), 0 0 32px rgba(212,175,55,0.20), inset 0 0 8px rgba(244,211,94,0.22); }
+  50% { box-shadow: 0 0 22px rgba(244,211,94,0.65), 0 0 46px rgba(212,175,55,0.45), inset 0 0 14px rgba(244,211,94,0.45); }
+  }
+  .cback-door-frame {
+  position: absolute; inset: 6px;
+  border: 1px solid rgba(244, 211, 94, 0.45);
+  border-radius: 24px 24px 4px 4px;
+  }
+  .cback-door-inner {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 6px; height: 36px;
+  background: linear-gradient(180deg, var(--gold-bri), var(--gold));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  border-radius: 3px;
+  box-shadow: 0 0 10px var(--gold-bri);
+  }
+  .chwiseon-back-gate:hover .cback-door-inner { opacity: 0.85; }
+  .cback-door-glow {
+  position: absolute;
+  inset: -20px;
+  background: radial-gradient(circle, rgba(244,211,94,0.30), transparent 70%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+  }
+  .chwiseon-back-gate:hover .cback-door-glow { opacity: 1; }
+  /* 등불은 달 모양으로 (월하몽 컨셉) */
+  .cback-lantern {
+  position: absolute;
+  top: -6px; left: 50%;
+  transform: translateX(-50%);
+  width: 16px; height: 16px;
+  background: radial-gradient(circle at 35% 35%, #fff8e0, var(--gold-bri) 50%, var(--gold) 100%);
+  border-radius: 50%;
+  border: 1px solid var(--gold);
+  box-shadow: 0 0 12px rgba(244,211,94,0.75);
+  animation: cbackMoonSway 4s ease-in-out infinite;
+  }
+  @keyframes cbackMoonSway {
+  0%, 100% { transform: translateX(-50%) translateY(0); opacity: 0.95; }
+  50% { transform: translateX(-50%) translateY(-2px); opacity: 1; }
+  }
+  .cback-label {
+  display: block;
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: var(--gold-bri);
+  text-shadow: 0 0 6px rgba(74,24,90,0.65);
+  font-weight: 700;
+  }
+  @media (max-width: 720px) {
+  .chwiseon-back-gate { left: 14px; bottom: 14px; width: 56px; height: 78px; }
+  .cback-door { width: 48px; height: 64px; }
+  .cback-door-inner { height: 28px; }
+  .cback-label { font-size: 8px; letter-spacing: 2px; }
   }
 
   .chwiseon-header {
@@ -3816,8 +3884,7 @@
   @media (max-width: 720px) {
   .chwiseon-emblem { font-size: 30px; letter-spacing: 10px; }
   .chwiseon-subtitle { font-size: 10px; letter-spacing: 4px; }
-  .chwiseon-main { padding: 52px 12px 32px; }
-  .chwiseon-exit { top: 12px; left: 12px; padding: 7px 14px 7px 11px; font-size: 12px; letter-spacing: 2px; }
+  .chwiseon-main { padding: 24px 12px 100px; }
   .cauth-card { padding: 28px 20px 22px; }
   .cauth-emblem { font-size: 26px; letter-spacing: 8px; }
   .cauth-lead { font-size: 14px; }
@@ -4119,8 +4186,16 @@
 
 <!-- 취선루 메인 컨테이너 (인증 후 표시) -->
 <section id="chwiseonMain" class="chwiseon-main" hidden>
-  <!-- 좌상단: 본관으로 돌아가기 -->
-  <button id="chwiseonExit" class="chwiseon-exit" type="button" aria-label="월하몽 본관으로 돌아가기">← 본관으로</button>
+  <!-- 좌하단: 월하몽 본관으로 돌아가는 문 (취선루 진입 문과 대칭) -->
+  <button id="chwiseonExit" class="chwiseon-exit chwiseon-back-gate" type="button" aria-label="월하몽 본관으로 돌아가기">
+  <span class="cback-door">
+  <span class="cback-door-frame"></span>
+  <span class="cback-door-inner"></span>
+  <span class="cback-door-glow"></span>
+  <span class="cback-lantern"></span>
+  </span>
+  <span class="cback-label">月 下 夢</span>
+  </button>
 
   <header class="chwiseon-header">
   <div class="chwiseon-emblem">醉 仙 樓</div>
