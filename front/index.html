@@ -2939,6 +2939,9 @@
   display: none; /* 갤러리 모드가 아닐 때만 노출 */
   }
   body.in-app:not(.gallery-mode) .to-gallery-btn { display: inline-block; }
+  /* 메뉴/콘텐츠 모드에는 메뉴 헤더 안에 "← 점술가 고르기" 가 있으므로 좌상단 fixed 버튼 숨김 (중복 제거) */
+  body.menu-mode .to-gallery-btn,
+  body.content-mode .to-gallery-btn { display: none !important; }
   .to-gallery-btn:hover {
   color: var(--gold-bri);
   border-color: var(--gold);
@@ -4289,7 +4292,8 @@
   </div>
 </div>
 
-<!-- 풀이 모드에서 점술가 선택 화면(카드 갤러리)로 돌아가는 버튼 -->
+<!-- 풀이 모드에서 카드 갤러리로 돌아가는 좌상단 버튼 (정통 풀이 화면용) -->
+<!-- 메뉴/콘텐츠 모드에는 메뉴 헤더의 "← 점술가 고르기" 가 있으므로 본 버튼은 숨김 -->
 <button id="toGalleryBtn" class="to-gallery-btn" type="button" aria-label="점술가 고르러 가기">← 점술가 고르러</button>
 
 <!-- ════════════════════════════════════════════════════════
