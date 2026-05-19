@@ -173,7 +173,7 @@ def build():
 
     output.sort(key=lambda x: (x["hangul"], x["char"]))
 
-    out_path = _DIR.parent / "korean_hanja_unihan.json"
+    out_path = _DIR.parent / "hanja/korean_hanja_unihan.json"
     out_path.write_text(json.dumps(output, ensure_ascii=False, separators=(",", ":")),
                         encoding="utf-8")
 

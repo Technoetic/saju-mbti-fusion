@@ -35,7 +35,7 @@ from typing import Literal
 
 
 # 데이터 경로
-_RULES_PATH = Path(__file__).parent.parent.parent / "data" / "palm_scoring_rules.json"
+_RULES_PATH = Path(__file__).parent.parent.parent.parent / "data" / "palm/scoring_rules.json"
 
 LineKey = Literal["lifeline", "headline", "heartline", "fateline", "girdle_of_venus"]
 ScoreLabel = Literal["low", "medium", "high"]

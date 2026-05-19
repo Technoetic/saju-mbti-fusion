@@ -31,7 +31,7 @@ from pathlib import Path
 from typing import Literal
 
 # 데이터 경로
-_DATA_PATH = Path(__file__).parent.parent.parent / "data" / "twelve_stages_mapping.json"
+_DATA_PATH = Path(__file__).parent.parent.parent / "data" / "saju/twelve_stages_mapping.json"
 
 # 천간/지지 한자 시퀀스
 _GAN = ["甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬", "癸"]

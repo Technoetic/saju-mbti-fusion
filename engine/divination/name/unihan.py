@@ -41,9 +41,9 @@ from typing import Any
 
 # 데이터 경로 — engine/ 기준 부모 디렉토리의 data/
 _DATA_PATH = (
-    Path(__file__).resolve().parent.parent.parent
+    Path(__file__).resolve().parent.parent.parent.parent
     / "data"
-    / "korean_hanja_unihan.json"
+    / "hanja/korean_hanja_unihan.json"
 )
 
 

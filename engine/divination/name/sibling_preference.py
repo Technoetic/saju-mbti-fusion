@@ -82,7 +82,7 @@ class SiblingDiagnosis:
 # ─────────────────────────── 데이터 로더 ───────────────────────────
 
 
-_DATA_PATH = Path(__file__).parent.parent.parent / "data" / "name_sibling_preference.json"
+_DATA_PATH = Path(__file__).parent.parent.parent.parent / "data" / "name/sibling_preference.json"
 
 
 @lru_cache(maxsize=1)
