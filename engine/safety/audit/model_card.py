@@ -169,7 +169,7 @@ def get_face_reading_model_card(
                 "특정 인종·민족 일반화 금지",
             ],
             "human_oversight": "모든 응답에 의료·법률·금융 자문 거부 + 전문가 안내 포함",
-            "audit": "engine.safety.slo.slo.tracing 이벤트 + engine.safety.slo.slo 측정",
+            "audit": "engine.safety.slo.tracing 이벤트 + engine.safety.slo.slo 측정",
         },
     }
     return ModelCard(

@@ -172,7 +172,7 @@ COMPLIANCE_MANIFEST: dict[str, dict[str, Any]] = {
         "anchors": ("GDPR Art.7", "EU AI Act §10(5)", "KR PIPA §15"),
     },
     "7.3.4_tracing": {
-        "module": "engine.safety.slo.slo.tracing",
+        "module": "engine.safety.slo.tracing",
         "symbols": ("emit_face_reading_event", "FaceReadingTrace"),
         "anchors": ("internal_observability",),
     },
