@@ -2983,6 +2983,40 @@
   padding: 14px 0 24px;
   border-bottom: 1px dashed var(--gold-dp);
   margin-bottom: 28px;
+  position: relative;
+  }
+  /* "← 점술가 고르기" — 메뉴 헤더 좌측 위 */
+  .menu-back-btn {
+  position: absolute;
+  top: 4px; left: 0;
+  padding: 7px 14px;
+  background: transparent;
+  color: var(--gold);
+  border: 1px solid var(--gold-dp);
+  border-radius: 999px;
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 12px;
+  letter-spacing: 2.5px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  }
+  .menu-back-btn:hover {
+  color: var(--gold-bri);
+  border-color: var(--gold);
+  background: rgba(212,175,55,0.08);
+  }
+  .menu-back-btn:active { transform: translateY(1px); }
+  /* 취선루 톤 */
+  .chwiseon-menu .menu-back-btn {
+  color: var(--cs-gold-bri);
+  border-color: var(--cs-gold);
+  }
+  .chwiseon-menu .menu-back-btn:hover {
+  background: rgba(200,156,74,0.12);
+  border-color: var(--cs-gold-bri);
+  }
+  @media (max-width: 720px) {
+  .menu-back-btn { position: static; display: inline-block; margin-bottom: 12px; font-size: 11px; padding: 6px 12px; letter-spacing: 2px; }
   }
   .menu-master-name {
   font-family: 'Nanum Myeongjo', serif;
@@ -4262,6 +4296,7 @@
   <!-- 취선루 메뉴 그리드 -->
   <section id="chwiseonMenu" class="menu-view chwiseon-menu" hidden>
   <header class="menu-header">
+  <button class="menu-back-btn" type="button" id="chwiseonMenuBackBtn" aria-label="점술가 카드 선택으로 돌아가기">← 점술가 고르기</button>
   <h2 class="menu-master-name" id="chwiseonMasterName"></h2>
   <p class="menu-master-sub" id="chwiseonMasterSub"></p>
   </header>
@@ -4390,6 +4425,7 @@
 <!-- 도사별 메뉴 그리드 — 카드 클릭 후 진입 (콘텐츠 7~12개) -->
 <section id="menuView" class="menu-view" aria-label="콘텐츠 메뉴">
   <header class="menu-header">
+  <button class="menu-back-btn" type="button" id="menuBackToGalleryBtn" aria-label="점술가 카드 선택으로 돌아가기">← 점술가 고르기</button>
   <h2 class="menu-master-name" id="menuMasterName"></h2>
   <p class="menu-master-sub" id="menuMasterSub"></p>
   </header>
@@ -11621,6 +11657,15 @@ window.CHWISEON_CONTENTS = {
   if (currentMaster) window.__contentOpen(currentMaster, key);
   });
 
+  // 메뉴 헤더 뒤로가기 → 카드 갤러리로 (다른 점술가 고르기)
+  const menuBackBtn = document.getElementById('menuBackToGalleryBtn');
+  if (menuBackBtn) {
+  menuBackBtn.addEventListener('click', () => {
+  setMode('gallery');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+  }
+
   // 콘텐츠 뷰: 뒤로가기 + 추천 카드 클릭
   contentBody.addEventListener('click', (e) => {
   if (e.target.closest('#contentBackBtn')) {
@@ -11992,6 +12037,16 @@ window.CHWISEON_CONTENTS = {
   if (!card) return;
   if (currentMaster) openChwiseonContent(currentMaster, card.dataset.contentKey);
   });
+
+  // 취선루 메뉴 헤더 뒤로가기 → 카드 갤러리로 (다른 점술가 고르기)
+  const csMenuBackBtn = document.getElementById('chwiseonMenuBackBtn');
+  if (csMenuBackBtn) {
+  csMenuBackBtn.addEventListener('click', () => {
+  document.body.classList.remove('chwiseon-menu-mode', 'chwiseon-content-mode');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+  }
+
   contentBody.addEventListener('click', (e) => {
   if (e.target.closest('#csContentBack')) {
   if (currentMaster) openChwiseonMenu(currentMaster);
