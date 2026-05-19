@@ -225,8 +225,8 @@ def score_name(name_hanja: str) -> dict[str, Any] | None:
         }
         한자 문자열 자체가 비어있으면 None.
     """
-    from engine.divination.name_strokes import total_strokes
-    from engine.divination.name_bulyong import diagnose_name
+    from engine.divination.name.strokes import total_strokes
+    from engine.divination.name.bulyong import diagnose_name
 
     chars = [c for c in (name_hanja or "") if c.strip()]
     if not chars:

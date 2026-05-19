@@ -151,8 +151,8 @@ def get_target_ohaeng(
     """작명 모듈(name_gaeja / name_gaemyeong)이 받는 target_ohaeng 직접 반환.
 
     예:
-        from engine.divination.name_gaemyeong import find_gaemyeong_candidates
-        from engine.divination.name_saju_ohaeng import get_target_ohaeng
+        from engine.divination.name.gaemyeong import find_gaemyeong_candidates
+        from engine.divination.name.saju_ohaeng import get_target_ohaeng
 
         target = get_target_ohaeng(1990, 5, 15, 14)  # → "수"
         r = find_gaemyeong_candidates(..., target_ohaeng=target)

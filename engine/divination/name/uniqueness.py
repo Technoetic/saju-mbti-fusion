@@ -31,7 +31,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Literal
 
-from engine.divination.name_aesthetic import (
+from engine.divination.name.aesthetic import (
     _get_freq_dict,
     _get_positional_freq,
 )
