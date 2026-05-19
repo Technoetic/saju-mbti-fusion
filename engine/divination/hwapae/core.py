@@ -23,7 +23,7 @@ from engine.safety import (
     build_legal_footer,
 )
 
-_CACHE_DIR = Path(__file__).resolve().parent.parent.parent / "step_archive" / "hwapae_cache"
+_CACHE_DIR = Path(__file__).resolve().parent.parent.parent.parent / "step_archive" / "hwapae_cache"
 _CACHE_DIR.mkdir(parents=True, exist_ok=True)
 _TTL_SEC = 24 * 3600
 

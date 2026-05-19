@@ -29,7 +29,7 @@ from typing import Literal
 
 
 # 데이터 파일 경로
-_DATA_PATH = Path(__file__).parent.parent.parent / "data" / "name_aesthetic_syllable_freq.json"
+_DATA_PATH = Path(__file__).parent.parent.parent.parent / "data" / "name/aesthetic_syllable_freq.json"
 
 
 # 성별 라벨

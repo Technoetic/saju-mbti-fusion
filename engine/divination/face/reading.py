@@ -28,7 +28,7 @@ from engine.safety import (
 )
 
 
-_CACHE_DIR = Path(__file__).resolve().parent.parent.parent / "step_archive" / "face_reading_cache"
+_CACHE_DIR = Path(__file__).resolve().parent.parent.parent.parent / "step_archive" / "face_reading_cache"
 _CACHE_DIR.mkdir(parents=True, exist_ok=True)
 _TTL_SEC = 24 * 3600
 _MAX_TOKENS = 3000

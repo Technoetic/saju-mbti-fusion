@@ -38,7 +38,7 @@ from engine.divination.name.aesthetic import (
 
 
 # 데이터 경로
-_SURNAME_PATH = Path(__file__).parent.parent.parent / "data" / "korean_surname_frequency.json"
+_SURNAME_PATH = Path(__file__).parent.parent.parent.parent / "data" / "hanja/korean_surname_frequency.json"
 
 # 빈도 임계값 (보고서 §5.3)
 THRESHOLD_VERY_COMMON = 300  # 동명이인 추정 ≥ 300 → very_common
