@@ -7097,6 +7097,51 @@ ${concern && concern.trim() ? '2000~2500자' : (nameAnalysis ? '1700~2200자' : 
 }
 
 /**
+ * window.LLMUtils — 7인 점술가 공용 비동기 유틸 (ADR-037)
+ *  - fetchWithRetry: 502/503/504 + network 오류 자동 1회 재시도 (백오프 3초)
+ *  - postJSON: POST + JSON.stringify + Content-Type 자동, 5xx 시 재시도 포함
+ *  - 본 글로벌 노출은 face IIFE 내부 fetchWithRetry의 글로벌화 (Phase 1, 라이브 위험 최소)
+ *  - palm·name·hwapae·dream 등 다른 IIFE도 본 유틸로 502 자동 복원 적용
+ */
+(function(){
+  async function fetchWithRetry(url, init, opts) {
+    const { retries = 1, backoffMs = 3000, onRetry = null } = opts || {};
+    let lastErr = null;
+    for (let attempt = 0; attempt <= retries; attempt++) {
+      try {
+        const resp = await fetch(url, init);
+        if (resp.status >= 500 && resp.status < 600 && attempt < retries) {
+          if (onRetry) onRetry(attempt + 1, resp.status);
+          await new Promise(r => setTimeout(r, backoffMs));
+          continue;
+        }
+        return resp;
+      } catch (e) {
+        lastErr = e;
+        if (attempt < retries) {
+          if (onRetry) onRetry(attempt + 1, 'network');
+          await new Promise(r => setTimeout(r, backoffMs));
+          continue;
+        }
+        throw e;
+      }
+    }
+    if (lastErr) throw lastErr;
+    throw new Error('재시도 실패');
+  }
+
+  async function postJSON(url, payload, opts) {
+    return fetchWithRetry(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    }, opts);
+  }
+
+  window.LLMUtils = { fetchWithRetry, postJSON };
+})();
+
+/**
  * Bizrouter LLM API 호출 — 우리 백엔드 /api/llm/chat 사용
  *  - Gemini 2.5 Flash Lite (또는 BIZROUTER_MODEL env)
  *  - 적대적 비판 루프·캐시·rate limit 등 백엔드 인프라 활용
@@ -12945,16 +12990,12 @@ async function goToHwResult() {
   `;
 
   try {
-  const resp = await fetch('/api/hwapae/reading', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({
+  const resp = await window.LLMUtils.postJSON('/api/hwapae/reading', {
   question,
   cards: cardsPayload,
   category: catLabel,
   menu_label: menuLabel,
-  }),
-  });
+  }, { retries: 1, backoffMs: 3000 });
   if (!resp.ok) {
   const err = await resp.json().catch(() => ({}));
   throw new Error(err.detail || `HTTP ${resp.status}`);
@@ -13245,17 +13286,13 @@ document.getElementById('dreamBtn').addEventListener('click', async () => {
   try {
   const uid = await ensureAnonId();
   const profile = extractProfileFromSaju();
-  const res = await fetch('/api/dream/interpret_v2', {
-  method: 'POST',
-  headers: {'Content-Type': 'application/json'},
-  body: JSON.stringify({
+  const res = await window.LLMUtils.postJSON('/api/dream/interpret_v2', {
   dream_text: dreamText,
   user_id: uid,
   profile: profile,
   locale: USER_LOCALE,
   enable_llm_agents: true,
-  }),
-  });
+  }, { retries: 1, backoffMs: 3000 });
   if (!res.ok) {
   const errText = await res.text();
   throw new Error(`서버 오류 (${res.status}): ${errText.slice(0,200)}`);
@@ -15001,17 +15038,21 @@ if (document.readyState === 'loading') {
     const question = ($('palmQuestion').value || '').trim() || null;
 
     showStep('palm-step-loading');
+    const loadingMsgEl = document.querySelector('#palm-step-loading .palm-loading-msg');
+    const originalLoadingMsg = loadingMsgEl ? loadingMsgEl.textContent : null;
     try {
-      const resp = await fetch('/api/palm/reading', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          image_base64: capturedDataUrl,
-          age: Number.isFinite(age) ? age : null,
-          gender,
-          hand,
-          question,
-        }),
+      const resp = await window.LLMUtils.postJSON('/api/palm/reading', {
+        image_base64: capturedDataUrl,
+        age: Number.isFinite(age) ? age : null,
+        gender,
+        hand,
+        question,
+      }, {
+        retries: 1,
+        backoffMs: 3000,
+        onRetry: (attempt, status) => {
+          if (loadingMsgEl) loadingMsgEl.textContent = `허허, 잠시 길이 막혔으니 다시 살펴보겠소… (${status})`;
+        },
       });
       if (!resp.ok) {
         const errText = await resp.text();
@@ -15031,6 +15072,8 @@ if (document.readyState === 'loading') {
         </div>
       `;
       showStep('palm-step-result');
+    } finally {
+      if (loadingMsgEl && originalLoadingMsg != null) loadingMsgEl.textContent = originalLoadingMsg;
     }
   }
 
@@ -15212,17 +15255,21 @@ if (document.readyState === 'loading') {
     const dayMaster = ($('nameDayMaster')?.value || '').trim() || null;
 
     showStep('name-step-loading');
+    const loadingMsgEl = document.querySelector('#name-step-loading .name-loading-msg');
+    const originalLoadingMsg = loadingMsgEl ? loadingMsgEl.textContent : null;
     try {
-      const resp = await fetch('/api/name/reading', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          fullname_ko: fullnameKo,
-          fullname_han: fullnameHan,
-          gender,
-          birth,
-          saju_day_master: dayMaster,
-        }),
+      const resp = await window.LLMUtils.postJSON('/api/name/reading', {
+        fullname_ko: fullnameKo,
+        fullname_han: fullnameHan,
+        gender,
+        birth,
+        saju_day_master: dayMaster,
+      }, {
+        retries: 1,
+        backoffMs: 3000,
+        onRetry: (attempt, status) => {
+          if (loadingMsgEl) loadingMsgEl.textContent = `허허, 잠시 길이 막혔으니 다시 살펴보겠소… (${status})`;
+        },
       });
       if (!resp.ok) {
         const errText = await resp.text();
@@ -15241,6 +15288,8 @@ if (document.readyState === 'loading') {
           </div>
         </div>`;
       showStep('name-step-result');
+    } finally {
+      if (loadingMsgEl && originalLoadingMsg != null) loadingMsgEl.textContent = originalLoadingMsg;
     }
   }
 
