@@ -11672,8 +11672,10 @@ window.CHWISEON_CONTENTS = {
   idx = Math.max(0, Math.min(N - 1, i));
   renderChwiseon();
   }
-  document.querySelector('[data-chwiseon-prev]').addEventListener('click', () => setChwiseonIdx(idx - 1));
-  document.querySelector('[data-chwiseon-next]').addEventListener('click', () => setChwiseonIdx(idx + 1));
+  function csNext() { setChwiseonIdx(idx + 1); }
+  function csPrev() { setChwiseonIdx(idx - 1); }
+  document.querySelector('[data-chwiseon-prev]').addEventListener('click', csPrev);
+  document.querySelector('[data-chwiseon-next]').addEventListener('click', csNext);
 
   // 카드 들어가기 → 메뉴 모드
   deck.addEventListener('click', (e) => {
@@ -11682,6 +11684,72 @@ window.CHWISEON_CONTENTS = {
   const card = enterBtn.closest('.char-card');
   const charKey = card?.dataset?.character;
   if (charKey) openChwiseonMenu(charKey);
+  });
+
+  // ─── 드래그·스와이프 (본관과 동일 패턴) ───
+  const csGallery = deck.closest('.card-gallery');
+  let csDrag = null;
+  const DRAG_DEAD_PX = 8;
+  function csGetPoint(e) {
+  if (e.touches && e.touches[0]) return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+  return { x: e.clientX, y: e.clientY };
+  }
+  function csOnDown(e) {
+  const p = csGetPoint(e);
+  csDrag = { startX: p.x, startY: p.y, deltaX: 0, deltaY: 0, locked: null, width: csGallery?.clientWidth || deck.clientWidth };
+  deck.classList.add('is-dragging');
+  }
+  function csOnMove(e) {
+  if (!csDrag) return;
+  const p = csGetPoint(e);
+  csDrag.deltaX = p.x - csDrag.startX;
+  csDrag.deltaY = p.y - csDrag.startY;
+  if (csDrag.locked === null) {
+  if (Math.abs(csDrag.deltaX) > DRAG_DEAD_PX || Math.abs(csDrag.deltaY) > DRAG_DEAD_PX) {
+  csDrag.locked = Math.abs(csDrag.deltaX) > Math.abs(csDrag.deltaY) ? 'x' : 'y';
+  }
+  }
+  if (csDrag.locked === 'x') {
+  if (e.cancelable) e.preventDefault();
+  let dx = csDrag.deltaX;
+  if ((idx === 0 && dx > 0) || (idx === N - 1 && dx < 0)) dx *= 0.35;
+  const pct = (dx / csDrag.width) * 100;
+  deck.style.transform = `translateX(calc(${-idx * 100}% + ${pct}%))`;
+  }
+  }
+  function csOnUp() {
+  if (!csDrag) return;
+  deck.classList.remove('is-dragging');
+  if (csDrag.locked === 'x') {
+  const threshold = csDrag.width * 0.18;
+  if (csDrag.deltaX < -threshold) csNext();
+  else if (csDrag.deltaX > threshold) csPrev();
+  else renderChwiseon();
+  }
+  csDrag = null;
+  }
+  // 마우스
+  deck.addEventListener('mousedown', (e) => {
+  if (e.target.closest('.char-card-enter')) return; // 들어가기 버튼 클릭은 패스
+  e.preventDefault();
+  csOnDown(e);
+  });
+  window.addEventListener('mousemove', csOnMove);
+  window.addEventListener('mouseup', csOnUp);
+  // 터치
+  deck.addEventListener('touchstart', csOnDown, { passive: true });
+  deck.addEventListener('touchmove', csOnMove, { passive: false });
+  deck.addEventListener('touchend', csOnUp);
+  deck.addEventListener('touchcancel', csOnUp);
+
+  // 키보드 (취선루 갤러리 모드일 때만)
+  document.addEventListener('keydown', (e) => {
+  if (!document.body.classList.contains('chwiseon-on')) return;
+  if (document.body.classList.contains('chwiseon-menu-mode')) return;
+  if (document.body.classList.contains('chwiseon-content-mode')) return;
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
+  if (e.key === 'ArrowRight') { e.preventDefault(); csNext(); }
+  else if (e.key === 'ArrowLeft') { e.preventDefault(); csPrev(); }
   });
 
   // ───────────── 취선루 메뉴/콘텐츠 라우팅 ─────────────
