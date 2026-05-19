@@ -15113,21 +15113,151 @@ if (document.readyState === 'loading') {
 })();
 
 // ============================================================
-// SECTION: 묵향 선생 · 이름 풀이 (姓名學)
+// SECTION: 묵향 선생 · 이름 풀이 (姓名學) — class+async (ADR-037 Phase 1b)
 // ============================================================
 (function initNameReading() {
   const $ = (id) => document.getElementById(id);
 
+  /**
+   * BaseReader — 7인 점술가 공용 추상 클래스
+   *  - persona: 점술가 이름 (에러 메시지·로그용)
+   *  - endpoint: 백엔드 API 경로
+   *  - tabId: 탭 컨테이너 ID
+   *  - stepPrefix: 스텝 ID 접두어 (예: 'name-step-')
+   *  - boardId: 결과 보드 ID
+   *  - WHMKey: WHM markCompleted 키
+   */
+  class BaseReader {
+    constructor({ persona, endpoint, tabId, stepPrefix, boardId, WHMKey }) {
+      this.persona = persona;
+      this.endpoint = endpoint;
+      this.tabId = tabId;
+      this.stepPrefix = stepPrefix;
+      this.boardId = boardId;
+      this.WHMKey = WHMKey;
+    }
+    showStep(stepName) {
+      const fullId = this.stepPrefix + stepName;
+      document.querySelectorAll(`#${this.tabId} .${this.stepPrefix.slice(0,-1)}`).forEach(s => {
+        s.classList.toggle('active', s.id === fullId);
+      });
+    }
+    async post(payload, opts) {
+      return window.LLMUtils.postJSON(this.endpoint, payload, opts);
+    }
+    renderError(err) {
+      const board = $(this.boardId);
+      if (!board) return;
+      board.innerHTML = `
+        <div class="face-result-card">
+          <div class="face-result-text" style="color:#e9b3a8">
+            이 사람이 풀이를 마치지 못했소.<br><br>
+            <code style="font-size:12px">${(err.message || err).toString().replace(/</g,'&lt;')}</code>
+          </div>
+        </div>`;
+      this.showStep('result');
+    }
+    markCompleted(extra = {}) {
+      if (window.WHM && this.WHMKey) window.WHM.markCompleted(this.WHMKey, extra);
+    }
+  }
+
+  /**
+   * NameReader — 묵향 선생 (성명학)
+   *  - 한자 셀렉터 자동 생성 + 총 획수 표시
+   *  - 본 reader는 카메라 없음 (텍스트 입력만)
+   */
+  class NameReader extends BaseReader {
+    constructor() {
+      super({
+        persona: '묵향 선생',
+        endpoint: '/api/name/reading',
+        tabId: 'tab-name',
+        stepPrefix: 'name-step-',
+        boardId: 'nameResultBoard',
+        WHMKey: 'naming',
+      });
+    }
+    updateReadButton() {
+      const btn = $('nameReadBtn');
+      if (!btn) return;
+      btn.disabled = !( ($('nameFullKo')?.value || '').trim() );
+    }
+    collectHanjaText() {
+      const cells = document.querySelectorAll('#nameHanjaSelectors .hanja-cell');
+      if (!cells.length) return '';
+      const parts = [];
+      cells.forEach(cell => {
+        const sel = cell.querySelector('.hanja-select');
+        if (sel && sel.value) parts.push(sel.value);
+      });
+      return parts.join('');
+    }
+    renderResult(data) {
+      const text = (data && data.text) ? data.text : '(풀이를 받지 못했소.)';
+      const cached = data && data.cached;
+      const board = $(this.boardId);
+      const escaped = text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      board.innerHTML = `
+        <div class="face-result-card">
+          <h2 class="face-result-title story-title">묵 향  선 생 의  이 름  풀 이</h2>
+          <div class="face-result-text">${escaped}</div>
+          <div class="face-result-meta">${cached ? '캐시 결과 · ' : ''}묵향 선생 · 성명학</div>
+        </div>`;
+    }
+    async request() {
+      const fullnameKo = ($('nameFullKo')?.value || '').trim();
+      if (!fullnameKo) { alert('한글 이름을 먼저 적어주시오.'); return; }
+      const payload = {
+        fullname_ko: fullnameKo,
+        fullname_han: this.collectHanjaText() || null,
+        gender: ($('nameGender')?.value || '').trim() || null,
+        birth: ($('nameBirth')?.value || '').trim() || null,
+        saju_day_master: ($('nameDayMaster')?.value || '').trim() || null,
+      };
+      this.showStep('loading');
+      const loadingMsgEl = document.querySelector('#name-step-loading .name-loading-msg');
+      const originalLoadingMsg = loadingMsgEl ? loadingMsgEl.textContent : null;
+      try {
+        const resp = await this.post(payload, {
+          retries: 1,
+          backoffMs: 3000,
+          onRetry: (attempt, status) => {
+            if (loadingMsgEl) loadingMsgEl.textContent = `허허, 잠시 길이 막혔으니 다시 살펴보겠소… (${status})`;
+          },
+        });
+        if (!resp.ok) {
+          const errText = await resp.text();
+          throw new Error(`서버 오류 (${resp.status}): ${errText}`);
+        }
+        const data = await resp.json();
+        this.renderResult(data);
+        this.showStep('result');
+        this.markCompleted({});
+      } catch (err) {
+        this.renderError(err);
+      } finally {
+        if (loadingMsgEl && originalLoadingMsg != null) loadingMsgEl.textContent = originalLoadingMsg;
+      }
+    }
+    resetAll() {
+      $(this.boardId).innerHTML = '';
+      this.showStep('input');
+    }
+  }
+
+  const reader = new NameReader();
+
+  // ── thin wrapper (기존 함수 호출처 0 변경 보장) ──
   function showStep(stepId) {
+    // 기존 시그니처: 'name-step-input' 같은 full ID
     document.querySelectorAll('#tab-name .name-step').forEach(s => {
       s.classList.toggle('active', s.id === stepId);
     });
   }
 
   function updateReadButton() {
-    const btn = $('nameReadBtn');
-    if (!btn) return;
-    btn.disabled = !( ($('nameFullKo')?.value || '').trim() );
+    reader.updateReadButton();
   }
 
   // 한글 이름 변경 시 한자 셀 자동 생성 (개인 모드와 동일 로직)
@@ -15222,81 +15352,11 @@ if (document.readyState === 'loading') {
     target.innerHTML = `${rows.join(' ')} <b style="color:var(--gold);margin-left:8px">총 ${total}획</b>`;
   }
 
-  function collectHanjaText() {
-    const cells = document.querySelectorAll('#nameHanjaSelectors .hanja-cell');
-    if (!cells.length) return '';
-    const parts = [];
-    cells.forEach(cell => {
-      const sel = cell.querySelector('.hanja-select');
-      if (sel && sel.value) parts.push(sel.value);
-    });
-    return parts.join('');
-  }
-
-  function renderResult(data) {
-    const text = (data && data.text) ? data.text : '(풀이를 받지 못했소.)';
-    const cached = data && data.cached;
-    const board = $('nameResultBoard');
-    const escaped = text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-    board.innerHTML = `
-      <div class="face-result-card">
-        <h2 class="face-result-title story-title">묵 향  선 생 의  이 름  풀 이</h2>
-        <div class="face-result-text">${escaped}</div>
-        <div class="face-result-meta">${cached ? '캐시 결과 · ' : ''}묵향 선생 · 성명학</div>
-      </div>`;
-  }
-
-  async function requestReading() {
-    const fullnameKo = ($('nameFullKo')?.value || '').trim();
-    if (!fullnameKo) { alert('한글 이름을 먼저 적어주시오.'); return; }
-    const fullnameHan = collectHanjaText() || null;
-    const gender = ($('nameGender')?.value || '').trim() || null;
-    const birth = ($('nameBirth')?.value || '').trim() || null;
-    const dayMaster = ($('nameDayMaster')?.value || '').trim() || null;
-
-    showStep('name-step-loading');
-    const loadingMsgEl = document.querySelector('#name-step-loading .name-loading-msg');
-    const originalLoadingMsg = loadingMsgEl ? loadingMsgEl.textContent : null;
-    try {
-      const resp = await window.LLMUtils.postJSON('/api/name/reading', {
-        fullname_ko: fullnameKo,
-        fullname_han: fullnameHan,
-        gender,
-        birth,
-        saju_day_master: dayMaster,
-      }, {
-        retries: 1,
-        backoffMs: 3000,
-        onRetry: (attempt, status) => {
-          if (loadingMsgEl) loadingMsgEl.textContent = `허허, 잠시 길이 막혔으니 다시 살펴보겠소… (${status})`;
-        },
-      });
-      if (!resp.ok) {
-        const errText = await resp.text();
-        throw new Error(`서버 오류 (${resp.status}): ${errText}`);
-      }
-      const data = await resp.json();
-      renderResult(data);
-      showStep('name-step-result');
-      if (window.WHM) window.WHM.markCompleted('naming', {});
-    } catch (err) {
-      $('nameResultBoard').innerHTML = `
-        <div class="face-result-card">
-          <div class="face-result-text" style="color:#e9b3a8">
-            이 사람이 풀이를 마치지 못했소.<br><br>
-            <code style="font-size:12px">${(err.message || err).toString().replace(/</g,'&lt;')}</code>
-          </div>
-        </div>`;
-      showStep('name-step-result');
-    } finally {
-      if (loadingMsgEl && originalLoadingMsg != null) loadingMsgEl.textContent = originalLoadingMsg;
-    }
-  }
-
-  function resetAll() {
-    $('nameResultBoard').innerHTML = '';
-    showStep('name-step-input');
-  }
+  // collectHanjaText·renderResult·requestReading·resetAll → reader 인스턴스 위임 (thin wrapper)
+  const collectHanjaText = () => reader.collectHanjaText();
+  const renderResult = (data) => reader.renderResult(data);
+  const requestReading = () => reader.request();
+  const resetAll = () => reader.resetAll();
 
   function bind() {
     if (!$('nameFullKo')) return;
@@ -15308,7 +15368,7 @@ if (document.readyState === 'loading') {
     }
     $('nameReadBtn').addEventListener('click', requestReading);
     $('nameRestartBtn').addEventListener('click', resetAll);
-    updateReadButton();
+    reader.updateReadButton();
   }
 
   if (document.readyState === 'loading') {
