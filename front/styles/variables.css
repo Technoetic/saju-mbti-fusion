@@ -1,0 +1,66 @@
+/* ============================================================
+   variables.css — ADR-055 main.css 영역 분리
+   :root 색상·테마 변수
+   원본 라인: 1 ~ 60
+   ============================================================ */
+
+  /* ──────────────────────────────────────────
+  사극 + 신비 컨셉 (밤하늘·한지·금단청)
+  ────────────────────────────────────────── */
+  :root {
+  --bg-night:  #0a0f1e;
+  --bg-deep:  #131a2e;
+  --bg-mid:  #1d2540;
+  --hanji-dk:  #2a2218;
+  --hanji-md:  #3a2f1f;
+  --hanji-lt:  #4a3d28;
+  --hanji-edge: #6d5a3a;
+  --gold:  #d4af37;
+  --gold-bri:  #f4d35e;
+  --gold-dp:  #8b6914;
+  --red-dan:  #c2272d;
+  --jade:  #5d8aa8;
+  --text-main:  #e8d9b0;
+  --text-soft:  #c9b88a;
+  --text-dim:  #8b7e5d;
+  --text-mute:  #5d553e;
+  --star-y:  #ffd97a;
+  --star-w:  #fff8e0;
+  --o-mok:  #6dc375;
+  --o-hwa:  #ff7d6b;
+  --o-to:  #d4a857;
+  --o-geum:  #d0d0d0;
+  --o-su:  #6fb8ff;
+  /* 성하 공자 · 별빛 풀이 (짙은 남색·자줏빛·은빛 테마) */
+  --starh-indigo:  #1a2452;
+  --starh-indigo-dp: #0e1530;
+  --starh-violet:  #6b4a8a;
+  --starh-violet-bri: #a986d4;
+  --starh-silver:  #c9c9d9;
+  --starh-silver-dp: #6c6c84;
+  --starh-glow:  #e8e0ff;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; min-height: 100%; }
+  body {
+  background: var(--bg-night);
+  background-image:
+  radial-gradient(1px 1px at 12% 18%, var(--star-w), transparent 60%),
+  radial-gradient(1.5px 1.5px at 28% 42%, var(--star-y), transparent 60%),
+  radial-gradient(1px 1px at 47% 22%, var(--star-w), transparent 60%),
+  radial-gradient(2px 2px at 63% 67%, var(--star-y), transparent 60%),
+  radial-gradient(1px 1px at 78% 13%, var(--star-w), transparent 60%),
+  radial-gradient(1.5px 1.5px at 88% 48%, var(--star-y), transparent 60%),
+  radial-gradient(1px 1px at 35% 82%, var(--star-w), transparent 60%),
+  radial-gradient(1.5px 1.5px at 72% 88%, var(--star-y), transparent 60%),
+  radial-gradient(1px 1px at 92% 75%, var(--star-w), transparent 60%),
+  radial-gradient(ellipse 80% 50% at 50% 0%, rgba(60,40,90,0.4), transparent 70%),
+  radial-gradient(ellipse 60% 40% at 90% 100%, rgba(80,60,30,0.25), transparent 70%),
+  linear-gradient(180deg, var(--bg-night) 0%, var(--bg-deep) 100%);
+  background-attachment: fixed;
+  color: var(--text-main);
+  font-family: 'Noto Serif KR', 'Gowun Batang', 'Nanum Myeongjo', 'Batang', '바탕', serif;
+  font-size: 16px;
+  line-height: 1.7;
+  padding: 32px 16px 64px;
+  letter-spacing: 0.3px;

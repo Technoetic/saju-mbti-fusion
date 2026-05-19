@@ -1,0 +1,201 @@
+/* ============================================================
+   forms.css — ADR-055 main.css 영역 분리
+   한지 카드·폼 요소·details·획수
+   원본 라인: 423 ~ 617
+   ============================================================ */
+
+  /* ───── 한지 카드 (fieldset) ───── */
+  fieldset {
+  background:
+  linear-gradient(135deg, rgba(212,175,55,0.04), transparent 60%),
+  repeating-linear-gradient(45deg, rgba(212,175,55,0.025) 0 1px, transparent 1px 9px),
+  linear-gradient(180deg, var(--hanji-md), var(--hanji-dk));
+  border: 1px solid var(--hanji-edge);
+  border-radius: 3px;
+  padding: 24px 28px 20px;
+  margin: 0 0 18px;
+  position: relative;
+  box-shadow:
+  0 8px 24px rgba(0,0,0,0.5),
+  0 0 0 1px rgba(212,175,55,0.08),
+  inset 0 0 60px rgba(0,0,0,0.25);
+  }
+  /* 한지 모서리 장식 */
+  fieldset::before, fieldset::after {
+  content: '';
+  position: absolute;
+  width: 18px; height: 18px;
+  border-color: var(--gold);
+  opacity: 0.55;
+  }
+  fieldset::before {
+  top: 6px; left: 6px;
+  border-top: 1px solid; border-left: 1px solid;
+  }
+  fieldset::after {
+  bottom: 6px; right: 6px;
+  border-bottom: 1px solid; border-right: 1px solid;
+  }
+  legend {
+  color: var(--gold-bri);
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 4px;
+  padding: 5px 14px;
+  background: var(--bg-mid);
+  border: 1px solid var(--gold-dp);
+  border-radius: 2px;
+  text-shadow: 0 0 6px rgba(244,211,94,0.3);
+  font-family: 'Nanum Myeongjo', serif;
+  }
+
+  /* ───── 폼 요소 ───── */
+  label {
+  display: inline-block;
+  min-width: 110px;
+  color: var(--text-soft);
+  font-size: 14px;
+  letter-spacing: 1px;
+  }
+  input, select, textarea {
+  background: rgba(0,0,0,0.35);
+  border: 1px solid var(--hanji-edge);
+  color: var(--text-main);
+  padding: 8px 12px;
+  font-size: 14px;
+  font-family: inherit;
+  border-radius: 2px;
+  transition: border 0.2s, box-shadow 0.2s, background 0.2s;
+  }
+  input:hover, select:hover, textarea:hover { border-color: var(--gold-dp); }
+  input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--gold);
+  background: rgba(0,0,0,0.5);
+  box-shadow: 0 0 10px rgba(212,175,55,0.25);
+  }
+  input::placeholder, textarea::placeholder { color: var(--text-mute); font-style: italic; }
+  select { cursor: pointer; }
+  select option { background: var(--bg-mid); color: var(--text-main); }
+  input[type="number"] { -moz-appearance: textfield; }
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+  .hint { color: var(--text-dim); font-size: 12px; font-style: italic; letter-spacing: 0.5px; }
+  .row { margin: 12px 0; }
+
+  /* ───── 고급 설정 details ───── */
+  .advanced-settings {
+  margin: 18px 0 0;
+  padding: 4px 12px;
+  background: rgba(0,0,0,0.15);
+  border: 1px dashed var(--hanji-edge);
+  border-radius: 2px;
+  }
+  .advanced-settings > summary {
+  cursor: pointer; color: var(--text-dim); font-size: 13px;
+  padding: 8px 0; letter-spacing: 1px;
+  }
+  .advanced-settings > summary:hover { color: var(--gold); }
+  .advanced-settings[open] > summary { color: var(--gold); margin-bottom: 8px; }
+  .advanced-settings .row { margin: 10px 0; }
+  .advanced-settings .hint { display: block; margin-top: 4px; margin-left: 110px; }
+
+  /* ───── 이름 한자 드롭다운 ───── */
+  .hanja-cell {
+  display: inline-block;
+  margin: 6px 8px 6px 0;
+  vertical-align: top;
+  text-align: center;
+  padding: 10px 12px;
+  background: linear-gradient(180deg, var(--hanji-lt), var(--hanji-md));
+  border: 1px solid var(--gold-dp);
+  border-radius: 3px;
+  min-width: 150px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+  }
+  .hanja-cell .hanja-han { margin-bottom: 6px; }
+  .hanja-cell .hanja-han b {
+  font-size: 26px;
+  color: var(--gold-bri);
+  text-shadow: 0 0 8px rgba(244,211,94,0.3);
+  font-family: 'Nanum Myeongjo', serif;
+  }
+  .hanja-cell .hanja-han small { color: var(--text-dim); margin-left: 6px; font-size: 11px; letter-spacing: 1px; }
+  .hanja-cell select { display: block; margin: 4px 0 0; width: 100%; font-size: 13px; }
+
+  /* ───── 획수 합계 ───── */
+  .stroke-total {
+  background: linear-gradient(180deg, rgba(212,175,55,0.06), rgba(0,0,0,0.2));
+  border: 1px solid var(--gold-dp);
+  border-radius: 2px;
+  padding: 14px 18px;
+  margin-top: 14px;
+  }
+  .stroke-rows { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-bottom: 10px; }
+  .stroke-row { font-size: 14px; color: var(--text-main); }
+  .stroke-row b { color: var(--gold-bri); font-family: 'Nanum Myeongjo', serif; font-size: 16px; }
+  .stroke-empty { color: var(--text-mute); font-style: italic; }
+  .stroke-num { color: var(--text-dim); font-size: 12px; margin-left: 3px; }
+  .stroke-sum {
+  font-size: 16px; color: var(--text-soft);
+  padding-top: 10px; border-top: 1px dashed var(--gold-dp);
+  letter-spacing: 2px;
+  }
+  .stroke-sum b {
+  font-size: 26px; color: var(--gold-bri);
+  margin: 0 6px;
+  font-family: 'Nanum Myeongjo', serif;
+  text-shadow: 0 0 12px rgba(244,211,94,0.45);
+  }
+  .stroke-sum-empty {
+  color: var(--text-dim); font-size: 13px; font-style: italic;
+  padding-top: 10px; border-top: 1px dashed var(--hanji-edge);
+  }
+
+  /* ───── 풀이 보기 큰 버튼 ───── */
+  .big-action { text-align: center; margin: 36px 0 8px; }
+  .big-action button {
+  background: linear-gradient(180deg, var(--gold-bri), var(--gold), var(--gold-dp));
+  color: var(--bg-night);
+  border: 2px solid var(--gold-bri);
+  padding: 16px 60px;
+  font-size: 19px;
+  font-weight: 800;
+  font-family: 'Nanum Myeongjo', serif;
+  letter-spacing: 10px;
+  border-radius: 3px;
+  cursor: pointer;
+  box-shadow:
+  0 6px 20px rgba(212,175,55,0.35),
+  0 0 30px rgba(244,211,94,0.2),
+  inset 0 1px 0 rgba(255,255,255,0.4),
+  inset 0 -1px 0 rgba(0,0,0,0.2);
+  transition: all 0.25s ease;
+  text-shadow: 0 1px 0 rgba(255,255,255,0.3);
+  }
+  .big-action button:hover {
+  transform: translateY(-2px);
+  box-shadow:
+  0 10px 28px rgba(212,175,55,0.5),
+  0 0 50px rgba(244,211,94,0.35),
+  inset 0 1px 0 rgba(255,255,255,0.5);
+  }
+  .big-action button:active { transform: translateY(0); }
+  .big-action .hint { margin-top: 12px; }
+
+  /* 일반 버튼 */
+  button {
+  background: var(--bg-mid);
+  border: 1px solid var(--hanji-edge);
+  color: var(--text-soft);
+  padding: 8px 18px;
+  font-size: 14px;
+  font-family: inherit;
+  cursor: pointer;
+  border-radius: 2px;
+  letter-spacing: 2px;
+  transition: all 0.2s;
+  }
+  button:hover { border-color: var(--gold); color: var(--gold-bri); }
+

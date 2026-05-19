@@ -1,0 +1,534 @@
+/* ============================================================
+   hwapae.css — ADR-055 main.css 영역 분리
+   화패 78장·3단계·셔플·덱·메뉴·spread
+   원본 라인: 863 ~ 1390
+   ============================================================ */
+
+  /* ───── 화패 (花牌) ───── */
+  .hwapae-spread {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  max-width: 700px;
+  margin: 28px auto;
+  }
+  .hwapae-card {
+  aspect-ratio: 3 / 4.6;
+  border: 2px solid var(--gold-dp);
+  border-radius: 6px;
+  background:
+  linear-gradient(135deg, rgba(212,175,55,0.07), transparent 60%),
+  linear-gradient(180deg, var(--hanji-lt), var(--hanji-md));
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5), inset 0 0 30px rgba(0,0,0,0.2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 10px 12px;
+  position: relative;
+  text-align: center;
+  transform-style: preserve-3d;
+  transition: transform 0.7s cubic-bezier(.4, 1.4, .5, 1), box-shadow 0.4s;
+  cursor: default;
+  }
+  .hwapae-card.flipped {
+  transform: rotateY(0);
+  box-shadow: 0 10px 32px rgba(212,175,55,0.25), 0 0 28px rgba(244,211,94,0.18), inset 0 0 30px rgba(0,0,0,0.2);
+  }
+  .hwapae-card .pos {
+  color: var(--gold);
+  font-size: 12px;
+  letter-spacing: 4px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border: 1px solid var(--gold-dp);
+  border-radius: 2px;
+  background: rgba(0,0,0,0.3);
+  }
+  .hwapae-card .symbol {
+  font-size: 56px;
+  color: var(--gold-bri);
+  font-family: 'Nanum Myeongjo', serif;
+  font-weight: 700;
+  text-shadow: 0 0 18px rgba(244,211,94,0.5), 0 0 4px rgba(255,255,255,0.3);
+  line-height: 1;
+  margin: 8px 0;
+  }
+  .hwapae-card .label {
+  color: var(--gold-bri);
+  font-size: 16px;
+  letter-spacing: 3px;
+  font-weight: 700;
+  margin: 4px 0 0;
+  font-family: 'Nanum Myeongjo', serif;
+  }
+  .hwapae-card .sublabel {
+  color: var(--text-soft);
+  font-size: 11px;
+  margin: 2px 0 4px;
+  letter-spacing: 1px;
+  }
+  .hwapae-card .meaning {
+  color: var(--text-main);
+  font-size: 11px;
+  line-height: 1.5;
+  padding: 0 4px;
+  letter-spacing: 0.3px;
+  }
+  /* 카드 그림 (SVG 라인아트) */
+  .card-art {
+  color: var(--gold-bri);
+  filter: drop-shadow(0 0 6px rgba(244,211,94,0.4));
+  margin: 6px 0;
+  display: flex;
+  justify-content: center;
+  }
+  .card-art svg {
+  width: 32px;
+  height: 32px;
+  display: block;
+  }
+  .card-art.big svg {
+  width: 56px;
+  height: 56px;
+  }
+  .card-art.big {
+  filter: drop-shadow(0 0 12px rgba(244,211,94,0.55));
+  }
+  @media (max-width: 600px) {
+  .card-art.big svg { width: 40px; height: 40px; }
+  .card-art svg { width: 24px; height: 24px; }
+  }
+  /* 카드 뒷면 (뽑기 전) */
+  .hwapae-card.back .pos,
+  .hwapae-card.back .symbol,
+  .hwapae-card.back .label,
+  .hwapae-card.back .sublabel,
+  .hwapae-card.back .meaning { display: none; }
+  .hwapae-card.back {
+  background:
+  repeating-linear-gradient(45deg, rgba(212,175,55,0.08) 0 4px, transparent 4px 14px),
+  linear-gradient(180deg, var(--hanji-md), var(--hanji-dk));
+  }
+  .hwapae-card.back::after {
+  content: '';
+  color: var(--gold);
+  font-size: 36px;
+  text-shadow: 0 0 16px rgba(244,211,94,0.5);
+  opacity: 0.7;
+  }
+  /* 카드 등장 애니메이션 */
+  @keyframes cardFlip {
+  0%  { transform: rotateY(180deg) translateY(20px); opacity: 0; }
+  60%  { transform: rotateY(0) translateY(0); opacity: 1; }
+  100% { transform: rotateY(0); opacity: 1; }
+  }
+  .hwapae-card.flipped {
+  animation: cardFlip 0.9s cubic-bezier(.34, 1.56, .64, 1) both;
+  }
+  .hwapae-card:nth-child(2).flipped { animation-delay: 0.25s; }
+  .hwapae-card:nth-child(3).flipped { animation-delay: 0.5s; }
+
+  @media (max-width: 600px) {
+  .hwapae-spread { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .hwapae-card { padding: 10px 6px 8px; }
+  .hwapae-card .symbol { font-size: 38px; }
+  .hwapae-card .label { font-size: 13px; letter-spacing: 2px; }
+  .hwapae-card .sublabel { font-size: 9px; }
+  .hwapae-card .meaning { font-size: 9.5px; line-height: 1.4; }
+  .hwapae-card .pos { font-size: 10px; letter-spacing: 2px; padding: 2px 7px; }
+  }
+
+  /* ───── 화패 3단계 ───── */
+  .hw-step { display: none; animation: fadeIn 0.4s ease; }
+  .hw-step.active { display: block; }
+
+  /* 카테고리 버튼 그리드 */
+  .hw-categories {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin: 6px 0 4px;
+  }
+  .hw-cat-btn {
+  background: rgba(0,0,0,0.25);
+  border: 1px solid var(--hanji-edge);
+  color: var(--text-soft);
+  padding: 12px 6px;
+  cursor: pointer;
+  border-radius: 3px;
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 14px;
+  letter-spacing: 1px;
+  transition: all 0.2s;
+  position: relative;
+  text-align: center;
+  }
+  .hw-cat-btn::before {
+  content: attr(data-han);
+  display: block;
+  font-size: 15px;
+  color: var(--gold-dp);
+  font-weight: 700;
+  margin-bottom: 4px;
+  letter-spacing: 3px;
+  transition: color 0.2s;
+  }
+  .hw-cat-btn:hover {
+  border-color: var(--gold-dp);
+  color: var(--gold-bri);
+  }
+  .hw-cat-btn:hover::before { color: var(--gold); }
+  .hw-cat-btn.active {
+  color: var(--bg-night);
+  background: linear-gradient(180deg, var(--gold-bri), var(--gold), var(--gold-dp));
+  border-color: var(--gold-bri);
+  font-weight: 700;
+  box-shadow: 0 0 12px rgba(212,175,55,0.4), inset 0 1px 0 rgba(255,255,255,0.3);
+  }
+  .hw-cat-btn.active::before { color: var(--bg-night); }
+  @media (max-width: 600px) {
+  .hw-categories { grid-template-columns: repeat(2, 1fr); }
+  .hw-cat-btn { padding: 10px 4px; font-size: 12px; }
+  .hw-cat-btn::before { font-size: 14px; letter-spacing: 2px; }
+  }
+
+  /* 화패 뽑기 화면 */
+  .hw-draw-header {
+  text-align: center;
+  margin: 20px 0;
+  padding: 16px;
+  background: rgba(0,0,0,0.2);
+  border: 1px solid var(--hanji-edge);
+  border-radius: 4px;
+  }
+  .hw-draw-header b { color: var(--gold-bri); font-family: 'Nanum Myeongjo', serif; }
+  .hw-draw-prompt {
+  margin: 12px 0 0;
+  color: var(--text-soft);
+  font-size: 14px;
+  line-height: 1.7;
+  }
+  .hw-counter { display: inline-block; margin-left: 8px; color: var(--text-dim); font-size: 13px; }
+  .hw-counter b {
+  color: var(--gold-bri);
+  font-size: 18px;
+  padding: 0 4px;
+  text-shadow: 0 0 10px rgba(244,211,94,0.4);
+  }
+
+  /* 뽑힌 카드 슬롯 (과거·현재·앞날) */
+  .hw-slots {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  max-width: 600px;
+  margin: 18px auto 28px;
+  }
+  .hw-slot {
+  aspect-ratio: 3 / 4.6;
+  border: 2px dashed var(--gold-dp);
+  border-radius: 6px;
+  background: rgba(0,0,0,0.2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 10px;
+  color: var(--text-dim);
+  transition: all 0.4s;
+  }
+  .hw-slot .pos-label {
+  font-size: 12px;
+  letter-spacing: 3px;
+  line-height: 1.6;
+  }
+  .hw-slot.filled {
+  border-style: solid;
+  border-color: var(--gold);
+  background:
+  linear-gradient(135deg, rgba(212,175,55,0.07), transparent 60%),
+  linear-gradient(180deg, var(--hanji-lt), var(--hanji-md));
+  box-shadow: 0 6px 20px rgba(212,175,55,0.25), inset 0 0 30px rgba(0,0,0,0.2);
+  animation: cardFlip 0.7s cubic-bezier(.34, 1.56, .64, 1);
+  }
+  .hw-slot .pos-tag {
+  color: var(--gold);
+  font-size: 11px;
+  letter-spacing: 3px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border: 1px solid var(--gold-dp);
+  border-radius: 2px;
+  background: rgba(0,0,0,0.35);
+  margin-bottom: 6px;
+  }
+  .hw-slot .symbol {
+  font-size: 42px;
+  color: var(--gold-bri);
+  font-family: 'Nanum Myeongjo', serif;
+  font-weight: 700;
+  text-shadow: 0 0 14px rgba(244,211,94,0.5);
+  line-height: 1;
+  margin: 4px 0;
+  }
+  .hw-slot .label {
+  font-size: 13px;
+  color: var(--gold-bri);
+  letter-spacing: 2px;
+  font-weight: 700;
+  font-family: 'Nanum Myeongjo', serif;
+  }
+  @media (max-width: 600px) {
+  .hw-slots { gap: 6px; }
+  .hw-slot { padding: 6px; }
+  .hw-slot .symbol { font-size: 28px; }
+  .hw-slot .label { font-size: 11px; letter-spacing: 1px; }
+  .hw-slot .pos-tag { font-size: 9px; letter-spacing: 1px; padding: 1px 5px; }
+  .hw-slot .pos-label { font-size: 10px; letter-spacing: 2px; }
+  }
+
+  /* ───── 화패 풀이 방식 메뉴 ───── */
+  .hw-menu-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin: 8px 0 4px;
+  }
+  .hw-menu-btn {
+  background: rgba(0,0,0,0.25);
+  border: 1px solid var(--hanji-edge);
+  color: var(--text-soft);
+  padding: 16px 10px 14px;
+  cursor: pointer;
+  border-radius: 4px;
+  font-family: 'Nanum Myeongjo', serif;
+  text-align: center;
+  transition: all 0.25s;
+  line-height: 1.5;
+  }
+  .hw-menu-btn:hover {
+  border-color: var(--gold-dp);
+  background: rgba(212,175,55,0.08);
+  transform: translateY(-2px);
+  }
+  .hw-menu-btn.active {
+  border-color: var(--gold);
+  background: linear-gradient(180deg, rgba(212,175,55,0.18), rgba(212,175,55,0.08));
+  box-shadow: 0 0 16px rgba(212,175,55,0.3), inset 0 1px 0 rgba(255,255,255,0.1);
+  }
+  .hw-menu-han {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--gold-dp);
+  letter-spacing: 4px;
+  margin-bottom: 6px;
+  transition: color 0.2s;
+  }
+  .hw-menu-btn:hover .hw-menu-han { color: var(--gold); }
+  .hw-menu-btn.active .hw-menu-han {
+  color: var(--gold-bri);
+  text-shadow: 0 0 12px rgba(244,211,94,0.5);
+  }
+  .hw-menu-name {
+  font-size: 14px;
+  color: var(--text-main);
+  font-weight: 700;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+  }
+  .hw-menu-btn.active .hw-menu-name { color: var(--gold-bri); }
+  .hw-menu-meta {
+  font-size: 11px;
+  color: var(--gold-dp);
+  margin-bottom: 6px;
+  letter-spacing: 1px;
+  }
+  .hw-menu-btn.active .hw-menu-meta { color: var(--gold); }
+  .hw-menu-desc {
+  font-size: 11px;
+  color: var(--text-dim);
+  line-height: 1.4;
+  margin-top: 4px;
+  }
+  @media (max-width: 720px) {
+  .hw-menu-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .hw-menu-btn { padding: 12px 8px; }
+  .hw-menu-han { font-size: 17px; letter-spacing: 2px; }
+  .hw-menu-name { font-size: 13px; }
+  .hw-menu-desc { font-size: 10px; }
+  }
+
+  /* 동적 슬롯 그리드 — 장수에 따라 컬럼 수 자동 */
+  .hw-slots.cards-1 { grid-template-columns: 1fr; max-width: 220px; }
+  .hw-slots.cards-3 { grid-template-columns: repeat(3, 1fr); max-width: 600px; }
+  .hw-slots.cards-5 { grid-template-columns: repeat(5, 1fr); max-width: 800px; }
+  .hw-slots.cards-10 { grid-template-columns: repeat(5, 1fr); max-width: 800px; }
+  @media (max-width: 720px) {
+  .hw-slots.cards-5 { grid-template-columns: repeat(3, 1fr); }
+  .hw-slots.cards-10 { grid-template-columns: repeat(3, 1fr); }
+  }
+  @media (max-width: 480px) {
+  .hw-slots.cards-3 { grid-template-columns: repeat(3, 1fr); gap: 4px; }
+  .hw-slots.cards-5 { grid-template-columns: repeat(3, 1fr); }
+  .hw-slots.cards-10 { grid-template-columns: repeat(2, 1fr); gap: 6px; }
+  }
+
+  /* 결과 카드 spread — 장수에 따라 */
+  .hwapae-spread.cards-1 { grid-template-columns: 1fr; max-width: 320px; margin: 28px auto; }
+  .hwapae-spread.cards-3 { grid-template-columns: repeat(3, 1fr); }
+  .hwapae-spread.cards-5 { grid-template-columns: repeat(5, 1fr); max-width: 900px; gap: 10px; }
+  .hwapae-spread.cards-10 { grid-template-columns: repeat(5, 1fr); max-width: 900px; gap: 10px; }
+  @media (max-width: 720px) {
+  .hwapae-spread.cards-5 { grid-template-columns: repeat(3, 1fr); }
+  .hwapae-spread.cards-10 { grid-template-columns: repeat(3, 1fr); }
+  }
+  @media (max-width: 480px) {
+  .hwapae-spread.cards-5 { grid-template-columns: repeat(2, 1fr); gap: 6px; }
+  .hwapae-spread.cards-10 { grid-template-columns: repeat(2, 1fr); gap: 6px; }
+  .hwapae-spread.cards-5 .hwapae-card .symbol,
+  .hwapae-spread.cards-10 .hwapae-card .symbol { font-size: 28px; }
+  }
+
+  /* ───── 셔플 단계 ───── */
+  .hw-shuffle {
+  display: none;
+  text-align: center;
+  margin: 50px 0 30px;
+  animation: fadeIn 0.5s ease;
+  }
+  .hw-shuffle.active { display: block; }
+  .shuffle-deck {
+  position: relative;
+  width: 90px;
+  height: 132px;
+  margin: 0 auto 32px;
+  perspective: 600px;
+  }
+  .shuffle-card {
+  position: absolute;
+  inset: 0;
+  border: 1px solid var(--gold-dp);
+  border-radius: 4px;
+  background:
+  repeating-linear-gradient(45deg, rgba(212,175,55,0.08) 0 3px, transparent 3px 11px),
+  linear-gradient(180deg, var(--hanji-md), var(--hanji-dk));
+  box-shadow: 0 6px 14px rgba(0,0,0,0.5);
+  transition: transform 0.18s cubic-bezier(.3, 1.2, .5, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  }
+  .shuffle-card::after {
+  content: '';
+  color: var(--gold);
+  font-size: 22px;
+  opacity: 0.55;
+  text-shadow: 0 0 10px rgba(244,211,94,0.4);
+  }
+  .shuffle-msg {
+  color: var(--gold-bri);
+  font-size: 16px;
+  letter-spacing: 4px;
+  font-family: 'Nanum Myeongjo', serif;
+  text-shadow: 0 0 14px rgba(244,211,94,0.3);
+  }
+  .shuffle-msg .dots {
+  display: inline-block;
+  animation: dotsPulse 1.4s ease-in-out infinite;
+  }
+  @keyframes dotsPulse {
+  0%, 100% { opacity: 0.4; transform: translateY(0); }
+  50%  { opacity: 1;  transform: translateY(-3px); }
+  }
+
+  /* 78장 화패 덱 — 가로 펼침 (카드 살짝 겹침, 데스크톱은 부채형 회전) */
+  .hw-deck-wrap {
+  position: relative;
+  margin: 30px auto;
+  max-width: 980px;
+  padding: 14px 6px 30px;
+  background: rgba(0,0,0,0.18);
+  border: 1px solid var(--hanji-edge);
+  border-radius: 4px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  }
+  .hw-deck {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  justify-content: center;
+  padding: 10px 4px;
+  min-width: 100%;
+  }
+  .hw-deck-card {
+  width: 44px;
+  height: 66px;
+  border: 1px solid var(--gold-dp);
+  border-radius: 3px;
+  background:
+  repeating-linear-gradient(45deg, rgba(212,175,55,0.08) 0 3px, transparent 3px 11px),
+  linear-gradient(180deg, var(--hanji-md), var(--hanji-dk));
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+  position: relative;
+  flex-shrink: 0;
+  opacity: 0;
+  animation: cardSpread 0.6s cubic-bezier(.18, 1.2, .4, 1) both;
+  }
+  @keyframes cardSpread {
+  0% {
+  opacity: 0;
+  transform: translateY(160px) translateX(0) rotate(-360deg) scale(0.25);
+  }
+  50% {
+  opacity: 1;
+  }
+  100% {
+  opacity: 1;
+  transform: translateY(0) translateX(0) rotate(0deg) scale(1);
+  }
+  }
+  /* 셔플 흔들림 (펼침 전 잠깐) */
+  .hw-deck.shuffling .hw-deck-card {
+  animation: cardShuffle 0.5s ease-in-out both;
+  }
+  @keyframes cardShuffle {
+  0%  { transform: translateX(0) rotate(0deg); }
+  20%  { transform: translateX(-8px) rotate(-3deg); }
+  40%  { transform: translateX(7px) rotate(2deg); }
+  60%  { transform: translateX(-5px) rotate(-2deg); }
+  80%  { transform: translateX(4px) rotate(1deg); }
+  100% { transform: translateX(0) rotate(0deg); }
+  }
+  .hw-deck-card::after {
+  content: '';
+  color: var(--gold);
+  font-size: 16px;
+  opacity: 0.55;
+  text-shadow: 0 0 8px rgba(244,211,94,0.4);
+  }
+  .hw-deck-card:hover {
+  transform: translateY(-14px) scale(1.08);
+  z-index: 2;
+  border-color: var(--gold);
+  box-shadow: 0 14px 22px rgba(212,175,55,0.4), 0 0 18px rgba(244,211,94,0.25);
+  }
+  .hw-deck-card.drawn {
+  opacity: 0.15;
+  pointer-events: none;
+  transform: translateY(0) scale(0.9);
+  }
+  @media (max-width: 600px) {
+  .hw-deck-card { width: 34px; height: 50px; }
+  .hw-deck-card::after { font-size: 13px; }
+  .hw-deck { gap: 3px; padding: 6px 2px; }
+  .hw-deck-wrap { padding: 10px 4px 20px; }
+  }
+
