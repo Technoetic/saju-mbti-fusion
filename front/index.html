@@ -3315,6 +3315,68 @@
   font-size: 13px;
   }
   .content-hanja-select:focus { outline: none; border-color: var(--gold); }
+  /* 총 획수·불용 영역 */
+  .content-hanja-total {
+  margin-top: 12px;
+  padding: 10px 12px;
+  background: rgba(0,0,0,0.30);
+  border: 1px dashed var(--gold-dp);
+  border-radius: 3px;
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 13px;
+  color: var(--text-main);
+  line-height: 1.7;
+  }
+  .content-hanja-total .cht-rows {
+  display: flex; flex-wrap: wrap; gap: 6px 14px;
+  margin-bottom: 6px;
+  }
+  .content-hanja-total .cht-row {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 12.5px;
+  letter-spacing: 0.5px;
+  }
+  .content-hanja-total .cht-row.cht-empty { color: var(--text-dim); }
+  .content-hanja-total .cht-row b { color: var(--gold-bri); }
+  .content-hanja-total .cht-num {
+  color: var(--text-dim); font-size: 11px;
+  background: rgba(212,175,55,0.10); padding: 1px 6px; border-radius: 3px;
+  }
+  .content-hanja-total .cht-row.cht-bad { color: #e9a8a8; }
+  .content-hanja-total .cht-row.cht-bad b { color: #ffb0b0; }
+  .content-hanja-total .cht-badge {
+  font-size: 10px; letter-spacing: 1px;
+  color: #ffd0d0; background: rgba(176,79,79,0.20);
+  border: 1px solid rgba(176,79,79,0.45);
+  padding: 1px 5px; border-radius: 2px; margin-left: 4px;
+  }
+  .content-hanja-total .cht-sum {
+  border-top: 1px dashed rgba(212,175,55,0.25);
+  padding-top: 6px; margin-top: 4px;
+  text-align: right;
+  font-size: 13px;
+  color: var(--gold);
+  letter-spacing: 1px;
+  }
+  .content-hanja-total .cht-sum b { color: var(--gold-bri); font-size: 16px; padding: 0 4px; }
+  .content-hanja-total .cht-sum-empty {
+  text-align: right;
+  font-size: 11.5px;
+  color: var(--text-dim);
+  letter-spacing: 0.5px;
+  }
+  .content-hanja-total .cht-warning {
+  margin-top: 8px;
+  padding: 7px 10px;
+  background: rgba(176,79,79,0.10);
+  border: 1px solid rgba(176,79,79,0.30);
+  border-radius: 3px;
+  color: #ffc0c0;
+  font-size: 12px;
+  line-height: 1.6;
+  letter-spacing: 0.3px;
+  }
+  .content-hanja-total .cht-warning b { color: #ffd5d5; }
   /* 취선루 톤 분기 */
   .chwiseon-content .content-hanja-title { color: var(--cs-gold-bri); }
   .chwiseon-content .content-hanja-cell { border-color: var(--cs-gold-dp); background: rgba(0,0,0,0.40); }
@@ -9622,6 +9684,7 @@ window.SAJU = {
   analyzeName, calculateOgyeok, analyzeEumOhaeng, analyzeEumYang, 수리환원,
   splitName, 복성_목록,
   한자획수, 한자_뜻, 수리길흉, 한글_초성_오행, 한글음_한자,
+  불용한자,
   updateHanjaSelectors,
   // 데이터
   천간, 지지, 천간_한자, 지지_한자, 천간_오행, 지지_오행,
@@ -11682,6 +11745,51 @@ window.CHWISEON_CONTENTS = {
   }
 
   // 이름 input 옆 한자 셀렉터 자동 렌더 (사주 정통 풀이의 updateHanjaSelectors 와 동일 로직 미니버전)
+  // 슬롯 안의 현재 선택을 기준으로 총 획수·불용한자 표시 갱신
+  function updateContentHanjaTotal(slot) {
+  const target = slot.querySelector('.content-hanja-total');
+  if (!target) return;
+  const strokes = window.SAJU?.한자획수 || {};
+  const meanings = window.SAJU?.한자_뜻 || {};
+  const bad = window.SAJU?.불용한자;
+  const cells = slot.querySelectorAll('.content-hanja-cell');
+  if (cells.length === 0) {
+  target.innerHTML = '<span class="content-hanja-hint">이름을 적어주세요</span>';
+  return;
+  }
+  let total = 0;
+  let picked = 0;
+  let unusable = [];
+  const rows = [];
+  cells.forEach(cell => {
+  const ch = cell.querySelector('.content-hanja-han b')?.textContent || '';
+  const sel = cell.querySelector('.content-hanja-select');
+  const han = sel ? sel.value : '';
+  if (!han) {
+  rows.push(`<span class="cht-row cht-empty">${ch} → 한자 없음</span>`);
+  return;
+  }
+  picked++;
+  const stroke = strokes[han] || 0;
+  const meaning = meanings[han] || '';
+  if (stroke) total += stroke;
+  const isBad = bad && typeof bad.has === 'function' && bad.has(han);
+  if (isBad) unusable.push(`${ch}(${han})`);
+  rows.push(`<span class="cht-row ${isBad ? 'cht-bad' : ''}"><b>${ch}</b> → <b>${han}</b> ${meaning} <span class="cht-num">${stroke || '?'}획</span>${isBad ? '<span class="cht-badge">[불용]</span>' : ''}</span>`);
+  });
+  let summary;
+  if (picked === 0) {
+  summary = '<div class="cht-sum-empty">한자를 골라야 총 획수가 계산됩니다</div>';
+  } else {
+  summary = `<div class="cht-sum">총 획수 <b>${total}</b>획</div>`;
+  }
+  let warning = '';
+  if (unusable.length) {
+  warning = `<div class="cht-warning">⚠ 불용한자 포함: <b>${unusable.join(', ')}</b> · 의미가 어둡거나 흉운으로 분류되어 작명에서 잘 쓰지 않습니다</div>`;
+  }
+  target.innerHTML = `<div class="cht-rows">${rows.join('')}</div>${summary}${warning}`;
+  }
+
   function renderHanjaForInput(input, slot) {
   const name = (input.value || '').trim();
   if (!name) {
@@ -11692,6 +11800,7 @@ window.CHWISEON_CONTENTS = {
   const map = window.SAJU?.한글음_한자;
   const strokes = window.SAJU?.한자획수;
   const meanings = window.SAJU?.한자_뜻;
+  const bad = window.SAJU?.불용한자;
   if (!splitFn || !map || !strokes || !meanings) {
   slot.innerHTML = '<span class="content-hanja-hint">한자 데이터 로딩 중…</span>';
   return;
@@ -11716,8 +11825,9 @@ window.CHWISEON_CONTENTS = {
   candidates.map(h => {
   const stroke = strokes[h];
   const meaning = meanings[h] || '';
+  const isBad = bad && typeof bad.has === 'function' && bad.has(h);
   const selected = (h === prevSel) ? ' selected' : '';
-  return `<option value="${h}"${selected}>${h} ${meaning} (${stroke}획)</option>`;
+  return `<option value="${h}"${selected}>${h} ${meaning} (${stroke}획)${isBad ? ' · [불용]' : ''}</option>`;
   })
   ).join('');
   html += `<span class="content-hanja-cell">
@@ -11726,7 +11836,17 @@ window.CHWISEON_CONTENTS = {
   </span>`;
   }
   html += '</div>';
+  // 총 획수·불용 표시 영역 (셀렉트 변경 시 갱신)
+  html += '<div class="content-hanja-total"></div>';
   slot.innerHTML = html;
+  // 셀렉트 변경 시 총 획수 갱신 (이벤트 위임)
+  if (!slot.dataset.totalBound) {
+  slot.addEventListener('change', (e) => {
+  if (e.target.classList.contains('content-hanja-select')) updateContentHanjaTotal(slot);
+  });
+  slot.dataset.totalBound = '1';
+  }
+  updateContentHanjaTotal(slot);
   }
 
   function fieldHtml(field) {
