@@ -1636,7 +1636,7 @@ class PersonalityAPIServer:
     ) -> dict[str, Any]:
         """화선 낭자 화패 풀이 — critic 루프 + 캐시 적용 백엔드 에이전트."""
         try:
-            from engine.divination.hwapae import generate_hwapae_reading
+            from engine.divination.hwapae.core import generate_hwapae_reading
 
             cards = [c.model_dump() for c in req.cards]
             result = await asyncio.to_thread(
@@ -1670,7 +1670,7 @@ class PersonalityAPIServer:
             )
 
         try:
-            from engine.divination.face_reading import generate_face_reading
+            from engine.divination.face.reading import generate_face_reading
 
             result = await asyncio.to_thread(
                 generate_face_reading,
@@ -1697,7 +1697,7 @@ class PersonalityAPIServer:
     ) -> dict[str, Any]:
         """옥선 할미 손금 풀이 — Gemini Vision 멀티모달 호출 + 캐시."""
         try:
-            from engine.divination.palm_reading import generate_palm_reading
+            from engine.divination.palm.reading import generate_palm_reading
 
             result = await asyncio.to_thread(
                 generate_palm_reading,
@@ -1718,7 +1718,7 @@ class PersonalityAPIServer:
     ) -> dict[str, Any]:
         """묵향 선생 이름 풀이 — 텍스트 전용 LLM 호출 + 캐시."""
         try:
-            from engine.divination.name_reading import generate_name_reading
+            from engine.divination.name.reading import generate_name_reading
 
             result = await asyncio.to_thread(
                 generate_name_reading,

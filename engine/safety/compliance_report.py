@@ -61,7 +61,7 @@ COMPLIANCE_MANIFEST: dict[str, dict[str, Any]] = {
     },
     # ── §7.2 응답 가드 ──
     "7.2.1_photo_quality": {
-        "module": "engine.divination.face_reading",
+        "module": "engine.divination.face.reading",
         "symbols": ("classify_metric_issue", "ERR_FACE_NOT_DETECTED"),
         "anchors": ("internal_quality_gate",),
     },
@@ -76,7 +76,7 @@ COMPLIANCE_MANIFEST: dict[str, dict[str, Any]] = {
         "anchors": ("KR PIPA §29", "GDPR Art.32"),
     },
     "7.2.6_a11y": {
-        "module": "engine.divination.face_reading",
+        "module": "engine.divination.face.reading",
         "symbols": ("_extract_a11y_metadata",),
         "anchors": ("WCAG 2.1 AA", "KR §16-3"),
     },

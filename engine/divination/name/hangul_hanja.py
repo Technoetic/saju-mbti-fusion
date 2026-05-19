@@ -7,7 +7,7 @@
    전체는 아니다. 대법원 풀 전체 수록은 별도 데이터 작업 영역.
 
 호출자 패턴 (name_gaeja 등):
-  from engine.divination.name_hangul_hanja import HANGUL_HANJA_MAP, get_candidates
+  from engine.divination.name.hangul_hanja import HANGUL_HANJA_MAP, get_candidates
   candidates = get_candidates("성")  # → ['聖','盛','城','誠',...]
 """
 
@@ -495,7 +495,7 @@ def get_candidates(syllable: str) -> list[str]:
         return []
 
     # 두음법칙 확장
-    from engine.divination.name_dueum import expand_search_candidates
+    from engine.divination.name.dueum import expand_search_candidates
     variants = expand_search_candidates(syllable)
 
     out: list[str] = []

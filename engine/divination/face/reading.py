@@ -1014,7 +1014,7 @@ def generate_face_reading(
     # palace_scores를 None으로 처리 — Stage 2가 빈 결정론 점수로 풀이
     palace_scores: dict[str, Any] | None
     if metrics:
-        from engine.divination.face_scoring import score_face, report_to_dict
+        from engine.divination.face.scoring import score_face, report_to_dict
         score_report = score_face(metrics)
         palace_scores = report_to_dict(score_report)
     else:
@@ -1024,7 +1024,7 @@ def generate_face_reading(
     if metrics:
         try:
             from dataclasses import asdict
-            from engine.divination.face_shape import classify_face_shape
+            from engine.divination.face.shape import classify_face_shape
             shape_result = classify_face_shape(metrics)
             face_shape_dict = asdict(shape_result)
         except Exception:
@@ -1073,7 +1073,7 @@ def generate_face_reading(
     facial_features_dict: dict[str, Any] | None = None
     if metrics:
         try:
-            from engine.divination.facial_feature_classifier import (
+            from engine.divination.face.feature_classifier import (
                 classify_from_metrics as _classify_mouth,
             )
             mouth_result = _classify_mouth(metrics)

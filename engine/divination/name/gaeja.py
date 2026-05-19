@@ -30,10 +30,10 @@ from dataclasses import dataclass, field
 from itertools import product
 from typing import Any
 
-from engine.divination.name_bulyong import is_bulyong
-from engine.divination.name_strokes import kangxi_strokes, resource_ohaeng
-from engine.divination.name_scoring import calc_four_gyeok
-from engine.divination.name_eumyang import evaluate_eumyang, GRADE_BAD
+from engine.divination.name.bulyong import is_bulyong
+from engine.divination.name.strokes import kangxi_strokes, resource_ohaeng
+from engine.divination.name.scoring import calc_four_gyeok
+from engine.divination.name.eumyang import evaluate_eumyang, GRADE_BAD
 
 
 @dataclass(frozen=True)

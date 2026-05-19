@@ -386,7 +386,7 @@ def kangxi_strokes(char: str) -> int | None:
         return e.kangxi_strokes
     # Fallback — Unihan (변형 부수 보정 없는 단순 필획)
     try:
-        from engine.divination.name_unihan import kangxi_strokes as _unihan_strokes
+        from engine.divination.name.unihan import kangxi_strokes as _unihan_strokes
         return _unihan_strokes(char)
     except Exception:
         return None
@@ -398,7 +398,7 @@ def writing_strokes(char: str) -> int | None:
     if e is not None:
         return e.writing_strokes
     try:
-        from engine.divination.name_unihan import kangxi_strokes as _unihan_strokes
+        from engine.divination.name.unihan import kangxi_strokes as _unihan_strokes
         # Unihan은 단순 필획 = 일반 필획과 일치
         return _unihan_strokes(char)
     except Exception:
@@ -411,7 +411,7 @@ def resource_ohaeng(char: str) -> str | None:
     if e is not None and e.resource_ohaeng:
         return e.resource_ohaeng
     try:
-        from engine.divination.name_unihan import resource_ohaeng as _unihan_ohaeng
+        from engine.divination.name.unihan import resource_ohaeng as _unihan_ohaeng
         return _unihan_ohaeng(char)
     except Exception:
         return None

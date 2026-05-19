@@ -56,7 +56,7 @@ _CHECKLIST: tuple[ChecklistItem, ...] = (
             "face_reading의 시스템 프롬프트가 정의하는 사극풍 캐릭터를 학습하고, "
             "응답 톤이 회귀하지 않도록 persona_self_eval로 측정한다."
         ),
-        modules=("engine.divination.face_reading._FACE_SYSTEM",
+        modules=("engine.divination.face.reading._FACE_SYSTEM",
                  "engine.safety.persona_self_eval"),
         practice_command=(
             "python -c 'from engine.safety import evaluate_persona_tone; "
