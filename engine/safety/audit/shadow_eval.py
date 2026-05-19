@@ -92,7 +92,7 @@ def compare_pair(
         control_ms / candidate_ms: 응답 시간 (0이면 비교 안 함)
         word_overlap_min: 이보다 낮으면 의미 변화 의심 (regression)
     """
-    from engine.safety.persona_self_eval import evaluate_persona_tone
+    from engine.safety.llm.persona_self_eval import evaluate_persona_tone
 
     ctrl_eval = evaluate_persona_tone(control_text)
     cand_eval = evaluate_persona_tone(candidate_text)

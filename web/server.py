@@ -1682,7 +1682,7 @@ class PersonalityAPIServer:
             )
             # LLM 출력 운영 모니터링 — 1% 샘플링, 사용자 영향 0
             try:
-                from engine.safety.llm_output_sampler import sample_llm_output
+                from engine.safety.llm.output_sampler import sample_llm_output
                 sample_llm_output("face_reading", result.get("text", ""))
             except Exception:
                 pass  # silent

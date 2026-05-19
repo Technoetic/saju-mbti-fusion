@@ -83,7 +83,7 @@ def ingest_dsr(request: DSRRequest) -> tuple[bool, str]:
       · subject_id 비어있지 않음
       · authenticated == True (모든 권리가 인증 필요)
     """
-    from engine.safety.rights_information import RIGHT_KEYS
+    from engine.safety.gdpr.rights_information import RIGHT_KEYS
     if request.right_key not in RIGHT_KEYS:
         return False, f"unknown_right_key:{request.right_key}"
     if not (request.subject_id or "").strip():
@@ -118,7 +118,7 @@ def plan_dsr(
     cache_dir: Path | None = None,
 ) -> DSRPlan:
     """ingest 후 처리 플랜 생성. dry-run (파일 변경 없음)."""
-    from engine.safety.rights_information import get_sla_for_region
+    from engine.safety.gdpr.rights_information import get_sla_for_region
 
     ok, reason = ingest_dsr(request)
     if not ok:

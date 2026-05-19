@@ -23,6 +23,9 @@ tarot_*.png
 tarot_*.json
 inspect_tarot*.js
 
+# 별도 GitHub repo (orchestration viewer는 technoetic/saju-orchestration-viewer)
+saju_orchestration_viewer/
+
 # 루트 + web/ 잘못 추적된 Node 잔재 (FastAPI/Python 백엔드라 Node 의존성 0)
 # 루트 package.json은 옛 Playwright inspect_tarot.js용이었으며 본 시스템 빌드 무관
 /package.json

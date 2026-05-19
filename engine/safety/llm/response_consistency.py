@@ -83,8 +83,8 @@ def evaluate_consistency(
     if not responses or len(responses) < MIN_SAMPLES_FOR_EVAL:
         return ConsistencyReport(sample_count=len(responses or []))
 
-    from engine.safety.persona_self_eval import evaluate_persona_tone
-    from engine.safety.response_alignment import detect_topic, check_response_topic
+    from engine.safety.llm.persona_self_eval import evaluate_persona_tone
+    from engine.safety.llm.response_alignment import detect_topic, check_response_topic
 
     issues: list[str] = []
     persona_pass_count = 0

@@ -141,7 +141,7 @@ def get_face_reading_model_card(
             "size_target": 21,
             "regression_suite": "engine/divination/test_face_reading.py",
             "judge_suite": "engine/divination/test_persona_judge.py",
-            "governance": "engine.safety.data_governance audit (LICIT_SOURCES만)",
+            "governance": "engine.safety.gdpr.data_governance audit (LICIT_SOURCES만)",
         },
         "training_data": {
             "fine_tuning": "없음 — 외부 LLM(Gemini/Claude)을 비변형 사용 (제로샷 + 시스템 프롬프트)",
@@ -155,11 +155,11 @@ def get_face_reading_model_card(
         "ethical_considerations": {
             "high_risk_areas": ["감정·정서 추론", "외모 평가 가능성"],
             "mitigations": [
-                "EU AI Act §50(3) 명시 고지 (engine.safety.emotion_disclosure)",
+                "EU AI Act §50(3) 명시 고지 (engine.safety.crisis.emotion_disclosure)",
                 "외모 평가·미추 비교 금지 (시스템 프롬프트)",
-                "위기 신호 결정론 차단 (engine.safety.crisis_detector)",
-                "법정 면책 고지 자동 첨부 (engine.safety.legal_notice)",
-                "PII 자동 마스킹 (engine.safety.pii)",
+                "위기 신호 결정론 차단 (engine.safety.crisis.detector)",
+                "법정 면책 고지 자동 첨부 (engine.safety.gdpr.legal_notice)",
+                "PII 자동 마스킹 (engine.safety.gdpr.pii)",
             ],
         },
         "caveats_and_recommendations": {
@@ -169,7 +169,7 @@ def get_face_reading_model_card(
                 "특정 인종·민족 일반화 금지",
             ],
             "human_oversight": "모든 응답에 의료·법률·금융 자문 거부 + 전문가 안내 포함",
-            "audit": "engine.safety.tracing 이벤트 + engine.safety.slo 측정",
+            "audit": "engine.safety.slo.slo.tracing 이벤트 + engine.safety.slo.slo 측정",
         },
     }
     return ModelCard(
@@ -205,8 +205,8 @@ def get_face_reading_data_card(
                 "internal_employee_test",
                 "synthetic_generated",
             ],
-            "consent_record": "engine.safety.data_governance.validate_provenance 통과 필수",
-            "iac_filter": "engine.safety.data_governance.ILLICIT_SOURCES 즉시 격리",
+            "consent_record": "engine.safety.gdpr.data_governance.validate_provenance 통과 필수",
+            "iac_filter": "engine.safety.gdpr.data_governance.ILLICIT_SOURCES 즉시 격리",
         },
         "preprocessing": {
             "metrics_extraction": "MediaPipe Face Landmarker 478점 + 블렌드셰이프",
@@ -221,7 +221,7 @@ def get_face_reading_data_card(
             "retention_max_days": 365,
         },
         "maintenance": {
-            "audit_cadence": "분기별 (engine.safety.data_governance.audit_dataset)",
+            "audit_cadence": "분기별 (engine.safety.gdpr.data_governance.audit_dataset)",
             "expiry_alert_days": 30,
         },
     }

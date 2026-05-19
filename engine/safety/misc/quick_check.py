@@ -25,55 +25,55 @@ from typing import Any
 def _check_safety_imports() -> dict[str, Any]:
     """안전 모듈 임포트 가능 여부 — 배포 직후 가장 빠른 헬스체크."""
     required = [
-        "engine.safety.crisis_detector",
-        "engine.safety.legal_notice",
-        "engine.safety.pii",
-        "engine.safety.regulation",
-        "engine.safety.crisis_resources",
-        "engine.safety.language",
-        "engine.safety.tracing",
-        "engine.safety.slo",
-        "engine.safety.photo_guide",
-        "engine.safety.data_governance",
-        "engine.safety.consent_screen",
-        "engine.safety.alert_router",
-        "engine.safety.emotion_disclosure",
-        "engine.safety.rollback_trigger",
-        "engine.safety.rights_information",
-        "engine.safety.dsr_processor",
-        "engine.safety.model_card",
-        "engine.safety.jailbreak_defense",
-        "engine.safety.canary_guard",
-        "engine.safety.persona_self_eval",
-        "engine.safety.llm_fallback_router",
-        "engine.safety.cache_janitor",
-        "engine.safety.backup_manifest",
-        "engine.safety.shadow_eval",
-        "engine.safety.response_envelope",
-        "engine.safety.output_token_guard",
-        "engine.safety.idempotency_key",
-        "engine.safety.response_fact_check",
-        "engine.safety.input_sanitizer",
-        "engine.safety.cache_integrity",
-        "engine.safety.cost_guard",
-        "engine.safety.response_pii_leak",
-        "engine.safety.rate_limiter",
-        "engine.safety.response_alignment",
-        "engine.safety.output_safety_gate",
-        "engine.safety.request_pipeline",
-        "engine.safety.cache_key_resolver",
-        "engine.safety.compliance_report",
-        "engine.safety.latency_audit",
-        "engine.safety.response_consistency",
-        "engine.safety.standard_doc_builder",
-        "engine.safety.onboarding_checklist",
-        "engine.safety.incident_playbook",
-        "engine.safety.postmortem_builder",
-        "engine.safety.quarterly_review",
-        "engine.safety.manual_index",
-        "engine.safety.kpi_dashboard",
-        "engine.safety.changelog_tracker",
-        "engine.safety.dependency_graph",
+        "engine.safety.crisis.detector",
+        "engine.safety.gdpr.legal_notice",
+        "engine.safety.gdpr.pii",
+        "engine.safety.gdpr.regulation",
+        "engine.safety.crisis.resources",
+        "engine.safety.misc.language",
+        "engine.safety.slo.slo.tracing",
+        "engine.safety.slo.slo",
+        "engine.safety.photo.guide",
+        "engine.safety.gdpr.data_governance",
+        "engine.safety.gdpr.consent_screen",
+        "engine.safety.crisis.alert_router",
+        "engine.safety.crisis.emotion_disclosure",
+        "engine.safety.incident.rollback_trigger",
+        "engine.safety.gdpr.rights_information",
+        "engine.safety.gdpr.dsr_processor",
+        "engine.safety.audit.model_card",
+        "engine.safety.llm.jailbreak_defense",
+        "engine.safety.input_guards.canary_guard",
+        "engine.safety.llm.persona_self_eval",
+        "engine.safety.incident.llm_fallback_router",
+        "engine.safety.input_guards.cache_janitor",
+        "engine.safety.incident.backup_manifest",
+        "engine.safety.audit.shadow_eval",
+        "engine.safety.llm.response_envelope",
+        "engine.safety.llm.output_token_guard",
+        "engine.safety.input_guards.idempotency_key",
+        "engine.safety.llm.response_fact_check",
+        "engine.safety.input_guards.input_sanitizer",
+        "engine.safety.input_guards.cache_integrity",
+        "engine.safety.input_guards.cost_guard",
+        "engine.safety.llm.response_pii_leak",
+        "engine.safety.input_guards.rate_limiter",
+        "engine.safety.llm.response_alignment",
+        "engine.safety.llm.output_safety_gate",
+        "engine.safety.misc.request_pipeline",
+        "engine.safety.input_guards.cache_key_resolver",
+        "engine.safety.audit.compliance_report",
+        "engine.safety.slo.slo.latency_audit",
+        "engine.safety.llm.response_consistency",
+        "engine.safety.audit.standard_doc_builder",
+        "engine.safety.audit.onboarding_checklist",
+        "engine.safety.incident.playbook",
+        "engine.safety.audit.postmortem_builder",
+        "engine.safety.audit.quarterly_review",
+        "engine.safety.audit.manual_index",
+        "engine.safety.slo.slo.kpi_dashboard",
+        "engine.safety.audit.changelog_tracker",
+        "engine.safety.audit.dependency_graph",
     ]
     missing: list[str] = []
     for m in required:
@@ -109,7 +109,7 @@ def _check_cache_dir(cache_dir: Path | None = None) -> dict[str, Any]:
 
 def _check_slo_window(events: list[dict[str, Any]] | None) -> dict[str, Any]:
     """SLO 윈도우 점검. events 미주입 시 compute_slo만 호출 가능한지 확인."""
-    from engine.safety.slo import compute_slo
+    from engine.safety.slo.slo import compute_slo
     if events is None:
         # 모듈 자체 동작만 확인
         s = compute_slo([])
@@ -133,7 +133,7 @@ def _check_slo_window(events: list[dict[str, Any]] | None) -> dict[str, Any]:
 
 def _check_alert_router_consistency() -> dict[str, Any]:
     """알람 라우터 분류 표가 변형되지 않았는지 확인."""
-    from engine.safety.alert_router import classify_event, classify_slo_violation, P0, P1, P2
+    from engine.safety.crisis.alert_router import classify_event, classify_slo_violation, P0, P1, P2
     samples = {
         "crisis_block_failed": (classify_event("crisis_block_failed"), P0),
         "slo_p95_text": (classify_slo_violation("p95=6500ms > 5000ms"), P1),
@@ -149,7 +149,7 @@ def _check_alert_router_consistency() -> dict[str, Any]:
 
 def _check_rollback_policy_consistency() -> dict[str, Any]:
     """롤백 정책 표 일관성 — 핵심 키 3건 확인."""
-    from engine.safety.rollback_trigger import classify_rollback_policy, AUTO, APPROVAL, NEVER
+    from engine.safety.incident.rollback_trigger import classify_rollback_policy, AUTO, APPROVAL, NEVER
     expected = {
         "crisis_block_failed": AUTO,
         "slo_violation:p95": APPROVAL,
@@ -166,7 +166,7 @@ def _check_rollback_policy_consistency() -> dict[str, Any]:
 
 def _check_emotion_disclosure_regions() -> dict[str, Any]:
     """EU AI Act §50(3) 의무 지역 매핑 일관성."""
-    from engine.safety.emotion_disclosure import (
+    from engine.safety.crisis.emotion_disclosure import (
         is_emotion_disclosure_required,
         is_emotion_disclosure_recommended,
     )

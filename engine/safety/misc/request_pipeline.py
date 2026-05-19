@@ -81,8 +81,8 @@ def preflight(
             "breached_window": rl_result.breached_window,
         }
         if rl_result.status == "limited":
-            from engine.safety.legal_notice import build_legal_footer
-            from engine.safety.input_sanitizer import sanitize_question
+            from engine.safety.gdpr.legal_notice import build_legal_footer
+            from engine.safety.input_guards.input_sanitizer import sanitize_question
             sanitized = sanitize_question(question)
             return PipelineDecision(
                 allowed=False,
@@ -108,8 +108,8 @@ def preflight(
             "monthly_percent": cost_status.monthly_percent,
         }
         if cost_status.severity == "exhausted":
-            from engine.safety.llm_fallback_router import deterministic_stub_response
-            from engine.safety.legal_notice import build_legal_footer
+            from engine.safety.incident.llm_fallback_router import deterministic_stub_response
+            from engine.safety.gdpr.legal_notice import build_legal_footer
             return PipelineDecision(
                 allowed=False,
                 block_reason=BLOCK_COST_EXHAUSTED,
@@ -124,13 +124,13 @@ def preflight(
             )
 
     # 3) input_sanitizer
-    from engine.safety.input_sanitizer import sanitize_question, to_trace_event
+    from engine.safety.input_guards.input_sanitizer import sanitize_question, to_trace_event
     sanitized = sanitize_question(question)
     details["sanitize"] = to_trace_event(sanitized)
 
     # question이 처음에 있었는데 정제 후 비면 의심 (injection-only)
     if (question or "").strip() and not sanitized.text:
-        from engine.safety.legal_notice import build_legal_footer
+        from engine.safety.gdpr.legal_notice import build_legal_footer
         return PipelineDecision(
             allowed=False,
             block_reason=BLOCK_INPUT_EMPTY,
@@ -146,11 +146,11 @@ def preflight(
         )
 
     # 4) jailbreak_defense (정제된 화두 기준)
-    from engine.safety.jailbreak_defense import detect_jailbreak, build_jailbreak_response
+    from engine.safety.llm.jailbreak_defense import detect_jailbreak, build_jailbreak_response
     jb_hits = detect_jailbreak(sanitized.text)
     if jb_hits:
         jb = build_jailbreak_response(jb_hits, lang=lang)
-        from engine.safety.legal_notice import build_legal_footer
+        from engine.safety.gdpr.legal_notice import build_legal_footer
         details["jailbreak"] = {
             "categories": list(jb["categories"]),
             "primary": jb["primary_category"],
@@ -173,7 +173,7 @@ def preflight(
     idem_key = ""
     idem_claimed = False
     if idempotency_manager is not None:
-        from engine.safety.idempotency_key import compute_idempotency_key
+        from engine.safety.input_guards.idempotency_key import compute_idempotency_key
         idem_key = compute_idempotency_key(
             image_b64=image_b64,
             question=sanitized.text,
