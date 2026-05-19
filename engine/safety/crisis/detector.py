@@ -206,6 +206,61 @@ def detect_crisis(text: str) -> dict[str, Any]:
     }
 
 
+# ─────────────────────────── ADR-053 Phase T — i18n 위기 키워드 ───────────────────────────
+# compliance 5.2.7_crisis_multilingual.
+
+DIRECT_SUICIDE_KEYWORDS_EN = [
+    "suicide", "kill myself", "end my life", "want to die",
+    "ending it", "take my own life", "no reason to live",
+]
+DIRECT_SUICIDE_KEYWORDS_ZH = [
+    "自杀", "自殺", "想死", "不想活", "了结", "结束生命",
+]
+DIRECT_SUICIDE_KEYWORDS_JA = [
+    "自殺", "死にたい", "命を絶つ", "生きる意味",
+]
+DIRECT_SELFHARM_KEYWORDS_EN = ["self-harm", "cut myself", "hurt myself"]
+DIRECT_SELFHARM_KEYWORDS_ZH = ["自残", "自傷", "割腕"]
+DIRECT_SELFHARM_KEYWORDS_JA = ["自傷", "自分を傷つける", "リストカット"]
+
+MULTILINGUAL_DIRECT_SUICIDE = (
+    DIRECT_SUICIDE_KEYWORDS_EN
+    + DIRECT_SUICIDE_KEYWORDS_ZH
+    + DIRECT_SUICIDE_KEYWORDS_JA
+)
+MULTILINGUAL_DIRECT_SELFHARM = (
+    DIRECT_SELFHARM_KEYWORDS_EN
+    + DIRECT_SELFHARM_KEYWORDS_ZH
+    + DIRECT_SELFHARM_KEYWORDS_JA
+)
+
+
+def detect_crisis_multilingual(text: str) -> dict:
+    """다국어 위기 검출 (en·zh·ja 보조).
+
+    한국어 detect_crisis()와 별개. EU AI Act §50 다국어 의무 부분 충족.
+
+    Returns:
+        {detected: bool, lang: str|None, matched: [...]}
+    """
+    if not text:
+        return {"detected": False, "lang": None, "matched": []}
+    t_lower = text.lower()
+    matches = []
+    detected_lang = None
+    for kw in MULTILINGUAL_DIRECT_SUICIDE + MULTILINGUAL_DIRECT_SELFHARM:
+        if kw.lower() in t_lower:
+            matches.append(kw)
+            if not detected_lang:
+                if kw in DIRECT_SUICIDE_KEYWORDS_EN + DIRECT_SELFHARM_KEYWORDS_EN:
+                    detected_lang = "en"
+                elif kw in DIRECT_SUICIDE_KEYWORDS_ZH + DIRECT_SELFHARM_KEYWORDS_ZH:
+                    detected_lang = "zh"
+                elif kw in DIRECT_SUICIDE_KEYWORDS_JA + DIRECT_SELFHARM_KEYWORDS_JA:
+                    detected_lang = "ja"
+    return {"detected": bool(matches), "lang": detected_lang, "matched": matches}
+
+
 __all__ = [
     "detect_crisis",
     "CRISIS_RESPONSE_KO",
@@ -214,4 +269,14 @@ __all__ = [
     "DIRECT_SELFHARM_KEYWORDS",
     "INDIRECT_DESPAIR_KEYWORDS",
     "PLANNING_KEYWORDS",
+    # ADR-053 i18n
+    "DIRECT_SUICIDE_KEYWORDS_EN",
+    "DIRECT_SUICIDE_KEYWORDS_ZH",
+    "DIRECT_SUICIDE_KEYWORDS_JA",
+    "DIRECT_SELFHARM_KEYWORDS_EN",
+    "DIRECT_SELFHARM_KEYWORDS_ZH",
+    "DIRECT_SELFHARM_KEYWORDS_JA",
+    "MULTILINGUAL_DIRECT_SUICIDE",
+    "MULTILINGUAL_DIRECT_SELFHARM",
+    "detect_crisis_multilingual",
 ]

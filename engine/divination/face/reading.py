@@ -1117,3 +1117,89 @@ def generate_face_reading(
     }
     _save_cache(key, out)
     return out
+
+
+# ─────────────────────────── ADR-053 Phase S — 사진 품질 게이트 ───────────────────────────
+# compliance_report 7.2.1_photo_quality 매니페스트 매핑.
+
+ERR_FACE_NOT_DETECTED = "face_not_detected"
+ERR_BLUR_TOO_HIGH = "blur_too_high"  # Laplacian Variance < 100.0
+ERR_BRIGHTNESS_LOW = "brightness_low"  # mean intensity < 40
+ERR_BRIGHTNESS_HIGH = "brightness_high"  # mean intensity > 220
+ERR_RESOLUTION_LOW = "resolution_low"  # min(w, h) < 480
+ERR_FILE_TOO_LARGE = "file_too_large"  # > 5MB base64
+
+QUALITY_METRIC_ERRORS = (
+    ERR_FACE_NOT_DETECTED,
+    ERR_BLUR_TOO_HIGH,
+    ERR_BRIGHTNESS_LOW,
+    ERR_BRIGHTNESS_HIGH,
+    ERR_RESOLUTION_LOW,
+    ERR_FILE_TOO_LARGE,
+)
+
+
+# ─────────────────────────── ADR-053 Phase U — a11y 메타데이터 ───────────────────────────
+# compliance_report 7.2.6_a11y 매니페스트 매핑.
+
+def _extract_a11y_metadata(reading_result: dict) -> dict:
+    """관상 풀이 결과에 a11y 메타데이터 부여 (스크린리더용).
+
+    Returns:
+        {
+            'persona': '운학 도사',
+            'reading_length': int,
+            'reading_summary_text': str (스크린리더 요약),
+            'has_crisis_alert': bool,
+            'aria_role': 'article',
+            'lang': 'ko',
+        }
+    """
+    text = reading_result.get('text', '') if isinstance(reading_result, dict) else ''
+    crisis = reading_result.get('crisis_alert') if isinstance(reading_result, dict) else None
+    return {
+        'persona': '운학 도사',
+        'reading_length': len(text),
+        'reading_summary_text': (text[:120] + '…') if len(text) > 120 else text,
+        'has_crisis_alert': bool(crisis),
+        'aria_role': 'article',
+        'lang': 'ko',
+    }
+
+
+def classify_metric_issue(
+    *,
+    laplacian_var: float | None = None,
+    mean_intensity: float | None = None,
+    width: int | None = None,
+    height: int | None = None,
+    file_bytes: int | None = None,
+    face_detected: bool = True,
+) -> str | None:
+    """관상 사진 품질 결정론 분류 (compliance 7.2.1).
+
+    임계값:
+        - face_detected=False → ERR_FACE_NOT_DETECTED
+        - laplacian_var < 100.0 → ERR_BLUR_TOO_HIGH (ADR-020 face 임계값)
+        - mean_intensity < 40 또는 > 220 → 노출 문제
+        - min(w,h) < 480 → ERR_RESOLUTION_LOW
+        - file_bytes > 5MB → ERR_FILE_TOO_LARGE
+
+    Returns:
+        에러 코드 또는 None (양호).
+    """
+    if not face_detected:
+        return ERR_FACE_NOT_DETECTED
+    if laplacian_var is not None and laplacian_var < 100.0:
+        return ERR_BLUR_TOO_HIGH
+    if mean_intensity is not None:
+        if mean_intensity < 40:
+            return ERR_BRIGHTNESS_LOW
+        if mean_intensity > 220:
+            return ERR_BRIGHTNESS_HIGH
+    if width is not None and height is not None:
+        if min(width, height) < 480:
+            return ERR_RESOLUTION_LOW
+    if file_bytes is not None and file_bytes > 5 * 1024 * 1024:
+        return ERR_FILE_TOO_LARGE
+    return None
