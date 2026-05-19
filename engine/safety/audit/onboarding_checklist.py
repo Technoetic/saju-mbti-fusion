@@ -282,9 +282,11 @@ _CHECKLIST: tuple[ChecklistItem, ...] = (
             "engine/ 전체 회귀(972건)를 분기별로 실행. "
             "golden set 21건 + persona judge + 통합 envelope 모두 통과 확인."
         ),
-        modules=("engine.divination.test_face_reading",
-                 "engine.divination.test_golden_set",
-                 "engine.divination.test_persona_judge"),
+        # ADR-051: 옛 test 파일 (engine.divination.test_*) 5회차 git rm 후 자머.
+        # 현 회귀 테스트는 tests/regression/ + tests/smoke/ + tests/e2e/ (ADR-046·047)
+        modules=("engine.divination.face.reading",
+                 "engine.divination.name.reading",
+                 "engine.divination.palm.reading"),
         practice_command="pytest engine/ -q",
         estimated_minutes=30,
         references=("§5.1", "§5.2",),

@@ -665,6 +665,146 @@ from engine.safety.misc.request_pipeline import (
 )
 
 
+
+# ADR-051 호환 alias — 옛 test의 긴 이름 → 현 짧은 이름 노출
+# 각 alias 개별 try/except로 일부 실패가 나머지 영향 안 끼치게 격리
+try:
+    from engine.safety.audit.changelog_tracker import record_change as record_change_log
+except ImportError:
+    pass
+try:
+    from engine.safety.audit.changelog_tracker import get_default_store as get_changelog_store
+except ImportError:
+    pass
+try:
+    from engine.safety.slo.latency_audit import new_sample as new_latency_sample
+except ImportError:
+    pass
+try:
+    from engine.safety.slo.latency_audit import record_step as record_latency_step
+except ImportError:
+    pass
+try:
+    from engine.safety.slo.latency_audit import finalize as finalize_latency_sample
+except ImportError:
+    pass
+try:
+    from engine.safety.slo.latency_audit import evaluate as evaluate_latency
+except ImportError:
+    pass
+try:
+    from engine.safety.audit.dependency_graph import build_graph as build_dependency_graph
+except ImportError:
+    pass
+try:
+    from engine.safety.audit.dependency_graph import in_degree as in_degree_of
+except ImportError:
+    pass
+try:
+    from engine.safety.audit.dependency_graph import out_degree as out_degree_of
+except ImportError:
+    pass
+try:
+    from engine.safety.audit.dependency_graph import has_cycles as has_dependency_cycles
+except ImportError:
+    pass
+try:
+    from engine.safety.audit.dependency_graph import format_graph as format_dependency_graph
+except ImportError:
+    pass
+try:
+    from engine.safety.audit.dependency_graph import graph_to_json as dependency_graph_to_json
+except ImportError:
+    pass
+try:
+    from engine.safety.audit.quarterly_review import format_markdown as format_quarterly_review_markdown
+except ImportError:
+    pass
+try:
+    from engine.safety.audit.quarterly_review import to_json as quarterly_review_to_json
+except ImportError:
+    pass
+try:
+    from engine.safety.audit.quarterly_review import build_review as build_quarterly_review
+except ImportError:
+    pass
+try:
+    from engine.safety.audit.quarterly_review import evaluate_grade as evaluate_quarterly_grade
+except ImportError:
+    pass
+try:
+    from engine.safety.audit.postmortem_builder import format_postmortem as format_postmortem_markdown
+except ImportError:
+    pass
+try:
+    from engine.safety.audit.postmortem_builder import to_json as postmortem_to_json
+except ImportError:
+    pass
+try:
+    from engine.safety.audit.postmortem_builder import build_draft as build_postmortem_draft
+except ImportError:
+    pass
+try:
+    from engine.safety.audit.compliance_report import generate_report as generate_compliance_report
+except ImportError:
+    pass
+try:
+    from engine.safety.audit.compliance_report import check_item as check_compliance_item
+except ImportError:
+    pass
+try:
+    from engine.safety.audit.manual_index import to_json_summary as manual_index_to_json
+except ImportError:
+    pass
+try:
+    from engine.safety.audit.manual_index import format_index_text as format_manual_index
+except ImportError:
+    pass
+try:
+    from engine.safety.audit.manual_index import get_all_entries as get_manual_entries
+except ImportError:
+    pass
+try:
+    from engine.safety.audit.manual_index import find_by_category as find_manual_by_category
+except ImportError:
+    pass
+try:
+    from engine.safety.audit.manual_index import find_by_timing as find_manual_by_timing
+except ImportError:
+    pass
+try:
+    from engine.safety.audit.manual_index import find_by_severity as find_manual_by_severity
+except ImportError:
+    pass
+try:
+    from engine.safety.audit.manual_index import find_by_regulation as find_manual_by_regulation
+except ImportError:
+    pass
+try:
+    from engine.safety.audit.postmortem_builder import format_markdown as format_postmortem_markdown
+except ImportError:
+    pass
+try:
+    from engine.safety.audit.dependency_graph import format_graph_text as format_dependency_graph
+except ImportError:
+    pass
+try:
+    from engine.safety.audit.dependency_graph import to_json as dependency_graph_to_json
+except ImportError:
+    pass
+try:
+    from engine.safety.audit.onboarding_checklist import evaluate_progress as evaluate_onboarding_progress
+except ImportError:
+    pass
+try:
+    from engine.safety.audit.onboarding_checklist import get_all_items as get_onboarding_items
+except ImportError:
+    pass
+try:
+    from engine.safety.audit.onboarding_checklist import get_items_by_phase as get_onboarding_items_by_phase
+except ImportError:
+    pass
+
 __all__ = [
     # 9 카테고리
     "crisis", "gdpr", "slo", "audit", "input_guards",

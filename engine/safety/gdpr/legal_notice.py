@@ -57,13 +57,17 @@ def build_legal_footer(
     *,
     is_crisis: bool = False,
     include_data_notice: bool = False,
+    lang: str = "ko",
 ) -> str:
     """응답 푸터 생성.
 
     Args:
         is_crisis: 위기 상황 응답 시 True — 위기 전용 푸터 반환
         include_data_notice: 신규 사용자/첫 응답에 True — 데이터 처리 안내 포함
+        lang: 언어 코드 ('ko' 기본). 현재 한국어만 구현, 향후 i18n 확장 자리.
     """
+    # ADR-051: lang 인자는 옛 호출자 호환용 (request_pipeline.py 등). 현재 ko 단일.
+    del lang  # 미구현 i18n 자리, 호출자 시그니처 호환
     if is_crisis:
         return CRISIS_FOOTER_KO
 

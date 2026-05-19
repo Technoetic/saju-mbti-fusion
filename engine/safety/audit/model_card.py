@@ -157,9 +157,10 @@ def get_face_reading_model_card(
             "mitigations": [
                 "EU AI Act §50(3) 명시 고지 (engine.safety.crisis.emotion_disclosure)",
                 "외모 평가·미추 비교 금지 (시스템 프롬프트)",
-                "위기 신호 결정론 차단 (engine.safety.crisis.detector)",
+                "위기 신호 결정론 차단 (crisis_detector — engine.safety.crisis.detector)",
                 "법정 면책 고지 자동 첨부 (engine.safety.gdpr.legal_notice)",
-                "PII 자동 마스킹 (engine.safety.gdpr.pii)",
+                "PII 자동 마스킹 (pii — engine.safety.gdpr.pii)",
+                "감정 노출 가이드 (emotion_disclosure — engine.safety.crisis.emotion_disclosure)",
             ],
         },
         "caveats_and_recommendations": {
