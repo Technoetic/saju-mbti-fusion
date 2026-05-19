@@ -2959,6 +2959,360 @@
   .gallery-hint { font-size: 10px; letter-spacing: 2px; }
   .to-gallery-btn { top: 12px; left: 12px; padding: 7px 14px 7px 11px; font-size: 12px; letter-spacing: 2px; }
   }
+
+  /* ═══════════════════════════════════════════════════════
+   도사별 메뉴 그리드 (#menuView) + 콘텐츠 뷰 (#contentView)
+   60개 콘텐츠 라인업의 공통 인프라
+   ═══════════════════════════════════════════════════════ */
+  .menu-view, .content-view { display: none; }
+  body.menu-mode .menu-view { display: block; }
+  body.content-mode .content-view { display: block; }
+  /* menu/content 모드에서는 카드 갤러리·풀이 탭 숨김 */
+  body.menu-mode .card-gallery,
+  body.menu-mode .tab-content,
+  body.content-mode .card-gallery,
+  body.content-mode .tab-content { display: none !important; }
+
+  .menu-view {
+  max-width: 920px;
+  margin: 12px auto 40px;
+  padding: 0 16px;
+  }
+  .menu-header {
+  text-align: center;
+  padding: 14px 0 24px;
+  border-bottom: 1px dashed var(--gold-dp);
+  margin-bottom: 28px;
+  }
+  .menu-master-name {
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 28px;
+  letter-spacing: 8px;
+  color: var(--gold-bri);
+  margin: 0 0 8px;
+  text-shadow: 0 2px 6px rgba(0,0,0,0.6);
+  }
+  .menu-master-sub {
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 13px;
+  letter-spacing: 3px;
+  color: var(--text-soft);
+  margin: 0;
+  }
+  .menu-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+  }
+  .menu-card {
+  position: relative;
+  padding: 22px 20px 18px;
+  background: linear-gradient(180deg, rgba(20,15,10,0.78), rgba(10,8,5,0.85));
+  border: 1px solid var(--gold-dp);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  text-align: left;
+  font-family: 'Nanum Myeongjo', serif;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 180px;
+  }
+  .menu-card:hover {
+  border-color: var(--gold);
+  background: linear-gradient(180deg, rgba(40,30,15,0.85), rgba(20,15,8,0.90));
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(212,175,55,0.18);
+  }
+  .menu-card-glyph {
+  font-size: 26px;
+  letter-spacing: 6px;
+  color: var(--gold-bri);
+  line-height: 1;
+  text-shadow: 0 0 10px rgba(244,211,94,0.35);
+  margin-bottom: 4px;
+  }
+  .menu-card-name {
+  font-size: 16px;
+  letter-spacing: 3px;
+  color: var(--gold);
+  font-weight: 700;
+  line-height: 1.4;
+  }
+  .menu-card-desc {
+  font-size: 12.5px;
+  letter-spacing: 0.5px;
+  color: var(--text-soft);
+  line-height: 1.65;
+  margin: 0;
+  flex: 1;
+  }
+  .menu-card-meta {
+  font-size: 11px;
+  color: var(--text-dim);
+  letter-spacing: 1.5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px dashed rgba(212,175,55,0.18);
+  padding-top: 10px;
+  margin-top: 4px;
+  }
+  .menu-card-time { font-size: 11px; color: var(--text-mute); }
+
+  /* 뱃지 — 무료 / 프리미엄 / 시즌 / 추천 */
+  .menu-card-badges {
+  position: absolute;
+  top: 12px; right: 12px;
+  display: flex;
+  gap: 5px;
+  }
+  .badge {
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 10px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  letter-spacing: 1.5px;
+  font-weight: 700;
+  line-height: 1.4;
+  }
+  .badge-free {
+  background: rgba(109, 195, 117, 0.18);
+  color: #8edb96;
+  border: 1px solid rgba(109, 195, 117, 0.45);
+  }
+  .badge-premium {
+  background: linear-gradient(180deg, rgba(244,211,94,0.20), rgba(139,105,20,0.30));
+  color: var(--gold-bri);
+  border: 1px solid var(--gold);
+  text-shadow: 0 0 6px rgba(244,211,94,0.45);
+  }
+  .badge-season {
+  background: rgba(255, 125, 107, 0.18);
+  color: #ff9b89;
+  border: 1px solid rgba(255, 125, 107, 0.45);
+  }
+  .badge-hot {
+  background: rgba(232, 80, 120, 0.20);
+  color: #ff8ba0;
+  border: 1px solid rgba(232, 80, 120, 0.50);
+  }
+  .badge-new {
+  background: rgba(120, 184, 255, 0.18);
+  color: #9ec8ff;
+  border: 1px solid rgba(120, 184, 255, 0.45);
+  }
+
+  /* 캐릭터별 메뉴 테마 분기 — 만월(금색), 성하(자줏빛)는 별도 */
+  body.menu-mode.char-star .menu-card {
+  background: linear-gradient(180deg, rgba(14,21,48,0.78), rgba(10,8,20,0.92));
+  border-color: rgba(169,134,212,0.40);
+  }
+  body.menu-mode.char-star .menu-card:hover {
+  border-color: var(--starh-violet-bri);
+  background: linear-gradient(180deg, rgba(26,36,82,0.85), rgba(14,21,48,0.92));
+  box-shadow: 0 6px 18px rgba(169,134,212,0.30);
+  }
+  body.menu-mode.char-star .menu-card-glyph,
+  body.menu-mode.char-star .menu-master-name { color: var(--starh-glow); text-shadow: 0 0 10px rgba(169,134,212,0.45); }
+  body.menu-mode.char-star .menu-card-name { color: var(--starh-silver); }
+  body.menu-mode.char-star .menu-master-sub { color: var(--starh-silver-dp); }
+
+  /* ─── 콘텐츠 뷰 (#contentView) — placeholder + 입력 폼 ─── */
+  .content-view {
+  max-width: 760px;
+  margin: 12px auto 48px;
+  padding: 0 16px;
+  }
+  .content-card {
+  background: rgba(10,8,5,0.65);
+  border: 1px solid var(--gold-dp);
+  border-radius: 4px;
+  padding: 32px 30px;
+  position: relative;
+  }
+  .content-card::before {
+  content: '';
+  position: absolute;
+  inset: 8px;
+  border: 1px dashed rgba(212,175,55,0.14);
+  border-radius: 2px;
+  pointer-events: none;
+  }
+  .content-card > * { position: relative; }
+  .content-back {
+  display: inline-block;
+  margin-bottom: 18px;
+  padding: 7px 14px;
+  background: transparent;
+  color: var(--gold);
+  border: 1px solid var(--gold-dp);
+  border-radius: 999px;
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 12px;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  }
+  .content-back:hover { color: var(--gold-bri); border-color: var(--gold); }
+  .content-glyph {
+  text-align: center;
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 36px;
+  letter-spacing: 9px;
+  color: var(--gold-bri);
+  margin-bottom: 12px;
+  line-height: 1;
+  text-shadow: 0 0 14px rgba(244,211,94,0.40);
+  }
+  .content-title {
+  text-align: center;
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 22px;
+  letter-spacing: 5px;
+  color: var(--gold);
+  margin: 0 0 8px;
+  }
+  .content-master-quote {
+  text-align: center;
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 14px;
+  letter-spacing: 1px;
+  color: var(--text-soft);
+  margin: 0 0 24px;
+  line-height: 1.8;
+  font-style: italic;
+  }
+  .content-section {
+  margin: 20px 0;
+  padding: 18px 20px;
+  background: rgba(20,15,10,0.55);
+  border: 1px solid rgba(212,175,55,0.18);
+  border-radius: 3px;
+  }
+  .content-section-title {
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 13px;
+  letter-spacing: 3px;
+  color: var(--gold);
+  margin: 0 0 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px dashed rgba(212,175,55,0.20);
+  }
+  .content-section p { color: var(--text-main); line-height: 1.85; margin: 0 0 10px; font-size: 14.5px; }
+  .content-section p:last-child { margin-bottom: 0; }
+
+  .content-form .row { margin-bottom: 14px; }
+  .content-form label {
+  display: block;
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 12px;
+  letter-spacing: 2px;
+  color: var(--gold);
+  margin-bottom: 6px;
+  }
+  .content-form input[type=text],
+  .content-form input[type=number],
+  .content-form select,
+  .content-form textarea {
+  width: 100%;
+  padding: 11px 14px;
+  background: rgba(0,0,0,0.4);
+  border: 1px solid var(--gold-dp);
+  border-radius: 3px;
+  color: var(--text-main);
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 14px;
+  }
+  .content-form input:focus, .content-form select:focus, .content-form textarea:focus {
+  outline: none; border-color: var(--gold);
+  }
+  .content-form .row-group {
+  display: flex; gap: 10px; flex-wrap: wrap;
+  }
+  .content-form .row-group > * { flex: 1; min-width: 80px; }
+
+  .content-cta-wrap { text-align: center; margin-top: 24px; }
+  .content-cta {
+  padding: 13px 36px;
+  background: linear-gradient(180deg, rgba(40,30,15,0.85), rgba(20,15,8,0.90));
+  color: var(--gold-bri);
+  border: 1px solid var(--gold);
+  border-radius: 3px;
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 15px;
+  letter-spacing: 5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  }
+  .content-cta:hover {
+  background: linear-gradient(180deg, rgba(212,175,55,0.30), rgba(139,105,20,0.55));
+  color: #fff; box-shadow: 0 0 24px rgba(212,175,55,0.45);
+  }
+  .content-cta-hint {
+  margin-top: 12px;
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 12px;
+  color: var(--text-dim);
+  letter-spacing: 1.5px;
+  }
+  .content-cta-hint .premium-mark {
+  color: var(--gold-bri);
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  }
+
+  .content-recommend {
+  margin-top: 32px;
+  padding: 22px 22px 18px;
+  background: rgba(20,15,30,0.55);
+  border: 1px solid rgba(212,175,55,0.30);
+  border-radius: 4px;
+  }
+  .content-recommend-title {
+  text-align: center;
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 14px;
+  letter-spacing: 4px;
+  color: var(--gold-bri);
+  margin: 0 0 14px;
+  }
+  .content-recommend-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+  }
+  .content-recommend-card {
+  padding: 12px 14px;
+  background: rgba(10,8,5,0.55);
+  border: 1px solid var(--gold-dp);
+  border-radius: 3px;
+  cursor: pointer;
+  font-family: 'Nanum Myeongjo', serif;
+  text-align: center;
+  transition: all 0.2s ease;
+  }
+  .content-recommend-card:hover { border-color: var(--gold); background: rgba(212,175,55,0.10); }
+  .content-recommend-glyph { font-size: 16px; color: var(--gold-bri); letter-spacing: 4px; line-height: 1.2; }
+  .content-recommend-name { font-size: 12px; color: var(--gold); margin-top: 4px; letter-spacing: 2px; }
+
+  @media (max-width: 720px) {
+  .menu-view { padding: 0 12px; margin: 8px auto 32px; }
+  .menu-master-name { font-size: 22px; letter-spacing: 6px; }
+  .menu-master-sub { font-size: 12px; letter-spacing: 2px; }
+  .menu-grid { grid-template-columns: 1fr; gap: 12px; }
+  .menu-card { padding: 18px 16px 14px; min-height: 0; }
+  .menu-card-name { font-size: 15px; letter-spacing: 2px; }
+  .menu-card-desc { font-size: 12px; }
+  .content-view { padding: 0 12px; margin: 8px auto 36px; }
+  .content-card { padding: 22px 18px; }
+  .content-glyph { font-size: 28px; letter-spacing: 7px; }
+  .content-title { font-size: 18px; letter-spacing: 3.5px; }
+  .content-master-quote { font-size: 13px; }
+  .content-cta { padding: 11px 26px; font-size: 13.5px; letter-spacing: 3.5px; }
+  }
 </style>
 <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 </head>
@@ -3314,6 +3668,20 @@
   <button class="gallery-arrow gallery-arrow-next" aria-label="다음 점술가" type="button">›</button>
   </div>
   <p class="gallery-hint">← 옆으로 넘기면 다른 점술가가 나옵니다 →</p>
+</section>
+
+<!-- 도사별 메뉴 그리드 — 카드 클릭 후 진입 (콘텐츠 7~12개) -->
+<section id="menuView" class="menu-view" aria-label="콘텐츠 메뉴">
+  <header class="menu-header">
+  <h2 class="menu-master-name" id="menuMasterName"></h2>
+  <p class="menu-master-sub" id="menuMasterSub"></p>
+  </header>
+  <div class="menu-grid" id="menuGrid"></div>
+</section>
+
+<!-- 신규 콘텐츠 결과/입력 뷰 (백엔드 미연결 — 풀이 화면 자리잡기) -->
+<section id="contentView" class="content-view" aria-label="콘텐츠 화면">
+  <div id="contentBody"></div>
 </section>
 
 <div class="tab-bar">
@@ -9018,10 +9386,17 @@ window.WHM = window.WHM || {};
   // 카드 클릭 → 해당 풀이 진입 (들어가기 버튼 또는 카드 본체)
   function enterCard(card) {
   const target = card.dataset.go;
+  const charKey = card.dataset.character;
   if (!target) return;
   exitGalleryMode();
+  // 콘텐츠 메뉴가 정의된 도사면 메뉴 그리드로, 아니면 기존 탭(레거시)
+  const data = window.WHM_CONTENTS && window.WHM_CONTENTS[charKey];
+  if (data && window.__menuOpen) {
+  window.__menuOpen(charKey);
+  } else {
   const tabBtn = document.querySelector(`.tab-btn[data-tab="${target}"]`);
   if (tabBtn) tabBtn.click();
+  }
   window.scrollTo({ top: 0, behavior: 'smooth' });
   }
   deck.addEventListener('click', (e) => {
@@ -9052,8 +9427,9 @@ window.WHM = window.WHM || {};
   // ← 점술가 고르러 버튼
   if (toGalleryBtn) {
   toGalleryBtn.addEventListener('click', () => {
+  // menu/content 모드 모두 종료 → 갤러리 모드
+  document.body.classList.remove('menu-mode', 'content-mode');
   enterGalleryMode();
-  // 활성 탭의 영상이 있다면 멈춤 처리는 활성 탭 전환 측에 위임
   window.scrollTo({ top: 0, behavior: 'smooth' });
   });
   }
@@ -9078,6 +9454,322 @@ window.WHM = window.WHM || {};
 
   // 초기 렌더
   render();
+})();
+
+// ─────────────────────────────────────────────────────────
+// 月下夢 콘텐츠 라인업 시스템 (60개 — 7명 점술가 × 7~12 콘텐츠)
+// 카드 갤러리 → 도사 카드 클릭 → 메뉴 그리드 → 콘텐츠 진입
+//
+// 각 콘텐츠 스키마:
+//   key:    고유 ID (URL hash 등에 사용)
+//   name:   표시 이름
+//   glyph:  한자 엠블럼 (2자)
+//   desc:   한 줄 설명
+//   tier:   'free' | 'premium' | 'season'
+//   badges: ['hot', 'new', ...] (선택)
+//   est:    예상 소요 시간 ("5분", "30~60초" 등)
+//   quote:  캐릭터 말투 인용 (결과 화면 상단)
+//   fields: [{ key, label, type:'text|number|select|textarea|year-month-day|hour-branch', ...options }]
+//   tab:    기존 탭 활용 시 ID (예: 'saju' — 정통 사주는 기존 화면 사용)
+//   sample: 결과 화면 더미 예시 (1~2 단락, 캐릭터 말투)
+// ─────────────────────────────────────────────────────────
+window.WHM_CONTENTS = {
+  saju: {
+  master: '만월 아씨',
+  masterSub: '달빛 아래 사주를 짚어드리는 정자의 아씨 · 사주 풀이',
+  charKey: 'saju',
+  items: [
+  // [Phase 1] 시스템 검증용 샘플 1개. Phase 2 에서 10개로 확장.
+  {
+  key: 'today',
+  name: '만월 아씨의 오늘의 운세',
+  glyph: '今 日',
+  desc: '오늘 하루의 일진과 흐름을 가볍게 짚어드립니다.',
+  tier: 'free',
+  badges: ['hot'],
+  est: '5분',
+  quote: '"오늘 그대의 하루를 한 번 살펴드리지요."',
+  fields: [
+  { key: 'fullName', label: '이름', type: 'text', placeholder: '한글로 적으세요', share: 'name' },
+  { key: 'birth', label: '생년월일', type: 'ymd' },
+  ],
+  cta: '오늘의 운세 받기',
+  sample: '오늘 그대의 별자리에는 부드러운 기운이 흐르고 있사옵니다. 이른 아침에 떠올린 한 가지 생각을 흘려보내지 마시지요. 그 안에 작은 길이 숨어있겠지요.\n\n오후엔 잠깐의 멈춤이 필요한 시각이옵니다. 따스한 차 한 잔에 마음을 적시면, 답답하던 일이 한 결 가벼워질 것이외다.',
+  },
+  ],
+  },
+  dream: { master: '몽이 도령', masterSub: '호접몽을 거니는 꿈의 길잡이 · 꿈 풀이', charKey: 'dream', items: [] },
+  hwapae: { master: '화선 낭자', masterSub: '꽃패를 펼치는 낭자 · 꽃패(타로) 풀이', charKey: 'hwapae', items: [] },
+  star: { master: '성하 공자', masterSub: '별의 강(銀河)의 귀공자 · 별빛(점성) 풀이', charKey: 'star', items: [] },
+  face: { master: '운학 도사', masterSub: '구름과 학을 벗삼은 산중 노도사 · 얼굴(관상) 풀이', charKey: 'face', items: [] },
+  palm: { master: '옥선 할미', masterSub: '길고 깊은 손금을 풀어주는 할미 · 손금 풀이', charKey: 'palm', items: [] },
+  name: { master: '묵향 선생', masterSub: '붓끝의 깊이를 헤아리는 선생 · 이름(작명) 풀이', charKey: 'name', items: [] },
+};
+
+// 공통 필드 프리셋 (재사용)
+window.WHM_FIELDS = {
+  basic: [
+  { key: 'fullName', label: '이름', type: 'text', placeholder: '한글로 적으세요', share: 'name' },
+  { key: 'birth', label: '생년월일', type: 'ymd' },
+  { key: 'hourBranch', label: '태어난 시각', type: 'hour-branch' },
+  { key: 'gender', label: '성별', type: 'gender' },
+  ],
+};
+
+// ─────────────────────────────────────────────────────────
+// 메뉴·콘텐츠 라우팅 시스템
+// ─────────────────────────────────────────────────────────
+(function setupContentSystem() {
+  const menuView = document.getElementById('menuView');
+  const menuGrid = document.getElementById('menuGrid');
+  const menuName = document.getElementById('menuMasterName');
+  const menuSub = document.getElementById('menuMasterSub');
+  const contentView = document.getElementById('contentView');
+  const contentBody = document.getElementById('contentBody');
+  if (!menuView || !contentView) return;
+
+  // 현재 진입한 도사 키 (menu-mode 일 때 의미 있음)
+  let currentMaster = null;
+
+  function setMode(mode) {
+  // 'gallery' | 'menu' | 'content' | null (in-app default)
+  document.body.classList.remove('gallery-mode', 'menu-mode', 'content-mode');
+  if (mode === 'gallery') document.body.classList.add('gallery-mode');
+  else if (mode === 'menu') document.body.classList.add('menu-mode');
+  else if (mode === 'content') document.body.classList.add('content-mode');
+  }
+
+  function badgeHtml(item) {
+  const out = [];
+  if (item.tier === 'free') out.push(`<span class="badge badge-free">무료</span>`);
+  if (item.tier === 'premium') out.push(`<span class="badge badge-premium">프리미엄</span>`);
+  if (item.tier === 'season') out.push(`<span class="badge badge-season">시즌</span>`);
+  (item.badges || []).forEach(b => {
+  if (b === 'hot') out.push(`<span class="badge badge-hot">인기</span>`);
+  if (b === 'new') out.push(`<span class="badge badge-new">NEW</span>`);
+  });
+  return out.join('');
+  }
+
+  function renderMenu(masterKey) {
+  const data = window.WHM_CONTENTS[masterKey];
+  if (!data) return;
+  currentMaster = masterKey;
+  menuName.textContent = data.master;
+  menuSub.textContent = data.masterSub;
+
+  // body에 캐릭터 클래스 적용 (배경 문양 + 메뉴 톤 분기)
+  ['saju','dream','hwapae','star','face','palm','name'].forEach(k => document.body.classList.remove(`char-${k}`));
+  document.body.classList.add(`char-${data.charKey}`);
+
+  // Phase 1에서는 만월 외 다른 도사는 items가 비어있을 수 있음 → 안내
+  if (!data.items || data.items.length === 0) {
+  menuGrid.innerHTML = `
+  <div class="menu-card" style="grid-column:1/-1;text-align:center;cursor:default;min-height:120px;justify-content:center" onmouseover="this.style.transform='none'">
+  <div class="menu-card-name" style="text-align:center">콘텐츠 준비 중</div>
+  <p class="menu-card-desc" style="text-align:center">곧 다양한 풀이가 펼쳐집니다. 잠시만 기다려주세요.</p>
+  </div>`;
+  return;
+  }
+
+  menuGrid.innerHTML = data.items.map(item => `
+  <button class="menu-card" type="button" data-content-key="${item.key}">
+  <div class="menu-card-badges">${badgeHtml(item)}</div>
+  <div class="menu-card-glyph">${item.glyph || ''}</div>
+  <div class="menu-card-name">${item.name}</div>
+  <p class="menu-card-desc">${item.desc || ''}</p>
+  <div class="menu-card-meta">
+  <span class="menu-card-time">⏱ ${item.est || '몇 분'}</span>
+  <span>${item.tier === 'premium' ? '💎' : item.tier === 'season' ? '🌸 시즌' : '☆ 무료'}</span>
+  </div>
+  </button>
+  `).join('');
+  }
+
+  function escapeHtml(s) {
+  return String(s || '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[c]);
+  }
+
+  function fieldHtml(field) {
+  const id = `cf_${field.key}`;
+  const sess = (window.WHM && window.WHM.load) ? window.WHM.load() : null;
+  // 공유 데이터에서 prefill
+  let prefill = '';
+  if (field.share === 'name' && sess?.profile?.name) prefill = sess.profile.name;
+  switch (field.type) {
+  case 'text':
+  return `<div class="row"><label for="${id}">${field.label}</label>
+  <input id="${id}" type="text" placeholder="${field.placeholder || ''}" value="${escapeHtml(prefill)}"></div>`;
+  case 'textarea':
+  return `<div class="row"><label for="${id}">${field.label}</label>
+  <textarea id="${id}" rows="${field.rows || 3}" placeholder="${field.placeholder || ''}"></textarea></div>`;
+  case 'number':
+  return `<div class="row"><label for="${id}">${field.label}</label>
+  <input id="${id}" type="number" min="${field.min ?? ''}" max="${field.max ?? ''}" value="${field.default ?? ''}"></div>`;
+  case 'select':
+  return `<div class="row"><label for="${id}">${field.label}</label>
+  <select id="${id}">
+  <option value="">— 선택 —</option>
+  ${(field.options || []).map(o => `<option value="${escapeHtml(o.value)}">${escapeHtml(o.label)}</option>`).join('')}
+  </select></div>`;
+  case 'ymd': {
+  const y = sess?.profile?.birth?.year || 1990;
+  const m = sess?.profile?.birth?.month || 5;
+  const d = sess?.profile?.birth?.day || 15;
+  return `<div class="row"><label for="${id}_y">${field.label}</label>
+  <div class="row-group">
+  <select id="${id}_y" data-ymd="year"></select>
+  <select id="${id}_m" data-ymd="month"></select>
+  <select id="${id}_d" data-ymd="day"></select>
+  </div></div>`;
+  }
+  case 'hour-branch':
+  return `<div class="row"><label for="${id}">${field.label}</label>
+  <select id="${id}">
+  <option value="子">자시 (子) · 23 ~ 01시</option>
+  <option value="丑">축시 (丑) · 01 ~ 03시</option>
+  <option value="寅">인시 (寅) · 03 ~ 05시</option>
+  <option value="卯">묘시 (卯) · 05 ~ 07시</option>
+  <option value="辰">진시 (辰) · 07 ~ 09시</option>
+  <option value="巳">사시 (巳) · 09 ~ 11시</option>
+  <option value="午">오시 (午) · 11 ~ 13시</option>
+  <option value="未" selected>미시 (未) · 13 ~ 15시</option>
+  <option value="申">신시 (申) · 15 ~ 17시</option>
+  <option value="酉">유시 (酉) · 17 ~ 19시</option>
+  <option value="戌">술시 (戌) · 19 ~ 21시</option>
+  <option value="亥">해시 (亥) · 21 ~ 23시</option>
+  <option value="unknown">시각 모름</option>
+  </select></div>`;
+  case 'gender':
+  return `<div class="row"><label for="${id}">${field.label}</label>
+  <select id="${id}">
+  <option value="">— 선택 —</option>
+  <option value="M">남자</option>
+  <option value="F">여자</option>
+  </select></div>`;
+  default:
+  return '';
+  }
+  }
+
+  function renderContent(item, masterKey) {
+  const master = window.WHM_CONTENTS[masterKey];
+  // tab 속성이 있으면 기존 탭 화면으로 위임
+  if (item.tab) {
+  const tabBtn = document.querySelector(`.tab-btn[data-tab="${item.tab}"]`);
+  if (tabBtn) { tabBtn.click(); }
+  setMode(null); // 탭 콘텐츠가 표시되도록 menu/content 모드 모두 해제
+  return;
+  }
+  // body에 캐릭터 클래스 유지
+  ['saju','dream','hwapae','star','face','palm','name'].forEach(k => document.body.classList.remove(`char-${k}`));
+  document.body.classList.add(`char-${master.charKey}`);
+  // 추천 (이 도사의 다른 메뉴 3개 — 현재 항목 제외)
+  const recItems = (master.items || []).filter(x => x.key !== item.key).slice(0, 3);
+  const fieldsHtml = (item.fields || []).map(fieldHtml).join('');
+  const isPremium = item.tier === 'premium';
+
+  contentBody.innerHTML = `
+  <article class="content-card">
+  <button class="content-back" type="button" id="contentBackBtn">← ${master.master} 메뉴로</button>
+  <div class="content-glyph">${item.glyph || ''}</div>
+  <h2 class="content-title">${item.name}</h2>
+  <p class="content-master-quote">${item.quote || ''}</p>
+
+  ${fieldsHtml ? `<div class="content-section">
+  <div class="content-section-title">― 입력 ―</div>
+  <div class="content-form">${fieldsHtml}</div>
+  </div>` : ''}
+
+  ${item.sample ? `<div class="content-section">
+  <div class="content-section-title">― 풀이 미리보기 ―</div>
+  ${item.sample.split('\n\n').map(p => `<p>${escapeHtml(p)}</p>`).join('')}
+  </div>` : ''}
+
+  <div class="content-cta-wrap">
+  <button class="content-cta" type="button" id="contentCtaBtn">${item.cta || '풀이 받기'}</button>
+  <div class="content-cta-hint">
+  ${isPremium ? '<span class="premium-mark">💎 프리미엄 콘텐츠</span> — 결제 후 정식 풀이가 펼쳐집니다.' : '백엔드 연결 후 정식 풀이가 펼쳐집니다.'}
+  </div>
+  </div>
+
+  ${recItems.length ? `<div class="content-recommend">
+  <h3 class="content-recommend-title">${master.master}의 다른 풀이</h3>
+  <div class="content-recommend-grid">
+  ${recItems.map(r => `
+  <button class="content-recommend-card" type="button" data-recommend-key="${r.key}">
+  <div class="content-recommend-glyph">${r.glyph || ''}</div>
+  <div class="content-recommend-name">${r.name}</div>
+  </button>`).join('')}
+  </div>
+  </div>` : ''}
+  </article>
+  `;
+
+  setMode('content');
+  // ymd 셀렉트들 채우기 (populateYmdSelects 모듈이 [data-ymd]에 자동 주입)
+  if (window.requestAnimationFrame) {
+  requestAnimationFrame(() => {
+  contentBody.querySelectorAll('select[data-ymd]').forEach(sel => {
+  // populateYmdSelects 와 동일 로직 재사용 — 빈 셀렉트만 채움
+  if (sel.options.length === 0) {
+  const kind = sel.dataset.ymd;
+  const CURRENT_YEAR = new Date().getFullYear();
+  let s, e;
+  if (kind === 'year')  { s = CURRENT_YEAR; e = 1920; }
+  else if (kind === 'month') { s = 1; e = 12; }
+  else if (kind === 'day') { s = 1; e = 31; }
+  else return;
+  const step = s <= e ? 1 : -1;
+  const def = { year: 1990, month: 5, day: 15 }[kind];
+  for (let v = s; step > 0 ? v <= e : v >= e; v += step) {
+  const opt = document.createElement('option');
+  opt.value = String(v);
+  opt.textContent = String(v);
+  if (v === def) opt.selected = true;
+  sel.appendChild(opt);
+  }
+  }
+  });
+  });
+  }
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // 외부 노출 — 카드 갤러리에서 호출
+  window.__menuOpen = (masterKey) => {
+  renderMenu(masterKey);
+  setMode('menu');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+  window.__contentOpen = (masterKey, contentKey) => {
+  const data = window.WHM_CONTENTS[masterKey];
+  if (!data) return;
+  const item = (data.items || []).find(x => x.key === contentKey);
+  if (!item) return;
+  renderContent(item, masterKey);
+  };
+
+  // 메뉴 그리드 클릭 → 콘텐츠 진입
+  menuGrid.addEventListener('click', (e) => {
+  const btn = e.target.closest('.menu-card[data-content-key]');
+  if (!btn) return;
+  const key = btn.dataset.contentKey;
+  if (currentMaster) window.__contentOpen(currentMaster, key);
+  });
+
+  // 콘텐츠 뷰: 뒤로가기 + 추천 카드 클릭
+  contentBody.addEventListener('click', (e) => {
+  if (e.target.closest('#contentBackBtn')) {
+  if (currentMaster) window.__menuOpen(currentMaster);
+  return;
+  }
+  const rec = e.target.closest('.content-recommend-card[data-recommend-key]');
+  if (rec && currentMaster) {
+  window.__contentOpen(currentMaster, rec.dataset.recommendKey);
+  return;
+  }
+  });
 })();
 
 // 화패 (花牌) 풀이 — 78장 정통 타로 + 한국 사극·신화 모티프
