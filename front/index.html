@@ -3270,6 +3270,58 @@
   }
   .content-form .row-group > * { flex: 1; min-width: 80px; }
 
+  /* 콘텐츠 폼 — 이름 input 옆 한자 셀렉터 */
+  .content-hanja { margin-top: 10px; }
+  .content-hanja-hint {
+  display: block;
+  font-size: 12px;
+  color: var(--text-dim);
+  letter-spacing: 0.5px;
+  }
+  .content-hanja-title {
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 13px;
+  letter-spacing: 2px;
+  color: var(--gold);
+  margin-bottom: 8px;
+  }
+  .content-hanja-title span { color: var(--text-dim); font-size: 11px; letter-spacing: 1px; margin-left: 4px; }
+  .content-hanja-cells {
+  display: flex; gap: 10px; flex-wrap: wrap;
+  }
+  .content-hanja-cell {
+  flex: 1; min-width: 130px;
+  display: flex; flex-direction: column; gap: 4px;
+  padding: 8px 10px;
+  background: rgba(0,0,0,0.30);
+  border: 1px solid var(--gold-dp);
+  border-radius: 3px;
+  }
+  .content-hanja-han {
+  text-align: center;
+  font-family: 'Nanum Myeongjo', serif;
+  color: var(--gold-bri);
+  }
+  .content-hanja-han b { font-size: 22px; letter-spacing: 2px; }
+  .content-hanja-han small { display: block; font-size: 10px; color: var(--text-dim); letter-spacing: 1px; }
+  .content-hanja-select {
+  width: 100%;
+  padding: 7px 8px;
+  background: rgba(0,0,0,0.40);
+  border: 1px solid var(--gold-dp);
+  border-radius: 3px;
+  color: var(--text-main);
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 13px;
+  }
+  .content-hanja-select:focus { outline: none; border-color: var(--gold); }
+  /* 취선루 톤 분기 */
+  .chwiseon-content .content-hanja-title { color: var(--cs-gold-bri); }
+  .chwiseon-content .content-hanja-cell { border-color: var(--cs-gold-dp); background: rgba(0,0,0,0.40); }
+  .chwiseon-content .content-hanja-han { color: var(--cs-gold-bri); }
+  .chwiseon-content .content-hanja-select { background: rgba(0,0,0,0.50); border-color: var(--cs-gold-dp); color: var(--cs-ivory); }
+  .chwiseon-content .content-hanja-select:focus { border-color: var(--cs-gold-bri); }
+
   .content-cta-wrap { text-align: center; margin-top: 24px; }
   .content-cta {
   padding: 13px 36px;
@@ -11629,6 +11681,54 @@ window.CHWISEON_CONTENTS = {
   return String(s || '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[c]);
   }
 
+  // 이름 input 옆 한자 셀렉터 자동 렌더 (사주 정통 풀이의 updateHanjaSelectors 와 동일 로직 미니버전)
+  function renderHanjaForInput(input, slot) {
+  const name = (input.value || '').trim();
+  if (!name) {
+  slot.innerHTML = '<span class="content-hanja-hint">이름을 적으면 글자마다 쓸 수 있는 한자가 나옵니다 (모르면 그냥 두셔도 됩니다)</span>';
+  return;
+  }
+  const splitFn = window.SAJU?.splitName;
+  const map = window.SAJU?.한글음_한자;
+  const strokes = window.SAJU?.한자획수;
+  const meanings = window.SAJU?.한자_뜻;
+  if (!splitFn || !map || !strokes || !meanings) {
+  slot.innerHTML = '<span class="content-hanja-hint">한자 데이터 로딩 중…</span>';
+  return;
+  }
+  const { surname, givenName } = splitFn(name);
+  const surnameChars = Array.from(surname || '');
+  const nameChars = Array.from(givenName || '');
+  const allChars = [...surnameChars, ...nameChars];
+  // 기존 선택 보존
+  const previous = {};
+  slot.querySelectorAll('.content-hanja-select').forEach(sel => {
+  if (sel.value) previous[sel.dataset.char + ':' + sel.dataset.idx] = sel.value;
+  });
+  let html = '<div class="content-hanja-title">한자 고르기 <span>(모르면 그냥 두세요)</span></div><div class="content-hanja-cells">';
+  for (let i = 0; i < allChars.length; i++) {
+  const ch = allChars[i];
+  const isSurname = i < surnameChars.length;
+  const candidates = (map[ch] || []).filter(h => strokes[h] && meanings[h]);
+  const key = ch + ':' + i;
+  const prevSel = previous[key] || '';
+  const opts = ['<option value="">— 한자 안 씀 —</option>'].concat(
+  candidates.map(h => {
+  const stroke = strokes[h];
+  const meaning = meanings[h] || '';
+  const selected = (h === prevSel) ? ' selected' : '';
+  return `<option value="${h}"${selected}>${h} ${meaning} (${stroke}획)</option>`;
+  })
+  ).join('');
+  html += `<span class="content-hanja-cell">
+  <div class="content-hanja-han"><b>${ch}</b><small>${isSurname ? '성' : '이름'}</small></div>
+  <select class="content-hanja-select" data-char="${ch}" data-idx="${i}">${opts}</select>
+  </span>`;
+  }
+  html += '</div>';
+  slot.innerHTML = html;
+  }
+
   function fieldHtml(field) {
   const id = `cf_${field.key}`;
   const sess = (window.WHM && window.WHM.load) ? window.WHM.load() : null;
@@ -11636,9 +11736,14 @@ window.CHWISEON_CONTENTS = {
   let prefill = '';
   if (field.share === 'name' && sess?.profile?.name) prefill = sess.profile.name;
   switch (field.type) {
-  case 'text':
+  case 'text': {
+  // share === 'name' 이면 한자 셀렉터 자리도 함께 둠 (renderContent 후 채워짐)
+  const hanjaSlot = field.share === 'name'
+  ? `<div id="${id}_hanja" class="content-hanja" data-hanja-for="${id}"></div>`
+  : '';
   return `<div class="row"><label for="${id}">${field.label}</label>
-  <input id="${id}" type="text" placeholder="${field.placeholder || ''}" value="${escapeHtml(prefill)}"></div>`;
+  <input id="${id}" type="text" placeholder="${field.placeholder || ''}" value="${escapeHtml(prefill)}"${field.share === 'name' ? ' data-name-input="1"' : ''}>${hanjaSlot}</div>`;
+  }
   case 'textarea':
   return `<div class="row"><label for="${id}">${field.label}</label>
   <textarea id="${id}" rows="${field.rows || 3}" placeholder="${field.placeholder || ''}"></textarea></div>`;
@@ -11769,6 +11874,20 @@ window.CHWISEON_CONTENTS = {
   sel.appendChild(opt);
   }
   }
+  });
+  // 이름 입력(공유) 옆 한자 셀렉터 자동 생성·바인딩
+  contentBody.querySelectorAll('input[data-name-input="1"]').forEach(input => {
+  const slotId = input.id + '_hanja';
+  const slot = document.getElementById(slotId);
+  if (!slot) return;
+  const refresh = () => renderHanjaForInput(input, slot);
+  // 중복 바인딩 방지
+  if (!input.dataset.hanjaBound) {
+  input.addEventListener('input', refresh);
+  input.dataset.hanjaBound = '1';
+  }
+  // 초기 1회 (prefill 된 이름이 있으면 바로 렌더)
+  refresh();
   });
   });
   }
