@@ -1851,7 +1851,53 @@ class PersonalityAPIServer:
 
         deterministic_block = ""
 
-        # saju 도메인 결정론 직결 (ADR-069 핵심)
+        # ─── name 도메인 결정론 직결 (ADR-070, 묵향 선생) ───
+        if char_key == "name":
+            full_name = (fields.get("fullName") or fields.get("currentName") or "").strip()
+            hanja = (fields.get("hanja") or "").strip()
+            if full_name or hanja:
+                try:
+                    from engine.divination.name.baleum import evaluate_baleum
+                    from engine.divination.name.scoring import score_name
+
+                    blocks: list[str] = ["[이름 결정론 — engine/divination/name 출력]"]
+
+                    if full_name:
+                        try:
+                            baleum_report = evaluate_baleum(full_name, include_jongsung=False)
+                            blocks.append(
+                                f"  · 발음 분석 (한글): {full_name}\n"
+                                f"  · 음 조화 점수: {getattr(baleum_report, 'score', 0):.2f}\n"
+                                f"  · 음 결합 결정론: 본 시스템 ADR-028 Priority 1·2 검증"
+                            )
+                        except Exception:
+                            blocks.append(f"  · 한글 이름: {full_name} (발음 분석 미산출)")
+
+                    if hanja:
+                        try:
+                            name_score = score_name(hanja)
+                            if name_score:
+                                strokes = name_score.get("strokes", {})
+                                four = name_score.get("four_gyeok", {})
+                                bulyong = name_score.get("bulyong", {})
+                                blocks.append(
+                                    f"  · 한자 표기: {hanja}\n"
+                                    f"  · 획수 (강희자전): {strokes.get('kangxi', [])}\n"
+                                    f"  · 4격 (원·형·이·정): {four.get('won','')}·{four.get('hyeong','')}·{four.get('i','')}·{four.get('jeong','')}\n"
+                                    f"  · 4격 길흉: {'모두 길격' if four.get('all_good') else '일부 흉격 또는 부분 길격'}\n"
+                                    f"  · 불용한자 여부: {'있음' if bulyong.get('has_bulyong') else '없음'}"
+                                )
+                        except Exception:
+                            blocks.append(f"  · 한자: {hanja} (4격·획수 산출 실패)")
+
+                    blocks.append(
+                        "[지시] 위 결정론 출력만 인용. 한자·획수·4격·발음 사전학습 추가 X — ADR-010."
+                    )
+                    deterministic_block = "\n" + "\n".join(blocks) + "\n"
+                except Exception:
+                    deterministic_block = "\n[이름 결정론 — 산출 실패, 일반 흐름 톤으로 작성]\n"
+
+        # ─── saju 도메인 결정론 직결 (ADR-069 핵심) ───
         if char_key == "saju" and content_key in ("today", "tomorrow"):
             birth_str = fields.get("birth", "").strip()
             if birth_str:
