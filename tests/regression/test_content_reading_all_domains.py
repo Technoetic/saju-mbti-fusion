@@ -110,13 +110,14 @@ def test_dream_branch_exists():
 
 
 def test_dream_block_includes_schools():
-    """dream 블록에 30+ 학파 메타 (서양·동양 분리)."""
+    """dream 블록에 12+ 도메인 학파 메타 (ADR-080 analyze_dream 풀 호출 결과)."""
     src = _src()
-    assert "Freud" in src
-    assert "Jung" in src
-    assert "Hobson AIM" in src
-    assert "Ibn Sirin" in src
-    assert "한방" in src or "한국 민속" in src
+    # ADR-080 통합 후 analyze_dream 12+ 도메인 결과 인용 (학파 메타 → 결정론 결과)
+    assert "Artemidorus" in src
+    assert "Jung 원형" in src
+    assert "Hobson 기이도" in src
+    assert "한국 민속" in src or "korean_folk" in src
+    assert "주역 64괘" in src
 
 
 def test_dream_states_multi_school_obligation():
