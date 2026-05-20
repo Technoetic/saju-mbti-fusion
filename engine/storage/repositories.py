@@ -4,11 +4,15 @@
 """
 
 from __future__ import annotations
+import hashlib
+import hmac
 import json
+import os
+import re
 from datetime import datetime, timezone, timedelta
 from typing import Any
 
-from engine.storage.db import get_connection, new_id
+from engine.storage.db import get_connection, new_id, new_user_id
 
 
 _KST = timezone(timedelta(hours=9))
@@ -108,6 +112,159 @@ class UserRepo:
             # FK CASCADE로 모든 관련 데이터 자동 삭제
             cur = conn.execute("DELETE FROM users WHERE user_id = ?", (user_id,))
             return {"deleted": cur.rowcount > 0, "user_id": user_id}
+
+
+# ─────────────────────────── AccountRepo ───────────────────────────
+_EMAIL_RE = re.compile(r"^[^\s@]+@[^\s@]+\.[^\s@]+$")
+
+
+def _hash_password(password: str) -> str:
+    """scrypt 기반 비밀번호 해시. format: scrypt$N$r$p$salt_hex$hash_hex."""
+    salt = os.urandom(16)
+    n, r, p = 2 ** 14, 8, 1
+    h = hashlib.scrypt(password.encode("utf-8"), salt=salt, n=n, r=r, p=p, dklen=32)
+    return f"scrypt${n}${r}${p}${salt.hex()}${h.hex()}"
+
+
+def _verify_password(password: str, stored: str) -> bool:
+    try:
+        algo, n_s, r_s, p_s, salt_hex, hash_hex = stored.split("$")
+        if algo != "scrypt":
+            return False
+        n, r, p = int(n_s), int(r_s), int(p_s)
+        salt = bytes.fromhex(salt_hex)
+        expected = bytes.fromhex(hash_hex)
+        candidate = hashlib.scrypt(
+            password.encode("utf-8"), salt=salt, n=n, r=r, p=p, dklen=len(expected)
+        )
+        return hmac.compare_digest(candidate, expected)
+    except (ValueError, AttributeError):
+        return False
+
+
+class AccountError(Exception):
+    """회원가입/로그인 사용자 오류."""
+
+    def __init__(self, code: str, message: str):
+        super().__init__(message)
+        self.code = code
+        self.message = message
+
+
+class AccountRepo:
+    """이메일/비밀번호 기반 회원 계정 + 사주 프리필 정보."""
+
+    _ALLOWED_PROFILE = {
+        "name_ko",
+        "birth_year",
+        "birth_month",
+        "birth_day",
+        "birth_hour_branch",
+        "birthplace",
+        "is_lunar",
+        "gender",
+        "mbti",
+        "nickname",
+    }
+
+    @staticmethod
+    def signup(
+        email: str,
+        password: str,
+        nickname: str | None = None,
+        **profile: Any,
+    ) -> dict[str, Any]:
+        """이메일·비번 검증 → users + account_emails 동시 생성. 가입한 user_id 반환."""
+        email = (email or "").strip().lower()
+        if not _EMAIL_RE.match(email):
+            raise AccountError("invalid_email", "올바른 이메일 형식이 아닙니다.")
+        if not password or len(password) < 8:
+            raise AccountError("weak_password", "비밀번호는 8자 이상이어야 합니다.")
+
+        now = _now_iso()
+        uid = new_user_id()
+        pw_hash = _hash_password(password)
+
+        # 프로필에서 users 테이블에 들어갈 컬럼 추출
+        gender = profile.get("gender")
+        mbti = profile.get("mbti")
+        is_lunar_int = 1 if profile.get("is_lunar") in (True, "true", 1, "1") else 0
+
+        with get_connection() as conn:
+            # 이메일 중복 검사
+            dup = conn.execute(
+                "SELECT user_id FROM account_emails WHERE email = ?", (email,)
+            ).fetchone()
+            if dup:
+                raise AccountError("email_taken", "이미 가입된 이메일입니다.")
+
+            # users 테이블에 빈 사용자 생성
+            conn.execute(
+                """INSERT INTO users
+                    (user_id, created_at_iso, last_seen_iso, gender, mbti,
+                     consent_sensitive, consent_at_iso)
+                   VALUES (?, ?, ?, ?, ?, 0, NULL)""",
+                (uid, now, now, gender, mbti),
+            )
+            conn.execute(
+                """INSERT INTO account_emails
+                    (user_id, email, password_hash, nickname,
+                     name_ko, birth_year, birth_month, birth_day,
+                     birth_hour_branch, birthplace, is_lunar, created_at_iso)
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                (
+                    uid, email, pw_hash, (nickname or "").strip() or None,
+                    profile.get("name_ko"),
+                    profile.get("birth_year"),
+                    profile.get("birth_month"),
+                    profile.get("birth_day"),
+                    profile.get("birth_hour_branch"),
+                    profile.get("birthplace"),
+                    is_lunar_int,
+                    now,
+                ),
+            )
+        return AccountRepo.get_account(uid)
+
+    @staticmethod
+    def login(email: str, password: str) -> dict[str, Any]:
+        """이메일·비번 검증 → 계정 정보 반환."""
+        email = (email or "").strip().lower()
+        if not email or not password:
+            raise AccountError("missing_credentials", "이메일과 비밀번호를 입력해주세요.")
+        with get_connection() as conn:
+            row = conn.execute(
+                "SELECT * FROM account_emails WHERE email = ?", (email,)
+            ).fetchone()
+        if not row or not _verify_password(password, row["password_hash"]):
+            raise AccountError("invalid_credentials", "이메일 또는 비밀번호가 올바르지 않습니다.")
+        # last_seen 갱신
+        with get_connection() as conn:
+            conn.execute(
+                "UPDATE users SET last_seen_iso = ? WHERE user_id = ?",
+                (_now_iso(), row["user_id"]),
+            )
+        return AccountRepo.get_account(row["user_id"])
+
+    @staticmethod
+    def get_account(user_id: str) -> dict[str, Any]:
+        """계정 + 사주 프리필 정보 반환 (비밀번호 해시 제외)."""
+        with get_connection() as conn:
+            row = conn.execute(
+                "SELECT * FROM account_emails WHERE user_id = ?", (user_id,)
+            ).fetchone()
+            if not row:
+                return {}
+            user = conn.execute(
+                "SELECT gender, mbti FROM users WHERE user_id = ?", (user_id,)
+            ).fetchone()
+        out = dict(row)
+        out.pop("password_hash", None)
+        if user:
+            out["gender"] = out.get("gender") or user["gender"]
+            out["mbti"] = out.get("mbti") or user["mbti"]
+        out["is_lunar"] = bool(out.get("is_lunar"))
+        return out
 
 
 # ─────────────────────────── DreamDiaryRepo ───────────────────────────
