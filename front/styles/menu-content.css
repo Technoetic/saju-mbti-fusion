@@ -455,6 +455,41 @@
   font-weight: 700;
   letter-spacing: 1.5px;
   }
+  /* free 콘텐츠 LLM 풀이 결과 — ADR-067 백엔드 연결 */
+  .content-result {
+  margin-top: 24px;
+  padding: 22px 24px;
+  background: rgba(20,15,30,0.45);
+  border: 1px solid rgba(212,175,55,0.30);
+  border-radius: 4px;
+  text-align: left;
+  }
+  .content-result p {
+  font-family: 'Nanum Myeongjo', serif;
+  line-height: 1.7;
+  color: var(--text);
+  margin: 0 0 14px;
+  }
+  .content-result-loading {
+  text-align: center;
+  font-size: 24px;
+  letter-spacing: 8px;
+  color: var(--gold-bri);
+  opacity: 0.6;
+  animation: dots-pulse 1.4s ease-in-out infinite;
+  }
+  @keyframes dots-pulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.9; }
+  }
+  .content-result-error {
+  color: #d97759;
+  font-size: 14px;
+  }
+  .content-result-footer {
+  border-top: 1px dashed rgba(212,175,55,0.20);
+  padding-top: 10px;
+  }
 
   .content-recommend {
   margin-top: 32px;
