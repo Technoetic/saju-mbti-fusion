@@ -26,6 +26,7 @@
 <script type="module" src="js/readers/dream-reader.js"></script>
 <script type="module" src="js/readers/hwapae-reader.js"></script>
 <script type="module" src="js/ui/auth.js"></script>
+<script type="module" src="js/ui/bottom-tabs.js"></script>
 </head>
 <body>
 <video class="bg-video" autoplay muted loop playsinline preload="auto" aria-hidden="true">
@@ -529,7 +530,6 @@
   <div class="gallery-dots" id="chwiseonDots" role="tablist" aria-label="취선루 점술가 인디케이터"></div>
   <button class="gallery-arrow gallery-arrow-next" type="button" data-chwiseon-next>›</button>
   </div>
-  <p class="gallery-hint">← 옆으로 넘기면 다른 점술가가 나옵니다 →</p>
   </section>
 
   <!-- 취선루 메뉴 그리드 -->
@@ -658,7 +658,6 @@
   <div class="gallery-dots" id="galleryDots" role="tablist" aria-label="점술가 인디케이터"></div>
   <button class="gallery-arrow gallery-arrow-next" aria-label="다음 점술가" type="button">›</button>
   </div>
-  <p class="gallery-hint">← 옆으로 넘기면 다른 점술가가 나옵니다 →</p>
 </section>
 
 <!-- 도사별 메뉴 그리드 — 카드 클릭 후 진입 (콘텐츠 7~12개) -->
@@ -1940,6 +1939,110 @@
 <script type="module" src="js/readers/tools.js"></script>
 <script type="module" src="js/ui/init.js"></script>
 </div><!-- /app-container -->
+
+<!-- ════════════════════════════════════════════════════════
+  탭 화면 — 일지·놀이·친구·프로필 (홈 탭은 기존 카드 갤러리)
+  body.tab-{key} 클래스로 화면 전환
+  ════════════════════════════════════════════════════════ -->
+<section id="tabView" class="tab-view" aria-label="탭 화면" style="display:none">
+  <!-- 일지 -->
+  <div class="tab-pane" data-tab-pane="journal">
+    <header class="tab-header">
+      <h2 class="tab-title">일 지</h2>
+      <p class="tab-subtitle">日 誌 · 봤던 사주 모아둔 곳</p>
+    </header>
+    <div class="tab-empty">
+      <div class="tab-empty-glyph">日</div>
+      <p class="tab-empty-text">아직 본 풀이가 없습니다.</p>
+      <p class="tab-empty-hint">홈에서 풀이를 보시면 이곳에 차곡차곡 쌓입니다.</p>
+    </div>
+  </div>
+
+  <!-- 놀이 -->
+  <div class="tab-pane" data-tab-pane="play">
+    <header class="tab-header">
+      <h2 class="tab-title">놀 이</h2>
+      <p class="tab-subtitle">遊 · 심리테스트 · 프로파일링 · 무서운 이야기</p>
+    </header>
+    <div class="tab-empty">
+      <div class="tab-empty-glyph">遊</div>
+      <p class="tab-empty-text">준비 중입니다.</p>
+      <p class="tab-empty-hint">곧 다양한 콘텐츠를 만나실 수 있습니다.</p>
+    </div>
+  </div>
+
+  <!-- 친구 -->
+  <div class="tab-pane" data-tab-pane="friends">
+    <header class="tab-header">
+      <h2 class="tab-title">친 구</h2>
+      <p class="tab-subtitle">緣 · 함께 풀이를 나눌 벗</p>
+    </header>
+    <div class="tab-empty">
+      <div class="tab-empty-glyph">緣</div>
+      <p class="tab-empty-text">준비 중입니다.</p>
+      <p class="tab-empty-hint">친구를 초대하고 궁합도 함께 풀어보세요.</p>
+    </div>
+  </div>
+
+  <!-- 프로필 -->
+  <div class="tab-pane" data-tab-pane="profile">
+    <header class="tab-header">
+      <h2 class="tab-title">프로필</h2>
+      <p class="tab-subtitle">我 · 내 정보</p>
+    </header>
+    <div id="profileEmpty" class="tab-empty">
+      <div class="tab-empty-glyph">我</div>
+      <p class="tab-empty-text">로그인하시면 사주 정보가 자동으로 채워집니다.</p>
+      <button type="button" id="profileLoginBtn" class="tab-cta">로그인 / 회원가입</button>
+    </div>
+    <div id="profileCard" class="tab-profile" style="display:none">
+      <div class="tab-profile-row"><span class="tab-profile-key">닉네임</span><span id="profileNickname" class="tab-profile-val">—</span></div>
+      <div class="tab-profile-row"><span class="tab-profile-key">이메일</span><span id="profileEmail" class="tab-profile-val">—</span></div>
+      <div class="tab-profile-row"><span class="tab-profile-key">이름</span><span id="profileNameKo" class="tab-profile-val">—</span></div>
+      <div class="tab-profile-row"><span class="tab-profile-key">생년월일</span><span id="profileBirth" class="tab-profile-val">—</span></div>
+      <div class="tab-profile-row"><span class="tab-profile-key">시각</span><span id="profileHour" class="tab-profile-val">—</span></div>
+      <div class="tab-profile-row"><span class="tab-profile-key">출생지</span><span id="profileBirthplace" class="tab-profile-val">—</span></div>
+      <div class="tab-profile-row"><span class="tab-profile-key">MBTI</span><span id="profileMbti" class="tab-profile-val">—</span></div>
+      <button type="button" id="profileLogoutBtn" class="tab-cta tab-cta-quiet">로그아웃</button>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════
+  하단 탭 바 — 모바일 앱 스타일
+  ════════════════════════════════════════════════════════ -->
+<nav id="bottomTabBar" class="bottom-tabs" role="tablist" aria-label="하단 메뉴">
+  <button type="button" class="bottom-tab active" role="tab" data-tab="home" aria-selected="true">
+    <span class="bt-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 11l9-7 9 7v9a1 1 0 01-1 1h-5v-7H10v7H5a1 1 0 01-1-1v-9z"/></svg>
+    </span>
+    <span class="bt-label">홈</span>
+  </button>
+  <button type="button" class="bottom-tab" role="tab" data-tab="journal" aria-selected="false">
+    <span class="bt-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M5 4h11a2 2 0 012 2v14l-7-3-7 3V6a2 2 0 012-2z"/></svg>
+    </span>
+    <span class="bt-label">일지</span>
+  </button>
+  <button type="button" class="bottom-tab" role="tab" data-tab="play" aria-selected="false">
+    <span class="bt-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.5" fill="currentColor"/><path d="M12 3v4M12 17v4M3 12h4M17 12h4"/></svg>
+    </span>
+    <span class="bt-label">놀이</span>
+  </button>
+  <button type="button" class="bottom-tab" role="tab" data-tab="friends" aria-selected="false">
+    <span class="bt-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="9" cy="8" r="3.2"/><circle cx="17" cy="9.5" r="2.6"/><path d="M2.5 19c.6-3 3.4-4.8 6.5-4.8s5.9 1.8 6.5 4.8M15 14c2.4 0 4.4 1.3 5 3.5"/></svg>
+    </span>
+    <span class="bt-label">친구</span>
+  </button>
+  <button type="button" class="bottom-tab" role="tab" data-tab="profile" aria-selected="false">
+    <span class="bt-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="8" r="4"/><path d="M4 20c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>
+    </span>
+    <span class="bt-label">프로필</span>
+  </button>
+</nav>
 
 <!-- 주소 검색 모달 (Daum Postcode embed) -->
 <div id="postcodeModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.78);z-index:1500;align-items:center;justify-content:center;">

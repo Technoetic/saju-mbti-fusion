@@ -143,17 +143,21 @@
 }
 
 /* ── 취선루 문 (사용자 결정: 모바일·PC 모두 화면 우하단 유지) ── */
+/* 하단 탭 바(~64px) 위로 올라오도록 bottom 보정 */
+.chwiseon-gate {
+  bottom: calc(80px + env(safe-area-inset-bottom, 0px)) !important;
+}
 @media (min-width: 481px) {
   .chwiseon-gate {
-    /* 폰 프레임 우측 바깥 + 살짝 아래 — 빈 공간에 자연스럽게 떠있게 */
-    right: calc(50% - (var(--mobile-width) / 2) - 88px);
-    bottom: 32px;
+    /* 폰 프레임 우측 바깥 + 탭 바 위 */
+    right: calc(50% - (var(--mobile-width) / 2) - 88px) !important;
+    bottom: 92px !important;
   }
 }
 @media (min-width: 481px) and (max-width: 700px) {
   .chwiseon-gate {
-    right: 16px;
-    bottom: 16px;
+    right: 16px !important;
+    bottom: 92px !important;
   }
 }
 
