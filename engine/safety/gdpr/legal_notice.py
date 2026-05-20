@@ -41,6 +41,16 @@ AI_GENERATED_LABEL_KO = (
 )
 
 
+# ─────────────────────────── EU AI Act §52 — AI 리터러시 면책 (ADR-059) ───────────────────────────
+# 사용자에게 AI 시스템의 한계·정확도 미보증·오작동 가능성을 명시적으로 고지하여
+# §52 (AI literacy) 의무 충족. 운세 도메인 특수성 (참고용·재미용) 강조.
+AI_LITERACY_DISCLAIMER_KO = (
+    "본 AI 시스템은 사주·관상·작명·해몽·손금 풀이에 통계·결정론·LLM 추론을 결합합니다. "
+    "정확도를 보증하지 않으며, 오작동·편향·예상치 못한 결과가 발생할 수 있습니다. "
+    "본 풀이는 참고용이며 의료·법률·금융·진로 의사결정의 단독 근거가 될 수 없습니다."
+)
+
+
 # ─────────────────────────── 통합 푸터 ───────────────────────────
 LEGAL_NOTICE_FOOTER_KO = (
     "\n\n— — —\n"
@@ -48,6 +58,7 @@ LEGAL_NOTICE_FOOTER_KO = (
     f"• {MEDICAL_DISCLAIMER_KO}\n"
     f"• {FORTUNE_DISCLAIMER_KO}\n"
     f"• {AI_GENERATED_LABEL_KO}\n"
+    f"• {AI_LITERACY_DISCLAIMER_KO}\n"
     "• 위기 상황 시: 자살예방상담전화 1393 · 정신건강위기상담 1577-0199 (24시간 무료)"
 )
 
@@ -118,6 +129,7 @@ __all__ = [
     "FORTUNE_DISCLAIMER_KO",
     "DATA_NOTICE_KO",
     "AI_GENERATED_LABEL_KO",
+    "AI_LITERACY_DISCLAIMER_KO",
     "LEGAL_NOTICE_FOOTER_KO",
     "CRISIS_FOOTER_KO",
     "build_legal_footer",
