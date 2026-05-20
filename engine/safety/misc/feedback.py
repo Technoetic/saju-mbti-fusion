@@ -39,7 +39,7 @@ from typing import Any
 
 # 저장 위치 — 캐시와 같은 디렉토리지만 별도 파일
 _FEEDBACK_FILE = (
-    Path(__file__).resolve().parent.parent.parent
+    Path(__file__).resolve().parent.parent.parent.parent
     / "step_archive"
     / "face_reading_cache"
     / "_feedback_counts.json"

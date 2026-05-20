@@ -91,7 +91,7 @@ def _check_safety_imports() -> dict[str, Any]:
 def _check_cache_dir(cache_dir: Path | None = None) -> dict[str, Any]:
     """캐시 디렉터리 상태 — 존재, 파일 수, 가장 오래된/최신 파일 epoch."""
     if cache_dir is None:
-        cache_dir = Path(__file__).resolve().parent.parent.parent / "step_archive" / "face_reading_cache"
+        cache_dir = Path(__file__).resolve().parent.parent.parent.parent / "step_archive" / "face_reading_cache"
     if not cache_dir.exists():
         return {"exists": False, "file_count": 0, "ok": False}
     files = [p for p in cache_dir.iterdir() if p.is_file()]

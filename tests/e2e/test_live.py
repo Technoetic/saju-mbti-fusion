@@ -9,7 +9,7 @@ import urllib.request
 
 import pytest
 
-LIVE_URL = "https://saju-mbti-fusion-production.up.railway.app"
+LIVE_URL = "https://saju-mbti-fusion.fly.dev"  # ADR-056 Fly.io 마이그레이션
 TIMEOUT = 30
 
 

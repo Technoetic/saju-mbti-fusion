@@ -28,7 +28,7 @@ _FATE_VOCAB_PATTERNS: list[re.Pattern[str]] = [
 
 # ─── 샘플 저장 디렉토리 ────────────────────────────────────────────────────────
 _SAMPLE_DIR = (
-    Path(__file__).resolve().parent.parent.parent
+    Path(__file__).resolve().parent.parent.parent.parent
     / "step_archive"
     / "llm_output_samples"
 )
