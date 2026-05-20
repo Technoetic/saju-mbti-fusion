@@ -1872,17 +1872,27 @@ class PersonalityAPIServer:
                     user_day_pillar = day_pillar(birth_dt.year, birth_dt.month, birth_dt.day)
                     today_pillar_data = day_pillar(today_dt.year, today_dt.month, today_dt.day)
 
-                    pillars_for_tengods = {
-                        "year_pillar": user_day_pillar,
-                        "month_pillar": user_day_pillar,
-                        "day_pillar": user_day_pillar,
-                        "hour_pillar": today_pillar_data,
-                    }
+                    # ADR-072: compute_ten_gods는 {"day":"甲子","hour":"丁卯"} 문자열 형식 받음
+                    # 사용자 일간 ↔ 오늘 천간·지지 십성 산출
+                    user_gz = f"{user_day_pillar.get('gan_han','')}{user_day_pillar.get('ji_han','')}"
+                    today_gz = f"{today_pillar_data.get('gan_han','')}{today_pillar_data.get('ji_han','')}"
+                    today_tengod_gan = ""
+                    today_tengod_ji = ""
                     try:
-                        ten_gods_data = compute_ten_gods(pillars_for_tengods)
-                        today_tengod = ten_gods_data.get("hour_gan", "")
+                        if len(user_gz) >= 2 and len(today_gz) >= 2:
+                            ten_gods_data = compute_ten_gods({
+                                "year": user_gz, "month": user_gz, "day": user_gz, "hour": today_gz,
+                            })
+                            today_tengod_gan = ten_gods_data.get("hour_gan", "")
+                            today_tengod_ji = ten_gods_data.get("hour_ji", "")
                     except Exception:
-                        today_tengod = ""
+                        pass
+
+                    tengod_label = (
+                        f"천간 {today_tengod_gan}·지지 {today_tengod_ji}"
+                        if today_tengod_gan or today_tengod_ji
+                        else "(미산출)"
+                    )
 
                     deterministic_blocks.append(
                         f"[사주 결정론 — engine/saju 출력]\n"
@@ -1891,7 +1901,7 @@ class PersonalityAPIServer:
                         f"  · 사용자 일간(日干, 본명 중심): {user_day_pillar.get('gan','')}\n"
                         f"  · 오늘 일진(今日 日辰): {today_pillar_data.get('gan','')}{today_pillar_data.get('ji','')} "
                         f"({today_pillar_data.get('gan_han','')}{today_pillar_data.get('ji_han','')})\n"
-                        f"  · 일간↔오늘 천간 십성 관계: {today_tengod or '(미산출)'}"
+                        f"  · 일간↔오늘 십성: {tengod_label}"
                     )
                 except (ValueError, ImportError, Exception):
                     deterministic_blocks.append("[사주 결정론 — 산출 실패]")
@@ -1912,10 +1922,17 @@ class PersonalityAPIServer:
 
                 if full_name:
                     try:
+                        # ADR-072: BaleumReport 실 필드 = syllables·ohaeng_sequence·relations·grade·reason
+                        # 이전 ADR-070 'score' 가짜 속성 fallback 0.00 LLM 주입 결손 정정
                         baleum_report = evaluate_baleum(full_name, include_jongsung=False)
+                        ohaeng_seq = "·".join(getattr(baleum_report, "ohaeng_sequence", []) or [])
+                        grade = getattr(baleum_report, "grade", "")
+                        reason = getattr(baleum_report, "reason", "")
                         lines.append(
                             f"  · 발음 분석 (한글): {full_name}\n"
-                            f"  · 음 조화 점수: {getattr(baleum_report, 'score', 0):.2f}\n"
+                            f"  · 음절 오행 흐름: {ohaeng_seq or '(미산출)'}\n"
+                            f"  · 음 조화 등급: {grade or '(미산출)'}\n"
+                            f"  · 평가 사유: {reason or '(미산출)'}\n"
                             f"  · 음 결합 결정론: 본 시스템 ADR-028 Priority 1·2 검증"
                         )
                     except Exception:
