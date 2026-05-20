@@ -53,10 +53,12 @@ _OSEOTUN_JAHOUR = {
     9: 8,  # 癸 → 壬
 }
 
-# 1900-01-01 = 己亥日 (己=5, 亥=11)
+# ADR-085: KASI 음양력 공식 API 회신 정합 — 1900-01-01 = 甲戌日 (甲=0, 戌=10).
+# 이전 앵커 己亥(5,11)는 60갑자 cycle 내 +25 offset 오류 (KASI 10건 회귀 100% 검출).
+# 출처: data.go.kr LrsrCldInfoService getLunCalInfo lunIljin 회신.
 _BASE_DATE = date(1900, 1, 1)
-_BASE_GAN_IDX = 5  # 己
-_BASE_JI_IDX = 11  # 亥
+_BASE_GAN_IDX = 0  # 甲
+_BASE_JI_IDX = 10  # 戌
 
 
 def _pack(gan_idx: int, ji_idx: int) -> dict:

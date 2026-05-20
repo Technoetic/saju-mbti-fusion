@@ -89,16 +89,20 @@ def fetch_kasi_iljin(target: date, timeout_sec: float = 5.0) -> Optional[str]:
         if resp.status_code != 200:
             return None
         body = resp.text
-        # XML 응답 — <lunIljin>乙巳</lunIljin> 정규식 추출
+        # XML 응답 — <lunIljin>을해(乙亥)</lunIljin> 정규식 추출
         match = re.search(r"<lunIljin>([^<]+)</lunIljin>", body)
         if not match:
             return None
         raw = match.group(1).strip()
-        # KASI 응답이 "乙巳(을사)" 형식이면 한자 부분만 추출
-        han_match = re.match(r"([甲乙丙丁戊己庚辛壬癸][子丑寅卯辰巳午未申酉戌亥])", raw)
+        # KASI 회신 형식: "을해(乙亥)" — 괄호 안 한자 추출
+        han_match = re.search(r"\(([甲乙丙丁戊己庚辛壬癸][子丑寅卯辰巳午未申酉戌亥])\)", raw)
         if han_match:
             return han_match.group(1)
-        return raw[:2] if len(raw) >= 2 else None
+        # fallback: 한자 직접 매칭
+        han_direct = re.match(r"([甲乙丙丁戊己庚辛壬癸][子丑寅卯辰巳午未申酉戌亥])", raw)
+        if han_direct:
+            return han_direct.group(1)
+        return None
     except Exception:
         return None
 
