@@ -195,6 +195,18 @@ class StarReadingRequest(BaseModel):
     target_date: str | None = None  # None이면 오늘
 
 
+class ContentReadingRequest(BaseModel):
+    """메뉴 콘텐츠 풀이 요청 — saju 도메인 결정론 + LLM 결합 (ADR-069).
+
+    char_key 'saju' + content_key 'today' 일 때 사주 엔진 (day_pillar·ten_gods)
+    결정론 결과를 system 프롬프트에 주입 → LLM 작문. 결정론 보장 + 사실성 분리.
+    """
+
+    char_key: str  # 'saju' | 'dream' | 'hwapae' | 'star' | 'face' | 'palm' | 'name'
+    content_key: str  # 'today' | 'tomorrow' | ...
+    fields: dict[str, str] | None = None  # 사용자 입력 (fullName·birth 등)
+
+
 class DreamInterpretRequest(BaseModel):
     """해몽 요청 — 꿈 본문 + 개인 맥락(사주/MBTI 등)."""
 
@@ -799,6 +811,7 @@ class PersonalityAPIServer:
         self.app.post("/api/face/reading")(self.post_face_reading)
         self.app.post("/api/palm/reading")(self.post_palm_reading)
         self.app.post("/api/star/reading")(self.post_star_reading)
+        self.app.post("/api/content/reading")(self.post_content_reading)
         self.app.post("/api/name/reading")(self.post_name_reading)
         self.app.post("/api/dream/interpret")(self.post_dream_interpret)
         self.app.post("/api/clinical/screening")(self.post_clinical_screening)
@@ -1815,6 +1828,127 @@ class PersonalityAPIServer:
             }
         except ValueError as ve:
             raise HTTPException(400, f"날짜 형식 오류 (YYYY-MM-DD 필요): {ve}")
+        except Exception as e:
+            raise HTTPException(500, str(e))
+
+    async def post_content_reading(
+        self, req: ContentReadingRequest
+    ) -> dict[str, Any]:
+        """메뉴 콘텐츠 풀이 — 도메인 결정론 엔진 + LLM 결합 (ADR-069).
+
+        char_key 'saju' + content_key 'today' 일 때:
+          1. engine/saju/pillars.day_pillar() — 사용자 일진 + 오늘 일진
+          2. engine/saju/ten_gods.compute_ten_gods() — 십성 관계
+          3. 결정론 결과 → 시스템 프롬프트 주입
+          4. BizRouter Gemini Flash Lite 작문
+        """
+        from datetime import date as _date
+        from engine.safety import build_legal_footer, build_ai_generation_meta
+
+        fields = req.fields or {}
+        char_key = req.char_key
+        content_key = req.content_key
+
+        deterministic_block = ""
+
+        # saju 도메인 결정론 직결 (ADR-069 핵심)
+        if char_key == "saju" and content_key in ("today", "tomorrow"):
+            birth_str = fields.get("birth", "").strip()
+            if birth_str:
+                try:
+                    from engine.saju.pillars import day_pillar
+                    from engine.saju.ten_gods import compute_ten_gods
+
+                    birth_dt = _date.fromisoformat(birth_str)
+                    today_dt = _date.today()
+
+                    user_day_pillar = day_pillar(birth_dt.year, birth_dt.month, birth_dt.day)
+                    today_pillar_data = day_pillar(today_dt.year, today_dt.month, today_dt.day)
+
+                    # 십성 계산 (사용자 일간 ↔ 오늘 천간)
+                    pillars_for_tengods = {
+                        "year_pillar": user_day_pillar,
+                        "month_pillar": user_day_pillar,
+                        "day_pillar": user_day_pillar,
+                        "hour_pillar": today_pillar_data,
+                    }
+                    try:
+                        ten_gods_data = compute_ten_gods(pillars_for_tengods)
+                        today_tengod = ten_gods_data.get("hour_gan", "")
+                    except Exception:
+                        today_tengod = ""
+
+                    deterministic_block = (
+                        f"\n[사주 결정론 — engine/saju 출력]\n"
+                        f"  · 사용자 일주(日柱): {user_day_pillar.get('gan','')}{user_day_pillar.get('ji','')} "
+                        f"({user_day_pillar.get('gan_han','')}{user_day_pillar.get('ji_han','')})\n"
+                        f"  · 사용자 일간(日干, 본명 중심): {user_day_pillar.get('gan','')}\n"
+                        f"  · 오늘 일진(今日 日辰): {today_pillar_data.get('gan','')}{today_pillar_data.get('ji','')} "
+                        f"({today_pillar_data.get('gan_han','')}{today_pillar_data.get('ji_han','')})\n"
+                        f"  · 일간↔오늘 천간 십성 관계: {today_tengod or '(미산출)'}\n"
+                        f"[지시] 위 결정론 출력만 인용. 60갑자·십성 명칭 사전학습 추가 X.\n"
+                    )
+                except (ValueError, ImportError, Exception):
+                    # 결정론 산출 실패 시 LLM 단독 (graceful fallback)
+                    deterministic_block = "\n[사주 결정론 — 산출 실패, 일반 흐름 톤으로 작성]\n"
+
+        # 7 캐릭터 페르소나 톤
+        persona_tone_map = {
+            "saju":   "만월 아씨 — 사주 명리학 풀이. 정중한 사극풍 어조.",
+            "dream":  "몽이 도령 — 꿈 해석. 부드럽고 깊이 있는 어조.",
+            "hwapae": "화선 낭자 — 화패·점복. 신비롭고 가벼운 어조.",
+            "star":   "성하 공자 — 별빛 풀이. 우주적·시적 어조.",
+            "face":   "운학 도사 — 관상. 사극풍 노학자 어조.",
+            "palm":   "옥선 할미 — 손금. 따뜻한 할머니 어조.",
+            "name":   "묵향 선생 — 작명. 학자다운 정중한 어조.",
+        }
+        persona = persona_tone_map.get(char_key, persona_tone_map["saju"])
+
+        system = (
+            f"당신은 한국 전통 운명학 풀이 캐릭터입니다.\n"
+            f"[캐릭터] {persona}\n"
+            f"[규칙]\n"
+            f"- 단정적 예언 금지. 경향성·자기이해 위주.\n"
+            f"- 의료·법률·금융 단정 금지 (ADR-006).\n"
+            f"- 운명·재물·결혼 단정 매핑 금지.\n"
+            f"- 한국어로 자연스럽게 작성. 4~6단락, 마크다운 없이.\n"
+            f"- 결정론 출력이 주어지면 그 출력만 인용 (사전학습 추가 X — ADR-010 사실성 분리).\n"
+            f"{deterministic_block}"
+        )
+
+        # 사용자 입력 정리
+        inputs_text = "\n".join(
+            f"  · {k}: {v or '(미입력)'}" for k, v in fields.items()
+        ) if fields else ""
+
+        prompt = (
+            f"[메뉴 콘텐츠] char_key={char_key}, content_key={content_key}\n"
+            f"[사용자 입력]\n{inputs_text}\n"
+            f"[요청] 위 메뉴 주제로 풀이 한 편 펼쳐주세요."
+        )
+
+        try:
+            from engine.llm_sync import bizrouter_client
+            client = bizrouter_client()
+            model = os.environ.get("BIZROUTER_MODEL", "google/gemini-2.5-flash-lite")
+            resp = await asyncio.to_thread(
+                client.chat.completions.create,
+                model=model,
+                max_tokens=1500,
+                messages=[
+                    {"role": "system", "content": system},
+                    {"role": "user", "content": prompt},
+                ],
+            )
+            text = resp.choices[0].message.content or ""
+            return {
+                "text": text,
+                "char_key": char_key,
+                "content_key": content_key,
+                "deterministic_used": bool(deterministic_block.strip()),
+                "legal_notice": build_legal_footer(),
+                "ai_generation": build_ai_generation_meta(model_label=model),
+            }
         except Exception as e:
             raise HTTPException(500, str(e))
 
