@@ -150,9 +150,11 @@ from engine.safety.gdpr.legal_notice import (
     MEDICAL_DISCLAIMER_KO,
     FORTUNE_DISCLAIMER_KO,
     DATA_NOTICE_KO,
+    AI_GENERATED_LABEL_KO,
     LEGAL_NOTICE_FOOTER_KO,
     CRISIS_FOOTER_KO,
     build_legal_footer,
+    build_ai_generation_meta,
 )
 from engine.safety.slo.slo import (
     SLO_THRESHOLDS,
@@ -903,9 +905,11 @@ __all__ = [
     "MEDICAL_DISCLAIMER_KO",
     "FORTUNE_DISCLAIMER_KO",
     "DATA_NOTICE_KO",
+    "AI_GENERATED_LABEL_KO",
     "LEGAL_NOTICE_FOOTER_KO",
     "CRISIS_FOOTER_KO",
     "build_legal_footer",
+    "build_ai_generation_meta",
     "SLO_THRESHOLDS",
     "parse_log_line",
     "compute_slo",
