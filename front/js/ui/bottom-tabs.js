@@ -58,15 +58,14 @@ function activateTab(key) {
     }
   });
 
-  // 취선루 view들 (chwiseon 탭일 때만 보임)
-  const chwiseonView = document.getElementById('chwiseonView');
-  if (chwiseonView) {
+  // 취선루 view (실제 ID는 chwiseonMain). body.chwiseon-on 클래스가 CSS로
+  // chwiseonMain·관련 view들을 자동 노출/숨김 처리하므로 hidden 속성만 토글.
+  const chwiseonMain = document.getElementById('chwiseonMain');
+  if (chwiseonMain) {
     if (isChwiseon) {
-      chwiseonView.removeAttribute('hidden');
-      chwiseonView.style.setProperty('display', 'block', 'important');
+      chwiseonMain.removeAttribute('hidden');
     } else {
-      chwiseonView.setAttribute('hidden', '');
-      chwiseonView.style.setProperty('display', 'none', 'important');
+      chwiseonMain.setAttribute('hidden', '');
     }
   }
 
