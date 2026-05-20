@@ -538,6 +538,17 @@ class PersonalityAPIServer:
             allow_headers=["*"],
         )
 
+        # 정적 파일 캐시 무효화 — 브라우저가 ETag로 매번 확인 후 304/200 응답.
+        # 새 배포 시 사용자 브라우저가 옛 JS/CSS를 들고 있어 변경이 안 보이던 문제 해결.
+        @self.app.middleware("http")
+        async def add_no_cache_headers(request, call_next):
+            response = await call_next(request)
+            path = request.url.path
+            # 정적 파일(JS/CSS/HTML)만 대상. API/미디어는 제외 (긴 캐시 OK)
+            if path.endswith((".js", ".css", ".html")) or path == "/":
+                response.headers["Cache-Control"] = "no-cache, must-revalidate, max-age=0"
+            return response
+
         # GET "/" 직접 처리 — StaticFiles mount보다 먼저 등록되어야 catch.
         # 새 배포마다 사용자 브라우저가 옛 HTML을 캐싱해 깨지는 사고 방지.
         from fastapi.responses import FileResponse
