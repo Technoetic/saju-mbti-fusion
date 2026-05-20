@@ -550,8 +550,14 @@ class PersonalityAPIServer:
             return response
 
         # GET "/" 직접 처리 — StaticFiles mount보다 먼저 등록되어야 catch.
-        # 새 배포마다 사용자 브라우저가 옛 HTML을 캐싱해 깨지는 사고 방지.
-        from fastapi.responses import FileResponse
+        # 새 배포마다 사용자 브라우저가 옛 HTML/JS/CSS를 캐싱해 깨지는 사고 방지.
+        # HTML 본문 안의 모든 정적 리소스 URL에 ?v=<빌드시각> 자동 주입 →
+        # 새 배포마다 URL이 바뀌어 브라우저는 무조건 새 파일을 받아옴.
+        from fastapi.responses import HTMLResponse
+        import re as _re_for_static
+        import time as _time_for_build
+
+        _BUILD_TAG = str(int(_time_for_build.time()))
 
         @self.app.get("/", include_in_schema=False)
         async def serve_index_no_cache():
@@ -559,9 +565,28 @@ class PersonalityAPIServer:
             index_path = front_dir / "index.html"
             if not index_path.exists():
                 index_path = Path(__file__).resolve().parent / "index.html"
-            return FileResponse(
-                str(index_path),
-                media_type="text/html; charset=utf-8",
+
+            html = index_path.read_text(encoding="utf-8")
+
+            # <script src="..."> 와 <link ... href="..."> 의 정적 URL에 ?v=BUILD_TAG 주입.
+            # 외부 도메인(https://) 은 건너뛰고, 쿼리가 이미 있어도 안전하게 덮어씀.
+            def _inject(match):
+                attr_name = match.group(1)
+                url = match.group(2)
+                if url.startswith(("http://", "https://", "//", "data:")):
+                    return match.group(0)
+                # 기존 쿼리 제거 후 새 v= 부착
+                clean = url.split("?", 1)[0]
+                return f'{attr_name}="{clean}?v={_BUILD_TAG}"'
+
+            html = _re_for_static.sub(
+                r'\b(src|href)="([^"]+\.(?:js|css))(?:\?[^"]*)?"',
+                _inject,
+                html,
+            )
+
+            return HTMLResponse(
+                content=html,
                 headers={
                     "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
                     "Pragma": "no-cache",
