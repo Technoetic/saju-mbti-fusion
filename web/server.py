@@ -1866,7 +1866,11 @@ class PersonalityAPIServer:
             if birth_str:
                 try:
                     from engine.saju.pillars import day_pillar
-                    from engine.saju.ten_gods import compute_ten_gods
+                    from engine.saju.ten_gods import (
+                        compute_ten_gods,
+                        classify_gilhyung,
+                        detect_special_combinations,
+                    )
 
                     birth_dt = _date.fromisoformat(birth_str)
                     today_dt = _date.today()
@@ -1879,6 +1883,7 @@ class PersonalityAPIServer:
                     today_gz = f"{today_pillar_data.get('gan_han','')}{today_pillar_data.get('ji_han','')}"
                     today_tengod_gan = ""
                     today_tengod_ji = ""
+                    ten_gods_data: dict = {}
                     try:
                         if len(user_gz) >= 2 and len(today_gz) >= 2:
                             ten_gods_data = compute_ten_gods({
@@ -1895,6 +1900,19 @@ class PersonalityAPIServer:
                         else "(미산출)"
                     )
 
+                    # ADR-086: 십성 메타 분류 — 사길신·사흉신 라벨 + 특수 조합
+                    gan_class = classify_gilhyung(today_tengod_gan) if today_tengod_gan else None
+                    ji_class = classify_gilhyung(today_tengod_ji) if today_tengod_ji else None
+                    meta_label_parts = []
+                    if gan_class:
+                        meta_label_parts.append(f"천간 {today_tengod_gan}={gan_class}")
+                    if ji_class:
+                        meta_label_parts.append(f"지지 {today_tengod_ji}={ji_class}")
+                    meta_label = " · ".join(meta_label_parts) if meta_label_parts else "(중립)"
+
+                    special_combos = detect_special_combinations(ten_gods_data) if ten_gods_data else []
+                    combos_label = ", ".join(special_combos) if special_combos else "(없음)"
+
                     deterministic_blocks.append(
                         f"[사주 결정론 — engine/saju 출력]\n"
                         f"  · 사용자 일주(日柱): {user_day_pillar.get('gan','')}{user_day_pillar.get('ji','')} "
@@ -1902,7 +1920,10 @@ class PersonalityAPIServer:
                         f"  · 사용자 일간(日干, 본명 중심): {user_day_pillar.get('gan','')}\n"
                         f"  · 오늘 일진(今日 日辰): {today_pillar_data.get('gan','')}{today_pillar_data.get('ji','')} "
                         f"({today_pillar_data.get('gan_han','')}{today_pillar_data.get('ji_han','')})\n"
-                        f"  · 일간↔오늘 십성: {tengod_label}"
+                        f"  · 일간↔오늘 십성: {tengod_label}\n"
+                        f"  · 십성 메타 분류 (ADR-086): {meta_label}\n"
+                        f"  · 특수 구조 조합: {combos_label}\n"
+                        f"  · [지시] 위 메타는 명리학 통설 구조 라벨이며 길흉 단정 X (ADR-006)."
                     )
                 except (ValueError, ImportError, Exception):
                     deterministic_blocks.append("[사주 결정론 — 산출 실패]")
