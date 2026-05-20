@@ -1,5 +1,11 @@
 name: CI/CD — Test & Deploy
 
+# ADR-057: paths-filter 도입 + ADR-056 Fly.io 배포 통합
+# - engine/ 변경 시만 engine 테스트
+# - web/·front/·data/·Dockerfile·fly.toml 변경 시만 deploy
+# - tests/ 변경은 회귀 전체
+# - vault/·.gitignore 변경은 무시
+
 on:
   push:
     branches: [main]
@@ -12,8 +18,50 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # ADR-057 paths-filter: 변경 경로 감지 → 후속 job 조건부 실행
+  changes:
+    name: Detect Changes
+    runs-on: ubuntu-latest
+    outputs:
+      engine: ${{ steps.filter.outputs.engine }}
+      web: ${{ steps.filter.outputs.web }}
+      front: ${{ steps.filter.outputs.front }}
+      tests: ${{ steps.filter.outputs.tests }}
+      deploy: ${{ steps.filter.outputs.deploy }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            engine:
+              - 'engine/**'
+              - 'requirements.txt'
+            web:
+              - 'web/**'
+              - 'requirements.txt'
+            front:
+              - 'front/**'
+            tests:
+              - 'tests/**'
+              - 'pytest.ini'
+            deploy:
+              - 'engine/**'
+              - 'web/**'
+              - 'front/**'
+              - 'data/**'
+              - 'Dockerfile'
+              - 'fly.toml'
+              - 'requirements.txt'
+
   test:
     name: Lint & Import Check
+    needs: changes
+    if: |
+      needs.changes.outputs.engine == 'true' ||
+      needs.changes.outputs.web == 'true' ||
+      needs.changes.outputs.tests == 'true' ||
+      github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -30,15 +78,16 @@ jobs:
           pip install -r requirements.txt
 
       - name: Import smoke test (engine + web modules load)
+        if: needs.changes.outputs.engine == 'true' || needs.changes.outputs.web == 'true' || github.event_name == 'workflow_dispatch'
         run: |
           python -c "from web.server import app; print('FastAPI app routes:', len(app.routes))"
-          python -c "from engine.divination.face_reading import generate_face_reading; print('face_reading loaded')"
+          python -c "from engine.divination.face.reading import generate_face_reading; print('face_reading loaded')"
           python -c "from engine.saju import pillars, luck_cycle, ten_gods; print('saju engine loaded')"
 
       - name: Pytest — engine 단위 테스트 (필수)
+        if: needs.changes.outputs.engine == 'true' || needs.changes.outputs.tests == 'true' || github.event_name == 'workflow_dispatch'
         run: |
           pip install pytest
-          # engine/ 단위 테스트는 외부 의존성 없음 — 실패 시 CI fail.
           if compgen -G "engine/**/test_*.py" > /dev/null; then
             pytest -x --tb=short engine/
           else
@@ -46,87 +95,45 @@ jobs:
           fi
         shell: bash
 
-      - name: Pytest — web 통합 테스트 (best-effort)
+      - name: Pytest — 회귀 + smoke (tests/)
+        if: needs.changes.outputs.tests == 'true' || needs.changes.outputs.engine == 'true' || github.event_name == 'workflow_dispatch'
         run: |
-          # web/test_*.py 는 외부 API(LLM/MiniMax)를 호출할 수 있어 best-effort.
-          if compgen -G "web/test_*.py" > /dev/null; then
-            pytest --tb=short web/ 2>&1 | tail -50 || echo "::warning::web tests failed (외부 API 미설정 가능, non-blocking)"
-          else
-            echo "no web test files — skipping"
-          fi
+          pip install pytest playwright
+          python -m playwright install --with-deps chromium
+          pytest --tb=short tests/smoke/ tests/regression/ -m "not live"
         shell: bash
 
   deploy:
-    name: Deploy to Railway
-    needs: test
+    name: Deploy to Fly.io
+    needs: [changes, test]
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: |
+      always() &&
+      (needs.test.result == 'success' || needs.test.result == 'skipped') &&
+      github.event_name == 'push' &&
+      github.ref == 'refs/heads/main' &&
+      needs.changes.outputs.deploy == 'true'
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Railway CLI
-        run: |
-          bash <(curl -fsSL railway.com/install.sh) -y
-          echo "$HOME/.railway/bin" >> "$GITHUB_PATH"
+      - name: Setup Fly.io CLI
+        uses: superfly/flyctl-actions/setup-flyctl@master
 
-      - name: Verify Railway auth
+      - name: Deploy to Fly.io
         env:
-          RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_API_TOKEN }}
-        run: |
-          railway whoami
-          railway --version
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        run: flyctl deploy --remote-only --ha=false
 
-      - name: Deploy
-        env:
-          RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_API_TOKEN }}
+      - name: Verify live
         run: |
-          railway up \
-            --project 585d6fb2-3438-48eb-9010-5b291a7f1fa1 \
-            --service saju-mbti-fusion \
-            --environment production \
-            --detach
-
-      - name: Wait for new deployment SUCCESS
-        env:
-          RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_API_TOKEN }}
-        run: |
-          # 라이브 HTTP 200만 확인하면 거짓 양성 (이전 배포가 살아있어 늘 200).
-          # GraphQL `service(id:)` 로 최신 deployment status 직접 폴링.
-          SERVICE_ID="00fbc238-ae49-4db6-8548-b4bf3478a7c8"
-          QUERY='{"query":"query { service(id: \"'"$SERVICE_ID"'\") { deployments(first: 1) { edges { node { id status } } } } }"}'
-
-          for i in $(seq 1 18); do
-            sleep 15
-            RESP=$(curl -s -X POST https://backboard.railway.app/graphql/v2 \
-              -H "Authorization: Bearer $RAILWAY_API_TOKEN" \
-              -H "Content-Type: application/json" \
-              -d "$QUERY")
-            STATUS=$(echo "$RESP" | python3 -c "
-          import sys, json
-          try:
-              d = json.load(sys.stdin)
-              edges = d['data']['service']['deployments']['edges']
-              if edges:
-                  print(edges[0]['node']['status'])
-              else:
-                  print('NO_DEPLOYMENT')
-          except Exception:
-              print('PARSE_ERROR')
-          " 2>/dev/null || echo "PIPE_ERROR")
-            code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 5 https://saju-mbti-fusion-production.up.railway.app/ || echo 000)
-            echo "attempt $i: deployment=$STATUS, live HTTP=$code"
-            case "$STATUS" in
-              SUCCESS)
-                if [ "$code" = "200" ]; then
-                  echo "✅ New deployment SUCCESS + live HTTP 200"
-                  exit 0
-                fi
-                ;;
-              FAILED|CRASHED|REMOVED)
-                echo "❌ Deployment $STATUS — failing CI"
-                exit 1
-                ;;
-            esac
+          for i in $(seq 1 12); do
+            sleep 10
+            code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 https://saju-mbti-fusion.fly.dev/api/health || echo 000)
+            echo "attempt $i: live HTTP=$code"
+            if [ "$code" = "200" ]; then
+              echo "✅ Fly.io deployment live"
+              exit 0
+            fi
           done
-          echo "❌ New deployment did not reach SUCCESS within 270s"
+          echo "❌ Live did not reach 200 within 120s"
           exit 1
