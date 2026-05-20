@@ -236,41 +236,11 @@
   .hanja-cell { width: calc(50% - 8px); }
   }
 
-  /* ───── 캐릭터 배경 영상 (히어로 풀스크린) + 종이 펼침 ───── */
+  /* ───── 캐릭터 배경 영상 제거됨 (사용자 요청) ───── */
+  /* tab-content의 자식들은 그대로 흐름 유지 */
   .tab-content { position: relative; }
-  /* 콘텐츠는 영상 위로 — 형제 stacking 보장 */
-  .tab-content > *:not(.tab-bg-video) {
-    position: relative;
-    z-index: 1;
-  }
-  .tab-bg-video {
-    position: fixed;
-    inset: 0;
-    width: 100vw;
-    height: 100vh;
-    object-fit: cover;          /* 화면 가득 — 인트로 .bg-video와 동일 정책 */
-    z-index: 0;                 /* 형제 콘텐츠(z-index 1) 아래, 페이지 .bg-overlay 위 (stacking context: .app-container z-index 3) */
-    pointer-events: none;
-    opacity: 0;
-    background: #000;
-    transition:
-      opacity 1.2s ease,
-      filter 0.9s cubic-bezier(0.22, 1, 0.36, 1);
-    will-change: opacity, filter;
-  }
-  .tab-bg-video.show {
-    opacity: 1;
-    /* 영상 그대로 선명하게 — 색감만 살짝 풍부하게 */
-    filter: brightness(1) saturate(1.08) contrast(1.05);
-  }
-  /* 조작 후 → 영상은 그대로 계속 재생되고, 입력 카드만 그 위에 떠있는 구조.
-     blur 제거 / 살짝만 어둡게 (영상 캐릭터 표정/움직임이 잘 보임). */
-  .tab-bg-video.dim {
-    opacity: 1;
-    filter: brightness(0.62) saturate(0.95);
-  }
 
-  /* 영상 위 어두운 vignette — 위/아래만 어둡게 (헤더·콘텐츠 가독성), 가운데는 영상 살림 */
+  /* 페이지 vignette — 위/아래만 어둡게 가독성 보강 */
   body.in-app::after {
     content: '';
     position: fixed;
@@ -288,35 +258,7 @@
     transition: background 0.8s ease;
   }
 
-  /* 인트로 .bg-video는 in-app 시 옅게 */
-  body.in-app .bg-video { opacity: 0.14; }
-
-  /* ───── 탭 선택(영상 풀히어로) 단계 — 헤더/탭바/vignette 잠시 가림. ───── */
-  .header-ornament,
-  body .app-container > h1,
-  body .app-container > .subtitle,
-  body .app-container > .tab-bar {
-    transition: opacity 0.5s ease, transform 0.5s ease;
-  }
-  body.hero-mode .header-ornament,
-  body.hero-mode .app-container > h1,
-  body.hero-mode .app-container > .subtitle,
-  body.hero-mode .app-container > .tab-bar {
-    opacity: 0;
-    transform: translateY(-8px);
-    pointer-events: none;
-  }
-  /* hero-mode 동안엔 vignette도 옅게 */
-  body.in-app::after { transition: background 0.6s ease; }
-  body.hero-mode.in-app::after {
-    background: rgba(10,15,30,0.04);
-  }
-  /* hero-mode 동안엔 영상 brightness 더 살림 (선명) */
-  body.hero-mode .tab-bg-video.show {
-    filter: brightness(1.05) saturate(1.12) contrast(1.08);
-  }
-
-  /* in-app 진입 시 카드들을 반투명 + backdrop-blur — 영상이 카드 뒤로 흐릿이 비침 */
+  /* in-app 진입 시 카드들을 반투명 + backdrop-blur */
   body.in-app fieldset {
     background:
       linear-gradient(135deg, rgba(212,175,55,0.04), transparent 60%),

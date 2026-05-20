@@ -94,9 +94,6 @@
   .app-container::before { top: 0; }
   .app-container::after  { bottom: 0; }
 
-  /* PC에서 배경 영상 더 진하게 (양옆 빈 공간 분위기) */
-  body.in-app .bg-video { opacity: 0.55; }
-
   /* 워터마크 한자는 양옆 빈 공간에 더 크게 */
   body::before {
     font-size: 16vw;

@@ -6,79 +6,31 @@
 // IIFE 내부는 그대로, window 노출은 명시 (script type=module + Object.assign(window) 패턴).
 // ============================================================
 // ============================================================
-// SECTION: 탭 캐릭터 영상 + 종이 펼침 애니메이션
+// SECTION: 탭 종이 펼침 애니메이션
+// (배경 영상은 사용자 요청으로 제거됨 — paper-scroll만 유지)
 // ============================================================
 (function initTabCharacterScene() {
-  const AUTO_UNROLL_MS = 1200;
-  let autoUnrollTimer = null;
-
-  // 영상을 body 직접 자식으로 이동 — .app-container(z-index 3) stacking context 밖으로
-  // vignette(::after, z-index 2)가 영상 위로 깔리도록.
   function detachVideosToBody() {
-    document.querySelectorAll('.tab-bg-video').forEach(v => {
-      if (v.parentElement !== document.body) {
-        document.body.appendChild(v);
-      }
-    });
+    // 배경 영상 제거됨 — 호환 위해 함수만 유지
   }
 
-  function getTabVideo(tabId) {
-    return document.querySelector('.tab-bg-video[data-character="' + tabId + '"]');
-  }
   function getTabPaper(tabId) {
     const tab = document.getElementById('tab-' + tabId);
     return tab ? tab.querySelector('.paper-scroll') : null;
   }
 
   function activateTabScene(tabId) {
-    if (autoUnrollTimer) { clearTimeout(autoUnrollTimer); autoUnrollTimer = null; }
-    document.querySelectorAll('.tab-bg-video').forEach(v => {
-      v.pause();
-      v.classList.remove('show', 'dim');
-    });
     document.querySelectorAll('.paper-scroll').forEach(p => p.classList.remove('unrolled'));
+    document.body.classList.remove('star-active', 'hero-mode');
 
-    // body의 탭별 상태 클래스 갱신 (CSS에서 탭별 배경 처리에 활용)
-    document.body.classList.remove('star-active');
+    // 성하 공자 탭 — body에 표식 (별빛 테마 적용용)
+    if (tabId === 'star') document.body.classList.add('star-active');
 
-    const video = getTabVideo(tabId);
-    if (video) {
-      // 영상 없는 탭에서 적용된 inline 숨김/transition 차단 해제 (모든 영상)
-      document.querySelectorAll('.tab-bg-video').forEach(v => {
-        v.style.transition = '';
-        v.style.opacity = '';
-        v.style.visibility = '';
-      });
-      try { video.currentTime = 0; } catch(_) {}
-      const p = video.play();
-      if (p && p.catch) p.catch(() => {});
-      requestAnimationFrame(() => video.classList.add('show'));
-
-      // 히어로 모드 — 영상이 있을 때만 풀스크린 인트로 연출
-      document.body.classList.add('hero-mode');
-      autoUnrollTimer = setTimeout(() => {
-        const paper = getTabPaper(tabId);
-        if (paper) paper.classList.add('unrolled');
-        video.classList.remove('show');
-        video.classList.add('dim');
-        document.body.classList.remove('hero-mode');
-      }, AUTO_UNROLL_MS);
-    } else {
-      // 영상 없는 탭(성하 공자 등) — 헤더/탭바 유지, paper 즉시 펼침
-      // 이전 탭 영상의 1.2s opacity transition 잔상을 막기 위해 transition도 즉시 끔
-      document.querySelectorAll('.tab-bg-video').forEach(v => {
-        v.style.transition = 'none';
-        v.style.opacity = '0';
-        v.style.visibility = 'hidden';
-      });
-      document.body.classList.remove('hero-mode');
-      // 성하 공자 탭 — body에 표식 (CSS에서 인트로 bg-video를 더 어둡게 덮음)
-      if (tabId === 'star') document.body.classList.add('star-active');
-      requestAnimationFrame(() => {
-        const paper = getTabPaper(tabId);
-        if (paper) paper.classList.add('unrolled');
-      });
-    }
+    // paper 즉시 펼침
+    requestAnimationFrame(() => {
+      const paper = getTabPaper(tabId);
+      if (paper) paper.classList.add('unrolled');
+    });
   }
 
   function bindTabSwitch() {

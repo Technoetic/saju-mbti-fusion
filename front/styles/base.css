@@ -21,26 +21,9 @@
   font-family: 'Nanum Myeongjo', serif;
   }
 
-  /* 배경 영상 (인트로엔 진하게, 메인 진입 후 옅게) */
-  .bg-video {
-  position: fixed;
-  inset: 0;
-  width: 100vw;
-  height: 100vh;
-  object-fit: cover;
-  z-index: 0;
-  pointer-events: none;
-  opacity: 0;
-  animation: videoFadeIn 2s 0.2s ease forwards;
-  transition: opacity 1.4s ease;
-  }
-  @keyframes videoFadeIn {
-  from { opacity: 0; }
-  to  { opacity: 0.9; }
-  }
-  body.in-app .bg-video { opacity: 0.35; }
+  /* 배경 영상 제거됨 (사용자 요청) — bg-overlay만 유지 */
 
-  /* 영상 위 오버레이 (인트로엔 옅게, 메인엔 짙게) */
+  /* 배경 오버레이 (인트로엔 옅게, 메인엔 짙게) */
   .bg-overlay {
   position: fixed;
   inset: 0;

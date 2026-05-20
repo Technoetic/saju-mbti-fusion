@@ -140,7 +140,8 @@
   if (!main) return;
   document.body.classList.add('in-app');
   main.classList.add('visible');
-  // 자동재생 정책 우회: 첫 사용자 인터랙션 시 BGM/배경영상 재생
+  // 자동재생 정책 우회: 첫 사용자 인터랙션 시 BGM 재생
+  // (배경 영상은 제거됨 — 사용자 요청)
   const tryStartMedia = () => {
     const a = document.getElementById('bgAudio');
     if (a && a.paused) {
@@ -150,32 +151,10 @@
       const muteBtn = document.getElementById('muteBtn');
       if (muteBtn && typeof muteBtn._refreshIcon === 'function') muteBtn._refreshIcon();
     }
-    const v = document.querySelector('.bg-video');
-    if (v && v.paused) v.play().catch(() => {});
   };
   ['click', 'touchstart', 'keydown'].forEach(ev =>
     document.addEventListener(ev, tryStartMedia, { once: true })
   );
-})();
-
-// 배경 영상 — 단순 loop 재생 + 자동재생 폴백
-(function setupBgVideo() {
-  const v = document.querySelector('.bg-video');
-  if (!v) return;
-  v.muted = true;
-  v.playsInline = true;
-  v.loop = true;
-  const tryPlay = () => v.play().catch(() => {});
-  tryPlay();
-  // 사용자 첫 인터랙션 시 재시도 (autoplay 정책 우회용)
-  const once = { once: true };
-  ['click', 'touchstart', 'keydown', 'scroll'].forEach(ev => {
-  document.addEventListener(ev, tryPlay, once);
-  });
-  // 탭 전환 후 돌아왔을 때 멈춰 있으면 재개
-  document.addEventListener('visibilitychange', () => {
-  if (!document.hidden && v.paused) tryPlay();
-  });
 })();
 
 // 숫자 input에 문자 입력 차단 (IME·붙여넣기 포함)
