@@ -113,16 +113,6 @@
 }
 
 /* ──────────────────────────────────────────────
-   우상단 사용자 배지: PC에선 폰 프레임 우상단 안쪽
-   ────────────────────────────────────────────── */
-@media (min-width: 481px) {
-  .user-badge {
-    top: 36px;
-    right: calc(50% - (var(--mobile-width) / 2) + 16px);
-  }
-}
-
-/* ──────────────────────────────────────────────
    모든 fixed/floating UI를 폰 프레임 폭에 맞춰 정렬
    ──────────────────────────────────────────────
    원칙: PC에서 fixed 요소(left/right 기준)는 화면이 아닌
@@ -167,19 +157,19 @@
   }
 }
 
-/* ── 우상단 코너 버튼(음소거·전체화면) — PC에선 폰 프레임 안쪽 우상단 ── */
+/* ── 우상단 코너 버튼(음소거·전체화면) — PC에선 폰 프레임 바깥 화면 우상단 ── */
 @media (min-width: 481px) {
   .fullscreen-btn {
-    right: calc(50% - (var(--mobile-width) / 2) + 14px);
-    top: 36px;
+    right: 18px;
+    top: 18px;
   }
   .mute-btn {
-    right: calc(50% - (var(--mobile-width) / 2) + 68px); /* fullscreen-btn 옆 */
-    top: 36px;
+    right: 72px; /* fullscreen-btn 왼쪽 (44+10+18) */
+    top: 18px;
   }
-  /* 사용자 배지는 두 코너 버튼 아래로 내려서 겹침 방지 */
+  /* 사용자 배지는 폰 프레임 안쪽 우상단 유지 */
   .user-badge {
-    top: 88px;
+    top: 36px;
     right: calc(50% - (var(--mobile-width) / 2) + 14px);
   }
 }
