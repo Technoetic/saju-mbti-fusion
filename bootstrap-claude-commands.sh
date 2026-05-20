@@ -43,4 +43,4 @@ done
 
 echo ""
 echo "복원 완료: ${RESTORE_COUNT} 파일"
-echo "Claude Code 재시작 후 /onboard 사용 가능"
+echo "Claude Code 재시작 후 /flyio 사용 가능 (인자 없이 → 부트스트랩 자동 수행)"
