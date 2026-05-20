@@ -102,8 +102,6 @@
   };
   }
 
-  const pencilPool  = makePool('./media/sounds/pencil_write.ogg', 6, 0.85);
-  const eraserPool  = makePool('./media/sounds/pencil_erase.ogg', 3, 0.8);
   const paperOpen  = makePool('./media/sounds/paper_open.wav',  3, 0.7);
   const tapPools  = [
   makePool('./media/sounds/tap1.ogg', 2, 0.55),
@@ -114,32 +112,9 @@
   function tapRandom() {
   tapPools[Math.floor(Math.random() * tapPools.length)].play();
   }
-  // 0~1 범위 랜덤 (min~max)
-  function randRange(min, max) {
-  return min + Math.random() * (max - min);
-  }
 
   // ── 이벤트 위임 ──
-  // 타이핑 (input/textarea 안에서 키 누를 때) — 한글 IME 포함
-  const SKIP_KEYS = new Set([
-  'Shift','Control','Alt','Meta','CapsLock','Escape',
-  'ArrowUp','ArrowDown','ArrowLeft','ArrowRight',
-  'PageUp','PageDown','Home','End',
-  'NumLock','ScrollLock','Pause','Insert','PrintScreen','ContextMenu',
-  'F1','F2','F3','F4','F5','F6','F7','F8','F9','F10','F11','F12'
-  ]);
-  document.addEventListener('keydown', (e) => {
-  const t = e.target;
-  if (!t || (t.tagName !== 'INPUT' && t.tagName !== 'TEXTAREA')) return;
-  if (e.ctrlKey || e.metaKey || e.altKey) return;
-  if (SKIP_KEYS.has(e.key)) return;
-  // 지우기 → 지우개 소리, 그 외 → 연필 쓰기 소리 (둘 다 매번 볼륨 변동)
-  if (e.key === 'Backspace' || e.key === 'Delete') {
-  eraserPool.play(randRange(0.55, 1.0));
-  } else {
-  pencilPool.play(randRange(0.45, 1.05));
-  }
-  });
+  // 타이핑/삭제 사운드는 사용자 요청에 따라 비활성화
 
   // 버튼/탭 클릭 → 종이 펼침, select 클릭 → 가벼운 탭
   document.addEventListener('click', (e) => {
