@@ -212,14 +212,17 @@ function init() {
     });
   }
 
-  // 기존 세션 복원 or 첫 방문 시 모달 표시
+  // 모달 바깥(backdrop) 클릭 시 닫기
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) hideModal(modal);
+  });
+
+  // 기존 세션 복원만. 첫 방문엔 모달을 자동 표시하지 않음
+  // (사용자가 프로필 탭 → 로그인/회원가입 버튼 누르면 띄움)
   const existing = loadAccount();
   if (existing) {
     updateUserBadge(existing);
     prefillSajuForm(existing);
-  } else {
-    // 페이지가 다 그려진 직후 모달 노출 (배경 페이드인과 자연스럽게 겹치도록)
-    setTimeout(() => showModal(modal, 'signup'), 300);
   }
 }
 
