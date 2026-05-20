@@ -123,23 +123,78 @@
 }
 
 /* ──────────────────────────────────────────────
-   취선루 문: 사용자 결정 — 모바일/PC 모두 화면 우하단
-   (기본 fixed right:22px bottom:22px 그대로)
-   다만 PC에서 폰 프레임과 거리가 너무 멀어 보이지 않도록
-   살짝 글로우를 키워 분위기 연결
+   모든 fixed/floating UI를 폰 프레임 폭에 맞춰 정렬
+   ──────────────────────────────────────────────
+   원칙: PC에서 fixed 요소(left/right 기준)는 화면이 아닌
+        '폰 프레임 가장자리'를 기준으로 위치해야 함.
+        그렇지 않으면 폰 프레임 안 콘텐츠와 좌상단에서 겹침.
    ────────────────────────────────────────────── */
+
+/* ── 모바일에서도 좌·우상단 fixed 버튼은 살짝 안쪽으로 ── */
+@media (max-width: 480px) {
+  .to-gallery-btn { top: 10px; left: 10px; }
+  .fullscreen-btn { top: 10px; right: 10px; }
+  .mute-btn { top: 10px; right: 58px; }
+  .user-badge { top: 50px; right: 10px; }
+}
+
+/* ── 풀이 화면 좌상단 "← 점술가 고르기" 버튼 ── */
+.to-gallery-btn {
+  /* 모바일 기본도 컴팩트하게 */
+  top: 12px;
+  left: 12px;
+}
+@media (min-width: 481px) {
+  .to-gallery-btn {
+    /* 폰 프레임 좌상단 안쪽에 자연스럽게 */
+    left: calc(50% - (var(--mobile-width) / 2) + 14px);
+    top: 36px;
+  }
+}
+
+/* ── 취선루 문 (사용자 결정: 모바일·PC 모두 화면 우하단 유지) ── */
 @media (min-width: 481px) {
   .chwiseon-gate {
-    /* 폰 프레임 우측 바닥 부근에 자연스럽게 위치 */
+    /* 폰 프레임 우측 바깥 + 살짝 아래 — 빈 공간에 자연스럽게 떠있게 */
     right: calc(50% - (var(--mobile-width) / 2) - 88px);
     bottom: 32px;
   }
 }
-
-/* 매우 좁은 PC 브라우저(<700px)에선 폰 프레임 옆 공간이 부족 → 우하단 고정 */
 @media (min-width: 481px) and (max-width: 700px) {
   .chwiseon-gate {
     right: 16px;
     bottom: 16px;
   }
 }
+
+/* ── 우상단 코너 버튼(음소거·전체화면) — PC에선 폰 프레임 안쪽 우상단 ── */
+@media (min-width: 481px) {
+  .fullscreen-btn {
+    right: calc(50% - (var(--mobile-width) / 2) + 14px);
+    top: 36px;
+  }
+  .mute-btn {
+    right: calc(50% - (var(--mobile-width) / 2) + 68px); /* fullscreen-btn 옆 */
+    top: 36px;
+  }
+  /* 사용자 배지는 두 코너 버튼 아래로 내려서 겹침 방지 */
+  .user-badge {
+    top: 88px;
+    right: calc(50% - (var(--mobile-width) / 2) + 14px);
+  }
+}
+
+/* ──────────────────────────────────────────────
+   풀이 화면 캐릭터 카드 안의 콘텐츠가 to-gallery-btn과
+   겹치지 않도록 상단 여유 공간 확보
+   ────────────────────────────────────────────── */
+body.in-app:not(.gallery-mode) .app-container {
+  padding-top: 64px;  /* to-gallery-btn(top:36px + height) 아래로 콘텐츠 시작 */
+}
+
+@media (max-width: 480px) {
+  body.in-app:not(.gallery-mode) .app-container {
+    padding-top: 56px;
+  }
+}
+
