@@ -1871,6 +1871,9 @@ class PersonalityAPIServer:
                         classify_gilhyung,
                         detect_special_combinations,
                     )
+                    # ADR-089: 신살 결정론 (사전학습 환각 차단 — 도화살·역마살 등 명시 산출만 인용)
+                    from engine.saju.pillars import compute_pillars
+                    from engine.saju.shensha import compute_shensha, SHENSHA_MEANINGS
 
                     birth_dt = _date.fromisoformat(birth_str)
                     today_dt = _date.today()
@@ -1913,6 +1916,24 @@ class PersonalityAPIServer:
                     special_combos = detect_special_combinations(ten_gods_data) if ten_gods_data else []
                     combos_label = ", ".join(special_combos) if special_combos else "(없음)"
 
+                    # ADR-089: 신살 결정론 산출 (사용자 4기둥 + 시각 미입력 시 정오 추정)
+                    shensha_result: dict = {}
+                    shensha_lines: list[str] = []
+                    try:
+                        full_pillars = compute_pillars(birth_dt.year, birth_dt.month, birth_dt.day, 12)
+                        shensha_result = compute_shensha(full_pillars)
+                        for key in ("cheoneul", "munchang", "yeokma", "dohwa", "kongmang"):
+                            meta = SHENSHA_MEANINGS.get(key, {})
+                            label = meta.get("label", key)
+                            values = shensha_result.get(key, [])
+                            if values:
+                                shensha_lines.append(f"{label}: {'·'.join(values)}")
+                            else:
+                                shensha_lines.append(f"{label}: (없음)")
+                    except Exception:
+                        shensha_lines = ["(신살 산출 실패)"]
+                    shensha_label = " / ".join(shensha_lines)
+
                     deterministic_blocks.append(
                         f"[사주 결정론 — engine/saju 출력]\n"
                         f"  · 사용자 일주(日柱): {user_day_pillar.get('gan','')}{user_day_pillar.get('ji','')} "
@@ -1923,7 +1944,9 @@ class PersonalityAPIServer:
                         f"  · 일간↔오늘 십성: {tengod_label}\n"
                         f"  · 십성 메타 분류 (ADR-086): {meta_label}\n"
                         f"  · 특수 구조 조합: {combos_label}\n"
-                        f"  · [지시] 위 메타는 명리학 통설 구조 라벨이며 길흉 단정 X (ADR-006)."
+                        f"  · 신살 결정론 (ADR-089): {shensha_label}\n"
+                        f"  · [지시 1] 위 메타는 명리학 통설 구조 라벨이며 길흉 단정 X (ADR-006).\n"
+                        f"  · [지시 2] 신살 (천을귀인·문창귀인·역마살·도화살·공망)은 위 산출 결과에서 '(없음)' 명시된 경우 절대 언급 X. 사전학습 사주 지식 추가 금지 (ADR-010)."
                     )
                 except (ValueError, ImportError, Exception):
                     deterministic_blocks.append("[사주 결정론 — 산출 실패]")
