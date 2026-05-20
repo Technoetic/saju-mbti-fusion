@@ -42,17 +42,17 @@ def test_1000_days_no_60day_collision():
 
 
 def test_60day_cycle_anchor_consistency():
-    """앵커 1900-01-01부터 임의 N일 후 갑자가 (5+N) mod 10, (11+N) mod 12와 정합."""
+    """앵커 1900-01-01부터 임의 N일 후 갑자가 (0+N) mod 10, (10+N) mod 12와 정합 (ADR-085)."""
     anchor = date(1900, 1, 1)
-    # _BASE_GAN_IDX = 5 (己), _BASE_JI_IDX = 11 (亥)
+    # _BASE_GAN_IDX = 0 (甲), _BASE_JI_IDX = 10 (戌) — KASI 공식 정합
     for years_offset in [10, 50, 100, 126, 200]:
         if years_offset >= 200:
             continue
         target = anchor.replace(year=anchor.year + years_offset)
         delta = (target - anchor).days
         p = day_pillar(target.year, target.month, target.day)
-        assert p["gan_idx"] == (5 + delta) % 10
-        assert p["ji_idx"] == (11 + delta) % 12
+        assert p["gan_idx"] == (0 + delta) % 10
+        assert p["ji_idx"] == (10 + delta) % 12
 
 
 # ── 30년 일주 통계 회귀 ───────────────────────────

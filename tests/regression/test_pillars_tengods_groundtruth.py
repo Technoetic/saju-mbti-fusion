@@ -18,13 +18,13 @@ from engine.saju.ten_gods import ten_god, compute_ten_gods
 # ── ① 천문 앵커 정합 ─────────────────────────────────────────
 
 
-def test_anchor_1900_01_01_is_gihae():
-    """앵커 1900-01-01 = 己亥 (한국천문연구원 공인 만세력 기준)."""
+def test_anchor_1900_01_01_is_gapsul():
+    """앵커 1900-01-01 = 甲戌 (KASI 음양력 API 공식 회신, ADR-085 정합)."""
     p = day_pillar(1900, 1, 1)
-    assert p["gan"] == "기"
-    assert p["ji"] == "해"
-    assert p["gan_han"] == "己"
-    assert p["ji_han"] == "亥"
+    assert p["gan"] == "갑"
+    assert p["ji"] == "술"
+    assert p["gan_han"] == "甲"
+    assert p["ji_han"] == "戌"
 
 
 def test_year_1900_is_gyeongja():
@@ -74,20 +74,20 @@ def test_full_60day_no_duplicate_within_cycle():
 # ── ③ 본 시스템 라이브 사례 결정론 정합 ───────────────────
 
 
-def test_user_birth_1990_05_15_is_eulsa():
-    """사용자 라이브 검증 사례 1990-05-15 = 乙巳 (라이브 응답 정합)."""
+def test_user_birth_1990_05_15_is_gyeongjin():
+    """1990-05-15 = 庚辰 (KASI 공식 회신, ADR-085 정정)."""
     p = day_pillar(1990, 5, 15)
-    assert p["gan"] == "을"
-    assert p["ji"] == "사"
-    assert p["gan_han"] == "乙"
-    assert p["ji_han"] == "巳"
+    assert p["gan"] == "경"
+    assert p["ji"] == "진"
+    assert p["gan_han"] == "庚"
+    assert p["ji_han"] == "辰"
 
 
-def test_today_2026_05_20_is_gimi():
-    """본 시스템 오늘 (2026-05-20) = 己未 (라이브 응답 정합)."""
+def test_today_2026_05_20_is_gabo():
+    """2026-05-20 = 甲午 (KASI 공식 회신)."""
     p = day_pillar(2026, 5, 20)
-    assert p["gan"] == "기"
-    assert p["ji"] == "미"
+    assert p["gan"] == "갑"
+    assert p["ji"] == "오"
 
 
 # ── ④ 십성 표준 명리 매트릭스 ────────────────────────────

@@ -85,13 +85,13 @@ def test_baleum_real_output_for_홍길동():
 
 
 def test_day_pillar_for_1990_05_15():
-    """결정론 day_pillar(1990,5,15) → 을사(乙巳)."""
+    """결정론 day_pillar(1990,5,15) → 庚辰 (KASI 공식 회신, ADR-085)."""
     from engine.saju.pillars import day_pillar
     p = day_pillar(1990, 5, 15)
-    assert p["gan"] == "을"
-    assert p["ji"] == "사"
-    assert p["gan_han"] == "乙"
-    assert p["ji_han"] == "巳"
+    assert p["gan"] == "경"
+    assert p["ji"] == "진"
+    assert p["gan_han"] == "庚"
+    assert p["ji_han"] == "辰"
 
 
 def test_compute_ten_gods_with_string_input():

@@ -44,15 +44,15 @@ def test_no_key_returns_skip_graceful():
     assert r.kasi_called is False
     assert r.match is True  # 비교 불가는 통과 처리
     assert "KASI_API_KEY" in r.skip_reason
-    # 본 시스템 산출은 출력
-    assert r.local_iljin_han == "乙巳"
+    # 본 시스템 산출 (ADR-085 KASI 정합)
+    assert r.local_iljin_han == "庚辰"
 
 
 def test_local_iljin_format():
     """local_iljin_han이 한자 2글자 (천간+지지) 형식."""
     r = verify_day_pillar_against_kasi(date(2026, 5, 20))
     assert len(r.local_iljin_han) == 2
-    assert r.local_iljin_han == "己未"  # 본 시스템 라이브 사례
+    assert r.local_iljin_han == "甲午"  # KASI 공식 회신 (ADR-085)
 
 
 def test_fetch_kasi_returns_none_without_key():
