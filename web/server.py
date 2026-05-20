@@ -1959,6 +1959,128 @@ class PersonalityAPIServer:
             except Exception:
                 deterministic_blocks.append("[성명학 결정론 — 산출 실패]")
 
+        # ─── palm 결정론 (ADR-074, char_key='palm') ───
+        # 사진 키포인트 미입력 → 학파/라벨 풀 메타만 LLM 인용 (사전학습 추가 차단)
+        wants_palm = char_key == "palm"
+        if wants_palm:
+            try:
+                from engine.divination.palm.knowledge import (
+                    PALM_SCHOOLS,
+                    FATE_LINE_STRAIGHT, FATE_LINE_CURVED,
+                    SUN_LINE_CLEAR, SUN_LINE_FAINT,
+                    MERCURY_LINE_CONTINUOUS, MERCURY_LINE_FRAGMENTED,
+                    MARRIAGE_LINE_SINGLE_CLEAR, MARRIAGE_LINE_MULTIPLE, MARRIAGE_LINE_FORKED,
+                )
+                schools_meta = " · ".join(
+                    f"{s.name_short}({s.tradition},{s.publication_year})"
+                    for s in PALM_SCHOOLS
+                )
+                deterministic_blocks.append(
+                    "[손금 결정론 — engine/divination/palm 학파·라벨 풀]\n"
+                    f"  · 학파 6개: {schools_meta}\n"
+                    f"  · 운명선 라벨: {FATE_LINE_STRAIGHT} | {FATE_LINE_CURVED}\n"
+                    f"  · 태양선 라벨: {SUN_LINE_CLEAR} | {SUN_LINE_FAINT}\n"
+                    f"  · 수성선 라벨: {MERCURY_LINE_CONTINUOUS} | {MERCURY_LINE_FRAGMENTED}\n"
+                    f"  · 결혼선 라벨: {MARRIAGE_LINE_SINGLE_CLEAR} | {MARRIAGE_LINE_MULTIPLE} | {MARRIAGE_LINE_FORKED}\n"
+                    f"  · 사진 미입력 시 라이브 분류 불가. 라벨 풀 인용만 허용."
+                )
+            except Exception:
+                deterministic_blocks.append("[손금 결정론 — 산출 실패]")
+
+        # ─── face 결정론 (ADR-075, char_key='face') ───
+        # 사진 미입력 → 4 학파 + 삼정 + 12궁 메타만 인용
+        wants_face = char_key == "face"
+        if wants_face:
+            try:
+                from engine.divination.face.knowledge import (
+                    PHYSIOGNOMY_SCHOOLS, SAMJEONG_REGIONS, TWELVE_PALACES,
+                )
+                schools_meta = " · ".join(s.name_ko for s in PHYSIOGNOMY_SCHOOLS)
+                samjeong_meta = " · ".join(r.label_ko for r in SAMJEONG_REGIONS)
+                palaces_meta = " · ".join(p.label_ko for p in TWELVE_PALACES[:6]) + " 등 12궁"
+                deterministic_blocks.append(
+                    "[관상 결정론 — engine/divination/face 학파·구조 풀]\n"
+                    f"  · 학파 4개: {schools_meta}\n"
+                    f"  · 삼정 (얼굴 3분할): {samjeong_meta}\n"
+                    f"  · 12궁 일부: {palaces_meta}\n"
+                    f"  · 사진 미입력 시 라이브 분류 불가. 구조 인용만 허용.\n"
+                    f"  · 단정 매핑 부재 (fate_mapping·운명 X — ADR-006)."
+                )
+            except Exception:
+                deterministic_blocks.append("[관상 결정론 — 산출 실패]")
+
+        # ─── star 결정론 (ADR-076, char_key='star' + birth) ───
+        wants_star = char_key == "star" and bool(birth_str)
+        if wants_star:
+            try:
+                from datetime import datetime, date as date_cls
+                from engine.divination.star.scoring import compute_daily_star_reading
+                birth_d = datetime.strptime(birth_str, "%Y-%m-%d").date()
+                star_result = compute_daily_star_reading(birth_d, date_cls.today())
+                deterministic_blocks.append(
+                    "[황도대 결정론 — engine/divination/star 출력]\n"
+                    f"  · 별자리: {star_result.sign_label_ko} {star_result.sign_symbol}\n"
+                    f"  · 원소: {star_result.element_ko}\n"
+                    f"  · 양태: {star_result.modality_ko}\n"
+                    f"  · 지배 행성: {star_result.ruling_planet}\n"
+                    f"  · 일일 톤: {star_result.daily_tone_ko}\n"
+                    f"  · 사랑·재물·진로 단정 부재 (love_outcome·career_outcome·money_outcome X — ADR-006)."
+                )
+            except Exception:
+                deterministic_blocks.append("[황도대 결정론 — 산출 실패]")
+
+        # ─── dream 결정론 (ADR-077, char_key='dream' + dreamText) ───
+        dream_text = (fields.get("dreamText") or fields.get("dream") or "").strip()
+        wants_dream = char_key == "dream" and bool(dream_text)
+        if wants_dream:
+            try:
+                # dream_lex 30+ 학파 메타만 인용 (analyze_dream 풀 호출은 별도 엔드포인트)
+                dream_lex_schools = [
+                    "Freud (1899)", "Jung 원형 (1934)", "Hall-Van de Castle (1966)",
+                    "Hobson AIM (1977)", "Domhoff 인지 (2003)", "Cartwright 적응 (1991)",
+                    "Hill 인지경험 (1996)", "Lakoff 개념은유 (1993)", "Friston FEP (2010)",
+                    "Ibn Sirin (8c)", "Artemidorus (2c)", "한방 (동의보감)",
+                    "한국 민속 (해몽서)", "주역 占夢", "Lucid (Stephen LaBerge)",
+                ]
+                deterministic_blocks.append(
+                    "[해몽 결정론 — engine/divination/dream_lex 학파 메타]\n"
+                    f"  · 입력 꿈: {dream_text[:80]}{'…' if len(dream_text)>80 else ''}\n"
+                    f"  · 학파 풀 (일부): {' · '.join(dream_lex_schools[:8])}\n"
+                    f"  · 동양 학파: 한방 · 한국 민속 · 주역 占夢 · Ibn Sirin\n"
+                    f"  · 단일 학파 강요 X (ADR-002). 다학파 병행 인용 의무.\n"
+                    f"  · 길흉 단정 X (ADR-006). 상징·은유 해석만."
+                )
+            except Exception:
+                deterministic_blocks.append("[해몽 결정론 — 산출 실패]")
+
+        # ─── hwapae 결정론 (ADR-078, char_key='hwapae') ───
+        wants_hwapae = char_key == "hwapae"
+        if wants_hwapae:
+            try:
+                # 사용자 입력 카드 없으면 day-seed 결정론으로 3장 추첨
+                from datetime import date as _date_hwapae
+                from engine.divination.hwapae.korean import HWAPAE_CARDS, three_card_spread
+                import hashlib
+                seed_str = (birth_str or "anon") + "-" + str(_date_hwapae.today())
+                seed_hash = int(hashlib.sha256(seed_str.encode()).hexdigest()[:8], 16)
+                card_pool = list(HWAPAE_CARDS.keys())
+                c0 = card_pool[(seed_hash + 0) % len(card_pool)]
+                c1 = card_pool[(seed_hash + 7) % len(card_pool)]
+                c2 = card_pool[(seed_hash + 14) % len(card_pool)]
+                spread = three_card_spread((c0, c1, c2))
+                card_meta = " · ".join(
+                    f"{c.name_ko}({c.month}月)" for c in spread.cards
+                )
+                deterministic_blocks.append(
+                    "[화패 결정론 — engine/divination/hwapae 출력]\n"
+                    f"  · 3장 추첨 (seed=오늘+생일): {card_meta}\n"
+                    f"  · 순서/역순/카테고리 패턴: sequential={spread.is_sequential} reverse={spread.is_reverse}\n"
+                    f"  · 카테고리 우세: {spread.category_dominance or '(균형)'}\n"
+                    f"  · 단정 점복 X (ADR-006). 상징·문화 콘텐츠로만 인용."
+                )
+            except Exception:
+                deterministic_blocks.append("[화패 결정론 — 산출 실패]")
+
         # 결정론 블록 통합 + 사전학습 차단 지시
         if deterministic_blocks:
             deterministic_block = (
