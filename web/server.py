@@ -2163,7 +2163,20 @@ class PersonalityAPIServer:
                     f"  · Jung 원형 (상위 3): {arche_names or '(없음)'}\n"
                     f"  · Hall-Van de Castle 지수: {hvdc_idx}\n"
                     f"  · 주역 64괘: {ich.get('hexagram_name', '(미산출)')}\n"
-                    f"  · 다학파 병행 의무 (ADR-002). 길흉 단정 X (ADR-006)."
+                    f"  · [지시 1 — ADR-094 단정 차단] '길몽'·'흉몽'·'대길'·'대흉'·'반드시'·"
+                    f"'확실히' 등 단정 어휘 절대 금지. 'polarity: 길/흉'은 학파 라벨일 뿐 "
+                    f"운명 단정 X (ADR-006).\n"
+                    f"  · [지시 2 — ADR-095 학파 명시] 위 결정론 학파 결과를 인용 시 학파명 "
+                    f"명시 의무 (예: 'Artemidorus 분류상 ...', 'Jung 원형 풀에 ...', "
+                    f"'한국 민속 해몽서에 ...'). 단일 학파 단정 X — 다학파 병행 의무 (ADR-002).\n"
+                    f"  · [지시 3 — ADR-096 콘텐츠 적합성] content_key='{content_key}'에 맞춰:\n"
+                    f"      nightmare → '길몽' 인용 X, 위협·불안·악몽 처리 권장.\n"
+                    f"      baby → 태몽 학파 (한국 민속 + Hall-Van de Castle 태몽 지수) 인용.\n"
+                    f"      lucid → Stephen LaBerge 자각몽 학파 + Dormio TDI 학파 명시.\n"
+                    f"      recurring → 반복 꿈 (PTSD·IRT 학파) 인용.\n"
+                    f"  · [지시 4 — ADR-006 양면 해석] 매 풀이마다 강점·약점·주의 동시 명시. "
+                    f"긍정 일색 풀이 (균형도 0%) 금지 — '암묵적 단정' 차단.\n"
+                    f"  · 사전학습 해몽 어휘 추가 금지 (ADR-010)."
                 )
             except Exception:
                 deterministic_blocks.append("[해몽 결정론 — 산출 실패]")
