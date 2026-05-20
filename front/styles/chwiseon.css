@@ -450,7 +450,6 @@
   body.chwiseon-on #contentView,
   body.chwiseon-on .chwiseon-gate,
   body.chwiseon-on .to-gallery-btn,
-  body.chwiseon-on .bg-video,
   body.chwiseon-on .char-bg { display: none !important; }
 
   /* 취선루 배경 — 떠다니는 붉은 등불 */

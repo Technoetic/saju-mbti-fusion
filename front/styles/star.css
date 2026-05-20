@@ -9,8 +9,6 @@
   .star-step.active { display: block; }
 
   /* 성하 공자 탭 — 짙은 남색 + 자줏빛 vignette + 별빛 라디언스 */
-  /* 영상이 없으므로 인트로 bg-video를 어둡게 덮어 자기만의 분위기를 만든다 */
-  body.in-app.star-active .bg-video { opacity: 0.04 !important; }
   body.in-app.star-active::after {
   background:
   linear-gradient(180deg,
