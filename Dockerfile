@@ -1,17 +1,49 @@
-FROM python:3.12-slim
+# ADR-057 Phase C3 — Docker 멀티스테이지 빌드 (Python builder + slim runner)
+# 효과: 최종 이미지 ~1.2GB → ~400MB, 빌드 캐시 효율 ↑, Fly.io 512MB VM 적합성 ↑
+
+# ──────────────────────────── Stage 1: builder ────────────────────────────
+# 의존성 빌드 전용 (pip wheel 캐시 + 컴파일 부산물 격리)
+FROM python:3.12-slim AS builder
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
+WORKDIR /build
+
+# 시스템 build 의존성 (PyMuPDF·numpy 등 wheel 미제공 시 필요할 수 있음)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY requirements.txt .
+
+# wheel 다운로드 + 설치 (다음 stage에서 site-packages 복사용)
+RUN pip install --user --no-warn-script-location -r requirements.txt
+
+
+# ──────────────────────────── Stage 2: runner ────────────────────────────
+# 최종 운영 이미지 — builder 의 site-packages만 복사 (gcc 등 빌드 도구 제외)
+FROM python:3.12-slim AS runner
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PATH=/root/.local/bin:$PATH
 
 WORKDIR /app
 
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# builder의 user-level site-packages 복사 (gcc·apt cache 제외)
+COPY --from=builder /root/.local /root/.local
 
+# 소스 코드 (변경 빈도 가장 높음 → 마지막 layer)
 COPY engine ./engine
 COPY web ./web
 COPY front ./front
-# 작명 모듈이 data/korean_hanja_unihan.json (Unihan 한자 풀 8525자) 사용
+# 작명 모듈이 data/hanja/korean_hanja_unihan.json (9,932자) 사용 — ADR-041 도메인 분리
 COPY data ./data
 
-# 운영 컨테이너 정리 — 빌드 컨텍스트에 __pycache__가 들어가도 운영 컨테이너에선 무용
+# 빌드 컨텍스트에 __pycache__ 잔존 시 정리 (런타임 무용)
 RUN find /app -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true
 
 CMD ["sh", "-c", "python -m uvicorn web.server:app --host 0.0.0.0 --port ${PORT:-8000}"]
