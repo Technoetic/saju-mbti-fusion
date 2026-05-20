@@ -1,13 +1,13 @@
-// 하단 탭 바 — 5개 탭 전환 (홈/일지/놀이/친구/프로필)
+// 하단 탭 바 — 5개 탭 전환 (홈/일지/놀이/도감/취선루)
 //
 // body.tab-{key} 클래스로 탭별 화면 토글:
-//   tab-home    → 카드 갤러리 (app-container)
-//   tab-journal → 일지 화면
-//   tab-play    → 놀이 화면
-//   tab-friends → 친구 화면
-//   tab-profile → 프로필 화면
+//   tab-home     → 카드 갤러리 (app-container)
+//   tab-journal  → 일지 화면 (tabView)
+//   tab-play     → 놀이 화면 (tabView)
+//   tab-codex    → 도감 화면 (tabView)
+//   tab-chwiseon → 취선루 (#chwiseonView 별도 화면, body.chwiseon-on)
 
-const TAB_CLASSES = ['tab-home', 'tab-journal', 'tab-play', 'tab-friends', 'tab-profile'];
+const TAB_CLASSES = ['tab-home', 'tab-journal', 'tab-play', 'tab-codex', 'tab-chwiseon'];
 
 function activateTab(key) {
   const body = document.body;
@@ -34,33 +34,40 @@ function activateTab(key) {
   const appMain = document.getElementById('appMain');
   const tabView = document.getElementById('tabView');
   const isHome = (key === 'home');
+  const isChwiseon = (key === 'chwiseon');
+  const isTabViewKey = (key === 'journal' || key === 'play' || key === 'codex');
+
+  // body.chwiseon-on 클래스 토글 (기존 취선루 진입/탈출 시스템 활용)
+  document.body.classList.toggle('chwiseon-on', isChwiseon);
 
   if (appMain) {
+    // 홈일 때만 보임. 취선루·도감 등 다른 탭에선 숨김
     appMain.style.setProperty('display', isHome ? 'block' : 'none', 'important');
   }
   if (tabView) {
-    tabView.style.setProperty('display', isHome ? 'none' : 'block', 'important');
+    // 일지·놀이·도감 탭일 때만 보임
+    tabView.style.setProperty('display', isTabViewKey ? 'block' : 'none', 'important');
   }
 
-  // appMain 형제로 있는 풀이 view들(취선루 등)도 강제 숨김
-  document.querySelectorAll(
-    '#chwiseonView, #chwiseonMenu, #chwiseonContent, #menuView, #contentView, #cardGallery'
-  ).forEach(el => {
+  // appMain 형제로 있는 본관 풀이 view·취선루 view 토글
+  document.querySelectorAll('#menuView, #contentView, #cardGallery').forEach(el => {
     if (!isHome) {
-      el.dataset._prevDisplay = el.style.display || '';
       el.style.setProperty('display', 'none', 'important');
     } else {
       el.style.removeProperty('display');
-      if (el.dataset._prevDisplay !== undefined) {
-        delete el.dataset._prevDisplay;
-      }
     }
   });
 
-  // 취선루 게이트도 홈 외엔 숨김
-  const chwiseonGate = document.getElementById('chwiseonGate');
-  if (chwiseonGate) {
-    chwiseonGate.style.setProperty('display', isHome ? '' : 'none', 'important');
+  // 취선루 view들 (chwiseon 탭일 때만 보임)
+  const chwiseonView = document.getElementById('chwiseonView');
+  if (chwiseonView) {
+    if (isChwiseon) {
+      chwiseonView.removeAttribute('hidden');
+      chwiseonView.style.setProperty('display', 'block', 'important');
+    } else {
+      chwiseonView.setAttribute('hidden', '');
+      chwiseonView.style.setProperty('display', 'none', 'important');
+    }
   }
 
   // 좌상단 '← 점술가 고르러' fixed 버튼도 홈 외엔 숨김
@@ -68,8 +75,6 @@ function activateTab(key) {
   if (toGalleryBtn) {
     toGalleryBtn.style.setProperty('display', isHome ? '' : 'none', 'important');
   }
-
-  // 코너 버튼(전체화면·음소거)은 어디서나 노출 유지
 
   // 홈 탭 진입 시 갤러리 모드도 유지
   if (isHome) {
@@ -80,11 +85,6 @@ function activateTab(key) {
     }
   } else {
     document.body.classList.remove('gallery-mode');
-  }
-
-  // 프로필 탭이면 정보 새로고침
-  if (key === 'profile') {
-    refreshProfileView();
   }
 
   // 스크롤 위로
