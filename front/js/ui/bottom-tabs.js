@@ -36,17 +36,40 @@ function activateTab(key) {
   const isHome = (key === 'home');
 
   if (appMain) {
-    appMain.style.display = isHome ? '' : 'none';
+    appMain.style.setProperty('display', isHome ? 'block' : 'none', 'important');
   }
   if (tabView) {
-    tabView.style.display = isHome ? 'none' : 'block';
+    tabView.style.setProperty('display', isHome ? 'none' : 'block', 'important');
   }
+
+  // appMain 형제로 있는 풀이 view들(취선루 등)도 강제 숨김
+  document.querySelectorAll(
+    '#chwiseonView, #chwiseonMenu, #chwiseonContent, #menuView, #contentView, #cardGallery'
+  ).forEach(el => {
+    if (!isHome) {
+      el.dataset._prevDisplay = el.style.display || '';
+      el.style.setProperty('display', 'none', 'important');
+    } else {
+      el.style.removeProperty('display');
+      if (el.dataset._prevDisplay !== undefined) {
+        delete el.dataset._prevDisplay;
+      }
+    }
+  });
 
   // 취선루 게이트도 홈 외엔 숨김
   const chwiseonGate = document.getElementById('chwiseonGate');
   if (chwiseonGate) {
-    chwiseonGate.style.display = isHome ? '' : 'none';
+    chwiseonGate.style.setProperty('display', isHome ? '' : 'none', 'important');
   }
+
+  // 좌상단 '← 점술가 고르러' fixed 버튼도 홈 외엔 숨김
+  const toGalleryBtn = document.getElementById('toGalleryBtn');
+  if (toGalleryBtn) {
+    toGalleryBtn.style.setProperty('display', isHome ? '' : 'none', 'important');
+  }
+
+  // 코너 버튼(전체화면·음소거)은 어디서나 노출 유지
 
   // 홈 탭 진입 시 갤러리 모드도 유지
   if (isHome) {
