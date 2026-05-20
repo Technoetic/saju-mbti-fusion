@@ -188,6 +188,13 @@ class NameReadingRequest(BaseModel):
     saju_summary: str | None = None  # 사주 요약 텍스트
 
 
+class StarReadingRequest(BaseModel):
+    """성하 공자 별빛 풀이 요청 — 12 황도대 일일 톤 (ADR-068)."""
+
+    birth: str  # 'YYYY-MM-DD'
+    target_date: str | None = None  # None이면 오늘
+
+
 class DreamInterpretRequest(BaseModel):
     """해몽 요청 — 꿈 본문 + 개인 맥락(사주/MBTI 등)."""
 
@@ -791,6 +798,7 @@ class PersonalityAPIServer:
         self.app.post("/api/hwapae/reading")(self.post_hwapae_reading)
         self.app.post("/api/face/reading")(self.post_face_reading)
         self.app.post("/api/palm/reading")(self.post_palm_reading)
+        self.app.post("/api/star/reading")(self.post_star_reading)
         self.app.post("/api/name/reading")(self.post_name_reading)
         self.app.post("/api/dream/interpret")(self.post_dream_interpret)
         self.app.post("/api/clinical/screening")(self.post_clinical_screening)
@@ -1772,6 +1780,41 @@ class PersonalityAPIServer:
             return result
         except ValueError as ve:
             raise HTTPException(400, str(ve))
+        except Exception as e:
+            raise HTTPException(500, str(e))
+
+    async def post_star_reading(
+        self, req: StarReadingRequest
+    ) -> dict[str, Any]:
+        """성하 공자 별빛 풀이 — 12 황도대 결정론 일일 톤 (ADR-068).
+
+        결정론 점성술 점수 산출만, LLM 호출 X (cost·latency 최소화).
+        풀이 텍스트는 /api/llm/chat과 결합하거나 클라이언트가 결정.
+        """
+        try:
+            from datetime import date as _date
+            from engine.divination.star.scoring import compute_daily_star_reading
+            from engine.safety import build_legal_footer, build_ai_generation_meta
+
+            birth = _date.fromisoformat(req.birth)
+            target = _date.fromisoformat(req.target_date) if req.target_date else _date.today()
+            reading = compute_daily_star_reading(birth, target)
+
+            return {
+                "sign_key": reading.sign_key,
+                "sign_label_ko": reading.sign_label_ko,
+                "sign_symbol": reading.sign_symbol,
+                "element_ko": reading.element_ko,
+                "modality_ko": reading.modality_ko,
+                "ruling_planet": reading.ruling_planet,
+                "daily_tone_ko": reading.daily_tone_ko,
+                "target_date": reading.target_date,
+                "disclaimer": reading.disclaimer,
+                "legal_notice": build_legal_footer(),
+                "ai_generation": build_ai_generation_meta(model_label="deterministic-engine"),
+            }
+        except ValueError as ve:
+            raise HTTPException(400, f"날짜 형식 오류 (YYYY-MM-DD 필요): {ve}")
         except Exception as e:
             raise HTTPException(500, str(e))
 
