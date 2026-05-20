@@ -250,3 +250,13 @@ body.tab-friends .chwiseon-gate,
 body.tab-profile .chwiseon-gate {
   display: none !important;
 }
+
+/* 홈 외 탭에선 캐릭터 풀스크린 배경 영상(tab-bg-video) 숨김.
+   카드 갤러리 보던 캐릭터 영상이 놀이/일지/친구/프로필 화면을 덮던 문제. */
+body.tab-journal .tab-bg-video,
+body.tab-play .tab-bg-video,
+body.tab-friends .tab-bg-video,
+body.tab-profile .tab-bg-video {
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
