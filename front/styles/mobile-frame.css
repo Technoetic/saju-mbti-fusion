@@ -1,143 +1,145 @@
 /* ============================================================
    mobile-frame.css — 모바일 우선 + PC에서 가운데 폰 프레임
    ============================================================
-   설계:
-     - 모든 화면(.app-container)을 모바일 디자인 폭(412px) 기준으로 묶음
-     - 모바일: 화면 폭 전체 사용 (100vw), 콘텐츠는 디자인 비율 유지
-     - PC: 가운데 412px 폰 프레임 + 미세 금테 + 부드러운 그림자
-            바깥쪽은 기존 배경 영상이 그대로 노출
+   원칙:
+     - 기존 px 수치를 건드리지 않고 컨테이너 한계만 잠금
+     - !important 최소화 (cascade로 충돌 일으키지 않도록)
+     - PC 폰 프레임은 시각적 효과 (border·shadow)만 부여, 폭은 자식들이 알아서
    ============================================================ */
 
 :root {
-  /* 모바일 디자인 기준 폭 (Pixel 7/8, iPhone 14 Pro 부근) */
+  /* 모바일 디자인 기준 폭 */
   --mobile-width: 412px;
 }
 
-/* ── 모바일 우선: body padding을 좁히고 화면 폭 100% 사용 ── */
-@media (max-width: 480px) {
-  body {
-    padding: 16px 0 48px !important;
-  }
-  /* 코너 버튼·취선루 게이트 등 fixed 요소는 그대로 유지 */
-}
-
-/* ── 메인 컨테이너: 모바일 디자인 폭으로 잠금 ── */
+/* ──────────────────────────────────────────────
+   공통: app-container 폭 모바일로 잠금
+   ────────────────────────────────────────────── */
 .app-container {
-  max-width: var(--mobile-width) !important;
+  max-width: var(--mobile-width);
   width: 100%;
   margin-left: auto;
   margin-right: auto;
-  padding-left: 16px;
-  padding-right: 16px;
+  /* 좌우 padding은 기존 base.css 16px 유지 */
 }
 
-/* 카드 갤러리·메뉴 화면 등 .app-container 바깥의 메인 섹션도 동일 폭 */
-.card-gallery,
-.menu-screen,
-.content-screen {
-  max-width: var(--mobile-width);
-  margin-left: auto;
-  margin-right: auto;
+/* card-gallery·메뉴·콘텐츠 화면도 폰 프레임 안에서 자연스럽게 */
+.card-gallery {
+  max-width: 100% !important;  /* 기존 560px 제한 해제 → 폰 프레임 폭 따라감 */
 }
 
-/* ── PC 환경: 폰 프레임 효과 ── */
+/* ──────────────────────────────────────────────
+   모바일 (≤480px): 화면 폭 전체 사용
+   ────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  body {
+    padding: 20px 0 56px;
+  }
+  .app-container {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+}
+
+/* 매우 작은 화면 (≤360px) */
+@media (max-width: 360px) {
+  .app-container {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+}
+
+/* ──────────────────────────────────────────────
+   PC (≥481px): 가운데 폰 프레임 효과
+   ────────────────────────────────────────────── */
 @media (min-width: 481px) {
   body {
-    /* PC에서는 양옆 빈 공간을 위해 좌우 패딩을 0으로, body가 100vw 차지 */
-    padding-left: 0;
-    padding-right: 0;
+    padding: 24px 0 64px;
   }
 
-  /* app-container 자체가 가운데 폰처럼 보이게 */
+  /* 폰 프레임 — 미세 금테 + 부드러운 그림자, 배경은 깔지 않음
+     (기존 자식 카드·input 테두리가 그대로 보이도록) */
   .app-container {
-    /* 폰 프레임 그림자 + 미세 금테 */
-    border-left: 1px solid rgba(244, 211, 94, 0.18);
-    border-right: 1px solid rgba(244, 211, 94, 0.18);
-    box-shadow:
-      0 0 0 1px rgba(212, 175, 55, 0.08),
-      0 0 60px rgba(244, 211, 94, 0.12),
-      0 30px 90px rgba(0, 0, 0, 0.65),
-      0 10px 40px rgba(0, 0, 0, 0.5);
-    background:
-      linear-gradient(180deg,
-        rgba(10, 15, 30, 0.45) 0%,
-        rgba(14, 18, 36, 0.55) 50%,
-        rgba(10, 15, 30, 0.6) 100%);
-    backdrop-filter: blur(2px);
-    -webkit-backdrop-filter: blur(2px);
-    min-height: calc(100vh - 32px);
-    border-radius: 22px;
-    padding-top: 32px;
+    padding-top: 28px;
     padding-bottom: 48px;
+    padding-left: 18px;
+    padding-right: 18px;
+    border-radius: 26px;
+    /* 외곽 미세 금테 — 1px 짙은 금 + 외광 */
+    box-shadow:
+      0 0 0 1px rgba(212, 175, 55, 0.22),
+      0 0 28px rgba(244, 211, 94, 0.10),
+      0 24px 70px rgba(0, 0, 0, 0.55),
+      0 8px 32px rgba(0, 0, 0, 0.40);
+    /* 살짝 어두운 톤만 — 자식 요소의 색을 죽이지 않게 */
+    background: rgba(10, 14, 28, 0.28);
+    min-height: calc(100vh - 88px);
     position: relative;
-    z-index: 3;
   }
 
-  /* 미세 글로우 라인 (위·아래) */
+  /* 폰 프레임 위·아래 글로우 라인 (분위기 디테일) */
   .app-container::before,
   .app-container::after {
     content: '';
     position: absolute;
-    left: 12%;
-    right: 12%;
+    left: 14%;
+    right: 14%;
     height: 1px;
     background: linear-gradient(90deg,
       transparent,
-      rgba(244, 211, 94, 0.35),
+      rgba(244, 211, 94, 0.32),
       transparent);
     pointer-events: none;
   }
   .app-container::before { top: 0; }
   .app-container::after  { bottom: 0; }
 
-  /* 카드 갤러리 등 외부 섹션도 폰 프레임 안에 들어간 듯 보이게 */
-  .card-gallery,
-  .menu-screen,
-  .content-screen {
-    border-radius: 18px;
-  }
+  /* PC에서 배경 영상 더 진하게 (양옆 빈 공간 분위기) */
+  body.in-app .bg-video { opacity: 0.55; }
 
-  /* 배경 영상 — PC에서 더 진하게 보이게 (양옆 빈 공간 채움) */
-  body.in-app .bg-video { opacity: 0.5 !important; }
-
-  /* 배경 워터마크 한자는 PC에서만 크게 표현 (양옆 빈 공간에 분위기) */
+  /* 워터마크 한자는 양옆 빈 공간에 더 크게 */
   body::before {
-    font-size: 18vw !important;
-    letter-spacing: 4vw !important;
-    color: rgba(212, 175, 55, 0.05) !important;
+    font-size: 16vw;
+    letter-spacing: 3vw;
+    color: rgba(212, 175, 55, 0.06);
   }
 }
 
-/* ── 회원가입 모달: 모바일 폭 따라가게 ── */
-@media (min-width: 481px) {
-  .auth-card {
-    max-width: calc(var(--mobile-width) - 32px);
-  }
+/* ──────────────────────────────────────────────
+   회원가입 모달: 어디서든 모바일 폭에 맞게
+   ────────────────────────────────────────────── */
+.auth-card {
+  max-width: min(420px, calc(100vw - 24px));
 }
 
-/* ── 우상단 사용자 배지: PC에서도 폰 프레임 바깥이 아닌 안쪽에 보이게 ── */
+/* ──────────────────────────────────────────────
+   우상단 사용자 배지: PC에선 폰 프레임 우상단 안쪽
+   ────────────────────────────────────────────── */
 @media (min-width: 481px) {
   .user-badge {
-    /* 화면 정중앙 폰 프레임 우상단에 위치 */
-    top: 20px;
-    right: calc(50% - (var(--mobile-width) / 2) + 12px);
+    top: 36px;
+    right: calc(50% - (var(--mobile-width) / 2) + 16px);
   }
 }
 
-/* ── 모바일 매우 작은 화면(<360px) — 폰트·여백 살짝 축소 ── */
-@media (max-width: 360px) {
-  body {
-    font-size: 15px;
-  }
-  .app-container {
-    padding-left: 12px;
-    padding-right: 12px;
+/* ──────────────────────────────────────────────
+   취선루 문: 사용자 결정 — 모바일/PC 모두 화면 우하단
+   (기본 fixed right:22px bottom:22px 그대로)
+   다만 PC에서 폰 프레임과 거리가 너무 멀어 보이지 않도록
+   살짝 글로우를 키워 분위기 연결
+   ────────────────────────────────────────────── */
+@media (min-width: 481px) {
+  .chwiseon-gate {
+    /* 폰 프레임 우측 바닥 부근에 자연스럽게 위치 */
+    right: calc(50% - (var(--mobile-width) / 2) - 88px);
+    bottom: 32px;
   }
 }
 
-/* ── 가로 모드 (모바일 landscape): 그대로 모바일 폭 유지, 가운데 정렬 ── */
-@media (max-width: 900px) and (orientation: landscape) {
-  .app-container {
-    max-width: var(--mobile-width);
+/* 매우 좁은 PC 브라우저(<700px)에선 폰 프레임 옆 공간이 부족 → 우하단 고정 */
+@media (min-width: 481px) and (max-width: 700px) {
+  .chwiseon-gate {
+    right: 16px;
+    bottom: 16px;
   }
 }
