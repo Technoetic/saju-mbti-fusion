@@ -1,0 +1,264 @@
+/* ============================================================
+   auth.css — 회원가입/로그인 모달 + 우상단 사용자 배지
+   ============================================================ */
+
+.auth-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(8, 12, 24, 0.78);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+  overflow-y: auto;
+  animation: authFadeIn 0.3s ease both;
+}
+
+@keyframes authFadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 460px;
+  background: linear-gradient(180deg, rgba(22, 28, 50, 0.96), rgba(14, 18, 36, 0.98));
+  border: 1px solid rgba(244, 211, 94, 0.32);
+  border-radius: 12px;
+  box-shadow:
+    0 24px 80px rgba(0, 0, 0, 0.6),
+    0 0 60px rgba(244, 211, 94, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  padding: 28px 28px 24px;
+  color: #f0e4c1;
+  font-family: 'Nanum Myeongjo', 'Noto Serif KR', serif;
+  position: relative;
+  animation: authCardUp 0.4s 0.05s ease both;
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+}
+
+@keyframes authCardUp {
+  0%   { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.auth-close {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  background: transparent;
+  border: 0;
+  color: rgba(244, 211, 94, 0.6);
+  font-size: 28px;
+  cursor: pointer;
+  line-height: 1;
+  padding: 4px 8px;
+  transition: color 0.2s;
+}
+.auth-close:hover { color: #ffe89a; }
+
+.auth-title {
+  font-size: 24px;
+  letter-spacing: 6px;
+  color: #ffe89a;
+  text-align: center;
+  margin: 4px 0 18px;
+  font-weight: 700;
+  text-shadow: 0 0 16px rgba(244, 211, 94, 0.35);
+}
+
+.auth-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 18px;
+  border-bottom: 1px solid rgba(244, 211, 94, 0.16);
+}
+.auth-tab {
+  flex: 1;
+  background: transparent;
+  border: 0;
+  color: rgba(240, 228, 193, 0.5);
+  font-family: inherit;
+  font-size: 15px;
+  letter-spacing: 4px;
+  padding: 10px 0 12px;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+}
+.auth-tab:hover { color: #f0e4c1; }
+.auth-tab.active {
+  color: #ffe89a;
+  border-bottom-color: #ffe89a;
+}
+
+.auth-form { display: flex; flex-direction: column; gap: 12px; }
+
+.auth-row {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.auth-row-3 { flex-direction: row; gap: 8px; flex-wrap: wrap; align-items: center; }
+.auth-row-3 > label { width: 100%; }
+
+.auth-row label {
+  font-size: 13px;
+  letter-spacing: 2px;
+  color: rgba(240, 228, 193, 0.8);
+}
+
+.auth-row input,
+.auth-row select {
+  background: rgba(10, 15, 30, 0.55);
+  border: 1px solid rgba(244, 211, 94, 0.25);
+  color: #f0e4c1;
+  padding: 9px 12px;
+  border-radius: 5px;
+  font-family: inherit;
+  font-size: 15px;
+  transition: border-color 0.2s, background 0.2s;
+}
+.auth-row input:focus,
+.auth-row select:focus {
+  outline: none;
+  border-color: rgba(244, 211, 94, 0.7);
+  background: rgba(10, 15, 30, 0.75);
+}
+
+.auth-hint-inline {
+  color: rgba(240, 228, 193, 0.5);
+  font-size: 12px;
+}
+
+.auth-saju {
+  margin-top: 6px;
+  padding: 12px 14px;
+  border: 1px solid rgba(244, 211, 94, 0.18);
+  border-radius: 6px;
+  background: rgba(10, 15, 30, 0.3);
+}
+.auth-saju > summary {
+  cursor: pointer;
+  color: rgba(255, 232, 154, 0.85);
+  font-size: 14px;
+  letter-spacing: 2px;
+  padding: 2px 0;
+  user-select: none;
+}
+.auth-saju[open] > summary { margin-bottom: 10px; }
+.auth-hint {
+  color: rgba(240, 228, 193, 0.55);
+  font-size: 12px;
+  line-height: 1.5;
+  margin: 0 0 12px;
+}
+
+.auth-error {
+  min-height: 18px;
+  color: #ff9b8a;
+  font-size: 13px;
+  letter-spacing: 1px;
+  text-align: center;
+  margin-top: 4px;
+}
+
+.auth-submit {
+  margin-top: 4px;
+  background: linear-gradient(180deg, var(--gold-bri), var(--gold), var(--gold-dp));
+  color: var(--bg-night);
+  border: 1px solid var(--gold-bri);
+  padding: 12px 0;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 6px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 14px rgba(212, 175, 55, 0.35);
+}
+.auth-submit:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(212, 175, 55, 0.5);
+}
+.auth-submit:active { transform: translateY(0); }
+.auth-submit:disabled {
+  opacity: 0.6;
+  cursor: wait;
+  transform: none;
+}
+
+.auth-skip-line {
+  text-align: center;
+  margin: 8px 0 0;
+}
+.auth-skip {
+  background: transparent;
+  border: 0;
+  color: rgba(240, 228, 193, 0.55);
+  font-family: inherit;
+  font-size: 13px;
+  letter-spacing: 2px;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 6px 10px;
+}
+.auth-skip:hover { color: #ffe89a; }
+
+/* 로그인 모드일 때 가입 전용 필드 숨김 */
+.auth-modal[data-mode="login"] .auth-only-signup { display: none; }
+
+/* 우상단 사용자 배지 */
+.user-badge {
+  position: fixed;
+  top: 14px;
+  right: 14px;
+  z-index: 200;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  background: rgba(10, 15, 30, 0.7);
+  border: 1px solid rgba(244, 211, 94, 0.3);
+  border-radius: 22px;
+  padding: 5px 6px 5px 14px;
+  color: #f0e4c1;
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 14px;
+  letter-spacing: 2px;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+.user-badge-name {
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.user-badge-logout {
+  background: transparent;
+  border: 1px solid rgba(244, 211, 94, 0.35);
+  color: rgba(240, 228, 193, 0.75);
+  font-family: inherit;
+  font-size: 12px;
+  letter-spacing: 1px;
+  padding: 3px 10px;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.user-badge-logout:hover {
+  color: #ffe89a;
+  border-color: rgba(244, 211, 94, 0.7);
+}
+
+@media (max-width: 520px) {
+  .auth-card { padding: 22px 18px 18px; }
+  .auth-title { font-size: 20px; letter-spacing: 4px; }
+  .user-badge { font-size: 12px; padding: 4px 5px 4px 10px; }
+  .user-badge-name { max-width: 100px; }
+}

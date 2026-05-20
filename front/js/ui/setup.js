@@ -134,32 +134,28 @@
   });
 })();
 
-// 인트로 → 메인 전환
-(function setupIntro() {
-  const enterBtn = document.getElementById('enterBtn');
-  const intro = document.getElementById('introScreen');
+// 인트로 페이지 제거 — 페이지 로드 즉시 메인 표시
+(function enterAppImmediately() {
   const main = document.getElementById('appMain');
-  if (!enterBtn || !intro || !main) return;
-  enterBtn.addEventListener('click', () => {
-  // 사용자 인터랙션 시점 — BGM unmute + 강제 재생 (브라우저 자동재생 정책 우회)
-  const a = document.getElementById('bgAudio');
-  if (a) {
-    a.muted = false;                           // 인터랙션이라 안전하게 unmute
-    a.volume = a.volume || 0.28;
-    if (a.paused) a.play().catch(() => {});
-    // muteBtn 아이콘 갱신 (등록되어 있으면)
-    const muteBtn = document.getElementById('muteBtn');
-    if (muteBtn && typeof muteBtn._refreshIcon === 'function') muteBtn._refreshIcon();
-  }
-  const v = document.querySelector('.bg-video');
-  if (v && v.paused) v.play().catch(() => {});
-
-  intro.classList.add('hiding');
+  if (!main) return;
   document.body.classList.add('in-app');
   main.classList.add('visible');
-  setTimeout(() => { intro.style.display = 'none'; }, 1200);
-  window.scrollTo({ top: 0, behavior: 'instant' });
-  });
+  // 자동재생 정책 우회: 첫 사용자 인터랙션 시 BGM/배경영상 재생
+  const tryStartMedia = () => {
+    const a = document.getElementById('bgAudio');
+    if (a && a.paused) {
+      a.muted = false;
+      a.volume = a.volume || 0.28;
+      a.play().catch(() => {});
+      const muteBtn = document.getElementById('muteBtn');
+      if (muteBtn && typeof muteBtn._refreshIcon === 'function') muteBtn._refreshIcon();
+    }
+    const v = document.querySelector('.bg-video');
+    if (v && v.paused) v.play().catch(() => {});
+  };
+  ['click', 'touchstart', 'keydown'].forEach(ev =>
+    document.addEventListener(ev, tryStartMedia, { once: true })
+  );
 })();
 
 // 배경 영상 — 단순 loop 재생 + 자동재생 폴백

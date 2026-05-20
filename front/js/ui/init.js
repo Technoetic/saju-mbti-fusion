@@ -91,21 +91,11 @@
     });
   }
 
-  function bindEnterButton() {
-    const enterBtn = document.getElementById('enterBtn');
-    if (!enterBtn) return;
-    enterBtn.addEventListener('click', () => {
-      setTimeout(() => activateTabScene('saju'), 600);
-    });
-  }
-
   function init() {
     detachVideosToBody();
     bindTabSwitch();
-    bindEnterButton();
-    if (document.body.classList.contains('in-app')) {
-      activateTabScene('saju');
-    }
+    // 인트로 제거: 항상 사주 탭으로 진입
+    activateTabScene('saju');
   }
 
   if (document.readyState === 'loading') {

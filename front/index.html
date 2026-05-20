@@ -24,6 +24,7 @@
 <script type="module" src="js/readers/name-reader.js"></script>
 <script type="module" src="js/readers/dream-reader.js"></script>
 <script type="module" src="js/readers/hwapae-reader.js"></script>
+<script type="module" src="js/ui/auth.js"></script>
 </head>
 <body>
 <video class="bg-video" autoplay muted loop playsinline preload="auto" aria-hidden="true">
@@ -253,14 +254,140 @@
   </svg>
 </button>
 
-<!-- 인트로 스플래시 -->
-<div id="introScreen" class="intro-screen">
-  <div class="intro-content">
-  <div class="intro-ornament"></div>
-  <h1 class="intro-title">月 下 夢</h1>
-  <p class="intro-subtitle">월 하 몽 · 달 아 래 의  꿈</p>
-  <button id="enterBtn" class="enter-btn">질문하러 가기</button>
+<!-- 회원가입/로그인 모달 -->
+<div id="authModal" class="auth-modal" role="dialog" aria-labelledby="authTitle" aria-modal="true" style="display:none">
+  <div class="auth-card">
+    <button type="button" class="auth-close" id="authClose" aria-label="닫기">×</button>
+    <h2 class="auth-title" id="authTitle">月 下 夢 · 회원가입</h2>
+    <div class="auth-tabs">
+      <button type="button" class="auth-tab active" data-auth-mode="signup">회원가입</button>
+      <button type="button" class="auth-tab" data-auth-mode="login">로그인</button>
+    </div>
+
+    <form id="authForm" class="auth-form" autocomplete="on" novalidate>
+      <!-- 공통: 이메일/비번 -->
+      <div class="auth-row">
+        <label for="authEmail">이메일</label>
+        <input type="email" id="authEmail" name="email" required autocomplete="email" placeholder="you@example.com">
+      </div>
+      <div class="auth-row">
+        <label for="authPassword">비밀번호</label>
+        <input type="password" id="authPassword" name="password" required minlength="8" autocomplete="current-password" placeholder="8자 이상">
+      </div>
+      <div class="auth-row auth-only-signup">
+        <label for="authPassword2">비밀번호 확인</label>
+        <input type="password" id="authPassword2" name="password2" minlength="8" autocomplete="new-password" placeholder="다시 한 번 입력">
+      </div>
+      <div class="auth-row auth-only-signup">
+        <label for="authNickname">닉네임</label>
+        <input type="text" id="authNickname" name="nickname" autocomplete="nickname" placeholder="화면에 표시될 이름" maxlength="24">
+      </div>
+
+      <!-- 사주 기본 정보 (선택) -->
+      <details class="auth-saju auth-only-signup">
+        <summary>사주 정보 미리 입력하기 (선택)</summary>
+        <p class="auth-hint">지금 입력해 두시면 사주·이름 풀이 화면에 자동으로 채워집니다. 나중에 풀이 화면에서 직접 입력하셔도 됩니다.</p>
+
+        <div class="auth-row">
+          <label for="authNameKo">한글 이름</label>
+          <input type="text" id="authNameKo" name="name_ko" placeholder="예: 박형민" maxlength="12" autocomplete="name">
+        </div>
+        <div class="auth-row auth-row-3">
+          <label>생년월일</label>
+          <input type="number" id="authBirthYear" name="birth_year" placeholder="YYYY" min="1900" max="2100" style="width:90px">
+          <input type="number" id="authBirthMonth" name="birth_month" placeholder="MM" min="1" max="12" style="width:64px">
+          <input type="number" id="authBirthDay" name="birth_day" placeholder="DD" min="1" max="31" style="width:64px">
+          <span class="auth-hint-inline">(양력)</span>
+        </div>
+        <div class="auth-row">
+          <label for="authBirthHourBranch">태어난 시각</label>
+          <select id="authBirthHourBranch" name="birth_hour_branch">
+            <option value="">— 선택 안 함 —</option>
+            <option value="子">자시 (子) · 23 ~ 01시</option>
+            <option value="丑">축시 (丑) · 01 ~ 03시</option>
+            <option value="寅">인시 (寅) · 03 ~ 05시</option>
+            <option value="卯">묘시 (卯) · 05 ~ 07시</option>
+            <option value="辰">진시 (辰) · 07 ~ 09시</option>
+            <option value="巳">사시 (巳) · 09 ~ 11시</option>
+            <option value="午">오시 (午) · 11 ~ 13시</option>
+            <option value="未">미시 (未) · 13 ~ 15시</option>
+            <option value="申">신시 (申) · 15 ~ 17시</option>
+            <option value="酉">유시 (酉) · 17 ~ 19시</option>
+            <option value="戌">술시 (戌) · 19 ~ 21시</option>
+            <option value="亥">해시 (亥) · 21 ~ 23시</option>
+            <option value="unknown">시간 모름</option>
+          </select>
+        </div>
+        <div class="auth-row">
+          <label for="authGender">성별</label>
+          <select id="authGender" name="gender">
+            <option value="">— 선택 안 함 —</option>
+            <option value="M">남자</option>
+            <option value="F">여자</option>
+          </select>
+        </div>
+        <div class="auth-row">
+          <label for="authBirthplace">태어난 곳</label>
+          <select id="authBirthplace" name="birthplace">
+            <option value="">— 선택 안 함 —</option>
+            <option value="seoul">서울</option>
+            <option value="busan">부산</option>
+            <option value="incheon">인천</option>
+            <option value="daegu">대구</option>
+            <option value="gwangju">광주</option>
+            <option value="daejeon">대전</option>
+            <option value="ulsan">울산</option>
+            <option value="sejong">세종</option>
+            <option value="gyeonggi">경기</option>
+            <option value="gangwon">강원</option>
+            <option value="chungbuk">충북</option>
+            <option value="chungnam">충남</option>
+            <option value="jeonbuk">전북</option>
+            <option value="jeonnam">전남</option>
+            <option value="gyeongbuk">경북</option>
+            <option value="gyeongnam">경남</option>
+            <option value="jeju">제주</option>
+            <option value="tokyo">도쿄 (일본)</option>
+            <option value="beijing">베이징 (중국)</option>
+            <option value="custom">기타</option>
+          </select>
+        </div>
+        <div class="auth-row">
+          <label for="authIsLunar">달력</label>
+          <select id="authIsLunar" name="is_lunar">
+            <option value="false">양력</option>
+            <option value="true">음력</option>
+          </select>
+        </div>
+        <div class="auth-row">
+          <label for="authMbti">MBTI</label>
+          <select id="authMbti" name="mbti">
+            <option value="">— 모름 / 선택 안 함 —</option>
+            <option value="INTJ">INTJ</option><option value="INTP">INTP</option>
+            <option value="ENTJ">ENTJ</option><option value="ENTP">ENTP</option>
+            <option value="INFJ">INFJ</option><option value="INFP">INFP</option>
+            <option value="ENFJ">ENFJ</option><option value="ENFP">ENFP</option>
+            <option value="ISTJ">ISTJ</option><option value="ISFJ">ISFJ</option>
+            <option value="ESTJ">ESTJ</option><option value="ESFJ">ESFJ</option>
+            <option value="ISTP">ISTP</option><option value="ISFP">ISFP</option>
+            <option value="ESTP">ESTP</option><option value="ESFP">ESFP</option>
+          </select>
+        </div>
+      </details>
+
+      <div id="authError" class="auth-error" role="alert" aria-live="polite"></div>
+      <button type="submit" id="authSubmit" class="auth-submit">회원가입</button>
+      <p class="auth-skip-line">
+        <button type="button" id="authSkipBtn" class="auth-skip">가입 없이 둘러보기</button>
+      </p>
+    </form>
   </div>
+</div>
+
+<!-- 우상단 사용자 배지 (로그인 후 닉네임 표시 + 로그아웃) -->
+<div id="userBadge" class="user-badge" style="display:none">
+  <span id="userBadgeName" class="user-badge-name"></span>
+  <button type="button" id="userBadgeLogout" class="user-badge-logout">로그아웃</button>
 </div>
 
 <!-- 풀이 모드에서 카드 갤러리로 돌아가는 좌상단 버튼 (정통 풀이 화면용) -->

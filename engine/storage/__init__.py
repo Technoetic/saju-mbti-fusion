@@ -24,6 +24,8 @@ from engine.storage.db import (
 )
 from engine.storage.repositories import (
     UserRepo,
+    AccountRepo,
+    AccountError,
     DreamDiaryRepo,
     ClinicalLogRepo,
     IRTSessionRepo,
@@ -44,6 +46,8 @@ __all__ = [
     "new_user_id",
     "DB_PATH",
     "UserRepo",
+    "AccountRepo",
+    "AccountError",
     "DreamDiaryRepo",
     "ClinicalLogRepo",
     "IRTSessionRepo",

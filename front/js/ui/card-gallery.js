@@ -184,22 +184,13 @@
   });
   }
 
-  // 인트로 → 메인 진입 시 자동으로 갤러리 모드 진입
-  // (질문하러 가기 버튼 클릭 시점에 setupIntro가 in-app 클래스 부여)
-  const introBtn = document.getElementById('enterBtn');
-  if (introBtn) {
-  introBtn.addEventListener('click', () => {
-  // body.in-app 부여 직후 갤러리 모드도 같이
-  setTimeout(enterGalleryMode, 50);
-  });
+  // 인트로 제거: 페이지 로드 즉시 갤러리 모드 진입
+  if (document.body.classList.contains('in-app')) {
+    enterGalleryMode();
   } else {
-  // 이미 in-app인 경우(개발/리로드)
-  if (document.body.classList.contains('in-app')) enterGalleryMode();
-  }
-
-  // 페이지가 in-app 상태로 로드된 경우 (새로고침 후)
-  if (document.readyState !== 'loading' && document.body.classList.contains('in-app')) {
-  enterGalleryMode();
+    document.addEventListener('DOMContentLoaded', () => {
+      if (document.body.classList.contains('in-app')) enterGalleryMode();
+    });
   }
 
   // 초기 렌더

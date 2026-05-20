@@ -53,6 +53,25 @@ CREATE TABLE IF NOT EXISTS users (
 
 CREATE INDEX IF NOT EXISTS idx_users_created ON users(created_at_iso);
 
+-- ─────────── 회원가입 (이메일/비번) ───────────
+-- users 테이블에 ALTER ADD COLUMN으로 확장 (마이그레이션은 init_db에서 처리)
+CREATE TABLE IF NOT EXISTS account_emails (
+    user_id        TEXT PRIMARY KEY REFERENCES users(user_id) ON DELETE CASCADE,
+    email          TEXT NOT NULL UNIQUE,
+    password_hash  TEXT NOT NULL,
+    nickname       TEXT,
+    name_ko        TEXT,
+    birth_year     INTEGER,
+    birth_month    INTEGER,
+    birth_day      INTEGER,
+    birth_hour_branch TEXT,
+    birthplace     TEXT,
+    is_lunar       INTEGER NOT NULL DEFAULT 0,
+    created_at_iso TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_account_emails_email ON account_emails(email);
+
 -- ─────────── #22 Schredl Diary 표준 일기 ───────────
 CREATE TABLE IF NOT EXISTS dream_diary (
     diary_id        TEXT PRIMARY KEY,

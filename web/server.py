@@ -331,6 +331,29 @@ class ConsentRequest(BaseModel):
     consent: bool
 
 
+class SignupRequest(BaseModel):
+    """이메일/비번 회원가입 + 사주 프리필(선택)."""
+    email: str
+    password: str
+    nickname: str | None = None
+    # 사주 프리필 (전부 선택)
+    name_ko: str | None = None
+    birth_year: int | None = None
+    birth_month: int | None = None
+    birth_day: int | None = None
+    birth_hour_branch: str | None = None
+    birthplace: str | None = None
+    is_lunar: bool = False
+    gender: str | None = None
+    mbti: str | None = None
+
+
+class LoginRequest(BaseModel):
+    """이메일/비번 로그인."""
+    email: str
+    password: str
+
+
 class DiaryAddRequest(BaseModel):
     """Schredl 표준 일기 저장."""
     user_id: str
@@ -753,6 +776,9 @@ class PersonalityAPIServer:
         self.app.post("/api/user/profile")(self.post_user_profile)
         self.app.post("/api/user/consent")(self.post_user_consent)
         self.app.post("/api/user/delete")(self.post_user_delete)
+        self.app.post("/api/auth/signup")(self.post_auth_signup)
+        self.app.post("/api/auth/login")(self.post_auth_login)
+        self.app.get("/api/auth/me")(self.get_auth_me)
         self.app.post("/api/diary/add")(self.post_diary_add)
         self.app.post("/api/diary/list")(self.post_diary_list)
         self.app.post("/api/clinical/log")(self.post_clinical_log)
@@ -2217,6 +2243,57 @@ class PersonalityAPIServer:
             from engine.storage import UserRepo
             result = await asyncio.to_thread(UserRepo.delete, req.user_id)
             return result
+        except Exception as e:
+            raise HTTPException(500, str(e))
+
+    # ─────────────────────────── 회원가입 / 로그인 ───────────────────────────
+    async def post_auth_signup(self, req: SignupRequest) -> dict[str, Any]:
+        """이메일/비번 회원가입. 가입 후 user_id + 프로필 반환."""
+        try:
+            from engine.storage import AccountRepo, AccountError
+            profile = req.model_dump(exclude={"email", "password", "nickname"})
+            try:
+                account = await asyncio.to_thread(
+                    AccountRepo.signup,
+                    req.email,
+                    req.password,
+                    req.nickname,
+                    **profile,
+                )
+            except AccountError as ae:
+                raise HTTPException(400, {"code": ae.code, "message": ae.message})
+            return {"ok": True, "account": account}
+        except HTTPException:
+            raise
+        except Exception as e:
+            raise HTTPException(500, str(e))
+
+    async def post_auth_login(self, req: LoginRequest) -> dict[str, Any]:
+        """이메일/비번 로그인."""
+        try:
+            from engine.storage import AccountRepo, AccountError
+            try:
+                account = await asyncio.to_thread(
+                    AccountRepo.login, req.email, req.password
+                )
+            except AccountError as ae:
+                raise HTTPException(401, {"code": ae.code, "message": ae.message})
+            return {"ok": True, "account": account}
+        except HTTPException:
+            raise
+        except Exception as e:
+            raise HTTPException(500, str(e))
+
+    async def get_auth_me(self, user_id: str) -> dict[str, Any]:
+        """user_id로 계정 정보 조회 (세션 복원용)."""
+        try:
+            from engine.storage import AccountRepo
+            account = await asyncio.to_thread(AccountRepo.get_account, user_id)
+            if not account:
+                raise HTTPException(404, "account not found")
+            return {"ok": True, "account": account}
+        except HTTPException:
+            raise
         except Exception as e:
             raise HTTPException(500, str(e))
 

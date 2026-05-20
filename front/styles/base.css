@@ -56,30 +56,7 @@
   linear-gradient(180deg, rgba(10,15,30,0.55) 0%, rgba(10,15,30,0.4) 50%, rgba(10,15,30,0.75) 100%);
   }
 
-  /* 인트로 스플래시 */
-  .intro-screen {
-  position: fixed;
-  inset: 0;
-  z-index: 5;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: opacity 1.1s ease, visibility 1.1s ease;
-  }
-  .intro-screen.hiding {
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-  }
-  .intro-content {
-  text-align: center;
-  padding: 0 20px;
-  animation: introUp 1.6s 0.5s ease both;
-  }
-  @keyframes introUp {
-  0%  { opacity: 0; transform: translateY(30px); }
-  100% { opacity: 1; transform: translateY(0); }
-  }
+  /* 인트로 스플래시 — 제거됨 (회원가입 모달로 대체) */
   /* 영상 위 가독성: 텍스트 자체에 강한 검정 외곽선 + 금색 글로우만 */
   .intro-ornament {
   color: var(--gold-bri);
@@ -177,17 +154,16 @@
   }
   .enter-btn:active { transform: translateY(0); }
 
-  /* 메인 콘텐츠 — 처음엔 숨김, .visible 클래스 붙으면 페이드인 */
+  /* 메인 콘텐츠 — 인트로 제거 후 기본 표시 */
   .app-container {
   max-width: 920px;
   margin: 0 auto;
   position: relative;
   z-index: 3;
-  display: none;
+  display: block;
   }
   .app-container.visible {
-  display: block;
-  animation: contentFadeIn 1.2s ease both;
+  animation: contentFadeIn 0.6s ease both;
   }
   @keyframes contentFadeIn {
   0%  { opacity: 0; transform: translateY(24px); }
