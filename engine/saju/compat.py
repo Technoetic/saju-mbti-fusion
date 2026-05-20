@@ -183,10 +183,11 @@ def analyze_compat(
     wx_b = saju_b.get("wuxing_dist", {})
     wx_flow = _wuxing_compat(wx_a, wx_b)
 
-    # MBTI 호환
-    mbti_score = None
+    # MBTI 호환 (ADR-090: 점수 제거 → 학파 라벨만)
+    # Socionics + Type Dynamics 학파 분류 — 단일 학파 단정 X (ADR-002)
+    mbti_label = None
     if mbti_a and mbti_b:
-        mbti_score = _mbti_score(mbti_a, mbti_b)
+        mbti_label = _mbti_socionics_label(mbti_a, mbti_b)
 
     # 음령오행 결합 (이름)
     name_flow = None
@@ -195,46 +196,13 @@ def analyze_compat(
         wxb = myeong_b.get("combined_wuxing_dist") or myeong_b.get("wuxing_dist") or {}
         name_flow = _wuxing_compat(wxa, wxb)
 
-    # 점수 산정 (0~100)
-    score = 50  # 기준
-    if stem_he:
-        score += 10
-    if stem_chong:
-        score -= 10
-    for rel in branch_relations:
-        if "合" in rel:
-            score += 8
-        elif "沖" in rel:
-            score -= 8
-        elif "刑" in rel:
-            score -= 5
-        elif "破" in rel:
-            score -= 4
-        elif "害" in rel:
-            score -= 3
-    score += min(15, len(wx_flow["positive"]) * 3)
-    score -= min(15, len(wx_flow["negative"]) * 3)
-    if mbti_score is not None:
-        score += (mbti_score - 6) * 3  # 9점 → +9, 6점 → 0
-    if name_flow:
-        score += min(8, len(name_flow["positive"]) * 2)
-        score -= min(8, len(name_flow["negative"]) * 2)
-    score = max(0, min(100, score))
-
-    if score >= 75:
-        grade = "최상"
-    elif score >= 60:
-        grade = "상"
-    elif score >= 45:
-        grade = "중"
-    elif score >= 30:
-        grade = "하"
-    else:
-        grade = "최하"
+    # ADR-090: 0~100점 score + 최상/상/중/하/최하 grade 단정 제거.
+    # 사주 단독에서는 "좋은/안 좋은 사주" 단정 차단하면서 궁합에서만 점수 단정은
+    # ADR 일관성 결손. 본 버전은 명리학 통설 결정론 라벨만 회신.
+    # 사용자 출력: 합/충/형/파/해 명칭 + 상생/상극 흐름 + 양면 해석 (LLM 책임).
 
     return {
-        "score": score,
-        "grade": grade,
+        # ADR-090: score·grade 키 의도적 부재 — 단정 차단
         "stem": {
             "a": stem_a,
             "b": stem_b,
@@ -249,10 +217,53 @@ def analyze_compat(
         "mbti": {
             "a": mbti_a,
             "b": mbti_b,
-            "score": mbti_score,
+            "socionics_label": mbti_label,  # ADR-090: 점수 → 학파 라벨
         } if mbti_a and mbti_b else None,
         "name_flow": name_flow,
+        "disclaimer": (
+            "본 궁합 분석은 명리학 통설 (합·충·형·파·해) + Socionics MBTI 분류 결정론 라벨이며 "
+            "관계 성공·실패·이별·결혼 단정 X. 사용자 인생 결정의 단독 근거 X (ADR-006·010·014)."
+        ),
     }
+
+
+# ADR-090: MBTI 16x16 Socionics 학파 라벨 (점수 X)
+_MBTI_SOCIONICS_RELATIONS = {
+    # Duality (보완)
+    "INTJ-ENFP": "Duality (보완)", "INTP-ENTJ": "Duality (보완)",
+    "ENTJ-INFP": "Duality (보완)", "ENTP-INFJ": "Duality (보완)",
+    "INFJ-ENTP": "Duality (보완)", "INFP-ENTJ": "Duality (보완)",
+    "ENFJ-INTP": "Duality (보완)", "ENFP-INTJ": "Duality (보완)",
+    "ISTJ-ESFP": "Duality (보완)", "ISFJ-ESTP": "Duality (보완)",
+    "ESTJ-ISFP": "Duality (보완)", "ESFJ-ISTP": "Duality (보완)",
+    "ISTP-ESFJ": "Duality (보완)", "ISFP-ESTJ": "Duality (보완)",
+    "ESTP-ISFJ": "Duality (보완)", "ESFP-ISTJ": "Duality (보완)",
+    # Identity (동일)
+    "INTJ-INTJ": "Identity (동일)", "INTP-INTP": "Identity (동일)",
+    "ENTJ-ENTJ": "Identity (동일)", "ENTP-ENTP": "Identity (동일)",
+    "INFJ-INFJ": "Identity (동일)", "INFP-INFP": "Identity (동일)",
+    "ENFJ-ENFJ": "Identity (동일)", "ENFP-ENFP": "Identity (동일)",
+    "ISTJ-ISTJ": "Identity (동일)", "ISFJ-ISFJ": "Identity (동일)",
+    "ESTJ-ESTJ": "Identity (동일)", "ESFJ-ESFJ": "Identity (동일)",
+    "ISTP-ISTP": "Identity (동일)", "ISFP-ISFP": "Identity (동일)",
+    "ESTP-ESTP": "Identity (동일)", "ESFP-ESFP": "Identity (동일)",
+}
+
+
+def _mbti_socionics_label(a: str, b: str) -> str:
+    """ADR-090: MBTI 두 유형 → Socionics 학파 분류 라벨.
+
+    Returns:
+        "Duality (보완)" | "Identity (동일)" | "Standard (표준)"
+    Notes:
+        Socionics 학파 단일 채택. ADR-002 정합 — 명시적 학파 라벨로 단정 차단.
+        호환 "점수" 회신 X. 분류 명칭만 회신.
+    """
+    a, b = a.upper().strip(), b.upper().strip()
+    key1 = f"{a}-{b}"
+    key2 = f"{b}-{a}"
+    label = _MBTI_SOCIONICS_RELATIONS.get(key1) or _MBTI_SOCIONICS_RELATIONS.get(key2)
+    return label or "Standard (표준)"
 
 
 __all__ = ["analyze_compat"]
