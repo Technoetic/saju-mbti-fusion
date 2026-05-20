@@ -129,7 +129,7 @@ def plan_dsr(
         )
 
     cache_dir = cache_dir or (
-        Path(__file__).resolve().parent.parent.parent / "step_archive" / "face_reading_cache"
+        Path(__file__).resolve().parent.parent.parent.parent / "step_archive" / "face_reading_cache"
     )
     affected = _find_affected_files(cache_dir, request.subject_id)
     actions: list[str] = []
@@ -191,7 +191,7 @@ def execute_dsr(
         return result
 
     cache_dir = cache_dir or (
-        Path(__file__).resolve().parent.parent.parent / "step_archive" / "face_reading_cache"
+        Path(__file__).resolve().parent.parent.parent.parent / "step_archive" / "face_reading_cache"
     )
 
     for action in plan.actions:
