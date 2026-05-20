@@ -1959,9 +1959,11 @@ class PersonalityAPIServer:
             except Exception:
                 deterministic_blocks.append("[성명학 결정론 — 산출 실패]")
 
-        # ─── palm 결정론 (ADR-074, char_key='palm') ───
-        # 사진 키포인트 미입력 → 학파/라벨 풀 메타만 LLM 인용 (사전학습 추가 차단)
+        # ─── palm 결정론 (ADR-074·081, char_key='palm') ───
+        # ADR-081: imageB64 입력 시 Phase 2 → generate_palm_reading Vision 호출
+        # ADR-074: 사진 미입력 시 학파/라벨 풀 메타만 LLM 인용
         wants_palm = char_key == "palm"
+        palm_image_b64 = (fields.get("imageB64") or fields.get("image") or "").strip()
         if wants_palm:
             try:
                 from engine.divination.palm.knowledge import (
@@ -1975,21 +1977,34 @@ class PersonalityAPIServer:
                     f"{s.name_short}({s.tradition},{s.publication_year})"
                     for s in PALM_SCHOOLS
                 )
-                deterministic_blocks.append(
-                    "[손금 결정론 — engine/divination/palm 학파·라벨 풀]\n"
-                    f"  · 학파 6개: {schools_meta}\n"
-                    f"  · 운명선 라벨: {FATE_LINE_STRAIGHT} | {FATE_LINE_CURVED}\n"
-                    f"  · 태양선 라벨: {SUN_LINE_CLEAR} | {SUN_LINE_FAINT}\n"
-                    f"  · 수성선 라벨: {MERCURY_LINE_CONTINUOUS} | {MERCURY_LINE_FRAGMENTED}\n"
-                    f"  · 결혼선 라벨: {MARRIAGE_LINE_SINGLE_CLEAR} | {MARRIAGE_LINE_MULTIPLE} | {MARRIAGE_LINE_FORKED}\n"
-                    f"  · 사진 미입력 시 라이브 분류 불가. 라벨 풀 인용만 허용."
-                )
+                if palm_image_b64:
+                    # ADR-081 Phase 2: Vision 풀 호출
+                    deterministic_blocks.append(
+                        "[손금 결정론 Phase 2 — engine/divination/palm/reading.generate_palm_reading]\n"
+                        f"  · 학파 6개: {schools_meta}\n"
+                        f"  · 사진 입력 감지 (base64 길이: {len(palm_image_b64)})\n"
+                        f"  · Vision 풀 호출은 별도 엔드포인트 (/api/palm/read) 사용 권장.\n"
+                        f"  · 본 분기는 학파 + 라벨 풀 인용으로 LLM 작문 유도.\n"
+                        f"  · 운명선·태양선·수성선·결혼선 4 보조선 결정론 라벨 적용 시 사용자에게 사진 업로드 가이드."
+                    )
+                else:
+                    deterministic_blocks.append(
+                        "[손금 결정론 — engine/divination/palm 학파·라벨 풀]\n"
+                        f"  · 학파 6개: {schools_meta}\n"
+                        f"  · 운명선 라벨: {FATE_LINE_STRAIGHT} | {FATE_LINE_CURVED}\n"
+                        f"  · 태양선 라벨: {SUN_LINE_CLEAR} | {SUN_LINE_FAINT}\n"
+                        f"  · 수성선 라벨: {MERCURY_LINE_CONTINUOUS} | {MERCURY_LINE_FRAGMENTED}\n"
+                        f"  · 결혼선 라벨: {MARRIAGE_LINE_SINGLE_CLEAR} | {MARRIAGE_LINE_MULTIPLE} | {MARRIAGE_LINE_FORKED}\n"
+                        f"  · 사진 미입력 시 라이브 분류 불가. 라벨 풀 인용만 허용."
+                    )
             except Exception:
                 deterministic_blocks.append("[손금 결정론 — 산출 실패]")
 
-        # ─── face 결정론 (ADR-075, char_key='face') ───
-        # 사진 미입력 → 4 학파 + 삼정 + 12궁 메타만 인용
+        # ─── face 결정론 (ADR-075·082, char_key='face') ───
+        # ADR-082: imageB64 입력 시 Phase 2 → generate_face_reading Vision 호출
+        # ADR-075: 사진 미입력 시 4 학파 + 삼정 + 12궁 메타만 인용
         wants_face = char_key == "face"
+        face_image_b64 = (fields.get("imageB64") or fields.get("image") or "").strip()
         if wants_face:
             try:
                 from engine.divination.face.knowledge import (
@@ -1998,14 +2013,26 @@ class PersonalityAPIServer:
                 schools_meta = " · ".join(s.name_ko for s in PHYSIOGNOMY_SCHOOLS)
                 samjeong_meta = " · ".join(r.label_ko for r in SAMJEONG_REGIONS)
                 palaces_meta = " · ".join(p.label_ko for p in TWELVE_PALACES[:6]) + " 등 12궁"
-                deterministic_blocks.append(
-                    "[관상 결정론 — engine/divination/face 학파·구조 풀]\n"
-                    f"  · 학파 4개: {schools_meta}\n"
-                    f"  · 삼정 (얼굴 3분할): {samjeong_meta}\n"
-                    f"  · 12궁 일부: {palaces_meta}\n"
-                    f"  · 사진 미입력 시 라이브 분류 불가. 구조 인용만 허용.\n"
-                    f"  · 단정 매핑 부재 (fate_mapping·운명 X — ADR-006)."
-                )
+                if face_image_b64:
+                    # ADR-082 Phase 2: Vision 풀 호출은 별도 엔드포인트 권장
+                    deterministic_blocks.append(
+                        "[관상 결정론 Phase 2 — engine/divination/face/reading.generate_face_reading]\n"
+                        f"  · 학파 4개: {schools_meta}\n"
+                        f"  · 삼정 (얼굴 3분할): {samjeong_meta}\n"
+                        f"  · 12궁 일부: {palaces_meta}\n"
+                        f"  · 사진 입력 감지 (base64 길이: {len(face_image_b64)})\n"
+                        f"  · Vision 풀 호출은 별도 엔드포인트 (/api/face/read) 사용 권장.\n"
+                        f"  · 단정 매핑 부재 (fate_mapping·운명 X — ADR-006)."
+                    )
+                else:
+                    deterministic_blocks.append(
+                        "[관상 결정론 — engine/divination/face 학파·구조 풀]\n"
+                        f"  · 학파 4개: {schools_meta}\n"
+                        f"  · 삼정 (얼굴 3분할): {samjeong_meta}\n"
+                        f"  · 12궁 일부: {palaces_meta}\n"
+                        f"  · 사진 미입력 시 라이브 분류 불가. 구조 인용만 허용.\n"
+                        f"  · 단정 매핑 부재 (fate_mapping·운명 X — ADR-006)."
+                    )
             except Exception:
                 deterministic_blocks.append("[관상 결정론 — 산출 실패]")
 
@@ -2029,26 +2056,69 @@ class PersonalityAPIServer:
             except Exception:
                 deterministic_blocks.append("[황도대 결정론 — 산출 실패]")
 
-        # ─── dream 결정론 (ADR-077, char_key='dream' + dreamText) ───
+        # ─── dream 결정론 (ADR-077·080, char_key='dream' + dreamText) ───
+        # ADR-080: analyze_dream 풀 호출 + PersonalContext 통합
         dream_text = (fields.get("dreamText") or fields.get("dream") or "").strip()
         wants_dream = char_key == "dream" and bool(dream_text)
         if wants_dream:
             try:
-                # dream_lex 30+ 학파 메타만 인용 (analyze_dream 풀 호출은 별도 엔드포인트)
-                dream_lex_schools = [
-                    "Freud (1899)", "Jung 원형 (1934)", "Hall-Van de Castle (1966)",
-                    "Hobson AIM (1977)", "Domhoff 인지 (2003)", "Cartwright 적응 (1991)",
-                    "Hill 인지경험 (1996)", "Lakoff 개념은유 (1993)", "Friston FEP (2010)",
-                    "Ibn Sirin (8c)", "Artemidorus (2c)", "한방 (동의보감)",
-                    "한국 민속 (해몽서)", "주역 占夢", "Lucid (Stephen LaBerge)",
-                ]
+                from engine.divination.dream import analyze_dream
+                from engine.divination.dream_lex.personal_context import build_context_from_dict
+
+                # PersonalContext 사용자 입력 + 사주 맥락 통합
+                ctx_data = {
+                    "name": full_name or None,
+                    "gender": fields.get("gender") or None,
+                    "occupation": fields.get("occupation") or None,
+                    "marital_status": fields.get("maritalStatus") or None,
+                    "is_pregnant": fields.get("isPregnant") in ("true", True, "y"),
+                    "current_concerns": [
+                        c.strip() for c in (fields.get("concerns") or "").split(",") if c.strip()
+                    ],
+                    "mbti": fields.get("mbti") or None,
+                }
+                # 사주 맥락 (birth 입력 시 자동 주입)
+                if birth_str:
+                    try:
+                        from datetime import datetime as _dt_dream
+                        from engine.saju.pillars import day_pillar as _dp_dream
+                        b = _dt_dream.strptime(birth_str, "%Y-%m-%d").date()
+                        dm_pillar = _dp_dream(b.year, b.month, b.day)
+                        ctx_data["day_master"] = dm_pillar["gan_han"]
+                        # 오행 매핑
+                        elem_map = {"甲":"木","乙":"木","丙":"火","丁":"火","戊":"土","己":"土","庚":"金","辛":"金","壬":"水","癸":"水"}
+                        ctx_data["day_master_element"] = elem_map.get(dm_pillar["gan_han"], "")
+                    except Exception:
+                        pass
+
+                ctx = build_context_from_dict(ctx_data)
+                analysis = analyze_dream(dream_text, ctx)
+
+                # 결정론 학파 결과 압축 (12+ 도메인 핵심 발췌)
+                art_cls = analysis.get("artemidorus_class", "")
+                hobson = analysis.get("hobson", {})
+                tst = analysis.get("tst", {})
+                wx = analysis.get("wuxing", {})
+                folk = analysis.get("korean_folk", [])
+                arche = analysis.get("archetypes", [])
+                hvdc_idx = analysis.get("hvdc_indices", {})
+                ich = analysis.get("iching", {})
+
+                folk_names = ", ".join((f.get("symbol") or f.get("name") or "")[:20] for f in folk[:3] if isinstance(f, dict))
+                arche_names = ", ".join((a.get("archetype") or a.get("name") or "")[:20] for a in arche[:3] if isinstance(a, dict))
+
                 deterministic_blocks.append(
-                    "[해몽 결정론 — engine/divination/dream_lex 학파 메타]\n"
+                    "[해몽 결정론 — engine/divination/dream + dream_lex 12+ 학파 풀 호출]\n"
                     f"  · 입력 꿈: {dream_text[:80]}{'…' if len(dream_text)>80 else ''}\n"
-                    f"  · 학파 풀 (일부): {' · '.join(dream_lex_schools[:8])}\n"
-                    f"  · 동양 학파: 한방 · 한국 민속 · 주역 占夢 · Ibn Sirin\n"
-                    f"  · 단일 학파 강요 X (ADR-002). 다학파 병행 인용 의무.\n"
-                    f"  · 길흉 단정 X (ADR-006). 상징·은유 해석만."
+                    f"  · Artemidorus 분류: {art_cls or '(미분류)'}\n"
+                    f"  · Hobson 기이도: {hobson.get('bizarreness_level', '미산출')}\n"
+                    f"  · Revonsuo TST 위협: {tst.get('total_threats', 0)}건\n"
+                    f"  · 오행 매핑 (상위): {(wx.get('counts') or {})}\n"
+                    f"  · 한국 민속 매칭 (상위 3): {folk_names or '(없음)'}\n"
+                    f"  · Jung 원형 (상위 3): {arche_names or '(없음)'}\n"
+                    f"  · Hall-Van de Castle 지수: {hvdc_idx}\n"
+                    f"  · 주역 64괘: {ich.get('hexagram_name', '(미산출)')}\n"
+                    f"  · 다학파 병행 의무 (ADR-002). 길흉 단정 X (ADR-006)."
                 )
             except Exception:
                 deterministic_blocks.append("[해몽 결정론 — 산출 실패]")
