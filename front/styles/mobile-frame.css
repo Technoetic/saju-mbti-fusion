@@ -198,3 +198,30 @@ body.in-app:not(.gallery-mode) .app-container {
   }
 }
 
+/* ──────────────────────────────────────────────
+   메뉴 헤더: "← 점술가 고르기" 버튼이 가운데 정렬된 캐릭터 이름과
+   겹치던 문제 해결.
+   ──────────────────────────────────────────────
+   원인: .menu-back-btn은 position: absolute; top:4px; left:0 으로
+   .menu-header 좌상단에 절대 위치. .menu-master-name(중앙정렬)과
+   같은 가로 폭에서 만남.
+   해결: 좁은 폰 프레임 안에선 절대위치 해제 + 자기 줄 (좌측 정렬)
+   ────────────────────────────────────────────── */
+.menu-back-btn {
+  position: static !important;
+  display: inline-block !important;
+  margin: 0 0 16px 0;
+  align-self: flex-start;
+}
+/* 메뉴 헤더를 flex column으로 재구성 — 버튼·이름·부제가 세로로 정렬 */
+.menu-header {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  text-align: center;
+}
+.menu-header .menu-back-btn {
+  /* 버튼만 좌측 정렬 */
+  align-self: flex-start;
+}
+
