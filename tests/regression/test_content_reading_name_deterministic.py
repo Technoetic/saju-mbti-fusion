@@ -28,9 +28,9 @@ def test_name_imports_baleum_scoring():
 
 
 def test_name_deterministic_block_label():
-    """name 결정론 블록 라벨 명시."""
+    """name 결정론 블록 라벨 명시 (ADR-071: '이름' → '성명학')."""
     src = _src()
-    assert "이름 결정론 — engine/divination/name 출력" in src
+    assert "성명학 결정론 — engine/divination/name 출력" in src
 
 
 def test_name_four_gyeok_referenced():
@@ -71,9 +71,9 @@ def test_name_adr_010_pretraining_blocked():
 
 
 def test_name_graceful_fallback():
-    """name 결정론 실패 시 LLM 단독 fallback."""
+    """name 결정론 실패 시 LLM 단독 fallback (ADR-071: '이름' → '성명학')."""
     src = _src()
-    assert "이름 결정론 — 산출 실패" in src
+    assert "성명학 결정론 — 산출 실패" in src
 
 
 def test_name_input_field_routing():
