@@ -126,6 +126,84 @@ _CLUSTER_TO_MBTI = {
     "비겁": "E/I 자아축 (자기주장·경쟁)",
 }
 
+
+# ─────────────────────────── ADR-086: 십성 메타 분류 ───────────────────────────
+# 출처: 다시배우는 사주명리 — 사길신(四吉神)·사흉신(四兇神) 표준 분류
+# 본 메타는 **구조 라벨**일 뿐 **길흉 단정 X** (ADR-006·010·014 정합).
+# 결정론 출력은 페르소나에게 "이러한 구조 명칭이 존재함"만 전달.
+
+# 사길신(四吉神) — 명리학 통설 분류 (단일 학파 강요 X, 옵션 메타)
+SAGILSHIN = ("식신", "정재", "정관", "정인")
+# 사흉신(四兇神) — 동일 출처. 명칭일 뿐 단정 X.
+SAHYUNGSHIN = ("상관", "겁재", "편관", "편인")
+
+
+def classify_gilhyung(ten_god_name: str) -> str | None:
+    """십성 길흉신 분류 라벨 반환.
+
+    Returns:
+        "사길신" | "사흉신" | None
+    ADR-006: 길흉 단정 X. 본 함수는 **명리학 표준 분류 라벨**만 회신.
+    """
+    if ten_god_name in SAGILSHIN:
+        return "사길신"
+    if ten_god_name in SAHYUNGSHIN:
+        return "사흉신"
+    return None
+
+
+# ─────────────────────────── 특수 조합 플래그 ───────────────────────────
+# 다음 조합은 사주 명리학에서 빈번히 언급되는 구조 패턴.
+# 결과는 **구조 명칭**일 뿐 **운명·길흉 인과 X** (ADR-006·010·014).
+
+
+def has_siksinjesal(ten_gods_result: dict) -> bool:
+    """식신제살(食神制殺) — 식신이 편관을 극하는 구조.
+
+    Returns:
+        True if 식신 + 편관 동시 존재. 구조 명칭일 뿐 길흉 단정 X.
+    """
+    vals = list(ten_gods_result.values())
+    return "식신" in vals and "편관" in vals
+
+
+def has_jaegukin(ten_gods_result: dict) -> bool:
+    """재극인(財剋印) — 재성이 인성을 극하는 구조."""
+    vals = list(ten_gods_result.values())
+    has_jae = "편재" in vals or "정재" in vals
+    has_in = "편인" in vals or "정인" in vals
+    return has_jae and has_in
+
+
+def has_dosik(ten_gods_result: dict) -> bool:
+    """도식(倒食) — 편인이 식신을 극하는 구조."""
+    vals = list(ten_gods_result.values())
+    return "편인" in vals and "식신" in vals
+
+
+def detect_special_combinations(ten_gods_result: dict) -> list[str]:
+    """4주 십성 결과에서 특수 구조 조합 명칭 목록 반환.
+
+    Returns:
+        ["식신제살", "재극인", "도식"] 중 해당 구조 명칭 (구조만, 길흉 X).
+    """
+    flags = []
+    if has_siksinjesal(ten_gods_result):
+        flags.append("식신제살")
+    if has_jaegukin(ten_gods_result):
+        flags.append("재극인")
+    if has_dosik(ten_gods_result):
+        flags.append("도식")
+    return flags
+
+
+# ADR-086 면책: 본 메타는 명리학 표준 분류 라벨일 뿐 운명·길흉 단정 X.
+# 사용자 출력 시 build_legal_footer + ADR-006 약화 표현 의무.
+_META_DISCLAIMER = (
+    "본 십성 메타(사길신·사흉신·식신제살·재극인·도식)는 명리학 통설의 "
+    "구조 분류 라벨이며 운명·길흉 단정 X. 결정론 라벨만 인용 가능."
+)
+
 # 10 십성 개별 → MBTI 인지 기능 정밀 매핑 (설계도 §3.2 표)
 _TENGOD_TO_MBTI_FN = {
     "정인": "Ni (내향 직관 — 깊은 수용·이상)",
