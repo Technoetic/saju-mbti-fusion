@@ -33,14 +33,50 @@ DATA_NOTICE_KO = (
 )
 
 
+# ─────────────────────────── EU AI Act §50 — AI 생성 라벨 (ADR-058) ───────────────────────────
+# 사용자에게 본 응답이 AI 시스템에 의해 생성됐음을 명시. machine-readable 메타와
+# human-readable 텍스트 둘 다 응답에 포함하여 §50 의무 충족.
+AI_GENERATED_LABEL_KO = (
+    "본 풀이는 AI 시스템에 의해 생성된 콘텐츠입니다. (EU AI Act §50 의무 고지)"
+)
+
+
 # ─────────────────────────── 통합 푸터 ───────────────────────────
 LEGAL_NOTICE_FOOTER_KO = (
     "\n\n— — —\n"
     "[안내]\n"
     f"• {MEDICAL_DISCLAIMER_KO}\n"
     f"• {FORTUNE_DISCLAIMER_KO}\n"
+    f"• {AI_GENERATED_LABEL_KO}\n"
     "• 위기 상황 시: 자살예방상담전화 1393 · 정신건강위기상담 1577-0199 (24시간 무료)"
 )
+
+
+# ─────────────────────────── AI 생성 메타 (machine-readable) ───────────────────────────
+def build_ai_generation_meta(
+    *,
+    model_label: str | None = None,
+    confidence: float | None = None,
+) -> dict[str, object]:
+    """EU AI Act §50 machine-readable AI 생성 표시 메타.
+
+    응답 envelope에 별도 필드(`ai_generation`)로 첨부. 클라이언트가
+    `<meta name="ai-generated" content="true">` 같은 HTML 메타로 변환 가능.
+
+    Args:
+        model_label: LLM 모델 라벨 (예: 'claude-opus-4.7', 'gemini-2.5-flash-lite').
+                     None이면 'unspecified' 사용.
+        confidence: 분류기·점수 신뢰도 0.0~1.0. None이면 omit.
+    """
+    meta: dict[str, object] = {
+        "ai_generated": True,
+        "framework": "EU AI Act §50",
+        "model_label": model_label or "unspecified",
+        "human_readable_label_ko": AI_GENERATED_LABEL_KO,
+    }
+    if confidence is not None:
+        meta["confidence"] = float(max(0.0, min(1.0, confidence)))
+    return meta
 
 
 # ─────────────────────────── 위기 시 전용 푸터 (의료 거부 톤) ───────────────────────────
@@ -81,7 +117,9 @@ __all__ = [
     "MEDICAL_DISCLAIMER_KO",
     "FORTUNE_DISCLAIMER_KO",
     "DATA_NOTICE_KO",
+    "AI_GENERATED_LABEL_KO",
     "LEGAL_NOTICE_FOOTER_KO",
     "CRISIS_FOOTER_KO",
     "build_legal_footer",
+    "build_ai_generation_meta",
 ]
