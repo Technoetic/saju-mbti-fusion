@@ -283,10 +283,11 @@
   </div>` : ''}
 
   <div class="content-cta-wrap">
-  <button class="content-cta" type="button" id="contentCtaBtn">${item.cta || '풀이 받기'}</button>
-  <div class="content-cta-hint">
-  ${isPremium ? '<span class="premium-mark">💎 프리미엄 콘텐츠</span> — 결제 후 정식 풀이가 펼쳐집니다.' : '백엔드 연결 후 정식 풀이가 펼쳐집니다.'}
+  <button class="content-cta" type="button" id="contentCtaBtn" data-content-key="${item.key}" data-tier="${item.tier || 'free'}"${item.tab ? ` data-tab="${item.tab}"` : ''}>${item.cta || '풀이 받기'}</button>
+  <div class="content-cta-hint" id="contentCtaHint">
+  ${isPremium ? '<span class="premium-mark">💎 프리미엄 콘텐츠</span> — 결제 후 정식 풀이가 펼쳐집니다.' : (item.tab ? '기존 정통 풀이 화면으로 안내해드립니다.' : '풀이를 받으시면 잠시 기다려주세요.')}
   </div>
+  <div class="content-result" id="contentResult" style="display:none"></div>
   </div>
 
   ${recItems.length ? `<div class="content-recommend">
@@ -377,8 +378,8 @@
   });
   }
 
-  // 콘텐츠 뷰: 뒤로가기 + 추천 카드 클릭
-  contentBody.addEventListener('click', (e) => {
+  // 콘텐츠 뷰: 뒤로가기 + 추천 카드 클릭 + CTA 풀이 받기
+  contentBody.addEventListener('click', async (e) => {
   if (e.target.closest('#contentBackBtn')) {
   if (currentMaster) window.__menuOpen(currentMaster);
   return;
@@ -388,7 +389,128 @@
   window.__contentOpen(currentMaster, rec.dataset.recommendKey);
   return;
   }
+  // CTA "풀이 받기" 클릭 — free/premium/season + tab 위임 분기
+  const cta = e.target.closest('#contentCtaBtn');
+  if (cta && currentMaster) {
+  const contentKey = cta.dataset.contentKey;
+  const tier = cta.dataset.tier || 'free';
+  const tab = cta.dataset.tab || '';
+
+  // tab 위임: 기존 정통 화면으로 이동
+  if (tab) {
+  const tabBtn = document.querySelector(`[data-tab="${tab}"]`);
+  if (tabBtn) tabBtn.click();
+  return;
+  }
+
+  // premium/season: 결제 안내 유지 (사업 결정 영역)
+  if (tier === 'premium' || tier === 'season') {
+  return;
+  }
+
+  // free: LLM 호출 → 결과 렌더
+  await callContentReading(currentMaster, contentKey, cta);
+  }
   });
+
+  /**
+  * free 콘텐츠 풀이 호출 — /api/llm/chat (Gemini Flash Lite via BizRouter).
+  * 7 캐릭터 페르소나 톤 + 사용자 입력 필드 + ADR-006·010 면책 자동.
+  */
+  async function callContentReading(masterKey, contentKey, ctaBtn) {
+  const data = window.WHM_CONTENTS[masterKey];
+  if (!data) return;
+  const item = (data.items || []).find(x => x.key === contentKey);
+  if (!item) return;
+
+  const hintEl = document.getElementById('contentCtaHint');
+  const resultEl = document.getElementById('contentResult');
+  if (!resultEl) return;
+
+  // 입력 필드 수집
+  const fields = (item.fields || []);
+  const inputs = {};
+  for (const f of fields) {
+  if (f.type === 'ymd') {
+  const y = document.querySelector(`[name="${f.key}_year"]`)?.value;
+  const m = document.querySelector(`[name="${f.key}_month"]`)?.value;
+  const d = document.querySelector(`[name="${f.key}_day"]`)?.value;
+  inputs[f.key] = (y && m && d) ? `${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}` : '';
+  } else {
+  const el = document.querySelector(`[name="${f.key}"]`);
+  inputs[f.key] = el ? el.value : '';
+  }
+  }
+
+  // 시스템 프롬프트 — 7 캐릭터 페르소나 톤
+  const personaToneMap = {
+  saju: '만월 아씨 — 사주 명리학 풀이. 정중한 사극풍 어조.',
+  dream: '몽이 도령 — 꿈 해석. 부드럽고 깊이 있는 어조.',
+  hwapae: '화선 낭자 — 화패·점복. 신비롭고 가벼운 어조.',
+  star: '성하 공자 — 별빛 풀이. 우주적·시적 어조.',
+  face: '운학 도사 — 관상. 사극풍 노학자 어조.',
+  palm: '옥선 할미 — 손금. 따뜻한 할머니 어조.',
+  name: '묵향 선생 — 작명. 학자다운 정중한 어조.',
+  };
+  const persona = personaToneMap[data.charKey] || personaToneMap.saju;
+
+  const system =
+  `당신은 한국 전통 운명학 풀이 캐릭터입니다.\n` +
+  `[캐릭터] ${persona}\n` +
+  `[규칙]\n` +
+  `- 단정적 예언 금지. 경향성·자기이해 위주.\n` +
+  `- 의료·법률·금융 단정 금지 (ADR-006).\n` +
+  `- 운명·재물·결혼 단정 매핑 금지.\n` +
+  `- 한국어로 자연스럽게 작성. 4~6단락, 마크다운 없이.\n` +
+  `- 입력 값이 부족하면 일반적 흐름으로 가볍게.\n`;
+
+  const userPrompt =
+  `[메뉴] ${item.name}\n` +
+  `[설명] ${item.desc || ''}\n` +
+  (Object.keys(inputs).length
+  ? `[입력]\n${Object.entries(inputs).map(([k, v]) => `- ${k}: ${v || '(미입력)'}`).join('\n')}\n`
+  : '') +
+  `[요청] 위 메뉴 주제로 풀이 하나 펼쳐주세요.`;
+
+  // UI: 버튼 비활성 + 안내 변경
+  ctaBtn.disabled = true;
+  const origLabel = ctaBtn.textContent;
+  ctaBtn.textContent = '풀이 중…';
+  if (hintEl) hintEl.textContent = '풀이를 준비하고 있어요. 잠시만 기다려주세요.';
+  resultEl.style.display = '';
+  resultEl.innerHTML = '<p class="content-result-loading">…</p>';
+
+  try {
+  const res = await fetch('/api/llm/chat', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ prompt: userPrompt, system, max_tokens: 1500, stream: false }),
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const out = await res.json();
+  const text = (out && out.text) || '';
+  if (!text) throw new Error('빈 응답');
+
+  resultEl.innerHTML =
+  `<div class="content-section">
+  <div class="content-section-title">― ${item.name} 풀이 ―</div>
+  ${text.split(/\n\s*\n/).map(p => `<p>${escapeHtml(p).replace(/\n/g, '<br>')}</p>`).join('')}
+  <p class="content-result-footer" style="opacity:.6;font-size:12px;margin-top:14px">
+  ※ 본 풀이는 AI 시스템에 의해 생성된 콘텐츠입니다 (EU AI Act §50).
+  참고용이며 의료·법률·금융 의사결정의 단독 근거가 될 수 없습니다.
+  </p>
+  </div>`;
+  if (hintEl) hintEl.style.display = 'none';
+  ctaBtn.textContent = '다시 받기';
+  ctaBtn.disabled = false;
+  } catch (err) {
+  resultEl.innerHTML =
+  `<p class="content-result-error">풀이 요청 중 문제가 생겼어요. 잠시 후 다시 시도해주세요. <br><small>${escapeHtml(String(err.message || err))}</small></p>`;
+  if (hintEl) hintEl.textContent = '연결 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
+  ctaBtn.textContent = origLabel;
+  ctaBtn.disabled = false;
+  }
+  }
 })();
 
 // ═══════════════════════════════════════════════════════════
