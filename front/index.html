@@ -2083,6 +2083,29 @@
 
     <p class="codex-footer-note">※ 캐릭터들은 앞으로 계속 추가됩니다.</p>
   </div>
+
+  <!-- 프로필 -->
+  <div class="tab-pane" data-tab-pane="profile">
+    <header class="tab-header">
+      <h2 class="tab-title">프로필</h2>
+      <p class="tab-subtitle">我 · 내 정보</p>
+    </header>
+    <div id="profileEmpty" class="tab-empty">
+      <div class="tab-empty-glyph">我</div>
+      <p class="tab-empty-text">로그인하시면 사주 정보가 자동으로 채워집니다.</p>
+      <button type="button" id="profileLoginBtn" class="tab-cta">로그인 / 회원가입</button>
+    </div>
+    <div id="profileCard" class="tab-profile" style="display:none">
+      <div class="tab-profile-row"><span class="tab-profile-key">닉네임</span><span id="profileNickname" class="tab-profile-val">—</span></div>
+      <div class="tab-profile-row"><span class="tab-profile-key">이메일</span><span id="profileEmail" class="tab-profile-val">—</span></div>
+      <div class="tab-profile-row"><span class="tab-profile-key">이름</span><span id="profileNameKo" class="tab-profile-val">—</span></div>
+      <div class="tab-profile-row"><span class="tab-profile-key">생년월일</span><span id="profileBirth" class="tab-profile-val">—</span></div>
+      <div class="tab-profile-row"><span class="tab-profile-key">시각</span><span id="profileHour" class="tab-profile-val">—</span></div>
+      <div class="tab-profile-row"><span class="tab-profile-key">출생지</span><span id="profileBirthplace" class="tab-profile-val">—</span></div>
+      <div class="tab-profile-row"><span class="tab-profile-key">MBTI</span><span id="profileMbti" class="tab-profile-val">—</span></div>
+      <button type="button" id="profileLogoutBtn" class="tab-cta tab-cta-quiet">로그아웃</button>
+    </div>
+  </div>
 </section>
 
 <!-- ════════════════════════════════════════════════════════
@@ -2114,12 +2137,25 @@
     </span>
     <span class="bt-label">도감</span>
   </button>
-  <button type="button" class="bottom-tab" role="tab" data-tab="chwiseon" aria-selected="false">
-    <span class="bt-icon" aria-hidden="true">
+  <button type="button" class="bottom-tab bottom-tab-chwiseon" role="tab" data-tab="chwiseon" aria-selected="false">
+    <!-- 평소(취선루로 진입) -->
+    <span class="bt-icon bt-icon-default" aria-hidden="true">
       <!-- 취선루: 문 + 등불 -->
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M7 21V8a5 5 0 0110 0v13"/><path d="M5 21h14"/><circle cx="14" cy="13" r="0.8" fill="currentColor"/><path d="M12 4V2"/></svg>
     </span>
-    <span class="bt-label">취선루</span>
+    <!-- 취선루 안일 때(월하몽으로 복귀) -->
+    <span class="bt-icon bt-icon-alt" aria-hidden="true">
+      <!-- 월하몽: 달 + 별 -->
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M20 14.5A8 8 0 119.5 4a6.5 6.5 0 0010.5 10.5z"/><circle cx="6" cy="9" r="0.7" fill="currentColor"/><circle cx="18" cy="6" r="0.7" fill="currentColor"/></svg>
+    </span>
+    <span class="bt-label bt-label-default">취선루</span>
+    <span class="bt-label bt-label-alt">월하몽</span>
+  </button>
+  <button type="button" class="bottom-tab" role="tab" data-tab="profile" aria-selected="false">
+    <span class="bt-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="8" r="4"/><path d="M4 20c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>
+    </span>
+    <span class="bt-label">프로필</span>
   </button>
 </nav>
 

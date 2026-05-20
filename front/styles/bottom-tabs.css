@@ -254,3 +254,28 @@ body.tab-profile .chwiseon-gate {
 }
 
 /* tab-bg-video (캐릭터 풀스크린 배경 영상)는 사용자 요청으로 모두 제거됨 */
+
+/* ──────────────────────────────────────────────
+   취선루 탭 변신: chwiseon-on 상태에선 라벨·아이콘 변경
+   ────────────────────────────────────────────── */
+.bottom-tab-chwiseon .bt-icon-alt,
+.bottom-tab-chwiseon .bt-label-alt {
+  display: none;
+}
+body.chwiseon-on .bottom-tab-chwiseon .bt-icon-default,
+body.chwiseon-on .bottom-tab-chwiseon .bt-label-default {
+  display: none;
+}
+body.chwiseon-on .bottom-tab-chwiseon .bt-icon-alt {
+  display: block;
+}
+body.chwiseon-on .bottom-tab-chwiseon .bt-label-alt {
+  display: inline;
+}
+/* 취선루 안일 때 5번째 탭은 항상 강조 (홈 복귀 버튼 역할) */
+body.chwiseon-on .bottom-tab-chwiseon {
+  color: #ffe89a;
+}
+body.chwiseon-on .bottom-tab-chwiseon .bt-icon-alt svg {
+  filter: drop-shadow(0 0 6px rgba(244, 211, 94, 0.45));
+}
