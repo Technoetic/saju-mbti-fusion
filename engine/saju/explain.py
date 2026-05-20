@@ -575,10 +575,12 @@ def explain_compat(
     branch_rel = ", ".join(branch.get("relations", []))
     wx_pos = "; ".join(wx.get("positive", []))
     wx_neg = "; ".join(wx.get("negative", []))
+    # ADR-091: 성명학 융합 인용 강화 — 결정론 산출 시 본 블록 + 5번째 섹션 활성
     name_block = ""
+    has_name_flow = bool(name and (name.get("positive") or name.get("negative")))
     if name:
         name_block = (
-            f"\n[이름 오행 흐름]\n"
+            f"\n[성명학 음령오행 결합 — ADR-071 융합 패턴]\n"
             f"  상생: {'; '.join(name.get('positive', [])) or '없음'}\n"
             f"  상극: {'; '.join(name.get('negative', [])) or '없음'}"
         )
@@ -605,16 +607,28 @@ def explain_compat(
         f"  상생: {wx_pos or '없음'}\n"
         f"  상극: {wx_neg or '없음'}"
         f"{mbti_block}{name_block}\n\n"
-        f"[지시 — ADR-006·010·014 강제]\n"
+        f"[지시 — ADR-006·ADR-010·ADR-014·ADR-091 강제]\n"
         f"  · '좋은 궁합'·'안 좋은 궁합'·'최상'·'최하'·점수 (X/100) 단정 표현 절대 금지.\n"
         f"  · 결혼·이별·성공·실패 단정 예언 금지.\n"
         f"  · 양면 해석 의무 — 합/충/형/파/해 모두 강점과 약점 동시 묘사.\n"
-        f"  · 위 결정론 라벨만 인용 (사전학습 명리학 어휘 추가 금지).\n\n"
-        f"[작성 형식] — 4 섹션 모두 작성, 관계 유형의 어휘를 유지:\n"
+        f"  · 위 결정론 라벨만 인용 (사전학습 명리학 어휘 추가 금지).\n"
+        + (
+            f"  · [ADR-091] 위 [성명학 음령오행 결합] 블록이 주어졌으므로 5번째 섹션 "
+            f"(Naming Resonance)에 두 이름의 음령오행 상생/상극 결정론 결과를 반드시 "
+            f"본문에 인용. 사주 단독 풀이 X — 사주+성명학 융합 의무 (ADR-071·ADR-091).\n"
+            if has_name_flow else ""
+        )
+        + f"\n[작성 형식] — {'5' if has_name_flow else '4'} 섹션 모두 작성, 관계 유형의 어휘를 유지:\n"
         f"### 1. Core Resonance (핵심 공명) — 일주 합/충이 만들어내는 두 사람의 본질적 끌림과 거리감 (3~4문장)\n"
         f"### 2. Daily Rhythm (일상 리듬) — MBTI 인지 기능 + 오행 흐름이 만드는 평소 상호작용 (3~4문장)\n"
         f"### 3. Friction Points (갈등 지점) — 충/형/파/해/상극이 드러나는 위기 패턴과 회복법 (3~4문장)\n"
         f"### 4. Growth Together (함께 성장) — 서로의 부족한 기운/기능을 어떻게 보완하는가 (3~4문장)"
+        + (
+            f"\n### 5. Naming Resonance (이름의 공명) — 두 이름의 음령오행 결합이 만드는 "
+            f"파동 (상생/상극)이 사주 관계 위에 어떤 미세 진동을 더하는가 (3~4문장, "
+            f"위 [성명학 음령오행 결합] 블록의 상생·상극 라벨 직접 인용 의무)"
+            if has_name_flow else ""
+        )
     )
     lang_directive = {
         "en": "\n\n[Output language] Write the FINAL answer in natural English. "
