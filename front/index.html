@@ -27,6 +27,7 @@
 <script type="module" src="js/readers/hwapae-reader.js"></script>
 <script type="module" src="js/ui/auth.js"></script>
 <script type="module" src="js/ui/bottom-tabs.js"></script>
+<script type="module" src="js/ui/play.js"></script>
 </head>
 <body>
 <video class="bg-video" autoplay muted loop playsinline preload="auto" aria-hidden="true">
@@ -1962,12 +1963,36 @@
   <div class="tab-pane" data-tab-pane="play">
     <header class="tab-header">
       <h2 class="tab-title">놀 이</h2>
-      <p class="tab-subtitle">遊 · 심리테스트 · 프로파일링 · 무서운 이야기</p>
+      <p class="tab-subtitle">遊 · 심리테스트 · 프로파일링</p>
     </header>
-    <div class="tab-empty">
-      <div class="tab-empty-glyph">遊</div>
-      <p class="tab-empty-text">준비 중입니다.</p>
-      <p class="tab-empty-hint">곧 다양한 콘텐츠를 만나실 수 있습니다.</p>
+
+    <!-- 놀이 메뉴 (기본 화면) -->
+    <div id="playMenu" class="play-menu">
+      <button type="button" class="play-card" data-play-open="psychotest">
+        <div class="play-card-glyph">心</div>
+        <h3 class="play-card-title">심리 테스트</h3>
+        <p class="play-card-desc">달밤에 마주한 그대의 마음 — 12 문항으로 알아보는 본성</p>
+        <span class="play-card-meta">12 문항 · 약 3 분</span>
+      </button>
+
+      <button type="button" class="play-card play-card-dark" data-play-open="psycho">
+        <div class="play-card-glyph">影</div>
+        <h3 class="play-card-title">조선 사이코패스 명탐정</h3>
+        <p class="play-card-desc">살인자의 그림자를 좇아라 — 그라면 어떤 선택을 했을까?</p>
+        <span class="play-card-meta">인터랙티브 추리 · 약 5 분</span>
+      </button>
+    </div>
+
+    <!-- 심리 테스트 진행/결과 화면 -->
+    <div id="playPsychotest" class="play-runner" style="display:none">
+      <button type="button" class="play-back" data-play-back>← 놀이로</button>
+      <div id="psychotestStage" class="play-stage"></div>
+    </div>
+
+    <!-- 사이코패스 프로파일링 -->
+    <div id="playPsycho" class="play-runner play-runner-dark" style="display:none">
+      <button type="button" class="play-back" data-play-back>← 놀이로</button>
+      <div id="psychoStage" class="play-stage"></div>
     </div>
   </div>
 
