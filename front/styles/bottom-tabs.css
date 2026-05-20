@@ -94,6 +94,8 @@ body.in-app #tabView {
   padding: 24px 16px 88px;
   min-height: calc(100vh - 64px);
   color: var(--text-main);
+  position: relative;
+  z-index: 3;  /* body.in-app::after vignette(z:2) 위로 */
 }
 
 @media (min-width: 481px) {

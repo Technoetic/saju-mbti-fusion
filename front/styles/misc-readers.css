@@ -240,7 +240,7 @@
   /* tab-content의 자식들은 그대로 흐름 유지 */
   .tab-content { position: relative; }
 
-  /* 페이지 vignette — 위/아래만 어둡게 가독성 보강 */
+  /* 페이지 vignette — 배경 영상 제거 후엔 약하게만 (이전엔 영상 가독성용 짙은 덮개) */
   body.in-app::after {
     content: '';
     position: fixed;
@@ -249,12 +249,11 @@
     pointer-events: none;
     background:
       linear-gradient(180deg,
-        rgba(10,15,30,0.85) 0%,
-        rgba(10,15,30,0.45) 14%,
-        rgba(10,15,30,0.10) 30%,
-        rgba(10,15,30,0.05) 55%,
-        rgba(10,15,30,0.30) 80%,
-        rgba(10,15,30,0.70) 100%);
+        rgba(10,15,30,0.25) 0%,
+        rgba(10,15,30,0.05) 20%,
+        rgba(10,15,30,0.00) 50%,
+        rgba(10,15,30,0.05) 80%,
+        rgba(10,15,30,0.25) 100%);
     transition: background 0.8s ease;
   }
 
