@@ -241,3 +241,144 @@ def classify_from_metrics(metrics: dict[str, Any] | None) -> MouthCornerResult |
         })
 
     return None
+
+
+# ═════════════════════════════════════════════════════════════════════════════
+# Phase 2 (ADR-064) — 코 비지수 분류 (Leptorrhine·Mesorrhine·Platyrrhine)
+#
+# 출처: Lee & Park (2024) "Three-Dimensional Cone-Beam Computed Tomography
+# Analysis of Nasal Morphology in Young Korean Adults" Healthcare 12:1839
+# PMC11431719 (오픈 액세스, Phase B 200 OK 검증)
+#
+# 표본: 한국 20대 100명 (남 50 + 여 50)
+# 측정: 콧방울 너비 (AL-AL) + 코 길이 (N-SN)
+# 임계값:
+#   비지수 (Nasal Index) = 콧방울너비 / 코길이 × 100
+#   · Leptorrhine (좁은 코): NI < 70
+#   · Mesorrhine (보통 코): 70 ≤ NI ≤ 85
+#   · Platyrrhine (넓은 코): NI > 85
+#
+# 사상체질 인용 X (Phase 2 PROMPT 강제 정합)
+# 운명·관운·재물복 매핑 X (ADR-006 정합)
+# ═════════════════════════════════════════════════════════════════════════════
+
+# 한국 20대 평균 (PMC11431719 Table 5)
+_NOSE_KOREAN_20S_MEAN: dict[str, dict[str, float]] = {
+    "male": {
+        "nasal_width_mm": 39.33,   # AL-AL (콧방울 너비)
+        "nasal_width_std": 2.43,
+        "nasal_height_mm": 51.91,  # N-SN (코 길이)
+        "nasal_height_std": 3.15,
+        "sample_size": 50,
+    },
+    "female": {
+        "nasal_width_mm": 36.70,
+        "nasal_width_std": 2.45,
+        "nasal_height_mm": 47.74,
+        "nasal_height_std": 3.36,
+        "sample_size": 50,
+    },
+}
+
+# 비지수 임계값 (PMC11431719 + 인체측정학 표준 분류)
+_NASAL_INDEX_LEPTORRHINE_MAX = 70.0   # NI < 70 → 좁은 코
+_NASAL_INDEX_PLATYRRHINE_MIN = 85.0   # NI > 85 → 넓은 코
+# 70 ≤ NI ≤ 85 → 보통 코 (Mesorrhine)
+
+
+NOSE_LEPTORRHINE = "좁은 코"      # Leptorrhine — 코폭이 좁고 긴 형태
+NOSE_MESORRHINE = "보통 코"        # Mesorrhine — 한국 20대 평균 범위
+NOSE_PLATYRRHINE = "넓은 코"       # Platyrrhine — 코폭이 넓은 형태
+
+
+_NOSE_SOURCE_URL = "https://pmc.ncbi.nlm.nih.gov/articles/PMC11431719/"
+_NOSE_DISCLAIMER = (
+    "본 분류는 시각 형태 측정 결과로, 운명·길흉·관운 인과 매핑 X. "
+    "한국 20대 100명 (남/여 각 50명) PMC11431719 표본 기반. "
+    "사상체질·태음인 인용 X (ADR-006 정신)."
+)
+
+
+@dataclass(frozen=True)
+class NoseShapeResult:
+    """코 비지수 분류 결과.
+
+    Attributes:
+        shape_type: 분류명 (좁은 코·보통 코·넓은 코)
+        nasal_index: 비지수 (콧방울너비 / 코길이 × 100)
+        nasal_width_mm: 콧방울 너비 (mm) — 입력
+        nasal_height_mm: 코 길이 (mm) — 입력
+        confidence: HIGH (정량 측정) / MEDIUM (단일 픽셀 추정)
+        source_url: 출처 PMC URL
+        disclaimer: ADR-006 면책 텍스트
+    """
+    shape_type: str
+    nasal_index: float
+    nasal_width_mm: float
+    nasal_height_mm: float
+    confidence: str
+    source_url: str
+    disclaimer: str
+
+
+def classify_nose_shape(
+    nasal_width_mm: float,
+    nasal_height_mm: float,
+    *,
+    confidence: str = "HIGH",
+) -> NoseShapeResult | None:
+    """코 비지수 기반 형태 분류 (Phase 2, ADR-064).
+
+    Args:
+        nasal_width_mm: 콧방울 너비 (AL-AL) 밀리미터
+        nasal_height_mm: 코 길이 (N-SN) 밀리미터
+        confidence: HIGH / MEDIUM (측정 정밀도)
+
+    Returns:
+        NoseShapeResult 또는 None (입력 부정합 시)
+
+    Examples:
+        >>> r = classify_nose_shape(38.0, 50.0)
+        >>> r.shape_type  # 38/50*100=76 → 70~85 → Mesorrhine
+        '보통 코'
+        >>> r = classify_nose_shape(45.0, 48.0)  # 45/48*100=93.75 → >85
+        >>> r.shape_type
+        '넓은 코'
+    """
+    if not isinstance(nasal_width_mm, (int, float)) or not isinstance(nasal_height_mm, (int, float)):
+        return None
+    if nasal_width_mm <= 0 or nasal_height_mm <= 0:
+        return None
+
+    nasal_index = (nasal_width_mm / nasal_height_mm) * 100.0
+
+    if nasal_index < _NASAL_INDEX_LEPTORRHINE_MAX:
+        shape = NOSE_LEPTORRHINE
+    elif nasal_index > _NASAL_INDEX_PLATYRRHINE_MIN:
+        shape = NOSE_PLATYRRHINE
+    else:
+        shape = NOSE_MESORRHINE
+
+    return NoseShapeResult(
+        shape_type=shape,
+        nasal_index=round(nasal_index, 2),
+        nasal_width_mm=float(nasal_width_mm),
+        nasal_height_mm=float(nasal_height_mm),
+        confidence=confidence,
+        source_url=_NOSE_SOURCE_URL,
+        disclaimer=_NOSE_DISCLAIMER,
+    )
+
+
+def get_nose_korean_20s_mean(sex: str) -> dict[str, float] | None:
+    """한국 20대 평균값 조회 (PMC11431719).
+
+    Args:
+        sex: 'male' 또는 'female'
+
+    Returns:
+        평균·표준편차·표본크기 dict 또는 None
+    """
+    if sex not in _NOSE_KOREAN_20S_MEAN:
+        return None
+    return dict(_NOSE_KOREAN_20S_MEAN[sex])
