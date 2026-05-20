@@ -49,9 +49,12 @@ def test_saju_today_calls_day_pillar():
 
 
 def test_saju_calls_ten_gods():
-    """compute_ten_gods 호출 — 사용자 일간 ↔ 오늘 천간 십성 관계."""
+    """compute_ten_gods 호출 — 사용자 일간 ↔ 오늘 천간 십성 관계 (ADR-086 메타 통합 후)."""
     src = _server_text()
-    assert "from engine.saju.ten_gods import compute_ten_gods" in src
+    # ADR-086 wire-up 후 from engine.saju.ten_gods import (
+    #     compute_ten_gods, classify_gilhyung, detect_special_combinations,
+    # ) 형식
+    assert "from engine.saju.ten_gods import" in src
     assert "compute_ten_gods" in src
 
 
