@@ -53,21 +53,18 @@ def test_free_tier_calls_llm_chat():
     assert "callContentReading" in js
 
 
-def test_persona_tone_map_seven_characters():
-    """7 캐릭터 페르소나 톤 매핑 (만월·몽이·화선·성하·운학·옥선·묵향)."""
-    js = _read_js()
-    for k in ["saju", "dream", "hwapae", "star", "face", "palm", "name"]:
-        assert f"{k}:" in js
-    for persona in ["만월 아씨", "몽이 도령", "화선 낭자", "성하 공자", "운학 도사", "옥선 할미", "묵향 선생"]:
-        assert persona in js
+def test_persona_tone_and_safety_moved_to_server():
+    """ADR-069: 7 캐릭터 페르소나·ADR-006 안전 장치는 서버측 /api/content/reading.
 
-
-def test_adr_006_safety_in_system_prompt():
-    """★ ADR-006 단정 금지 시스템 프롬프트 강제."""
+    client는 char_key·content_key·fields만 전달, 시스템 프롬프트는 서버 책임.
+    중복 방지 + 단일 진실 공급원 (ADR-069 결정론 엔진 결합 정합).
+    """
     js = _read_js()
-    assert "단정적 예언 금지" in js
-    assert "ADR-006" in js
-    assert "운명·재물·결혼 단정 매핑 금지" in js
+    # client는 서버 엔드포인트 호출만
+    assert "/api/content/reading" in js
+    # 시스템 프롬프트·페르소나는 client에서 제거됨 (서버측 이동)
+    # → 서버측 검증은 test_content_reading_saju_deterministic.py에서
+    assert "char_key: data.charKey" in js
 
 
 def test_adr_058_ai_generated_footer():

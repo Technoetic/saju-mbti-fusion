@@ -442,35 +442,9 @@
   }
   }
 
-  // 시스템 프롬프트 — 7 캐릭터 페르소나 톤
-  const personaToneMap = {
-  saju: '만월 아씨 — 사주 명리학 풀이. 정중한 사극풍 어조.',
-  dream: '몽이 도령 — 꿈 해석. 부드럽고 깊이 있는 어조.',
-  hwapae: '화선 낭자 — 화패·점복. 신비롭고 가벼운 어조.',
-  star: '성하 공자 — 별빛 풀이. 우주적·시적 어조.',
-  face: '운학 도사 — 관상. 사극풍 노학자 어조.',
-  palm: '옥선 할미 — 손금. 따뜻한 할머니 어조.',
-  name: '묵향 선생 — 작명. 학자다운 정중한 어조.',
-  };
-  const persona = personaToneMap[data.charKey] || personaToneMap.saju;
-
-  const system =
-  `당신은 한국 전통 운명학 풀이 캐릭터입니다.\n` +
-  `[캐릭터] ${persona}\n` +
-  `[규칙]\n` +
-  `- 단정적 예언 금지. 경향성·자기이해 위주.\n` +
-  `- 의료·법률·금융 단정 금지 (ADR-006).\n` +
-  `- 운명·재물·결혼 단정 매핑 금지.\n` +
-  `- 한국어로 자연스럽게 작성. 4~6단락, 마크다운 없이.\n` +
-  `- 입력 값이 부족하면 일반적 흐름으로 가볍게.\n`;
-
-  const userPrompt =
-  `[메뉴] ${item.name}\n` +
-  `[설명] ${item.desc || ''}\n` +
-  (Object.keys(inputs).length
-  ? `[입력]\n${Object.entries(inputs).map(([k, v]) => `- ${k}: ${v || '(미입력)'}`).join('\n')}\n`
-  : '') +
-  `[요청] 위 메뉴 주제로 풀이 하나 펼쳐주세요.`;
+  // ADR-069: /api/content/reading — 도메인 결정론 + LLM 결합
+  // 서버가 char_key·content_key 기반으로 사주 엔진 등 결정론 산출 후 LLM 호출.
+  // 7 캐릭터 페르소나·ADR-006 안전 장치는 서버 system 프롬프트에서 자동.
 
   // UI: 버튼 비활성 + 안내 변경
   ctaBtn.disabled = true;
@@ -481,10 +455,10 @@
   resultEl.innerHTML = '<p class="content-result-loading">…</p>';
 
   try {
-  const res = await fetch('/api/llm/chat', {
+  const res = await fetch('/api/content/reading', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ prompt: userPrompt, system, max_tokens: 1500, stream: false }),
+  body: JSON.stringify({ char_key: data.charKey, content_key: contentKey, fields: inputs }),
   });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const out = await res.json();
