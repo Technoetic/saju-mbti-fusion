@@ -584,16 +584,18 @@ def explain_compat(
         )
     mbti_block = ""
     if mbti.get("a") and mbti.get("b"):
+        # ADR-090: 점수 (9/9) 제거 → Socionics 학파 라벨
+        socionics_label = mbti.get("socionics_label", "Standard (표준)")
         mbti_block = (
-            f"\n[MBTI 호환]\n"
-            f"  A {mbti['a']} × B {mbti['b']} → 점수 {mbti.get('score', '?')}/9"
+            f"\n[MBTI Socionics 분류]\n"
+            f"  A {mbti['a']} × B {mbti['b']} → {socionics_label}"
         )
 
     rel_hint = _RELATION_MODE_HINT.get(relation_mode, _RELATION_MODE_HINT["romantic"])
+    # ADR-090: 종합 점수·등급 단정 제거 — 결정론 라벨만 LLM에 주입
     user = (
         f"[관계 유형] {relation_mode} — {rel_hint}\n\n"
-        f"[결정론 궁합 데이터]\n"
-        f"종합 점수: {compat.get('score', '?')}/100 ({compat.get('grade', '?')})\n\n"
+        f"[결정론 궁합 데이터 — ADR-090: 점수·등급 단정 X, 명리학 통설 라벨만]\n"
         f"[일주 관계]\n"
         f"  A 일주: {stem.get('a','?')}{branch.get('a','?')}\n"
         f"  B 일주: {stem.get('b','?')}{branch.get('b','?')}\n"
@@ -603,6 +605,11 @@ def explain_compat(
         f"  상생: {wx_pos or '없음'}\n"
         f"  상극: {wx_neg or '없음'}"
         f"{mbti_block}{name_block}\n\n"
+        f"[지시 — ADR-006·010·014 강제]\n"
+        f"  · '좋은 궁합'·'안 좋은 궁합'·'최상'·'최하'·점수 (X/100) 단정 표현 절대 금지.\n"
+        f"  · 결혼·이별·성공·실패 단정 예언 금지.\n"
+        f"  · 양면 해석 의무 — 합/충/형/파/해 모두 강점과 약점 동시 묘사.\n"
+        f"  · 위 결정론 라벨만 인용 (사전학습 명리학 어휘 추가 금지).\n\n"
         f"[작성 형식] — 4 섹션 모두 작성, 관계 유형의 어휘를 유지:\n"
         f"### 1. Core Resonance (핵심 공명) — 일주 합/충이 만들어내는 두 사람의 본질적 끌림과 거리감 (3~4문장)\n"
         f"### 2. Daily Rhythm (일상 리듬) — MBTI 인지 기능 + 오행 흐름이 만드는 평소 상호작용 (3~4문장)\n"
