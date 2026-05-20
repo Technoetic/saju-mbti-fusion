@@ -854,6 +854,7 @@ class PersonalityAPIServer:
         self.app.get("/api/legal/privacy")(self.get_legal_privacy)
         self.app.post("/api/errors")(self.post_error_log)
         self.app.get("/sw.js")(self.get_service_worker)
+        self.app.get("/api/diag/kasi-verify")(self.get_diag_kasi_verify)
 
     def _mount_static(self) -> None:
         # 프론트 디렉토리 — 프로젝트 루트의 front/ 사용
@@ -3175,6 +3176,54 @@ class PersonalityAPIServer:
             return {"translation": (translation or "").strip(), "target": tgt}
         except Exception as e:
             raise HTTPException(500, str(e))
+
+    async def get_diag_kasi_verify(self, count: int = 100, start: str | None = None) -> dict[str, Any]:
+        """KASI 음양력 API vs 본 시스템 day_pillar 정합 검증 (ADR-084).
+
+        Args:
+            count: 검증 일자 수 (기본 100, 최대 1000)
+            start: 시작 일자 YYYY-MM-DD (기본 오늘부터 거꾸로)
+
+        Returns:
+            { kasi_called: bool, match: int, mismatch: int, skip: int, samples_mismatched: list }
+            - 키 부재 시 kasi_called=False + match=N (graceful skip)
+            - 키 등록 시 라이브 호출 + 통계 + 불일치 샘플 (개별 키 노출 X)
+        """
+        from datetime import date as _d, timedelta as _td, datetime as _dt
+        from engine.saju.kasi_verifier import batch_verify, kasi_key_available
+
+        count = max(1, min(int(count), 1000))
+        if start:
+            try:
+                start_d = _dt.strptime(start, "%Y-%m-%d").date()
+            except Exception:
+                start_d = _d.today()
+        else:
+            start_d = _d.today()
+
+        targets = [start_d - _td(days=i) for i in range(count)]
+        match_n, mismatch_n, skip_n, results = batch_verify(targets)
+
+        mismatched_samples = [
+            {
+                "date": str(r.target_date),
+                "local": r.local_iljin_han,
+                "kasi": r.kasi_iljin_han,
+            }
+            for r in results if r.kasi_called and not r.match
+        ][:10]
+
+        return {
+            "kasi_key_available": kasi_key_available(),
+            "kasi_called": any(r.kasi_called for r in results),
+            "count_requested": count,
+            "count_called": sum(1 for r in results if r.kasi_called),
+            "match": match_n,
+            "mismatch": mismatch_n,
+            "skip": skip_n,
+            "samples_mismatched": mismatched_samples,
+            "match_rate_pct": round(100 * match_n / max(1, match_n + mismatch_n), 2) if (match_n + mismatch_n) else None,
+        }
 
     async def post_error_log(self, payload: dict[str, Any]) -> dict[str, Any]:
         """클라이언트 에러 로그 수집 — in-memory 50개 + DB 영구."""
