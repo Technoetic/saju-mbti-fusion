@@ -1,0 +1,41 @@
+# fly.toml — ADR-056 Railway → Fly.io 마이그레이션
+# 본 system: FastAPI + 정적 frontend + SQLite + Bizrouter LLM
+# Region: nrt (도쿄 — 한국 사용자 최저 지연)
+
+app = "saju-mbti-fusion"
+primary_region = "nrt"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  PORT = "8080"
+  CORS_ORIGINS = "*"
+  RATE_LIMIT_PER_MIN = "60"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ["app"]
+
+  [http_service.concurrency]
+    type = "requests"
+    hard_limit = 250
+    soft_limit = 200
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"
+  cpu_kind = "shared"
+  cpus = 1
+
+[[mounts]]
+  source = "saju_data"
+  destination = "/app/data"
+
+[deploy]
+  release_command = ""
+  strategy = "rolling"
