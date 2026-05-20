@@ -11,6 +11,7 @@ const TAB_CLASSES = ['tab-home', 'tab-journal', 'tab-play', 'tab-friends', 'tab-
 
 function activateTab(key) {
   const body = document.body;
+  console.log('[tabs] activateTab:', key);
   // 기존 탭 클래스 모두 제거 + 새 탭 부여
   TAB_CLASSES.forEach(c => body.classList.remove(c));
   body.classList.add(`tab-${key}`);
@@ -22,20 +23,39 @@ function activateTab(key) {
     btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
   });
 
-  // pane 토글
+  // pane 토글 (CSS class + 직접 style — 이중 보장)
   document.querySelectorAll('.tab-pane').forEach(pane => {
-    pane.classList.toggle('active', pane.dataset.tabPane === key);
+    const isActive = pane.dataset.tabPane === key;
+    pane.classList.toggle('active', isActive);
+    pane.style.display = isActive ? 'block' : 'none';
   });
 
+  // 메인 콘텐츠/탭 view 직접 토글 (CSS cascade 충돌 우회)
+  const appMain = document.getElementById('appMain');
+  const tabView = document.getElementById('tabView');
+  const isHome = (key === 'home');
+
+  if (appMain) {
+    appMain.style.display = isHome ? '' : 'none';
+  }
+  if (tabView) {
+    tabView.style.display = isHome ? 'none' : 'block';
+  }
+
+  // 취선루 게이트도 홈 외엔 숨김
+  const chwiseonGate = document.getElementById('chwiseonGate');
+  if (chwiseonGate) {
+    chwiseonGate.style.display = isHome ? '' : 'none';
+  }
+
   // 홈 탭 진입 시 갤러리 모드도 유지
-  if (key === 'home') {
+  if (isHome) {
     document.body.classList.add('gallery-mode');
     document.body.classList.remove('menu-mode', 'content-mode');
     if (typeof window.__galleryEnter === 'function') {
       window.__galleryEnter();
     }
   } else {
-    // 홈 외 탭에선 갤러리 모드 해제
     document.body.classList.remove('gallery-mode');
   }
 
