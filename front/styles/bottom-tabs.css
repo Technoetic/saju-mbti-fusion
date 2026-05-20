@@ -1,0 +1,252 @@
+/* ============================================================
+   bottom-tabs.css — 모바일 앱 하단 탭 바
+   ============================================================
+     - 하단 fixed 탭 바 (홈/일지/놀이/친구/프로필)
+     - body.tab-{key} 클래스로 탭별 화면 표시
+     - PC에선 폰 프레임 폭(412px)에 맞춰 가운데 정렬
+   ============================================================ */
+
+.bottom-tabs {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 0;
+  width: 100%;
+  max-width: var(--mobile-width);
+  display: flex;
+  justify-content: space-around;
+  align-items: stretch;
+  z-index: 150;
+  padding: 8px 4px calc(8px + env(safe-area-inset-bottom, 0px));
+  background:
+    linear-gradient(180deg,
+      rgba(10, 14, 28, 0.65) 0%,
+      rgba(10, 14, 28, 0.92) 70%,
+      rgba(10, 14, 28, 0.96) 100%);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-top: 1px solid rgba(244, 211, 94, 0.22);
+}
+
+@media (min-width: 481px) {
+  .bottom-tabs {
+    /* PC에선 폰 프레임 안쪽에 부드러운 그림자 추가 */
+    border-radius: 0 0 26px 26px;
+    box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.4);
+  }
+}
+
+.bottom-tab {
+  flex: 1;
+  background: transparent;
+  border: 0;
+  padding: 6px 4px 4px;
+  color: rgba(240, 228, 193, 0.55);
+  font-family: 'Nanum Myeongjo', 'Noto Serif KR', serif;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  transition: color 0.15s ease, transform 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.bottom-tab:hover { color: rgba(255, 232, 154, 0.85); }
+.bottom-tab:active { transform: scale(0.94); }
+
+.bottom-tab .bt-icon {
+  width: 26px;
+  height: 26px;
+  display: block;
+}
+.bottom-tab .bt-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.bottom-tab .bt-label {
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  font-weight: 500;
+}
+
+.bottom-tab.active {
+  color: #ffe89a;
+  text-shadow: 0 0 6px rgba(244, 211, 94, 0.35);
+}
+.bottom-tab.active .bt-icon svg {
+  filter: drop-shadow(0 0 6px rgba(244, 211, 94, 0.45));
+}
+
+/* ── 메인 콘텐츠 하단 여유 (탭 바 높이만큼) ── */
+body.in-app .app-container,
+body.in-app #tabView {
+  padding-bottom: 88px; /* 탭 바 ~64px + 여유 24px */
+}
+
+/* ──────────────────────────────────────────────
+   탭 콘텐츠 view (홈 외 4개 탭)
+   ────────────────────────────────────────────── */
+.tab-view {
+  max-width: var(--mobile-width);
+  width: 100%;
+  margin: 0 auto;
+  padding: 24px 16px 88px;
+  min-height: calc(100vh - 64px);
+  color: var(--text-main);
+}
+
+@media (min-width: 481px) {
+  .tab-view {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+}
+
+.tab-pane {
+  display: none;
+  animation: tabFadeIn 0.3s ease both;
+}
+.tab-pane.active {
+  display: block;
+}
+
+@keyframes tabFadeIn {
+  0%   { opacity: 0; transform: translateY(8px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.tab-header {
+  text-align: center;
+  padding: 8px 0 24px;
+  border-bottom: 1px dashed rgba(212, 175, 55, 0.35);
+  margin-bottom: 28px;
+}
+.tab-title {
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 30px;
+  letter-spacing: 14px;
+  color: #ffe89a;
+  margin: 0 0 6px;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+.tab-subtitle {
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 13px;
+  letter-spacing: 3px;
+  color: var(--text-soft);
+  margin: 0;
+}
+
+/* ── 빈 상태 (준비중 플레이스홀더) ── */
+.tab-empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-dim);
+}
+.tab-empty-glyph {
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 88px;
+  color: rgba(244, 211, 94, 0.18);
+  line-height: 1;
+  margin-bottom: 18px;
+  text-shadow: 0 0 24px rgba(244, 211, 94, 0.1);
+}
+.tab-empty-text {
+  font-size: 15px;
+  color: var(--text-soft);
+  letter-spacing: 2px;
+  margin: 0 0 6px;
+}
+.tab-empty-hint {
+  font-size: 12px;
+  color: var(--text-mute);
+  letter-spacing: 1px;
+  line-height: 1.7;
+  margin: 0;
+}
+
+.tab-cta {
+  margin-top: 22px;
+  background: linear-gradient(180deg, var(--gold-bri), var(--gold), var(--gold-dp));
+  color: var(--bg-night);
+  border: 1px solid var(--gold-bri);
+  padding: 10px 28px;
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 4px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 14px rgba(212, 175, 55, 0.3);
+}
+.tab-cta:hover { transform: translateY(-1px); }
+.tab-cta-quiet {
+  background: transparent;
+  color: var(--text-soft);
+  border: 1px solid var(--gold-dp);
+  box-shadow: none;
+}
+.tab-cta-quiet:hover {
+  color: var(--gold-bri);
+  border-color: var(--gold);
+  background: rgba(212, 175, 55, 0.05);
+}
+
+/* ── 프로필 카드 ── */
+.tab-profile {
+  padding: 24px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.tab-profile-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 14px;
+  background: rgba(10, 15, 30, 0.5);
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  border-radius: 6px;
+}
+.tab-profile-key {
+  font-size: 13px;
+  letter-spacing: 2px;
+  color: var(--text-dim);
+}
+.tab-profile-val {
+  font-size: 14px;
+  color: var(--text-main);
+  font-weight: 500;
+  text-align: right;
+}
+
+/* ──────────────────────────────────────────────
+   탭 전환: 활성 탭에 따라 메인 콘텐츠 / tab-view 표시 토글
+   ──────────────────────────────────────────────
+   body.tab-home          → app-container 보임, tab-view 숨김
+   body.tab-{기타}       → app-container 숨김, tab-view 보임 + 해당 pane
+   ────────────────────────────────────────────── */
+body:not(.tab-home):not(.tab-journal):not(.tab-play):not(.tab-friends):not(.tab-profile) #tabView,
+body.tab-home #tabView { display: none; }
+
+body.tab-journal #tabView,
+body.tab-play #tabView,
+body.tab-friends #tabView,
+body.tab-profile #tabView { display: block; }
+
+body.tab-journal .app-container,
+body.tab-play .app-container,
+body.tab-friends .app-container,
+body.tab-profile .app-container {
+  display: none !important;
+}
+
+/* 홈/풀이 화면이 아닌 탭에선 취선루 게이트 숨김 */
+body.tab-journal .chwiseon-gate,
+body.tab-play .chwiseon-gate,
+body.tab-friends .chwiseon-gate,
+body.tab-profile .chwiseon-gate {
+  display: none !important;
+}
