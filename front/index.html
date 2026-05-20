@@ -29,6 +29,7 @@
 <script type="module" src="js/ui/auth.js"></script>
 <script type="module" src="js/ui/bottom-tabs.js"></script>
 <script type="module" src="js/ui/play.js"></script>
+<script type="module" src="js/ui/swipe-hint.js"></script>
 </head>
 <body>
 <div class="bg-overlay" aria-hidden="true"></div>
@@ -508,11 +509,8 @@
   </div>
   </article>
   </div>
-  <div class="gallery-controls">
-  <button class="gallery-arrow gallery-arrow-prev" type="button" data-chwiseon-prev>‹</button>
-  <div class="gallery-dots" id="chwiseonDots" role="tablist" aria-label="취선루 점술가 인디케이터"></div>
-  <button class="gallery-arrow gallery-arrow-next" type="button" data-chwiseon-next>›</button>
-  </div>
+  <!-- 취선루 갤러리 컨트롤(화살표·점) 제거 — 드래그/스와이프로만 전환 -->
+  <div id="chwiseonDots" hidden></div>
   </section>
 
   <!-- 취선루 메뉴 그리드 -->
@@ -636,11 +634,8 @@
   </div>
 
   <!-- 하단 컨트롤 — 화살표 + 점 인디케이터 통합 (카드 그림을 가리지 않음) -->
-  <div class="gallery-controls">
-  <button class="gallery-arrow gallery-arrow-prev" aria-label="이전 점술가" type="button">‹</button>
-  <div class="gallery-dots" id="galleryDots" role="tablist" aria-label="점술가 인디케이터"></div>
-  <button class="gallery-arrow gallery-arrow-next" aria-label="다음 점술가" type="button">›</button>
-  </div>
+  <!-- 본관 갤러리 컨트롤(화살표·점) 제거 — 드래그/스와이프로만 전환 -->
+  <div id="galleryDots" hidden></div>
 </section>
 
 <!-- 도사별 메뉴 그리드 — 카드 클릭 후 진입 (콘텐츠 7~12개) -->
@@ -2149,6 +2144,22 @@
     <span class="bt-label">프로필</span>
   </button>
 </nav>
+
+<!-- 첫 진입 안내 툴팁 — 카드 갤러리 스와이프 가이드 -->
+<div id="swipeHint" class="swipe-hint" role="dialog" aria-label="스와이프 안내" style="display:none">
+  <div class="swipe-hint-card">
+    <div class="swipe-hint-anim" aria-hidden="true">
+      <span class="swipe-hint-finger">👆</span>
+      <span class="swipe-hint-arrow swipe-hint-arrow-left">‹</span>
+      <span class="swipe-hint-arrow swipe-hint-arrow-right">›</span>
+    </div>
+    <p class="swipe-hint-text">옆으로 <strong>드래그</strong>하면<br>다른 점술가가 나옵니다</p>
+    <div class="swipe-hint-actions">
+      <button type="button" class="swipe-hint-btn swipe-hint-btn-quiet" data-swipe-hint="close">닫기</button>
+      <button type="button" class="swipe-hint-btn" data-swipe-hint="never">다시 보지 않기</button>
+    </div>
+  </div>
+</div>
 
 <!-- 주소 검색 모달 (Daum Postcode embed) -->
 <div id="postcodeModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.78);z-index:1500;align-items:center;justify-content:center;">
