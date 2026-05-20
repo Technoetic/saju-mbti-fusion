@@ -1,16 +1,24 @@
-// 하단 탭 바 — 5개 탭 전환 (홈/일지/놀이/도감/취선루)
+// 하단 탭 바 — 6개 탭 전환 (홈/일지/놀이/도감/취선루/프로필)
 //
 // body.tab-{key} 클래스로 탭별 화면 토글:
 //   tab-home     → 카드 갤러리 (app-container)
 //   tab-journal  → 일지 화면 (tabView)
 //   tab-play     → 놀이 화면 (tabView)
 //   tab-codex    → 도감 화면 (tabView)
-//   tab-chwiseon → 취선루 (#chwiseonView 별도 화면, body.chwiseon-on)
+//   tab-chwiseon → 취선루 (#chwiseonMain, body.chwiseon-on)
+//                  → 이미 취선루 안일 때 다시 클릭하면 홈으로 복귀 (월하몽 변신 모드)
+//   tab-profile  → 프로필 화면 (tabView)
 
-const TAB_CLASSES = ['tab-home', 'tab-journal', 'tab-play', 'tab-codex', 'tab-chwiseon'];
+const TAB_CLASSES = ['tab-home', 'tab-journal', 'tab-play', 'tab-codex', 'tab-chwiseon', 'tab-profile'];
 
 function activateTab(key) {
   const body = document.body;
+
+  // 취선루 탭은 토글 동작: 이미 취선루 안이면 홈으로 복귀 (월하몽 변신 모드)
+  if (key === 'chwiseon' && body.classList.contains('chwiseon-on')) {
+    return activateTab('home');
+  }
+
   console.log('[tabs] activateTab:', key);
   // 기존 탭 클래스 모두 제거 + 새 탭 부여
   TAB_CLASSES.forEach(c => body.classList.remove(c));
@@ -35,7 +43,7 @@ function activateTab(key) {
   const tabView = document.getElementById('tabView');
   const isHome = (key === 'home');
   const isChwiseon = (key === 'chwiseon');
-  const isTabViewKey = (key === 'journal' || key === 'play' || key === 'codex');
+  const isTabViewKey = (key === 'journal' || key === 'play' || key === 'codex' || key === 'profile');
 
   // body.chwiseon-on 클래스 토글 (기존 취선루 진입/탈출 시스템 활용)
   document.body.classList.toggle('chwiseon-on', isChwiseon);
@@ -84,6 +92,11 @@ function activateTab(key) {
     }
   } else {
     document.body.classList.remove('gallery-mode');
+  }
+
+  // 프로필 탭이면 정보 새로고침
+  if (key === 'profile') {
+    refreshProfileView();
   }
 
   // 스크롤 위로
