@@ -401,15 +401,8 @@
   ════════════════════════════════════════════════════════ -->
 
 <!-- 취선루 진입 문 (메인 화면 우측 하단에 떠 있음) -->
-<button id="chwiseonGate" class="chwiseon-gate" type="button" aria-label="취선루로 향하는 작은 붉은 문">
-  <span class="cgate-door">
-  <span class="cgate-door-frame"></span>
-  <span class="cgate-door-inner"></span>
-  <span class="cgate-door-glow"></span>
-  <span class="cgate-lantern"></span>
-  </span>
-  <span class="cgate-label">醉 仙 樓</span>
-</button>
+<!-- 우하단 취선루 진입 문 삭제됨 — 하단 탭 바로 진입 -->
+
 
 <!-- 성인 인증 게이트 (오버레이) -->
 <div id="chwiseonAuth" class="chwiseon-auth" role="dialog" aria-label="성인 인증" hidden>
@@ -1973,40 +1966,122 @@
     </div>
   </div>
 
-  <!-- 친구 -->
-  <div class="tab-pane" data-tab-pane="friends">
+  <!-- 도감 -->
+  <div class="tab-pane" data-tab-pane="codex">
     <header class="tab-header">
-      <h2 class="tab-title">친 구</h2>
-      <p class="tab-subtitle">緣 · 함께 풀이를 나눌 벗</p>
+      <h2 class="tab-title">도 감</h2>
+      <p class="tab-subtitle">圖 鑑 · 月下夢 등장 인물 모음</p>
     </header>
-    <div class="tab-empty">
-      <div class="tab-empty-glyph">緣</div>
-      <p class="tab-empty-text">준비 중입니다.</p>
-      <p class="tab-empty-hint">친구를 초대하고 궁합도 함께 풀어보세요.</p>
-    </div>
-  </div>
 
-  <!-- 프로필 -->
-  <div class="tab-pane" data-tab-pane="profile">
-    <header class="tab-header">
-      <h2 class="tab-title">프로필</h2>
-      <p class="tab-subtitle">我 · 내 정보</p>
-    </header>
-    <div id="profileEmpty" class="tab-empty">
-      <div class="tab-empty-glyph">我</div>
-      <p class="tab-empty-text">로그인하시면 사주 정보가 자동으로 채워집니다.</p>
-      <button type="button" id="profileLoginBtn" class="tab-cta">로그인 / 회원가입</button>
+    <div class="codex-section">
+      <h3 class="codex-section-title">本 館 · 점술가</h3>
+      <div class="codex-grid">
+        <article class="codex-card" data-codex="manweol">
+          <div class="codex-card-glyph">月</div>
+          <h4 class="codex-card-name">만월 아씨</h4>
+          <p class="codex-card-role">사주 풀이</p>
+          <p class="codex-card-desc">달빛 아래 사주를 짚어드리는 정자의 아씨</p>
+        </article>
+        <article class="codex-card" data-codex="mongi">
+          <div class="codex-card-glyph">夢</div>
+          <h4 class="codex-card-name">몽이 도령</h4>
+          <p class="codex-card-role">꿈 풀이</p>
+          <p class="codex-card-desc">꿈과 호접몽 사이를 거니는 도령</p>
+        </article>
+        <article class="codex-card" data-codex="hwaseon">
+          <div class="codex-card-glyph">花</div>
+          <h4 class="codex-card-name">화선 낭자</h4>
+          <p class="codex-card-role">화패 풀이</p>
+          <p class="codex-card-desc">꽃과 패를 다루는 화려한 낭자</p>
+        </article>
+        <article class="codex-card" data-codex="seongha">
+          <div class="codex-card-glyph">星</div>
+          <h4 class="codex-card-name">성하 공자</h4>
+          <p class="codex-card-role">별빛 풀이</p>
+          <p class="codex-card-desc">밤하늘 별자리에 길을 묻는 공자</p>
+        </article>
+        <article class="codex-card" data-codex="unhak">
+          <div class="codex-card-glyph">面</div>
+          <h4 class="codex-card-name">운학 도사</h4>
+          <p class="codex-card-role">관상 풀이</p>
+          <p class="codex-card-desc">얼굴에서 사람의 길을 읽는 도사</p>
+        </article>
+        <article class="codex-card" data-codex="okseon">
+          <div class="codex-card-glyph">掌</div>
+          <h4 class="codex-card-name">옥선 할미</h4>
+          <p class="codex-card-role">손금 풀이</p>
+          <p class="codex-card-desc">손바닥 줄에서 일생을 짚는 노파</p>
+        </article>
+        <article class="codex-card" data-codex="mukhyang">
+          <div class="codex-card-glyph">名</div>
+          <h4 class="codex-card-name">묵향 선생</h4>
+          <p class="codex-card-role">성명학</p>
+          <p class="codex-card-desc">먹의 향기로 이름을 풀어내는 선생</p>
+        </article>
+      </div>
     </div>
-    <div id="profileCard" class="tab-profile" style="display:none">
-      <div class="tab-profile-row"><span class="tab-profile-key">닉네임</span><span id="profileNickname" class="tab-profile-val">—</span></div>
-      <div class="tab-profile-row"><span class="tab-profile-key">이메일</span><span id="profileEmail" class="tab-profile-val">—</span></div>
-      <div class="tab-profile-row"><span class="tab-profile-key">이름</span><span id="profileNameKo" class="tab-profile-val">—</span></div>
-      <div class="tab-profile-row"><span class="tab-profile-key">생년월일</span><span id="profileBirth" class="tab-profile-val">—</span></div>
-      <div class="tab-profile-row"><span class="tab-profile-key">시각</span><span id="profileHour" class="tab-profile-val">—</span></div>
-      <div class="tab-profile-row"><span class="tab-profile-key">출생지</span><span id="profileBirthplace" class="tab-profile-val">—</span></div>
-      <div class="tab-profile-row"><span class="tab-profile-key">MBTI</span><span id="profileMbti" class="tab-profile-val">—</span></div>
-      <button type="button" id="profileLogoutBtn" class="tab-cta tab-cta-quiet">로그아웃</button>
+
+    <div class="codex-section">
+      <h3 class="codex-section-title">醉 仙 樓 · 객</h3>
+      <div class="codex-grid">
+        <article class="codex-card codex-card-dark" data-codex="hyangran">
+          <div class="codex-card-glyph">蘭</div>
+          <h4 class="codex-card-name">향란 마담</h4>
+          <p class="codex-card-role">취선루 안주인</p>
+          <p class="codex-card-desc">붉은 등불 아래 모두를 맞이하는 마담</p>
+        </article>
+        <article class="codex-card codex-card-dark" data-codex="muk">
+          <div class="codex-card-glyph">墨</div>
+          <h4 class="codex-card-name">묵향</h4>
+          <p class="codex-card-role">비밀의 작가</p>
+          <p class="codex-card-desc">붓끝에 야릇한 시를 적는 시인</p>
+        </article>
+        <article class="codex-card codex-card-locked" data-codex="locked-1">
+          <div class="codex-card-glyph">?</div>
+          <h4 class="codex-card-name">???</h4>
+          <p class="codex-card-role">미공개</p>
+          <p class="codex-card-desc">아직 만나지 못한 객</p>
+        </article>
+      </div>
     </div>
+
+    <div class="codex-section">
+      <h3 class="codex-section-title">遊 · 놀이 등장인물</h3>
+      <div class="codex-grid">
+        <article class="codex-card codex-card-play" data-codex="detective">
+          <div class="codex-card-glyph">探</div>
+          <h4 class="codex-card-name">한양 명탐정</h4>
+          <p class="codex-card-role">조선 사이코패스 명탐정</p>
+          <p class="codex-card-desc">사이코패스의 사고를 좇는 추리관</p>
+        </article>
+        <article class="codex-card codex-card-locked" data-codex="locked-2">
+          <div class="codex-card-glyph">?</div>
+          <h4 class="codex-card-name">???</h4>
+          <p class="codex-card-role">미공개</p>
+          <p class="codex-card-desc">놀이가 더 늘어나면 만날 인물</p>
+        </article>
+      </div>
+    </div>
+
+    <div class="codex-section">
+      <h3 class="codex-section-title">十 二 支 · 띠 동물</h3>
+      <div class="codex-grid codex-grid-zodiac">
+        <article class="codex-card codex-card-zodiac" data-codex="rat"><div class="codex-card-glyph">子</div><p class="codex-card-name-small">쥐</p></article>
+        <article class="codex-card codex-card-zodiac" data-codex="ox"><div class="codex-card-glyph">丑</div><p class="codex-card-name-small">소</p></article>
+        <article class="codex-card codex-card-zodiac" data-codex="tiger"><div class="codex-card-glyph">寅</div><p class="codex-card-name-small">호랑이</p></article>
+        <article class="codex-card codex-card-zodiac" data-codex="rabbit"><div class="codex-card-glyph">卯</div><p class="codex-card-name-small">토끼</p></article>
+        <article class="codex-card codex-card-zodiac" data-codex="dragon"><div class="codex-card-glyph">辰</div><p class="codex-card-name-small">용</p></article>
+        <article class="codex-card codex-card-zodiac" data-codex="snake"><div class="codex-card-glyph">巳</div><p class="codex-card-name-small">뱀</p></article>
+        <article class="codex-card codex-card-zodiac" data-codex="horse"><div class="codex-card-glyph">午</div><p class="codex-card-name-small">말</p></article>
+        <article class="codex-card codex-card-zodiac" data-codex="goat"><div class="codex-card-glyph">未</div><p class="codex-card-name-small">양</p></article>
+        <article class="codex-card codex-card-zodiac" data-codex="monkey"><div class="codex-card-glyph">申</div><p class="codex-card-name-small">원숭이</p></article>
+        <article class="codex-card codex-card-zodiac" data-codex="rooster"><div class="codex-card-glyph">酉</div><p class="codex-card-name-small">닭</p></article>
+        <article class="codex-card codex-card-zodiac" data-codex="dog"><div class="codex-card-glyph">戌</div><p class="codex-card-name-small">개</p></article>
+        <article class="codex-card codex-card-zodiac" data-codex="pig"><div class="codex-card-glyph">亥</div><p class="codex-card-name-small">돼지</p></article>
+      </div>
+    </div>
+
+    <p class="codex-footer-note">※ 캐릭터들은 앞으로 계속 추가됩니다.</p>
   </div>
 </section>
 
@@ -2032,17 +2107,19 @@
     </span>
     <span class="bt-label">놀이</span>
   </button>
-  <button type="button" class="bottom-tab" role="tab" data-tab="friends" aria-selected="false">
+  <button type="button" class="bottom-tab" role="tab" data-tab="codex" aria-selected="false">
     <span class="bt-icon" aria-hidden="true">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="9" cy="8" r="3.2"/><circle cx="17" cy="9.5" r="2.6"/><path d="M2.5 19c.6-3 3.4-4.8 6.5-4.8s5.9 1.8 6.5 4.8M15 14c2.4 0 4.4 1.3 5 3.5"/></svg>
+      <!-- 도감: 책 + 별 아이콘 -->
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 5a2 2 0 012-2h11v17H6a2 2 0 00-2 2V5z"/><path d="M4 5v15a2 2 0 002 2h11"/><path d="M9 9l1.2 2.4L13 12l-2 1.5.5 2.5L9 14.8 6.5 16l.5-2.5L5 12l2.8-.6L9 9z" fill="currentColor" stroke="none"/></svg>
     </span>
-    <span class="bt-label">친구</span>
+    <span class="bt-label">도감</span>
   </button>
-  <button type="button" class="bottom-tab" role="tab" data-tab="profile" aria-selected="false">
+  <button type="button" class="bottom-tab" role="tab" data-tab="chwiseon" aria-selected="false">
     <span class="bt-icon" aria-hidden="true">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="8" r="4"/><path d="M4 20c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>
+      <!-- 취선루: 문 + 등불 -->
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M7 21V8a5 5 0 0110 0v13"/><path d="M5 21h14"/><circle cx="14" cy="13" r="0.8" fill="currentColor"/><path d="M12 4V2"/></svg>
     </span>
-    <span class="bt-label">프로필</span>
+    <span class="bt-label">취선루</span>
   </button>
 </nav>
 
