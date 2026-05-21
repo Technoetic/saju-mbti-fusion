@@ -46,9 +46,19 @@
 }
 
 /* 취선루 카드 갤러리·카드 — 짧은 화면(<700px)에서 카드 비율 짧게 */
-.chwiseon-gallery {
+.chwiseon-gallery,
+#cardGallery {
   max-width: 100% !important;
   margin: 8px auto 16px !important;
+  /* 외광·금테가 잘리지 않도록 visible + 좌우 padding 8px (카드 한 장만 보이도록 다음 카드는 자연 가림) */
+  padding: 8px !important;
+}
+/* 데크 자체엔 overflow hidden 유지 (다음 카드 미리보기 방지),
+   단 갤러리 외곽으로는 보이게 — clip-path로 좌우만 자르고 상하는 살림 */
+#chwiseonDeck,
+#cardDeck {
+  /* 좌우는 잘라서 다음 카드 안 보이게, 상하는 자유 (그림자/금테 보임) */
+  clip-path: inset(-30px 0px);
 }
 @media (max-height: 720px) {
   .chwiseon-card,
