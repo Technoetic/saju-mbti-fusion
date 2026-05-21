@@ -209,14 +209,14 @@
   ${(field.options || []).map(o => `<option value="${escapeHtml(o.value)}">${escapeHtml(o.label)}</option>`).join('')}
   </select></div>`;
   case 'ymd': {
-  const y = sess?.profile?.birth?.year || 1990;
-  const m = sess?.profile?.birth?.month || 5;
-  const d = sess?.profile?.birth?.day || 15;
-  return `<div class="row"><label for="${id}_y">${field.label}</label>
+  // ★ 버그 fix (2026-05-21) — fieldHtml의 select id는 _y/_m/_d였으나
+  //   수집 코드(line 444~449)는 _year/_month/_day로 찾고 있어 항상 null →
+  //   birth가 LLM에 전달되지 않는 결정적 버그. 수집 코드 표준에 맞춰 통일.
+  return `<div class="row"><label for="${id}_year">${field.label}</label>
   <div class="row-group">
-  <select id="${id}_y" data-ymd="year"></select>
-  <select id="${id}_m" data-ymd="month"></select>
-  <select id="${id}_d" data-ymd="day"></select>
+  <select id="${id}_year" data-ymd="year"></select>
+  <select id="${id}_month" data-ymd="month"></select>
+  <select id="${id}_day" data-ymd="day"></select>
   </div></div>`;
   }
   case 'hour-branch':
