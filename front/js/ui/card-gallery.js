@@ -46,12 +46,15 @@
   dotBtns.forEach((b, i) => b.classList.toggle('is-active', i === idx));
   if (prevArrow) prevArrow.disabled = idx === 0;
   if (nextArrow) nextArrow.disabled = idx === N - 1;
-  // 활성 카드 영상만 재생
+  // 활성 카드 영상만 재생.
+  // ★ poster 속성 활용 (ADR-103 후속 fix) — 비디오 디코드 전에도 첫 프레임 정지 이미지
+  //   가 표시되므로 빈 검은 패널 회피.
+  //   currentTime=0 강제 리셋 제거 (비디오 첫 프레임 디코드를 끊어 빈 화면 유발).
+  //   첫 진입 시 비디오 자연 위치(0)부터 시작, 이후 카드 전환 시 이전 위치 유지.
   cards.forEach((c, i) => {
   const v = c.querySelector('.char-card-video');
   if (!v) return;
   if (i === idx) {
-  try { v.currentTime = 0; } catch (_) {}
   v.play().catch(() => {});
   } else {
   v.pause();
