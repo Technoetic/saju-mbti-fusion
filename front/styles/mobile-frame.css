@@ -50,9 +50,10 @@
 #cardGallery {
   max-width: 100% !important;
   margin: 8px auto 16px !important;
-  /* 외광·금테가 잘리지 않도록 visible + 상하좌우 padding으로 카드 호흡 공간 */
-  padding: 14px 4px !important;
-  overflow: visible !important;
+  /* 상하 padding으로 카드 호흡 + 가로는 반드시 hidden (카드 7장이 가로로 일렬 → 가로 스크롤 방지) */
+  padding: 14px 0 !important;
+  overflow-x: hidden !important;
+  overflow-y: visible !important;
 }
 /* 데크 자체엔 overflow hidden 유지 (다음 카드 미리보기 방지),
    단 갤러리 외곽으로는 보이게 — clip-path로 좌우만 자르고 상하는 살림 */
@@ -60,6 +61,12 @@
 #cardDeck {
   /* 좌우는 잘라서 다음 카드 안 보이게, 상하는 자유 (그림자/금테 보임) */
   clip-path: inset(-40px 0px);
+}
+
+/* html·body 자체 가로 오버플로우 차단 (이중 안전망) */
+html, body {
+  overflow-x: hidden !important;
+  max-width: 100vw;
 }
 @media (max-height: 720px) {
   .chwiseon-card,
