@@ -1,0 +1,51 @@
+{
+  "_meta": {
+    "schema_version": "1.0",
+    "source_school": "이재승 (2024) 인명 한자 214 부수의 자원(字源)에 의한 성명학적 오행 배속",
+    "kci_id": "KCI DSpace 2187321",
+    "url": "https://dspace.kci.go.kr/handle/kci/2187321",
+    "report_section": "§6 radical_mapping_214 (라인 217~244)",
+    "warning": "본 데이터는 보고서 본문에 명시된 9 부수만 영속화 — 가짜 확장 차단 (ADR-010 사실성 분리)."
+  },
+  "radicals": {
+    "75": {
+      "radical_han": "木",
+      "default_ohaeng": "목",
+      "citation": "이재승 (2024), KCI 인명 한자 214 부수의 자원오행 배속"
+    },
+    "85": {
+      "radical_han": "水",
+      "default_ohaeng": "수",
+      "citation": "이재승 (2024), KCI 인명 한자 214 부수의 자원오행 배속",
+      "note": "氵(삼수변)은 부수 85 동일 (변형)"
+    },
+    "86": {
+      "radical_han": "火",
+      "default_ohaeng": "화",
+      "citation": "이재승 (2024), KCI 인명 한자 214 부수의 자원오행 배속",
+      "note": "灬(연화발)은 부수 86 동일 (변형)"
+    },
+    "32": {
+      "radical_han": "土",
+      "default_ohaeng": "토",
+      "citation": "이재승 (2024), KCI 인명 한자 214 부수의 자원오행 배속"
+    },
+    "167": {
+      "radical_han": "金",
+      "default_ohaeng": "금",
+      "citation": "이재승 (2024), KCI 인명 한자 214 부수의 자원오행 배속"
+    },
+    "140": {
+      "radical_han": "艸",
+      "default_ohaeng": "목",
+      "citation": "한국민족문화대백과사전, 정통 작명학 김기승(2022)",
+      "note": "艹(초두머리)은 부수 140 변형 — 식물 木"
+    },
+    "18": {
+      "radical_han": "刀",
+      "default_ohaeng": "금",
+      "citation": "한국민족문화대백과사전, 정통 작명학 김기승(2022)",
+      "note": "刂(선칼도)는 부수 18 변형"
+    }
+  }
+}
