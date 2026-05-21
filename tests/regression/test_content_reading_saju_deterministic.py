@@ -41,11 +41,17 @@ def test_content_reading_request_model():
 # ─────────────────────────── saju 결정론 직결 ───────────────────────────
 
 def test_saju_today_calls_day_pillar():
-    """saju + today → day_pillar() 호출 (engine/saju/pillars)."""
+    """saju + birth → day_pillar() 호출 (engine/saju/pillars).
+
+    ADR-069·070 후속 fix (커밋 78fee12): content_key in ("today","tomorrow",...)
+    제한 제거 — birth만 입력되면 모든 char_key·content_key에서 사주 융합.
+    """
     src = _server_text()
     assert "from engine.saju.pillars import day_pillar" in src
     assert 'char_key == "saju"' in src
-    assert '"today"' in src and '"tomorrow"' in src
+    # birth 입력 시 사주 융합 분기 (content_key 제한 없음 — wants_saju 변수)
+    assert "wants_saju" in src
+    assert "birth" in src
 
 
 def test_saju_calls_ten_gods():
