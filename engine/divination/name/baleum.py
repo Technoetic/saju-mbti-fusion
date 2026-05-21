@@ -27,13 +27,31 @@ METAL = "금"  # 金
 WATER = "수"  # 水
 
 
-# 초성 → 오행 매핑 (훈민정음 해례본 합자 원리)
+# 초성 → 오행 매핑 (훈민정음 해례본 합자 원리 — 옵션 A 디폴트)
+# 학술 근거: 조현아 (2014) 공주대학교 석사학위논문
+# "성명학의 작명원리에 있어서의 오행연구: 훈민정음해례본과 현재 작명법에 적용되는
+# 한글오행의 비교연구" — DBpia T13373928
 _INITIAL_TO_OHAENG: dict[str, str] = {
     "ㄱ": WOOD, "ㅋ": WOOD, "ㄲ": WOOD,
     "ㄴ": FIRE, "ㄷ": FIRE, "ㄹ": FIRE, "ㅌ": FIRE, "ㄸ": FIRE,
     "ㅇ": EARTH, "ㅎ": EARTH,
     "ㅅ": METAL, "ㅈ": METAL, "ㅊ": METAL, "ㅆ": METAL, "ㅉ": METAL,
     "ㅁ": WATER, "ㅂ": WATER, "ㅍ": WATER, "ㅃ": WATER,
+}
+
+
+# ADR-129 운해본(韻解本) 옵션 B — 土/水 교차 (현 시중 작명법 다수 사용)
+# 학파 분기:
+#   해례본(옵션 A): ㅇ/ㅎ→土(목구멍소리), ㅁ/ㅂ/ㅍ→水(입술소리)
+#   운해본(옵션 B): ㅇ/ㅎ→水, ㅁ/ㅂ/ㅍ→土
+# 본 시스템 디폴트는 해례본 (ADR-015 옵션 A 정합) — 운해본은 명시 채택 시 옵션.
+# 학술 근거: 조현아 (2014) DBpia T13373928 + 작명학 한자 자원오행 보고서 §4.2
+_INITIAL_TO_OHAENG_UNHAE: dict[str, str] = {
+    "ㄱ": WOOD, "ㅋ": WOOD, "ㄲ": WOOD,
+    "ㄴ": FIRE, "ㄷ": FIRE, "ㄹ": FIRE, "ㅌ": FIRE, "ㄸ": FIRE,
+    "ㅇ": WATER, "ㅎ": WATER,   # 운해본 교차 — 土→水
+    "ㅅ": METAL, "ㅈ": METAL, "ㅊ": METAL, "ㅆ": METAL, "ㅉ": METAL,
+    "ㅁ": EARTH, "ㅂ": EARTH, "ㅍ": EARTH, "ㅃ": EARTH,  # 운해본 교차 — 水→土
 }
 
 
@@ -91,21 +109,61 @@ def extract_jongsung(syllable: str) -> str:
     return ""
 
 
-def chosung_to_ohaeng(chosung: str) -> str:
-    """초성 → 오행. 매핑 없으면 빈 문자열."""
+def chosung_to_ohaeng(chosung: str, *, school: str = "haerebon") -> str:
+    """초성 → 오행. 매핑 없으면 빈 문자열.
+
+    Args:
+        chosung: 초성 한 글자 (예: 'ㄱ').
+        school: 학파 옵션 (ADR-129) —
+            - 'haerebon' (옵션 A 디폴트): 훈민정음 해례본 (학술 정통)
+            - 'unhae' (옵션 B): 운해본 (현 시중 작명법 다수)
+            두 학파는 ㅇ/ㅎ·ㅁ/ㅂ/ㅍ의 土/水 배속이 교차.
+
+    학술 근거: 조현아 (2014) DBpia T13373928 — 해례본과 현 작명법 비교 연구.
+    """
+    if school == "unhae":
+        return _INITIAL_TO_OHAENG_UNHAE.get(chosung, "")
+    # haerebon (default) — ADR-015 옵션 A 디폴트
     return _INITIAL_TO_OHAENG.get(chosung, "")
 
 
-def jongsung_to_ohaeng(jongsung: str) -> str:
-    """종성 → 오행. 받침 없거나 매핑 없으면 빈 문자열."""
+def jongsung_to_ohaeng(jongsung: str, *, school: str = "haerebon") -> str:
+    """종성 → 오행. 받침 없거나 매핑 없으면 빈 문자열.
+
+    학파 옵션은 chosung_to_ohaeng와 동일 (haerebon | unhae).
+    """
     if not jongsung:
         return ""
+    if school == "unhae":
+        return _INITIAL_TO_OHAENG_UNHAE.get(jongsung, "")
     return _INITIAL_TO_OHAENG.get(jongsung, "")
 
 
-def syllable_to_ohaeng(syllable: str) -> str:
-    """한글 음절 → 초성 기준 발음오행 (기본·통설)."""
-    return chosung_to_ohaeng(extract_chosung(syllable))
+def syllable_to_ohaeng(syllable: str, *, school: str = "haerebon") -> str:
+    """한글 음절 → 초성 기준 발음오행.
+
+    Args:
+        syllable: 한글 음절 1글자.
+        school: 'haerebon' (옵션 A 디폴트) | 'unhae' (옵션 B) — ADR-129.
+    """
+    return chosung_to_ohaeng(extract_chosung(syllable), school=school)
+
+
+# ADR-129 학파 옵션 메타데이터
+SCHOOL_OPTIONS = {
+    "haerebon": {
+        "label": "훈민정음 해례본",
+        "summary": "조선 세종 1446년 훈민정음 해례본 합자 원리 — 학술 정통.",
+        "citation": "조현아 (2014) 공주대 석사학위논문 DBpia T13373928",
+        "default": True,
+    },
+    "unhae": {
+        "label": "운해본",
+        "summary": "현 시중 작명법 다수 사용 — 土/水 배속이 해례본과 교차.",
+        "citation": "조현아 (2014) 공주대 석사학위논문 DBpia T13373928 — 현 작명법 비교 분석",
+        "default": False,
+    },
+}
 
 
 def syllable_to_ohaeng_pair(syllable: str) -> tuple[str, str]:
