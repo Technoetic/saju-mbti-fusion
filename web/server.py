@@ -200,6 +200,50 @@ def _sanitize_common_assertion_words(text: str) -> str:
     return text
 
 
+# ADR-115 (2026-05-21): 한국어 응답 중 비ASCII 라틴 (악센트 부호) 단어 hallucination 차단.
+# 발견 사례: face/reading.py 운학 도사 응답에 포르투갈어 "saudável" 침입.
+# 본 시스템은 한국 사용자 대상 한국어 SaaS — LLM 다국어 hallucination은 신뢰 저하 + 의미 불통.
+#
+# 정책:
+# - 악센트 부호 포함 라틴 알파벳 단어는 무조건 제거 (포르투갈어·스페인어·프랑스어·독일어 등)
+# - 일반 ASCII 라틴 단어는 보존 (영문 식별자 ADR·KCI·PMID·Sun·Moon·MBTI 등 운영 의무)
+import re as _re
+
+# 라틴-1·라틴 확장 영역 악센트 부호 집합 (Unicode 라틴 보충 + 확장-A 핵심)
+_ACCENTED_LATIN_PATTERN = _re.compile(
+    r"[A-Za-z]*[À-ÿĀ-ſƀ-ɏ][A-Za-zÀ-ÿĀ-ſƀ-ɏ]*"
+)
+
+
+def _sanitize_foreign_hallucination(text: str) -> str:
+    """ADR-115 — 한국어 응답 중 악센트 부호 포함 라틴 단어 (다국어 hallucination) 차단.
+
+    예시 차단:
+    - "saudável" (포르투갈어 "건강한")
+    - "élégant" (프랑스어)
+    - "señor" (스페인어)
+    - "schön" (독일어)
+
+    예시 보존 (ASCII만):
+    - "ADR-006", "KCI", "PMID 7986776", "MBTI", "Sun·Moon", "element·modality"
+
+    Args:
+        text: LLM 응답 텍스트
+
+    Returns:
+        악센트 부호 라틴 단어 제거된 텍스트 (공백 정리 포함)
+    """
+    if not text:
+        return text
+    # 악센트 부호 포함 단어를 한 칸 공백으로 치환 → 한국어 문장 흐름 유지
+    cleaned = _ACCENTED_LATIN_PATTERN.sub(" ", text)
+    # 연속 공백 정리
+    cleaned = _re.sub(r" {2,}", " ", cleaned)
+    # 공백 앞 punctuation 정리 (한국어 조사 자연 보존)
+    cleaned = _re.sub(r" ([.,;:!?])", r"\1", cleaned)
+    return cleaned
+
+
 def _sanitize_dream_assertion_words(text: str) -> str:
     """dream 도메인 LLM 응답 사후 필터링 — ADR-094 단정 어휘 차단 강화.
 
@@ -1908,6 +1952,10 @@ class PersonalityAPIServer:
                 req.category,
                 req.menu_label,
             )
+            # ADR-006/094 단정 어휘 + ADR-115 다국어 hallucination 사후 필터링
+            if isinstance(result, dict) and "text" in result:
+                result["text"] = _sanitize_common_assertion_words(result["text"])
+                result["text"] = _sanitize_foreign_hallucination(result["text"])
             return result
         except Exception as e:
             raise HTTPException(500, str(e))
@@ -1942,6 +1990,11 @@ class PersonalityAPIServer:
                 req.question,
                 req.metrics,
             )
+            # ADR-006/094 단정 어휘 + ADR-115 다국어 hallucination 사후 필터링
+            # (face Vision API 직접 호출 경로 — content/reading 분기 우회)
+            if isinstance(result, dict) and "text" in result:
+                result["text"] = _sanitize_common_assertion_words(result["text"])
+                result["text"] = _sanitize_foreign_hallucination(result["text"])
             # LLM 출력 운영 모니터링 — 1% 샘플링, 사용자 영향 0
             try:
                 from engine.safety.llm.output_sampler import sample_llm_output
@@ -1969,6 +2022,10 @@ class PersonalityAPIServer:
                 req.hand,
                 req.question,
             )
+            # ADR-006/094/113 단정 어휘 + ADR-115 다국어 hallucination 사후 필터링
+            if isinstance(result, dict) and "text" in result:
+                result["text"] = _sanitize_common_assertion_words(result["text"])
+                result["text"] = _sanitize_foreign_hallucination(result["text"])
             return result
         except ValueError as ve:
             raise HTTPException(400, str(ve))
@@ -2586,6 +2643,9 @@ class PersonalityAPIServer:
             # ADR-006/094 공통 단정 어휘 사후 필터링 (모든 캐릭터).
             # 화선 낭자·운학 도사 등 hwapae/face도 system 지시 우회 빈번.
             text = _sanitize_common_assertion_words(text)
+            # ADR-115 다국어 hallucination 차단 (모든 캐릭터).
+            # 발견: face/reading.py 운학 도사 응답에 포르투갈어 "saudável" 침입 (2026-05-21).
+            text = _sanitize_foreign_hallucination(text)
             return {
                 "text": text,
                 "char_key": char_key,
@@ -2613,6 +2673,10 @@ class PersonalityAPIServer:
                 req.saju_day_master,
                 req.saju_summary,
             )
+            # ADR-006/094 단정 어휘 + ADR-115 다국어 hallucination 사후 필터링
+            if isinstance(result, dict) and "text" in result:
+                result["text"] = _sanitize_common_assertion_words(result["text"])
+                result["text"] = _sanitize_foreign_hallucination(result["text"])
             return result
         except ValueError as ve:
             raise HTTPException(400, str(ve))
