@@ -108,17 +108,48 @@ def day_pillar(year: int, month: int, day: int) -> dict:
     return _pack(gan_idx, ji_idx)
 
 
-def hour_pillar(day_gan_idx: int, hour: int) -> dict:
-    """時柱: 五鼠遁 표.
+_HOUR_SCHEMA_UNIFIED = "unified"
+_HOUR_SCHEMA_YAJASI = "yajasi_separate"
+_HOUR_SCHEMAS: tuple[str, ...] = (_HOUR_SCHEMA_UNIFIED, _HOUR_SCHEMA_YAJASI)
 
-    hour: 0~23 (24시간제).
-    23:00~00:59 = 子時(0), 01:00~02:59 = 丑時(1), ..., 21:00~22:59 = 亥時(11).
 
-    NOTE: 야자시(夜子時, 23:00~24:00) 분리 옵션은 후속 구현. 현재는 통합 子時 처리.
+def hour_pillar(
+    day_gan_idx: int,
+    hour: int,
+    schema: str = _HOUR_SCHEMA_UNIFIED,
+) -> dict:
+    """時柱: 五鼠遁 표 + ADR-105 야자시 학파 옵션.
+
+    Args:
+        day_gan_idx: 일간 인덱스 (0~9). schema에 따라 caller 책임 다름:
+            - "unified" (디폴트): caller가 23시 입력 시 익일 일간 전달 의무
+              (통합 자시 학파, 23:00 시점 일주 변경 — compute_pillars()가 처리).
+            - "yajasi_separate": 23시 입력 시 당일 일간 전달 (야자시는 당일 일진 유지).
+        hour: 0~23 (24시간제).
+            23:00~00:59 = 子時(0), 01:00~02:59 = 丑時(1), ..., 21:00~22:59 = 亥時(11).
+        schema (ADR-105 옵션 B):
+            - "unified" (디폴트): 통합 자시 학파 (현 구현 유지, 역호환 의무).
+              23:00~00:59 모두 子時 ji_idx=0.
+            - "yajasi_separate": 야자시(夜子時) 분리 학파.
+              23:00~23:59 = 야자시 (당일 일진 유지 + 익일 일간 오서둔 — caller 책임).
+              00:00~00:59 = 정자시 (익일 일진 + 익일 일간 오서둔).
+              본 함수 출력의 ji_idx는 동일 (子=0)이나 caller의 day_gan_idx 전달 의무가 다름.
+
+    Returns:
+        {gan_idx, ji_idx, ...} 시주.
+
+    ADR 정합:
+        - ADR-002: 단일 학파 강요 X (옵션 B 병행)
+        - ADR-006: 운명 단정 X (시주 분류만)
+        - ADR-015: schema='unified' 디폴트 (옵션 A) + 'yajasi_separate' 옵션 B
     """
     if not 0 <= hour <= 23:
         raise ValueError(f"hour must be 0..23, got {hour}")
-    # 23시는 익일 子時 로 보지만 여기서는 동일 일자 子時 로 처리 (caller 가 day 조정 가능)
+    if schema not in _HOUR_SCHEMAS:
+        raise ValueError(f"schema must be one of {_HOUR_SCHEMAS}, got {schema!r}")
+    # 23시는 익일 子時 로 보지만 여기서는 동일 일자 子時 로 처리 (caller 가 day 조정 가능).
+    # ADR-105: schema 분기는 본 함수 내부 ji_idx 계산에 영향 X — 두 학파 모두 23시 = 子時.
+    # schema 차이는 compute_pillars()에서 day_pillar·hour_pillar 결합 시 caller가 처리.
     if hour == 23:
         ji_idx = 0  # 子
     else:
@@ -129,13 +160,25 @@ def hour_pillar(day_gan_idx: int, hour: int) -> dict:
     return _pack(gan_idx, ji_idx)
 
 
-def compute_pillars(year: int, month: int, day: int, hour: int) -> dict:
-    """4주(年月日時) + 日主(일간) 통합 계산.
+def compute_pillars(
+    year: int,
+    month: int,
+    day: int,
+    hour: int,
+    schema: str = _HOUR_SCHEMA_UNIFIED,
+) -> dict:
+    """4주(年月日時) + 日主(일간) 통합 계산 (ADR-073 + ADR-105 야자시 옵션).
 
     Parameters
     ----------
     year, month, day : 절기 보정된 양력 (caller 가 calendar.py 에서 처리)
     hour : 0~23
+    schema : ADR-105 야자시 학파 옵션
+        - "unified" (디폴트): 통합 자시 학파.
+          23시 입력 시 day+1 익일 일주로 자동 보정 후 hour_pillar 호출.
+          (현 동작 호환 의무 — caller가 별도 조정 불필요해짐)
+        - "yajasi_separate": 야자시 분리 학파.
+          23시 입력 시 day 그대로 (당일 일주 유지), 익일 일간으로 오서둔 적용.
 
     Returns
     -------
@@ -146,11 +189,33 @@ def compute_pillars(year: int, month: int, day: int, hour: int) -> dict:
         "hour_pillar":  {...},
         "day_master":   "갑"  # 日干 (일간) - 사주 분석의 중심
     }
+
+    ADR 정합:
+        - ADR-002: 단일 학파 강요 X
+        - ADR-015: 옵션 B 병행 (디폴트=통합 자시)
+        - ADR-073: 결정론 보장
+        - ADR-085: KASI 앵커 정정 영향 없음
     """
+    if schema not in _HOUR_SCHEMAS:
+        raise ValueError(f"schema must be one of {_HOUR_SCHEMAS}, got {schema!r}")
+
     yp = year_pillar(year)
     mp = month_pillar(year, month)
-    dp = day_pillar(year, month, day)
-    hp = hour_pillar(dp["gan_idx"], hour)
+
+    # ADR-105: 23시 처리 — schema에 따라 일주 시점 결정
+    # 역호환 의무: schema='unified' (디폴트)는 현 동작 유지 (caller가 day 조정 책임).
+    # 새 동작은 schema='yajasi_separate'에만 적용.
+    if hour == 23 and schema == _HOUR_SCHEMA_YAJASI:
+        # 야자시 분리: 23시는 당일 일주 유지 + 익일 일간으로 오서둔
+        from datetime import date as _date, timedelta as _timedelta
+        dp = day_pillar(year, month, day)  # 당일 일주 유지
+        next_day = _date(year, month, day) + _timedelta(days=1)
+        next_dp = day_pillar(next_day.year, next_day.month, next_day.day)
+        hp = hour_pillar(next_dp["gan_idx"], hour, schema=schema)
+    else:
+        # schema='unified' (디폴트) 또는 hour != 23: 현 동작 유지
+        dp = day_pillar(year, month, day)
+        hp = hour_pillar(dp["gan_idx"], hour, schema=schema)
 
     return {
         "year_pillar": yp,
