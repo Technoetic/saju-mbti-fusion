@@ -189,6 +189,101 @@ def total_chars() -> int:
     return len(_load_db())
 
 
+# ─────────────────────────── ADR-125·126·127 KCI 확장 ───────────────────────────
+
+# 데이터 경로 — 부수 디폴트 + 학파 분기 (보고서 §6 본문 명시 데이터)
+_KCI_RADICAL_DEFAULT_PATH = (
+    Path(__file__).resolve().parent.parent.parent.parent
+    / "data"
+    / "hanja/kci_radical_default_ohaeng.json"
+)
+_KCI_SCHOOL_SPLIT_PATH = (
+    Path(__file__).resolve().parent.parent.parent.parent
+    / "data"
+    / "hanja/kci_school_split.json"
+)
+
+
+@lru_cache(maxsize=1)
+def _load_radical_default_db() -> dict[int, dict[str, Any]]:
+    """214 부수 디폴트 자원오행 매핑 DB (이재승 2024 KCI 직접 인용).
+
+    보고서 §6 라인 217~244 본문 명시 7 부수 (가짜 확장 차단).
+    """
+    if not _KCI_RADICAL_DEFAULT_PATH.exists():
+        return {}
+    try:
+        raw = json.loads(_KCI_RADICAL_DEFAULT_PATH.read_text(encoding="utf-8"))
+        radicals = raw.get("radicals", {}) if isinstance(raw, dict) else {}
+        return {int(k): v for k, v in radicals.items() if isinstance(k, str) and k.isdigit()}
+    except Exception:
+        return {}
+
+
+@lru_cache(maxsize=1)
+def _load_school_split_db() -> dict[str, dict[str, Any]]:
+    """학파 분기 명시 한자 DB (보고서 §6 school_differences 라인 246~258).
+
+    ADR-002·015 옵션 병행 정신 — 단일 학파 강요 차단.
+    """
+    if not _KCI_SCHOOL_SPLIT_PATH.exists():
+        return {}
+    try:
+        raw = json.loads(_KCI_SCHOOL_SPLIT_PATH.read_text(encoding="utf-8"))
+        return raw.get("splits", {}) if isinstance(raw, dict) else {}
+    except Exception:
+        return {}
+
+
+def radical_default_ohaeng(radical_num: int) -> str | None:
+    """부수 번호 → 이재승 2024 KCI 디폴트 자원오행 (한글 1글자).
+
+    보고서 §6 라인 217~244 본문 명시 7 부수만 매핑 (木·水·火·土·金·艸·刀).
+    그 외 부수는 None — 가짜 확장 차단 (ADR-010 사실성 분리).
+
+    Args:
+        radical_num: 부수 번호 (1~214).
+
+    Returns:
+        '목' | '화' | '토' | '금' | '수' | None
+    """
+    if not isinstance(radical_num, int) or not (1 <= radical_num <= 214):
+        return None
+    entry = _load_radical_default_db().get(radical_num)
+    return entry.get("default_ohaeng") if entry else None
+
+
+def kci_confidence(char: str) -> str | None:
+    """한자 KCI 매핑 신뢰도 단계 (HIGH/MEDIUM/LOW). 미매핑 시 None.
+
+    ADR-010 사실성 분리 정합 — 사용자가 학파 신뢰도 판단 가능하도록 명시.
+    이재승·김만태 2018 KCI 5단계(강·중·약·무의미·불명) → 3단계 정리.
+    """
+    if not isinstance(char, str) or not char:
+        return None
+    entry = _load_db().get(char)
+    if entry is None:
+        return None
+    val = entry.get("kci_confidence", "")
+    return val if val else None
+
+
+def school_split(char: str) -> dict[str, Any] | None:
+    """한자 학파 분기 데이터. 단일 학파 디폴트로 본문화된 한자는 None.
+
+    ADR-002·015 옵션 병행 정신 — 보고서 §6 school_differences 본문 명시 한자만.
+
+    Returns:
+        {"primary_ohaeng": "화",
+         "schools": [{"school": "...", "ohaeng": "..."}, ...],
+         "consensus_note": "..."}
+        또는 None.
+    """
+    if not isinstance(char, str) or not char:
+        return None
+    return _load_school_split_db().get(char)
+
+
 def total_with_ohaeng() -> int:
     """자원오행이 매핑된 한자 수 (부수 기반 옵션 A)."""
     return sum(1 for e in _load_db().values() if e.get("resource_ohaeng"))
