@@ -634,3 +634,60 @@
   box-shadow: 0 0 12px rgba(212, 175, 55, 0.3);
   }
 
+  /* 프리미엄 안내 화면 (premium-info-modal) */
+  .premium-info-panel {
+  max-width: 420px;
+  text-align: left;
+  }
+  .premium-info-panel .premium-prompt-icon,
+  .premium-info-panel .premium-prompt-title {
+  text-align: center;
+  }
+  .premium-info-section {
+  margin: 16px 0;
+  padding: 14px 16px;
+  background: rgba(40, 28, 14, 0.4);
+  border: 1px solid rgba(212, 175, 55, 0.18);
+  border-radius: 3px;
+  }
+  .premium-info-h4 {
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 14px;
+  letter-spacing: 3px;
+  color: var(--gold-bri);
+  margin: 0 0 10px;
+  font-weight: 600;
+  }
+  .premium-info-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.8;
+  color: #ecd9a8;
+  }
+  .premium-info-list li {
+  padding-left: 14px;
+  position: relative;
+  }
+  .premium-info-list li::before {
+  content: '·';
+  position: absolute;
+  left: 0;
+  color: var(--gold);
+  font-weight: 700;
+  }
+  .premium-info-body {
+  font-size: 13px;
+  line-height: 1.7;
+  color: #ecd9a8;
+  margin: 0;
+  }
+  .premium-info-note {
+  display: inline-block;
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--gold);
+  letter-spacing: 0.5px;
+  }
+
