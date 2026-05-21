@@ -7,14 +7,15 @@
 // ============================================================
 (function setupChwiseon() {
   const STORAGE_KEY = 'whm.chwiseon.adultVerified.v1';
-  const gate = document.getElementById('chwiseonGate');
+  const gate = document.getElementById('chwiseonGate');       // 우하단 문 — 제거됨 (탭바로 통합)
   const auth = document.getElementById('chwiseonAuth');
   const trans = document.getElementById('chwiseonTransition');
   const main = document.getElementById('chwiseonMain');
-  const exitBtn = document.getElementById('chwiseonExit');
+  const exitBtn = document.getElementById('chwiseonExit');    // 좌하단 복귀 문 — 제거됨
   const verifyBtn = document.getElementById('cauthVerifyBtn');
   const cancelBtn = document.getElementById('cauthBackBtn');
-  if (!gate || !auth || !main) return;
+  // main은 반드시 필요 (취선루 카드 갤러리 컨테이너). gate·exitBtn은 더 이상 필수 아님.
+  if (!auth || !main) return;
 
   function isVerified() {
   try { return localStorage.getItem(STORAGE_KEY) === '1'; } catch (_) { return false; }
@@ -78,7 +79,8 @@
   }, 2900);
   }
 
-  // 진입 문 클릭
+  // 진입 문 클릭 — 우하단 문 제거됨, 탭바로 통합
+  if (gate) {
   gate.addEventListener('click', () => {
   if (isVerified()) {
   playTransition(enterChwiseon);
@@ -86,21 +88,24 @@
   openAuth();
   }
   });
+  }
 
   // 인증 버튼 (백엔드 미연결 — 프론트 데모용)
+  if (verifyBtn) {
   verifyBtn.addEventListener('click', () => {
-  // TODO: 백엔드 본인·성인 인증 연결. 지금은 클라이언트 확인만.
   const confirmed = confirm('본인 인증 시스템은 곧 연결됩니다 (백엔드 영역).\n\n프론트 데모로 만 19세 이상이심을 확인하시겠습니까?');
   if (!confirmed) return;
   setVerified(true);
   closeAuth();
   setTimeout(() => playTransition(enterChwiseon), 200);
   });
-  cancelBtn.addEventListener('click', closeAuth);
-  auth.querySelector('.cauth-backdrop').addEventListener('click', closeAuth);
+  }
+  if (cancelBtn) cancelBtn.addEventListener('click', closeAuth);
+  const authBackdrop = auth.querySelector('.cauth-backdrop');
+  if (authBackdrop) authBackdrop.addEventListener('click', closeAuth);
 
-  // 본관으로 돌아가기
-  exitBtn.addEventListener('click', () => playExitTransition(exitChwiseon));
+  // 본관으로 돌아가기 — 좌하단 문 제거됨, 탭바 월하몽 변신으로 통합
+  if (exitBtn) exitBtn.addEventListener('click', () => playExitTransition(exitChwiseon));
 
   // ───────────── 취선루 카드 갤러리 (5인) ─────────────
   const deck = document.getElementById('chwiseonDeck');
@@ -129,8 +134,11 @@
   }
   function csNext() { setChwiseonIdx(idx + 1); }
   function csPrev() { setChwiseonIdx(idx - 1); }
-  document.querySelector('[data-chwiseon-prev]').addEventListener('click', csPrev);
-  document.querySelector('[data-chwiseon-next]').addEventListener('click', csNext);
+  // 화살표 버튼은 UI에서 제거됨 — null 가드 (드래그/스와이프만 남음)
+  const prevBtn = document.querySelector('[data-chwiseon-prev]');
+  const nextBtn = document.querySelector('[data-chwiseon-next]');
+  if (prevBtn) prevBtn.addEventListener('click', csPrev);
+  if (nextBtn) nextBtn.addEventListener('click', csNext);
 
   // 카드 들어가기 → 메뉴 모드
   deck.addEventListener('click', (e) => {
