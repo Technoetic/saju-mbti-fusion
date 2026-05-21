@@ -63,6 +63,24 @@ _KONGMANG_BY_SUN: List[List[str]] = [
 ]
 
 
+# ADR-128 양인살(羊刃殺) — 양간 5종 (정통 사주명리 자평진전 옵션 A 디폴트).
+# 자평진전(沈孝瞻 1734, 이담북스 김정혜·서소옥·안명순 역 2011, ISBN 검증) 정통.
+# 음간 포함 10간 확장은 삼명통회 옵션 B (학파 분기, 본 시스템 비채택).
+_YANGIN: Dict[str, str] = {
+    "甲": "卯",
+    "丙": "午",
+    "戊": "午",
+    "庚": "酉",
+    "壬": "子",
+}
+
+# ADR-128 괴강살(魁罡殺) — 정통 4 일주 (자평진전·삼명통회 일치 표준).
+_GOEGANG_PILLARS: frozenset = frozenset({"庚辰", "庚戌", "壬辰", "戊戌"})
+
+# ADR-128 백호살(白虎殺) — 정통 7 일주 (자평진전·삼명통회 일치 표준).
+_BAEKHO_PILLARS: frozenset = frozenset({"甲辰", "乙未", "丙戌", "丁丑", "戊辰", "壬戌", "癸丑"})
+
+
 # 60갑자 인덱스 사전 빌드 (모듈 로드 시 1회). O(1) 룩업.
 # (gan_han, ji_han) -> 60갑자 인덱스 (0~59)
 _GAPJA_INDEX: Dict[tuple, int] = {}
@@ -87,15 +105,22 @@ def _ji_list(pillars: Dict) -> List[str]:
 
 
 def compute_shensha(pillars: Dict) -> Dict[str, List[str]]:
-    """4주(年月日時)에서 주요 신살 5종을 계산.
+    """4주(年月日時)에서 주요 신살 8종을 계산.
+
+    학파:
+      - 천을귀인·문창귀인·역마·도화·공망: 본 시스템 기존 5종 (전통)
+      - 양인·괴강·백호: ADR-128 신규 (자평진전·삼명통회 정통)
 
     Args:
         pillars: {year_pillar, month_pillar, day_pillar, hour_pillar} —
                  각 항목은 {gan_han, ji_han, gan, ji}.
 
     Returns:
-        {cheoneul, munchang, yeokma, dohwa, kongmang}: 각 키 값은
-        해당 신살에 해당하는 지지(한자) 리스트, 없으면 빈 리스트.
+        {cheoneul, munchang, yeokma, dohwa, kongmang, yangin, goegang, baekho}:
+        각 키 값은 해당 신살에 해당하는 지지(한자) 리스트, 없으면 빈 리스트.
+        - yangin: 양인 지지 한자 (양간 5종 디폴트, 음간은 항상 빈 리스트)
+        - goegang: 일주가 4 괴강 일주에 해당하면 [day_pillar], 아니면 []
+        - baekho: 일주가 7 백호 일주에 해당하면 [day_pillar], 아니면 []
     """
     day_gan = pillars["day_pillar"]["gan_han"]
     day_ji = pillars["day_pillar"]["ji_han"]
@@ -130,13 +155,55 @@ def compute_shensha(pillars: Dict) -> Dict[str, List[str]]:
     else:
         kongmang = []
 
+    # 6. ADR-128 양인살 (양간 5종 디폴트 — 자평진전 옵션 A)
+    yangin_target = _YANGIN.get(day_gan)
+    yangin = [j for j in all_ji if yangin_target and j == yangin_target]
+
+    # 7·8. ADR-128 괴강·백호 (일주 매칭 — 매칭 시 일주 한자 반환)
+    day_pillar_han = day_gan + day_ji
+    goegang = [day_pillar_han] if day_pillar_han in _GOEGANG_PILLARS else []
+    baekho = [day_pillar_han] if day_pillar_han in _BAEKHO_PILLARS else []
+
     return {
         "cheoneul": cheoneul,
         "munchang": munchang,
         "yeokma": yeokma,
         "dohwa": dohwa,
         "kongmang": kongmang,
+        "yangin": yangin,
+        "goegang": goegang,
+        "baekho": baekho,
     }
+
+
+# ─────────────────────────── ADR-128 단독 API ───────────────────────────
+
+
+def is_yangin(day_gan_han: str, ji_han: str) -> bool:
+    """일간·지지 한자 → 양인살 여부 (옵션 A 양간 5종 디폴트).
+
+    학파: 자평진전(沈孝瞻 1734) 정통 — 양간 5종만 양인 인정.
+    음간 포함 10간 확장은 삼명통회 옵션 B (본 시스템 비채택).
+    """
+    target = _YANGIN.get(day_gan_han)
+    return target is not None and ji_han == target
+
+
+def is_goegang(day_pillar_han: str) -> bool:
+    """일주 한자 (예: '庚辰') → 괴강살 여부.
+
+    학파: 자평진전·삼명통회 일치 표준 4 일주 (庚辰·庚戌·壬辰·戊戌).
+    """
+    return day_pillar_han in _GOEGANG_PILLARS
+
+
+def is_baekho(day_pillar_han: str) -> bool:
+    """일주 한자 (예: '甲辰') → 백호살 여부.
+
+    학파: 자평진전·삼명통회 일치 표준 7 일주
+    (甲辰·乙未·丙戌·丁丑·戊辰·壬戌·癸丑).
+    """
+    return day_pillar_han in _BAEKHO_PILLARS
 
 
 # 신살 한 줄 의미 — 프론트가 태그 옆에 표시할 용도
@@ -160,5 +227,18 @@ SHENSHA_MEANINGS: Dict[str, Dict[str, str]] = {
     "kongmang": {
         "label": "공망",
         "summary": "비어있는 자리. 해당 영역(재물·자식·관운 등)에서 헛수고와 허무함을 자주 만남.",
+    },
+    # ADR-128 신규 3종 — 흐름 톤 (단정 어휘 차단·ADR-006 정합)
+    "yangin": {
+        "label": "양인살",
+        "summary": "일간의 강한 기운이 극단으로 치우치는 결. 결단력·강한 의지의 흐름.",
+    },
+    "goegang": {
+        "label": "괴강살",
+        "summary": "4 특수 일주(庚辰·庚戌·壬辰·戊戌)의 극단 기운. 리더십·강한 기운의 흐름.",
+    },
+    "baekho": {
+        "label": "백호살",
+        "summary": "7 특수 일주(甲辰·乙未·丙戌·丁丑·戊辰·壬戌·癸丑)의 활동 기운. 외향·활동성의 흐름.",
     },
 }
