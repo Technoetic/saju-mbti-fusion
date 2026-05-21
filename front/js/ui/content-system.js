@@ -450,6 +450,23 @@
          || document.querySelector(`[name="${f.key}"]`);
   inputs[f.key] = el ? el.value : '';
   }
+  // ★ ADR-070·071 융합 — share='name' 필드 옆 한자 셀렉터 결과를 fields.hanja로 수집.
+  //   이전: 프론트가 한자 셀렉터 UI 렌더링하지만 백엔드 전송 누락 → name·saju 외
+  //   5 도메인(hwapae·dream·face·palm·star)에서 성명학 결정론 융합 불가.
+  //   본 fix: 한자 셀렉터 선택값을 글자 순서대로 이어 fields.hanja에 전송.
+  if (f.share === 'name') {
+  const hanjaSlot = document.getElementById(`cf_${f.key}_hanja`);
+  if (hanjaSlot) {
+  const selects = hanjaSlot.querySelectorAll('.content-hanja-select');
+  if (selects.length > 0) {
+  const hanjaStr = Array.from(selects).map(s => s.value || '').join('');
+  // 하나라도 선택됐으면 전송 (전부 비어있으면 빈 문자열 — 백엔드가 무시)
+  if (hanjaStr.trim()) {
+  inputs.hanja = hanjaStr;
+  }
+  }
+  }
+  }
   }
 
   // ADR-069: /api/content/reading — 도메인 결정론 + LLM 결합

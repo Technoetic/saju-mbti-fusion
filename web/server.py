@@ -2117,11 +2117,14 @@ class PersonalityAPIServer:
                     deterministic_blocks.append("[사주 결정론 — 산출 실패]")
 
         # ─── name 결정론 (char_key='name' OR fullName/hanja 입력 시 누적) ───
-        # ADR-070·071: 만월 아씨 콘텐츠도 fullName 입력 시 성명학 결정론 동시 인용.
+        # ADR-070·071: 성명학 결정론 융합 — fullName/hanja 입력 시 모든 도메인에서 동시 인용.
+        # 본 fix 이전: name·saju 2 도메인만 융합. hwapae·dream·face·palm·star는 share='name'
+        # UI 입력을 받았지만 LLM 프롬프트에 성명학 결정론 결과 미주입 (UI/백엔드 불일치).
+        # 본 fix: 사용자가 이름 입력한 모든 캐릭터에서 성명학 결정론 결과 자동 융합.
         full_name = (fields.get("fullName") or fields.get("currentName") or "").strip()
         hanja = (fields.get("hanja") or "").strip()
         wants_name = (char_key == "name") or (
-            (full_name or hanja) and char_key in ("saju",)  # 사주+성명 융합 (ADR-024 패턴)
+            (full_name or hanja) and char_key in ("saju", "hwapae", "dream", "face", "palm", "star")
         )
         if wants_name and (full_name or hanja):
             try:
