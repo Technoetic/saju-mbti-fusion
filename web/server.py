@@ -557,15 +557,24 @@ class PersonalityAPIServer:
             allow_headers=["*"],
         )
 
-        # 정적 파일 캐시 무효화 — 브라우저가 ETag로 매번 확인 후 304/200 응답.
-        # 새 배포 시 사용자 브라우저가 옛 JS/CSS를 들고 있어 변경이 안 보이던 문제 해결.
+        # 정적 파일 캐시 무효화 — 모바일 브라우저(iOS Safari·Chrome)가 공격적으로
+        # 캐시해 변경이 즉시 안 보이던 문제 해결.
+        # 1) ?v= 쿼리가 있으면 → 강제 새 URL이라 안전하게 1년 캐시
+        # 2) 그 외 정적 파일 → no-store + no-cache + must-revalidate + max-age=0
         @self.app.middleware("http")
         async def add_no_cache_headers(request, call_next):
             response = await call_next(request)
             path = request.url.path
-            # 정적 파일(JS/CSS/HTML)만 대상. API/미디어는 제외 (긴 캐시 OK)
+            query = request.url.query
             if path.endswith((".js", ".css", ".html")) or path == "/":
-                response.headers["Cache-Control"] = "no-cache, must-revalidate, max-age=0"
+                if "v=" in query:
+                    # 버전 쿼리 있는 정적 리소스 → 안전하게 1년 캐시
+                    response.headers["Cache-Control"] = "public, max-age=31536000, immutable"
+                else:
+                    # 쿼리 없는 정적 리소스(직접 접근 등) → 절대 캐시 X
+                    response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0, private"
+                    response.headers["Pragma"] = "no-cache"
+                    response.headers["Expires"] = "0"
             return response
 
         # GET "/" 직접 처리 — StaticFiles mount보다 먼저 등록되어야 catch.
