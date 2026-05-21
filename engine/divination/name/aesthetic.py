@@ -529,23 +529,40 @@ def f_aspirate(coda: str, initial: str) -> tuple[str, str] | None:
     return None
 
 
-def f_tensify(coda: str, initial: str) -> str | None:
-    """경음화 §23 — 폐쇄음 종성 + 평음 초성 → 경음 초성.
+def f_tensify(coda: str, initial: str, is_sino_korean: bool = False) -> str | None:
+    """경음화 §23·§26 — 폐쇄음/한자어 ㄹ 받침 + 평음 초성 → 경음 초성.
 
-    한자어 §26 (ㄹ받침 + 평음) 별도 처리 필요 (구분 불가하면 미적용).
+    §23: 폐쇄음 종성 (ㄱ·ㄷ·ㅂ 계열) + 평음 초성 → 경음
+    §26: 한자어 ㄹ 받침 + 평음(ㄷ·ㅅ·ㅈ) → 경음 (is_sino_korean=True 필요)
+
+    출처: 표준 발음법 (1988 문교부 고시 제88-2호) §23·§26
+    KCI: 신지영(2010) "한국어 자음의 변별 자질", 한국언어학회
+
+    Args:
+        coda: 앞 음절 종성
+        initial: 다음 음절 초성
+        is_sino_korean: 한자어 경계 여부 (True 시 §26 적용)
 
     Returns:
         새 초성 또는 None.
 
     Examples:
-        f_tensify('ㄱ', 'ㅈ') == 'ㅉ'  # 김국진 → 김국찐
-        f_tensify('ㅂ', 'ㅅ') == 'ㅆ'  # 송학동: 송학똥 (학+동 → 학똥)
+        f_tensify('ㄱ', 'ㅈ') == 'ㅉ'  # 김국진 → 김국찐 (§23)
+        f_tensify('ㅂ', 'ㅅ') == 'ㅆ'  # 송학동 → 송학똥 (§23)
+        f_tensify('ㄹ', 'ㄷ', is_sino_korean=True) == 'ㄸ'  # 결단 → 결딴 (§26)
+        f_tensify('ㄹ', 'ㅈ', is_sino_korean=True) == 'ㅉ'  # 일정 → 일쩡 (§26)
+        f_tensify('ㄹ', 'ㄷ', is_sino_korean=False) is None  # 고유어는 미적용
     """
     if initial not in _PLAIN_CONSONANTS:
         return None
     # §23 — 받침이 ㄱ·ㄷ·ㅂ 계열 (자음군 단순화 후)
     simplified = _CLUSTER_SIMPLIFY.get(coda, coda)
     if simplified in _CODA_VELAR or simplified in _CODA_ALVEOLAR or simplified in _CODA_BILABIAL:
+        return _TENSE_MAP.get(initial)
+    # §26 — 한자어 ㄹ 받침 + 평음(ㄷ·ㅅ·ㅈ) → 경음
+    #   고유어는 ㄱ·ㅂ 평음에 경음화 안 됨 (예: 들고[들고], 살길[살길])
+    #   한자어만 ㄹ + ㄷ/ㅅ/ㅈ 경음화 (예: 결단[결딴], 발생[발쌩], 일정[일쩡])
+    if is_sino_korean and simplified == "ㄹ" and initial in frozenset(["ㄷ", "ㅅ", "ㅈ"]):
         return _TENSE_MAP.get(initial)
     return None
 
