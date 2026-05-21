@@ -23,11 +23,16 @@
   .card-deck {
   display: flex;
   gap: 0;
-  /* will-change: transform 제거 — ADR-105 후속 fix.
-     일부 환경에서 GPU 합성 시 자식 element 픽셀이 별도 레이어로 분리되어
-     활성 카드 외 child(poster img·video)가 보이지 않는 문제 발생.
-     transition만 유지 → 부드러운 슬라이드는 그대로. */
-  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  /* ★ ADR-105 종결 fix — transform translateX → scrollLeft 가로 스크롤로 변경.
+     transform 컨텍스트 자체를 제거하면 GPU 합성 누락 문제 근본 해결.
+     비활성 카드 child(poster img·video)가 viewport에 들어와도 정상 가시.
+     transition은 scroll-behavior:smooth로 부드러움 유지. */
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
+  }
+  .card-deck > .char-card {
+  scroll-snap-align: start;
   }
   .card-deck.is-dragging {
   transition: none;

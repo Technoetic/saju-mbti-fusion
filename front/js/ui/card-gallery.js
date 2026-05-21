@@ -41,7 +41,10 @@
   }
 
   function render() {
-  deck.style.transform = `translateX(${-idx * 100}%)`;
+  // ADR-105 종결 fix — transform translateX → scrollLeft 전환.
+  // transform 컨텍스트 GPU 합성 누락 문제 회피.
+  const cardWidth = deck.clientWidth;
+  deck.scrollTo({ left: idx * cardWidth, behavior: 'smooth' });
   cards.forEach((c, i) => c.classList.toggle('is-active', i === idx));
   dotBtns.forEach((b, i) => b.classList.toggle('is-active', i === idx));
   if (prevArrow) prevArrow.disabled = idx === 0;
@@ -103,11 +106,10 @@
   }
   if (drag.locked === 'x') {
   e.preventDefault();
-  // 끝단에서는 저항 (idx 0에서 오른쪽 드래그, idx N-1에서 왼쪽 드래그)
-  let dx = drag.deltaX;
-  if ((idx === 0 && dx > 0) || (idx === N - 1 && dx < 0)) dx *= 0.35;
-  const pct = (dx / drag.width) * 100;
-  deck.style.transform = `translateX(calc(${-idx * 100}% + ${pct}%))`;
+  // ADR-105 종결 fix — scrollLeft 기반 드래그.
+  // 끝단 저항은 scrollLeft가 자동으로 0/max 클램프하므로 별도 처리 불필요.
+  const baseScroll = idx * deck.clientWidth;
+  deck.scrollLeft = baseScroll - drag.deltaX;
   }
   }
   function onUp() {
