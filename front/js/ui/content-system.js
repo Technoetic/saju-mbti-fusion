@@ -428,16 +428,24 @@
   if (!resultEl) return;
 
   // 입력 필드 수집
+  // ★ 버그 fix — fieldHtml()이 id="cf_${field.key}"로 element 생성하는데
+  //   이전 코드는 [name="${f.key}"]로 찾아 항상 null → 사용자 입력이 LLM에
+  //   전달되지 않는 결정적 버그. id 기반 선택으로 정정.
   const fields = (item.fields || []);
   const inputs = {};
   for (const f of fields) {
   if (f.type === 'ymd') {
-  const y = document.querySelector(`[name="${f.key}_year"]`)?.value;
-  const m = document.querySelector(`[name="${f.key}_month"]`)?.value;
-  const d = document.querySelector(`[name="${f.key}_day"]`)?.value;
+  const y = document.getElementById(`cf_${f.key}_year`)?.value
+        || document.querySelector(`[name="${f.key}_year"]`)?.value;
+  const m = document.getElementById(`cf_${f.key}_month`)?.value
+        || document.querySelector(`[name="${f.key}_month"]`)?.value;
+  const d = document.getElementById(`cf_${f.key}_day`)?.value
+        || document.querySelector(`[name="${f.key}_day"]`)?.value;
   inputs[f.key] = (y && m && d) ? `${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}` : '';
   } else {
-  const el = document.querySelector(`[name="${f.key}"]`);
+  // id="cf_${key}" 우선, fallback으로 [name=...]
+  const el = document.getElementById(`cf_${f.key}`)
+         || document.querySelector(`[name="${f.key}"]`);
   inputs[f.key] = el ? el.value : '';
   }
   }
