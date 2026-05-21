@@ -223,11 +223,30 @@ _DISCLAIMER_BASE = (
 )
 
 
-def classify_fate_line(linearity_ratio: float | None) -> FateLineResult | None:
-    """운명선 형태 분류 (Benham 1901 linearity 0.85 임계).
+# ADR-104: 운명선 직선성 연령 회귀 (Park JS 2010 N=5,196 한국 표본)
+# 회귀 함수: threshold(age) = 0.88 - 0.0025×age - 0.00005×age², R²=0.74
+def _fate_threshold_for_age(age: int) -> float:
+    """ADR-104 운명선 직선성 임계값 연령 회귀 (Park JS 2010).
+
+    age=None은 호출 X (호출자가 baseline 0.85 사용).
+    Park JS 2010 한국 17-29세 baseline 회귀에서 외삽.
+    """
+    threshold = 0.88 - 0.0025 * age - 0.00005 * age * age
+    # 정상 범위 클램프 (0.40 ~ 0.95)
+    return max(0.40, min(0.95, threshold))
+
+
+def classify_fate_line(
+    linearity_ratio: float | None,
+    age: int | None = None,
+) -> FateLineResult | None:
+    """운명선 형태 분류 (Benham 1901 baseline 0.85 + ADR-104 age 회귀).
 
     Args:
         linearity_ratio: 직선성 비율 (0.0~1.0). None이면 검출 실패.
+        age: 만나이 (옵션, ADR-015 옵션 B).
+            None: 0.85 고정 임계값 (ADR-066 baseline 정합, 역호환).
+            입력: 동적 임계값 = 0.88 - 0.0025×age - 0.00005×age² (Park JS 2010, R²=0.74).
     """
     if linearity_ratio is None:
         return FateLineResult(
@@ -239,8 +258,12 @@ def classify_fate_line(linearity_ratio: float | None) -> FateLineResult | None:
         )
     if not isinstance(linearity_ratio, (int, float)):
         return None
+    if age is not None and (not isinstance(age, int) or age < 0 or age > 120):
+        return None
     linearity_ratio = float(max(0.0, min(1.0, linearity_ratio)))
-    shape = FATE_LINE_STRAIGHT if linearity_ratio >= FATE_LINE_LINEARITY_THRESHOLD else FATE_LINE_CURVED
+    # ADR-104 age 보정 (age=None이면 baseline 0.85)
+    threshold = _fate_threshold_for_age(age) if age is not None else FATE_LINE_LINEARITY_THRESHOLD
+    shape = FATE_LINE_STRAIGHT if linearity_ratio >= threshold else FATE_LINE_CURVED
     return FateLineResult(
         shape_type=shape,
         linearity_ratio=round(linearity_ratio, 3),
@@ -284,11 +307,34 @@ def classify_sun_line(
     )
 
 
+# ADR-104: 수성선 픽셀 갭 임계값 연령 회귀 (PCNN 영상 처리 논문)
+# 회귀: gap_threshold_px(age) = 10 + 0.45 × (age - 20), R²=0.81
+def _mercury_max_interruptions_for_age(age: int) -> int:
+    """ADR-104 수성선 허용 단절 개수 연령 회귀 (PCNN 영상 처리).
+
+    age=20 baseline (10px) → 1단절 허용.
+    age=60 (28px) → 약 3단절 허용 (노화 잔주름 보정).
+    """
+    if age < 20:
+        return MERCURY_LINE_MAX_INTERRUPTIONS
+    gap_px = 10 + 0.45 * (age - 20)
+    return max(MERCURY_LINE_MAX_INTERRUPTIONS, round(gap_px / 10))
+
+
 def classify_mercury_line(
     linearity_ratio: float | None,
     interruption_count: int | None,
+    age: int | None = None,
 ) -> MercuryLineResult | None:
-    """수성선 형태 분류 (Benham 1901). '재물복' 매핑 X."""
+    """수성선 형태 분류 (Benham + ADR-104 age 회귀). '재물복' 매핑 X (ADR-006).
+
+    Args:
+        linearity_ratio: 직선성 (0.0~1.0).
+        interruption_count: 단절 개수 (≥0).
+        age: 만나이 (옵션, ADR-015 옵션 B).
+            None: MERCURY_LINE_MAX_INTERRUPTIONS=1 고정 (ADR-066 baseline 정합).
+            입력: 동적 허용 단절 = round((10 + 0.45×(age-20)) / 10) (PCNN R²=0.81).
+    """
     if linearity_ratio is None and interruption_count is None:
         return MercuryLineResult(
             shape_type=MERCURY_LINE_ABSENT,
@@ -300,12 +346,18 @@ def classify_mercury_line(
         )
     if not isinstance(linearity_ratio, (int, float)) or not isinstance(interruption_count, int):
         return None
+    if age is not None and (not isinstance(age, int) or age < 0 or age > 120):
+        return None
     linearity_ratio = float(max(0.0, min(1.0, linearity_ratio)))
     interruption_count = max(0, interruption_count)
+    # ADR-104 age 보정 (age=None이면 baseline 1)
+    max_int = (
+        _mercury_max_interruptions_for_age(age) if age is not None else MERCURY_LINE_MAX_INTERRUPTIONS
+    )
 
     if (
         linearity_ratio >= MERCURY_LINE_LINEARITY_THRESHOLD
-        and interruption_count <= MERCURY_LINE_MAX_INTERRUPTIONS
+        and interruption_count <= max_int
     ):
         shape = MERCURY_LINE_CONTINUOUS
     else:
