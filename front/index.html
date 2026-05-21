@@ -2141,20 +2141,44 @@
   </button>
 </nav>
 
-<!-- 첫 진입 안내 툴팁 — 카드 갤러리 스와이프 가이드 -->
+<!-- 첫 진입 튜토리얼 — 카드 갤러리 위에 종이 두루마리로 펼쳐지는 안내 -->
 <div id="swipeHint" class="swipe-hint" role="dialog" aria-label="스와이프 안내" style="display:none">
-  <div class="swipe-hint-card">
-    <div class="swipe-hint-anim" aria-hidden="true">
-      <span class="swipe-hint-finger">👆</span>
-      <span class="swipe-hint-arrow swipe-hint-arrow-left">‹</span>
-      <span class="swipe-hint-arrow swipe-hint-arrow-right">›</span>
+  <!-- 카드를 살짝 어둡게 덮는 dim 레이어 (튜토리얼 포커스) -->
+  <div class="swipe-hint-veil" aria-hidden="true"></div>
+
+  <!-- 펼쳐지는 한지 두루마리 -->
+  <article class="swipe-hint-scroll">
+    <!-- 위·아래 둘둘 말린 축 (장식) -->
+    <span class="swipe-hint-rod swipe-hint-rod-top" aria-hidden="true"></span>
+    <span class="swipe-hint-rod swipe-hint-rod-bottom" aria-hidden="true"></span>
+
+    <!-- 본문 -->
+    <div class="swipe-hint-body">
+      <div class="swipe-hint-glyph" aria-hidden="true">指</div>
+      <p class="swipe-hint-title">指 南 ─ 안 내</p>
+      <p class="swipe-hint-text">
+        좌우로 <strong>쓸어 넘기시면</strong><br>
+        다른 점술가께서 나오시옵니다
+      </p>
+      <div class="swipe-hint-anim" aria-hidden="true">
+        <span class="swipe-hint-arrow swipe-hint-arrow-left">◂</span>
+        <span class="swipe-hint-dot"></span>
+        <span class="swipe-hint-dot"></span>
+        <span class="swipe-hint-dot"></span>
+        <span class="swipe-hint-arrow swipe-hint-arrow-right">▸</span>
+      </div>
+      <div class="swipe-hint-actions">
+        <button type="button" class="swipe-hint-btn swipe-hint-btn-quiet" data-swipe-hint="close">
+          <span class="swipe-hint-btn-glyph">合</span>
+          <span class="swipe-hint-btn-label">닫기</span>
+        </button>
+        <button type="button" class="swipe-hint-btn" data-swipe-hint="never">
+          <span class="swipe-hint-btn-glyph">不</span>
+          <span class="swipe-hint-btn-label">다시 보지 않기</span>
+        </button>
+      </div>
     </div>
-    <p class="swipe-hint-text">옆으로 <strong>드래그</strong>하면<br>다른 점술가가 나옵니다</p>
-    <div class="swipe-hint-actions">
-      <button type="button" class="swipe-hint-btn swipe-hint-btn-quiet" data-swipe-hint="close">닫기</button>
-      <button type="button" class="swipe-hint-btn" data-swipe-hint="never">다시 보지 않기</button>
-    </div>
-  </div>
+  </article>
 </div>
 
 <!-- 주소 검색 모달 (Daum Postcode embed) -->
