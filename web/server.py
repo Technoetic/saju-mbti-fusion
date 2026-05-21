@@ -72,6 +72,102 @@ _DREAM_ASSERTION_REPLACEMENTS = (
 )
 
 
+# === 사용자 입력 필드 라벨/값 변환 — LLM 활용도 향상 ===
+# front/js/data/contents.js의 select options와 동등한 한국어 라벨 매핑.
+# raw value("crush") → display label("짝사랑·썸")으로 변환해 LLM 컨텍스트 풍부화.
+_FIELD_LABEL_MAP: dict[str, str] = {
+    # 공통 필드 라벨 (한국어)
+    "fullName": "내 이름",
+    "theirName": "상대 이름",
+    "concern": "마음에 떠오르는 것",
+    "wish": "소원·바람",
+    "birth": "생년월일",
+    "gender": "성별",
+    "mbti": "MBTI",
+    "context": "특히 알고 싶은 곳",
+    "relation": "관계",
+    "duration": "관계 기간",
+    "guess": "짚이는 사람",
+    "when": "헤어진 시기",
+    "contact": "연락 상태",
+    "mood": "오늘 내 마음",
+    "decision": "결정 주제",
+    "optionA": "선택지 A",
+    "optionB": "선택지 B",
+    "deadline": "결정 시한",
+    "idealType": "이상형",
+    "dreamText": "꿈 내용",
+    "feeling": "꿈 깬 후 느낌",
+    "recent": "최근 스트레스",
+    "frequency": "꿈 빈도",
+    "whoDream": "꿈 꾼 사람",
+    "experience": "자각몽 경험",
+    "goal": "자각몽 목표",
+    "keyword": "꿈에 나온 것",
+}
+
+_FIELD_VALUE_LABEL_MAP: dict[str, dict[str, str]] = {
+    "relation": {
+        "crush": "짝사랑·썸", "dating": "연애 중",
+        "fight": "다툼 후", "breakup": "이별 후", "reunion": "재회 모색 중",
+    },
+    "duration": {
+        "~6m": "6개월 미만", "6m-1y": "6개월~1년",
+        "1-3y": "1~3년", "3-5y": "3~5년", "5+": "5년 이상",
+    },
+    "when": {
+        "1m": "한 달 이내", "3m": "1~3개월 전",
+        "6m": "3~6개월 전", "1y": "6개월~1년 전", "long": "1년 이상",
+    },
+    "contact": {
+        "none": "연락 없음", "sometimes": "가끔 안부",
+        "recent": "최근에 연락 옴", "mine": "내가 먼저 연락",
+    },
+    "mood": {
+        "hope": "희망적", "sad": "쓸쓸함",
+        "angry": "화남", "numb": "아무 느낌 없음",
+    },
+    "context": {
+        "work": "직장", "friend": "친구 사이",
+        "family": "가족", "romance": "연애", "all": "전반적",
+    },
+    "gender": {"M": "남자", "F": "여자"},
+    "frequency": {
+        "weekly": "주 1~2회", "monthly": "한 달에 몇 번",
+        "years": "몇 년째 가끔", "lifetime": "평생",
+    },
+    "whoDream": {
+        "mother": "엄마 본인", "father": "아빠",
+        "grandmother": "할머니·외할머니", "relative": "친지",
+    },
+    "experience": {
+        "never": "없음 (입문)", "few": "몇 번 있음", "often": "자주 경험",
+    },
+}
+
+
+def _resolve_field_labels(
+    char_key: str,
+    content_key: str,
+    fields: dict[str, str] | None,
+) -> list[dict[str, str]]:
+    """fields raw → 한국어 라벨 + display value 변환.
+
+    LLM이 일반론에 묻지 않고 구체 입력을 인용하도록 라벨/값 풍부화.
+    """
+    if not fields:
+        return []
+    out = []
+    for k, v in fields.items():
+        if v is None or v == "":
+            continue
+        label = _FIELD_LABEL_MAP.get(k, k)
+        value_map = _FIELD_VALUE_LABEL_MAP.get(k, {})
+        display = value_map.get(str(v), str(v))
+        out.append({"key": k, "label": label, "raw": str(v), "display": display})
+    return out
+
+
 def _sanitize_dream_assertion_words(text: str) -> str:
     """dream 도메인 LLM 응답 사후 필터링 — ADR-094 단정 어휘 차단 강화.
 
@@ -2290,18 +2386,25 @@ class PersonalityAPIServer:
             f"- 운명·재물·결혼 단정 매핑 금지.\n"
             f"- 한국어로 자연스럽게 작성. 4~6단락, 마크다운 없이.\n"
             f"- 결정론 출력이 주어지면 그 출력만 인용 (사전학습 추가 X — ADR-010 사실성 분리).\n"
+            f"- ★ [사용자 입력 활용 의무] 사용자가 입력한 모든 필드를 풀이 본문에 자연스럽게 통합하라.\n"
+            f"  · 이름이 있으면 응답에 호명 (예: '김준 님의 마음을…').\n"
+            f"  · 상대방 이름·관계·기간·맥락 등 입력값을 일반론에 묻지 말고 구체 인용.\n"
+            f"  · select 라벨(예: '짝사랑·썸', '1~3개월 전')은 그대로 본문에 녹여 사용.\n"
+            f"  · 입력 미반영 = 무의미한 풀이 — 반드시 모든 입력을 응답 내 한 번 이상 언급.\n"
             f"{deterministic_block}"
         )
 
-        # 사용자 입력 정리
+        # 사용자 입력 정리 — fields_meta로 select 라벨 자동 변환 + 강조
+        fields_meta = _resolve_field_labels(char_key, content_key, fields)
         inputs_text = "\n".join(
-            f"  · {k}: {v or '(미입력)'}" for k, v in fields.items()
-        ) if fields else ""
+            f"  · {meta['label']}: {meta['display']}" for meta in fields_meta
+        ) if fields_meta else "(입력 없음)"
 
         prompt = (
             f"[메뉴 콘텐츠] char_key={char_key}, content_key={content_key}\n"
-            f"[사용자 입력]\n{inputs_text}\n"
-            f"[요청] 위 메뉴 주제로 풀이 한 편 펼쳐주세요."
+            f"[사용자 입력 — 풀이 본문에 모두 인용 의무]\n{inputs_text}\n"
+            f"[요청] 위 사용자 입력을 자연스럽게 녹여 풀이 한 편 펼쳐주세요. "
+            f"이름·상대·관계·기간·맥락을 일반론에 묻지 말고 구체적으로 인용하세요."
         )
 
         try:
