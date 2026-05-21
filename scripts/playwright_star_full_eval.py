@@ -27,25 +27,25 @@ except ImportError:
 
 SITE = "https://saju-mbti-fusion.fly.dev/"
 
-# star 메뉴 카드 8장 + 입력 시나리오
+# star 메뉴 카드 8장 + 입력 시나리오 (★ birth + hourBranch 명시 입력)
 CARDS = [
     # (key, name, kind, inputs)
     ("today-zodiac", "오늘의 별자리 운세", "free",
         {"sign": "leo"}),
     ("big3", "빅3 분석", "free",
-        {"fullName": "김준수", "birthplace": "서울"}),
+        {"fullName": "김준수", "birth": "1990-05-15", "hourBranch": "未", "birthplace": "서울"}),
     ("classic", "정통 별빛 풀이", "premium",
-        {"fullName": "김준수", "birthplace": "서울"}),
+        {"fullName": "김준수", "birth": "1990-05-15", "hourBranch": "未", "birthplace": "서울"}),
     ("love-stars", "별의 연서", "premium",
-        {"fullName": "김준수", "birthplace": "서울", "status": "single"}),
+        {"fullName": "김준수", "birth": "1990-05-15", "hourBranch": "未", "birthplace": "서울", "status": "single"}),
     ("compatibility", "별자리 궁합", "premium",
         {"mySign": "taurus", "partnerSign": "cancer", "relation": "romance"}),
     ("east28", "동양 28수 풀이", "premium",
-        {"fullName": "김준수"}),
+        {"fullName": "김준수", "birth": "1990-05-15", "hourBranch": "未"}),
     ("transit", "행운의 시기", "premium",
-        {"fullName": "김준수", "concern": "이직 시기를 알고 싶어요"}),
+        {"fullName": "김준수", "birth": "1990-05-15", "hourBranch": "未", "concern": "이직 시기를 알고 싶어요"}),
     ("saju-star", "사주 + 별빛 통합 분석", "premium",
-        {"fullName": "김준수", "birthplace": "서울"}),
+        {"fullName": "김준수", "birth": "1990-05-15", "hourBranch": "未", "birthplace": "서울", "gender": "M"}),
 ]
 
 FORBIDDEN = ["반드시", "확실히", "100%", "단명", "이혼수", "파산 확정", "배우자 사망",
@@ -53,15 +53,43 @@ FORBIDDEN = ["반드시", "확실히", "100%", "단명", "이혼수", "파산 �
 
 
 def fill_field(page, key, value):
+    """필드 ID 기반 입력 (cf_{key} + ymd 분기).
+
+    본 시스템 구조 (content-system.js):
+    - 일반 필드: <select id="cf_{key}"> 또는 <input id="cf_{key}">
+    - ymd: <select id="cf_{key}_year/_month/_day"> 3개 (ID 통일 후)
+    - hour-branch: <select id="cf_{key}"> (단순 select, 본 fn SELECT 분기)
+    - gender: <select id="cf_{key}"> (단순 select)
+    """
     el_id = f"cf_{key}"
     info = page.evaluate(f"() => {{const e=document.getElementById('{el_id}'); return e ? {{tag:e.tagName, type:e.type||''}} : null;}}")
+
     if not info:
+        # ymd 3-select 처리 (id 통일 후 _year/_month/_day)
         info_y = page.evaluate(f"() => document.getElementById('cf_{key}_year') ? true : false")
         if info_y:
-            return True
+            if value and isinstance(value, str) and "-" in value:
+                parts = value.split("-")
+                y, m, d = parts[0], str(int(parts[1])), str(int(parts[2]))
+            else:
+                y, m, d = "1990", "5", "15"
+            try:
+                page.locator(f"#cf_{key}_year").select_option(y)
+                page.locator(f"#cf_{key}_month").select_option(m)
+                page.locator(f"#cf_{key}_day").select_option(d)
+                return True
+            except Exception as e:
+                print(f"    ymd 입력 실패 ({key}): {e}")
+                return False
         return False
+
     if info["tag"] == "SELECT":
-        page.locator(f"#{el_id}").select_option(value)
+        try:
+            page.locator(f"#{el_id}").select_option(value)
+            return True
+        except Exception as e:
+            print(f"    select 실패 ({key}={value}): {e}")
+            return False
     else:
         loc = page.locator(f"#{el_id}")
         loc.click()
@@ -185,7 +213,7 @@ def test_card(page, card_key, card_name, kind, inputs, out_dir):
                 forbidden_hits = [w for w in FORBIDDEN if w in response_text]
                 input_str = " ".join(str(v) for v in inputs.values() if v)
                 input_terms = [w for w in input_str.split() if len(w) >= 2 and w in response_text]
-                star_terms = ["별자리", "황도", "별", "태양", "달", "행성", "하우스", "28수", "트랜짓"]
+                star_terms = ["별자리", "황도", "태양", "달", "상승", "행성", "하우스", "28수", "트랜짓", "ADR-114", "황소자리", "사자자리", "물병자리", "처녀자리", "전갈자리", "물고기자리", "양자리"]
                 star_term_hits = [t for t in star_terms if t in response_text]
                 result["evaluation"] = {
                     "베타 무료 응답 ✅": True,
