@@ -383,9 +383,143 @@ def format_schools_metadata_for_prompt() -> str:
     return "\n".join(lines)
 
 
+# ─────────────────────────── ADR-100: 다인종·연령 표본 메타 + 영상 처리 기원 ───────────────────────────
+# /squeeze-report "손금 보조선 정량 분석 학술 데이터.md" 처리 결과:
+# - C1 (운명선 0.85 임계 IEEE 1971 Oda 출처) ACCEPT
+# - C2 (Park JS 2010 한국 5196 표본) ACCEPT
+# - C4 (Gupta Sharma 2022 인도 300 표본) ACCEPT
+# - C5 (에티오피아 2019 318 표본) ACCEPT
+# - C10 (의료 영역 차단 검수) ACCEPT
+# - C3·C7·C9 REJECT (도그마·이혼 단정·빈 약속)
+# - C6·C8·C11 DEFER (연령 정규화·영상 처리 보정·통합 아키텍처)
+
+
+@dataclass(frozen=True)
+class PalmDemographicSample:
+    """ADR-100: 손금 학술 표본 메타데이터 (다인종·연령).
+
+    Attributes:
+        key: 내부 식별자
+        population: 표본 인종/국적 (한국·인도·에티오피아)
+        n: 표본 수
+        age_range: 연령 범위
+        publication_year: 출판 연도
+        primary_work: 대표 논문
+        primary_source_url: 라이브 검증 URL
+        focus: 본 시스템 활용 영역
+    """
+    key: str
+    population: str
+    n: int
+    age_range: str
+    publication_year: int
+    primary_work: str
+    primary_source_url: str
+    focus: str
+
+
+# 검증된 학술 표본 풀 (Phase B 통과)
+PALM_DEMOGRAPHIC_SAMPLES: tuple[PalmDemographicSample, ...] = (
+    PalmDemographicSample(
+        key="park-js-2010-korean",
+        population="한국 동아시아",
+        n=5196,
+        age_range="성인 (정확 연령 분포 원문 참조)",
+        publication_year=2010,
+        primary_work="Park JS et al. — Improved analysis of palm creases",
+        primary_source_url="https://synapse.koreamed.org/articles/1071604",
+        focus="동아시아 손금 기준선 + 좌우 손 비대칭성",
+    ),
+    PalmDemographicSample(
+        key="gupta-sharma-2022-north-india",
+        population="북인도",
+        n=300,
+        age_range="의과대학생 (성인 청년)",
+        publication_year=2022,
+        primary_work="Gupta A, Sharma R — Prevalence of Palm-Print Patterns",
+        primary_source_url="https://pmc.ncbi.nlm.nih.gov/articles/PMC9469369/",
+        focus="남아시아 손금 패턴 분포 + 성별·파지력 차이",
+    ),
+    PalmDemographicSample(
+        key="ethiopia-2019-addis-ababa",
+        population="에티오피아 아프리카",
+        n=318,
+        age_range="의·치과 대학생 (성인 청년)",
+        publication_year=2019,
+        primary_work="Prevalence of Palmar Creases Among Medical and Dental Students in Addis Ababa",
+        primary_source_url="https://pmc.ncbi.nlm.nih.gov/articles/PMC6689715/",
+        focus="아프리카 손금 + 멜라닌·각질층 영상 보정 기준",
+    ),
+    PalmDemographicSample(
+        key="ieee-1971-oda-pattern-recognition",
+        population="패턴 인식 일반 (운명학 X)",
+        n=0,  # 표본 N 부적합 (영상 처리 알고리즘 기원 논문)
+        age_range="N/A",
+        publication_year=1971,
+        primary_work="Oda M et al. — IEEE Transactions on Systems, Man, and Cybernetics",
+        primary_source_url="https://ieeexplore.ieee.org/document/4308270",
+        focus="운명선 직선성 0.85 임계값 — 영상 처리 휴리스틱 기원 (점복학 X)",
+    ),
+)
+
+
+def get_demographic_sample(key: str) -> PalmDemographicSample | None:
+    """학술 표본 메타 조회 (ADR-100)."""
+    for s in PALM_DEMOGRAPHIC_SAMPLES:
+        if s.key == key:
+            return s
+    return None
+
+
+# ─────────────────────────── ADR-100: 의료 진단 영역 차단 강화 ───────────────────────────
+# C10 ACCEPT 후속 — 본 시스템 차단 의료 패턴 명시 (Simian crease 등)
+_PALM_MEDICAL_FORBIDDEN_PATTERNS: tuple[str, ...] = (
+    "Simian crease",       # 다운증후군 진단 마커
+    "원숭이 손금",          # Simian crease 한국어
+    "유전 질환 진단",
+    "정신질환 예측",
+    "psychiatric prediction",
+    "schizophrenia",
+    "다운증후군",
+    "Trisomy 21",
+    "발달 장애 진단",
+    "dermatoglyphic medical diagnosis",
+)
+
+
+def is_medical_assertion_text(text: str) -> bool:
+    """ADR-100·ADR-006: 의료 진단 단정 표현 검출.
+
+    Returns:
+        True if 의료 진단 마커 어휘 포함 (사용자 출력 차단 의무).
+    """
+    if not isinstance(text, str):
+        return False
+    text_lower = text.lower()
+    for pat in _PALM_MEDICAL_FORBIDDEN_PATTERNS:
+        if pat.lower() in text_lower:
+            return True
+    return False
+
+
+_DISCLAIMER_BASE_V2 = (
+    "본 분류는 시각 형태 측정 결과로, 운명·길흉·관운 인과 매핑 X. "
+    "사상체질·태음인 인용 X (ADR-006 정신). "
+    "의료 진단 (Simian crease·다운증후군·정신질환 등) 영역 X (ADR-100). "
+    "출처: Cheiro·Benham·Saint-Germain Archive.org public domain + "
+    "Park JS 2010 한국 5196명 (Anatomy & Cell Biology) + "
+    "Gupta Sharma 2022 북인도 300명 (PMC9469369) + "
+    "에티오피아 2019 318명 (PMC6689715) + IEEE 1971 영상 처리 기원."
+)
+
+
 __all__ = [
     "PalmSchool",
     "PALM_SCHOOLS",
+    "PalmDemographicSample",
+    "PALM_DEMOGRAPHIC_SAMPLES",
+    "get_demographic_sample",
+    "is_medical_assertion_text",
     "FATE_LINE_LINEARITY_THRESHOLD",
     "SUN_LINE_INTENSITY_MIN_PCT",
     "SUN_LINE_LENGTH_MIN_CM",
