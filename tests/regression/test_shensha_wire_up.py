@@ -84,18 +84,24 @@ def test_shensha_live_call_user_case():
 
     pillars = compute_pillars(1990, 5, 15, 12)
     result = compute_shensha(pillars)
-    # 5 키 모두 존재
-    assert set(result.keys()) == {"cheoneul", "munchang", "yeokma", "dohwa", "kongmang"}
+    # 8 키 모두 존재 (ADR-128 양인·괴강·백호 신규 3종 + 기존 5종)
+    assert set(result.keys()) == {
+        "cheoneul", "munchang", "yeokma", "dohwa", "kongmang",
+        "yangin", "goegang", "baekho",
+    }
     # 사용자 사례 (KASI 정합 庚辰 일주, 정오 = 庚午 시) 도화살 부재
     assert result["dohwa"] == [], (
         f"사용자 사례에 도화살 부재여야 함: {result['dohwa']}"
     )
+    # ADR-128 庚辰 일주 → 괴강살 매칭
+    assert result["goegang"] == ["庚辰"]
 
 
 def test_shensha_meanings_complete():
-    """SHENSHA_MEANINGS 5 신살 라벨 + 한 줄 의미 모두 정합."""
+    """SHENSHA_MEANINGS 8 신살 라벨 + 한 줄 의미 모두 정합 (ADR-128 확장 후)."""
     from engine.saju.shensha import SHENSHA_MEANINGS
-    for key in ("cheoneul", "munchang", "yeokma", "dohwa", "kongmang"):
+    for key in ("cheoneul", "munchang", "yeokma", "dohwa", "kongmang",
+                "yangin", "goegang", "baekho"):
         assert key in SHENSHA_MEANINGS
         assert "label" in SHENSHA_MEANINGS[key]
         assert "summary" in SHENSHA_MEANINGS[key]
