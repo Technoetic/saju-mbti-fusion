@@ -2419,11 +2419,31 @@ class PersonalityAPIServer:
             f"  · {meta['label']}: {meta['display']}" for meta in fields_meta
         ) if fields_meta else "(입력 없음)"
 
+        # 약점 영역 강화 — content_key별 입력 인용 체크리스트.
+        # LLM이 응답 작성 전에 각 입력값을 본문 어느 단락에 녹일지 명시 추적.
+        # 이전 측정 결과 future-fate(20%)·fate-one(33%)·reunion-month(33%) 등에서
+        # LLM이 일반론에 묻는 경향 → 체크리스트로 자가 검증 강제.
+        checklist_items = []
+        for meta in fields_meta:
+            key = meta["key"]
+            display = meta["display"]
+            if key in ("birth", "gender", "saju_day_master", "saju_summary"):
+                continue  # 메타 정보는 호명만, 체크리스트 X
+            checklist_items.append(
+                f"  □ '{display}' — 응답에 자연스럽게 인용했는가?"
+            )
+        checklist_block = (
+            "\n[★ 자가 검증 체크리스트 — 응답 작성 후 모두 ✓ 가능해야 함]\n"
+            + "\n".join(checklist_items)
+            + "\n  · 미인용 항목 있으면 응답 재작성하라.\n"
+        ) if checklist_items else ""
+
         prompt = (
             f"[메뉴 콘텐츠] char_key={char_key}, content_key={content_key}\n"
             f"[사용자 입력 — 풀이 본문에 모두 인용 의무]\n{inputs_text}\n"
             f"[요청] 위 사용자 입력을 자연스럽게 녹여 풀이 한 편 펼쳐주세요. "
             f"이름·상대·관계·기간·맥락을 일반론에 묻지 말고 구체적으로 인용하세요."
+            f"{checklist_block}"
         )
 
         try:
