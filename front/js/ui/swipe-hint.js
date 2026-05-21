@@ -33,7 +33,33 @@ function showSwipeHint(context) {
   // context: 'home' | 'chwiseon'
   hint.dataset.context = context;
   hint.classList.remove('hiding');
-  hint.style.display = 'block';
+  hint.style.display = 'flex';
+  positionOverGallery(context);
+}
+
+function positionOverGallery(context) {
+  const hint = document.getElementById('swipeHint');
+  if (!hint) return;
+  // 카드 갤러리 DOM 위치를 잡아 hint를 그 영역에 딱 얹음
+  const gallery = context === 'chwiseon'
+    ? document.querySelector('#chwiseonMain .card-gallery, #chwiseonDeck')
+    : document.getElementById('cardGallery');
+
+  if (!gallery) return;
+  const rect = gallery.getBoundingClientRect();
+  if (rect.width === 0 || rect.height === 0) return;
+
+  hint.style.top    = Math.max(0, rect.top) + 'px';
+  hint.style.left   = rect.left + 'px';
+  hint.style.right  = (window.innerWidth - rect.right) + 'px';
+  hint.style.bottom = (window.innerHeight - rect.bottom) + 'px';
+}
+
+// 스크롤·리사이즈 시 위치 갱신
+function repositionIfVisible() {
+  const hint = document.getElementById('swipeHint');
+  if (!hint || hint.style.display === 'none' || hint.style.display === '') return;
+  positionOverGallery(hint.dataset.context || 'home');
 }
 
 function hideSwipeHint() {
@@ -97,6 +123,10 @@ function init() {
       maybeShow('home');
     }
   }, 1500);
+
+  // 스크롤·리사이즈 시 위치 갱신
+  window.addEventListener('resize', repositionIfVisible);
+  window.addEventListener('scroll', repositionIfVisible, { passive: true });
 
   // 탭 전환 감지 — body class 변화 관찰
   const observer = new MutationObserver(() => {

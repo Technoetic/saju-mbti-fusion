@@ -1,151 +1,306 @@
 /* ============================================================
-   swipe-hint.css — 첫 진입 스와이프 안내 툴팁
+   swipe-hint.css — 첫 진입 튜토리얼
+   한지 두루마리가 카드 갤러리 위에 펼쳐지는 연출
    ============================================================ */
 
+/* 컨테이너 — JS가 cardGallery·chwiseonGallery 위로 위치 갱신 */
 .swipe-hint {
   position: fixed;
-  left: 50%;
-  bottom: calc(96px + env(safe-area-inset-bottom, 0px));
-  transform: translateX(-50%);
-  z-index: 180;
-  width: min(320px, calc(100vw - 32px));
-  animation: swipeHintFadeIn 0.35s ease both;
-  pointer-events: auto;
-}
-
-@keyframes swipeHintFadeIn {
-  0%   { opacity: 0; transform: translateX(-50%) translateY(8px); }
-  100% { opacity: 1; transform: translateX(-50%) translateY(0); }
-}
-
-.swipe-hint-card {
-  background:
-    linear-gradient(180deg,
-      rgba(28, 34, 58, 0.97),
-      rgba(16, 20, 38, 0.99));
-  border: 1px solid rgba(244, 211, 94, 0.55);
-  border-radius: 14px;
-  padding: 18px 18px 14px;
-  box-shadow:
-    0 12px 36px rgba(0, 0, 0, 0.6),
-    0 0 24px rgba(244, 211, 94, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
-  color: var(--text-main);
-  font-family: 'Nanum Myeongjo', 'Noto Serif KR', serif;
-  position: relative;
-}
-
-.swipe-hint-card::after {
-  /* 카드 위쪽 끝 작은 화살표 (말풍선 꼬리) */
-  content: '';
-  position: absolute;
-  left: 50%;
-  bottom: -7px;
-  transform: translateX(-50%) rotate(45deg);
-  width: 12px;
-  height: 12px;
-  background: rgba(16, 20, 38, 0.99);
-  border-right: 1px solid rgba(244, 211, 94, 0.55);
-  border-bottom: 1px solid rgba(244, 211, 94, 0.55);
-}
-
-.swipe-hint-anim {
-  position: relative;
-  height: 56px;
-  margin-bottom: 10px;
+  z-index: 220;  /* 탭바(150)·하단 어떤 UI보다 위 */
+  pointer-events: none;
+  /* 기본은 화면 중앙 (JS가 갤러리 위치로 재계산) */
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 0 24px;
+  animation: swipeHintFadeIn 0.45s ease-out both;
 }
 
-.swipe-hint-finger {
-  font-size: 32px;
+@keyframes swipeHintFadeIn {
+  0%   { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+/* 카드를 살짝 어둡게 덮는 dim — 두루마리 가운데로 시선 모음 */
+.swipe-hint-veil {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at center, rgba(10, 14, 28, 0.45) 0%, rgba(10, 14, 28, 0.78) 70%);
+  pointer-events: auto;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+
+/* ── 한지 두루마리 본체 ── */
+.swipe-hint-scroll {
   position: relative;
-  animation: swipeFingerMove 2.2s ease-in-out infinite;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
-  z-index: 2;
+  width: min(300px, calc(100% - 24px));
+  pointer-events: auto;
+  animation: swipeScrollOpen 0.85s cubic-bezier(0.22, 1, 0.36, 1) both;
+  transform-origin: center top;
+  z-index: 1;
 }
 
-@keyframes swipeFingerMove {
-  0%   { transform: translateX(40px) rotate(-8deg); opacity: 0; }
-  15%  { transform: translateX(40px) rotate(-8deg); opacity: 1; }
-  50%  { transform: translateX(-40px) rotate(8deg); opacity: 1; }
-  60%  { transform: translateX(-40px) rotate(8deg); opacity: 0.4; }
-  100% { transform: translateX(40px) rotate(-8deg); opacity: 0; }
+/* 두루마리 펼침 — 위에서 아래로 unroll */
+@keyframes swipeScrollOpen {
+  0% {
+    transform: scaleY(0.02) translateY(-20px);
+    opacity: 0;
+  }
+  35% {
+    transform: scaleY(0.02) translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: scaleY(1) translateY(0);
+    opacity: 1;
+  }
 }
 
-.swipe-hint-arrow {
+/* ── 위·아래 둘둘 말린 축 (대나무 막대) ── */
+.swipe-hint-rod {
+  position: absolute;
+  left: -10px;
+  right: -10px;
+  height: 10px;
+  border-radius: 6px;
+  background:
+    linear-gradient(180deg,
+      #6d5a3a 0%,
+      #4a3d28 35%,
+      #2a2218 65%,
+      #4a3d28 100%);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.04) inset,
+    0 2px 6px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(212, 175, 55, 0.25);
+}
+.swipe-hint-rod::before,
+.swipe-hint-rod::after {
+  /* 막대 양 끝 금색 캡 */
+  content: '';
+  position: absolute;
+  top: -2px;
+  bottom: -2px;
+  width: 8px;
+  background: linear-gradient(180deg, var(--gold-bri), var(--gold), var(--gold-dp));
+  border-radius: 2px;
+  box-shadow: 0 0 6px rgba(244, 211, 94, 0.4);
+}
+.swipe-hint-rod::before { left: -2px; }
+.swipe-hint-rod::after  { right: -2px; }
+
+.swipe-hint-rod-top    { top: -5px; }
+.swipe-hint-rod-bottom { bottom: -5px; }
+
+/* ── 본문 (한지 질감) ── */
+.swipe-hint-body {
+  position: relative;
+  padding: 28px 22px 22px;
+  background:
+    /* 한지 질감: 미세한 줄무늬 + 얼룩 */
+    repeating-linear-gradient(
+      90deg,
+      rgba(212, 175, 55, 0.02) 0 1px,
+      transparent 1px 4px
+    ),
+    radial-gradient(ellipse at 20% 10%, rgba(212, 175, 55, 0.05) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 90%, rgba(212, 175, 55, 0.04) 0%, transparent 50%),
+    linear-gradient(180deg,
+      #2a2218 0%,
+      #3a2f1f 50%,
+      #2a2218 100%);
+  border-left: 1px solid rgba(244, 211, 94, 0.35);
+  border-right: 1px solid rgba(244, 211, 94, 0.35);
+  color: var(--text-main);
+  font-family: 'Nanum Myeongjo', 'Noto Serif KR', serif;
+  box-shadow:
+    inset 0 0 0 1px rgba(0, 0, 0, 0.3),
+    inset 0 12px 24px -16px rgba(0, 0, 0, 0.6),
+    inset 0 -12px 24px -16px rgba(0, 0, 0, 0.6);
+  animation: swipeBodyReveal 0.5s 0.55s ease-out both;
+}
+
+@keyframes swipeBodyReveal {
+  0%   { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+/* 본문 안 큰 한자 워터마크 (배경) */
+.swipe-hint-glyph {
   position: absolute;
   top: 50%;
-  font-size: 28px;
-  color: rgba(244, 211, 94, 0.5);
+  right: 14px;
   transform: translateY(-50%);
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 100px;
+  font-weight: 800;
+  color: rgba(244, 211, 94, 0.06);
+  line-height: 1;
   pointer-events: none;
-  animation: swipeArrowPulse 2.2s ease-in-out infinite;
+  user-select: none;
 }
-.swipe-hint-arrow-left  { left: 10px; }
-.swipe-hint-arrow-right { right: 10px; }
 
-@keyframes swipeArrowPulse {
-  0%, 100% { opacity: 0.3; }
-  50%      { opacity: 0.9; }
+.swipe-hint-title {
+  text-align: center;
+  font-size: 12px;
+  letter-spacing: 6px;
+  color: var(--gold);
+  margin: 0 0 14px;
+  font-weight: 600;
+  position: relative;
 }
+.swipe-hint-title::before,
+.swipe-hint-title::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 26px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.5), transparent);
+}
+.swipe-hint-title::before { left: 10px; }
+.swipe-hint-title::after  { right: 10px; }
 
 .swipe-hint-text {
   text-align: center;
   font-size: 14px;
-  letter-spacing: 1px;
-  line-height: 1.7;
+  line-height: 1.85;
+  letter-spacing: 0.5px;
   color: #f0e4c1;
-  margin: 0 0 14px;
+  margin: 0 0 18px;
+  position: relative;
 }
 .swipe-hint-text strong {
   color: #ffe89a;
   font-weight: 700;
+  text-shadow: 0 0 8px rgba(244, 211, 94, 0.3);
 }
 
+/* 화살표 + 점 — 좌우 스와이프 아이덴티티 */
+.swipe-hint-anim {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 0 0 22px;
+}
+.swipe-hint-arrow {
+  font-size: 16px;
+  color: var(--gold);
+  text-shadow: 0 0 6px rgba(244, 211, 94, 0.4);
+}
+.swipe-hint-arrow-left  { animation: swipeArrowGlow 1.8s ease-in-out infinite; }
+.swipe-hint-arrow-right { animation: swipeArrowGlow 1.8s 0.9s ease-in-out infinite; }
+.swipe-hint-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: rgba(244, 211, 94, 0.35);
+  animation: swipeDotPulse 1.8s ease-in-out infinite;
+}
+.swipe-hint-dot:nth-child(3) { animation-delay: 0.2s; }
+.swipe-hint-dot:nth-child(4) { animation-delay: 0.4s; }
+
+@keyframes swipeArrowGlow {
+  0%, 100% { opacity: 0.35; transform: translateX(0); }
+  50%      { opacity: 1; transform: translateX(-2px); }
+}
+.swipe-hint-arrow-right { animation-name: swipeArrowGlowRight; }
+@keyframes swipeArrowGlowRight {
+  0%, 100% { opacity: 0.35; transform: translateX(0); }
+  50%      { opacity: 1; transform: translateX(2px); }
+}
+@keyframes swipeDotPulse {
+  0%, 100% { opacity: 0.3; }
+  50%      { opacity: 1; }
+}
+
+/* ── 버튼 (한지 위 도장 같은 느낌) ── */
 .swipe-hint-actions {
   display: flex;
-  gap: 8px;
+  gap: 10px;
 }
 
 .swipe-hint-btn {
   flex: 1;
-  background: linear-gradient(180deg, var(--gold-bri), var(--gold), var(--gold-dp));
-  color: var(--bg-night);
-  border: 1px solid var(--gold-bri);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: linear-gradient(180deg, rgba(20, 15, 10, 0.6), rgba(10, 8, 5, 0.85));
+  border: 1px solid rgba(244, 211, 94, 0.55);
+  color: #ffe89a;
   font-family: inherit;
-  font-size: 12.5px;
-  font-weight: 700;
-  letter-spacing: 1.5px;
-  padding: 9px 0;
-  border-radius: 6px;
+  font-size: 12px;
+  letter-spacing: 2px;
+  padding: 9px 10px;
+  border-radius: 2px;  /* 두루마리 답게 거의 직각 */
   cursor: pointer;
-  transition: all 0.18s;
-  box-shadow: 0 3px 10px rgba(212, 175, 55, 0.3);
+  transition: all 0.2s ease;
+  font-weight: 500;
+  position: relative;
+  overflow: hidden;
 }
-.swipe-hint-btn:hover  { transform: translateY(-1px); }
-.swipe-hint-btn:active { transform: translateY(0); }
+.swipe-hint-btn::before {
+  /* 버튼 안쪽 미세 금테 */
+  content: '';
+  position: absolute;
+  inset: 2px;
+  border: 1px solid rgba(244, 211, 94, 0.1);
+  border-radius: 1px;
+  pointer-events: none;
+}
+.swipe-hint-btn:hover {
+  border-color: rgba(244, 211, 94, 0.9);
+  color: #fff4c0;
+  box-shadow: 0 0 14px rgba(244, 211, 94, 0.18);
+}
+.swipe-hint-btn:active { transform: translateY(1px); }
 
+.swipe-hint-btn-glyph {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--gold-bri);
+  opacity: 0.85;
+}
+.swipe-hint-btn-label {
+  letter-spacing: 1.5px;
+}
+
+/* 닫기 버튼 — 더 차분하게 */
 .swipe-hint-btn-quiet {
-  background: transparent;
+  background: linear-gradient(180deg, rgba(15, 18, 30, 0.5), rgba(8, 10, 18, 0.7));
+  border-color: rgba(244, 211, 94, 0.3);
+  color: var(--text-soft);
+}
+.swipe-hint-btn-quiet .swipe-hint-btn-glyph {
   color: var(--gold);
-  border: 1px solid var(--gold-dp);
-  box-shadow: none;
+  opacity: 0.7;
 }
 .swipe-hint-btn-quiet:hover {
+  border-color: rgba(244, 211, 94, 0.6);
   color: var(--gold-bri);
-  border-color: var(--gold);
-  background: rgba(212, 175, 55, 0.06);
-  transform: none;
 }
 
-/* 페이드아웃 (닫기 클릭 시 추가될 클래스) */
+/* ── 페이드아웃 (닫기 시) ── */
 .swipe-hint.hiding {
-  animation: swipeHintFadeOut 0.3s ease forwards;
+  animation: swipeHintFadeOut 0.35s ease forwards;
   pointer-events: none;
 }
 @keyframes swipeHintFadeOut {
-  0%   { opacity: 1; transform: translateX(-50%) translateY(0); }
-  100% { opacity: 0; transform: translateX(-50%) translateY(8px); }
+  0%   { opacity: 1; }
+  100% { opacity: 0; }
+}
+.swipe-hint.hiding .swipe-hint-scroll {
+  animation: swipeScrollClose 0.35s ease forwards;
+}
+@keyframes swipeScrollClose {
+  0%   { transform: scaleY(1); opacity: 1; }
+  100% { transform: scaleY(0.05); opacity: 0; }
 }
