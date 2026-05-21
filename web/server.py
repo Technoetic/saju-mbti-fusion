@@ -2021,11 +2021,13 @@ class PersonalityAPIServer:
         deterministic_blocks: list[str] = []
 
         # ─── saju 결정론 (char_key='saju' + birth 입력) ───
-        # ADR-069: today/tomorrow 외 콘텐츠도 birth 입력 있으면 사주 일주 인용 가능
+        # ADR-069·070 후속 fix: birth 입력 받는 모든 콘텐츠에서 사주 일주 융합.
+        # 이전: today/tomorrow 5개 content_key만 융합 → who-likes·heart·image·fate-one·
+        #       future-fate·life-card 등 birth 받는 콘텐츠가 사주 결정론 미호출 (UI/백엔드 불일치).
+        # 본 fix: birth만 입력되면 모든 char_key·content_key에서 사주 융합.
         birth_str = (fields.get("birth") or "").strip()
         wants_saju = (char_key == "saju") or (
             birth_str and char_key in ("name", "face", "palm", "dream", "hwapae", "star")
-            and content_key in ("today", "tomorrow", "today-hanja", "today-flower", "today-card")
         )
         if char_key == "saju" or (wants_saju and birth_str):
             if birth_str:
