@@ -612,7 +612,7 @@ _EYE_DISCLAIMER = (
 
 @dataclass(frozen=True)
 class EyeSizeResult:
-    """눈 검열 폭·높이 분류 결과 (ADR-101).
+    """눈 검열 폭·높이 분류 결과 (ADR-101 + ADR-102 has_crease).
 
     Attributes:
         size_type: "작은 눈" / "보통 눈" / "큰 눈"
@@ -621,6 +621,7 @@ class EyeSizeResult:
         pfw_age_corrected: age 보정 후 PFW (age=None이면 None)
         pfh_age_corrected: age 보정 후 PFH (age=None이면 None)
         age: 사용자 만나이 (None or int)
+        has_crease: 쌍꺼풀 보유 여부 (None=미지정 / True=쌍꺼풀 / False=단안검)
         confidence: HIGH (3D CBCT·정량) / MEDIUM (2D 사진 추정)
         source_urls: 출처 URL 풀
         disclaimer: ADR-006 면책
@@ -631,6 +632,7 @@ class EyeSizeResult:
     pfw_age_corrected: float | None
     pfh_age_corrected: float | None
     age: int | None
+    has_crease: bool | None
     confidence: str
     source_urls: tuple[str, ...]
     disclaimer: str
@@ -689,10 +691,11 @@ def classify_eye_size(
     pfw_mm: float,
     pfh_mm: float,
     age: int | None = None,
+    has_crease: bool | None = None,
     *,
     confidence: str = "HIGH",
 ) -> EyeSizeResult | None:
-    """눈 검열 폭(PFW)·높이(PFH) 기반 형태 분류 + 연령 보정 (ADR-101).
+    """눈 검열 폭(PFW)·높이(PFH) 기반 형태 분류 + 연령·쌍꺼풀 옵션 (ADR-101 + ADR-102).
 
     Args:
         pfw_mm: 검열 폭 (palpebral fissure width, mm)
@@ -700,6 +703,10 @@ def classify_eye_size(
         age: 만나이 (옵션, ADR-015 옵션 B).
             None이면 20대 baseline 가정 (분류만).
             age ≥ 40 시 PFH 선형 보정 적용.
+        has_crease: 쌍꺼풀 보유 여부 (옵션, ADR-102).
+            None=미지정 (ADR-101 통합 baseline, 역호환)
+            True=쌍꺼풀 (Jung HB 2020 PFH 9.9±1.0)
+            False=단안검 (Jung HB 2020 PFH 8.0±0.9)
         confidence: HIGH (3D CBCT 측정) / MEDIUM (2D 사진 추정)
 
     Returns:
@@ -726,6 +733,8 @@ def classify_eye_size(
         return None
     if age is not None and (not isinstance(age, int) or age < 0 or age > 120):
         return None
+    if has_crease is not None and not isinstance(has_crease, bool):
+        return None
 
     pfw_corrected: float | None = None
     pfh_corrected: float | None = None
@@ -750,7 +759,179 @@ def classify_eye_size(
         pfw_age_corrected=pfw_corrected,
         pfh_age_corrected=pfh_corrected,
         age=age,
+        has_crease=has_crease,
         confidence=confidence,
         source_urls=_EYE_SOURCE_URLS,
         disclaimer=_EYE_DISCLAIMER,
     )
+
+
+# ═════════════════════════════════════════════════════════════════════════════
+# ADR-102 — 외안각 기울기(PFI) 분류 + 의료 차단 가드레일
+#
+# 출처 (Phase 1 라이브 검증):
+#   - Park DH (2002) — Archives of Craniofacial Surgery
+#     한국 996명 PFI 평균 8.65° (남 8.5° / 여 8.8°, SD ≈ 2.0~2.5°)
+#   - Jung HB (2020) — Archives of Aesthetic Plastic Surgery
+#     한국 240명 쌍꺼풀 분리 (MRD1 2.8 vs 4.1, p<0.001)
+#
+# ★ 학파 라벨 거부 (ADR-006): 봉안(鳳眼)·삼백안·도화안 등 학파 라벨은
+#    운명·관운 함의 강함 → 본 ADR은 인체계측 용어만 사용.
+# ═════════════════════════════════════════════════════════════════════════════
+
+# PFI baseline (Park DH 2002 N=996)
+_PFI_BASELINE_DEG = 8.65
+_PFI_SD_DEG = 2.0
+
+# 분류 임계값 (baseline ± 1SD)
+_PFI_UPSLANT_MIN = _PFI_BASELINE_DEG + _PFI_SD_DEG     # > 10.65°
+_PFI_DOWNSLANT_MAX = _PFI_BASELINE_DEG - _PFI_SD_DEG   # < 6.65°
+
+EYE_CANTHAL_UPSLANT = "외안각 상행형"     # 학파 라벨 X — 인체계측 용어
+EYE_CANTHAL_NORMAL = "보통 외안각"
+EYE_CANTHAL_DOWNSLANT = "외안각 하행형"
+
+_CANTHAL_SOURCE_URLS: tuple[str, ...] = (
+    "https://koreamed.org/SearchBasic.php?QY=Park+DH+palpebral+fissure+inclination",
+)
+
+_CANTHAL_DISCLAIMER = (
+    "본 분류는 외안각 기하학적 각도 측정 결과로, 운명·관운·재물복 매핑 X. "
+    "한국 996명 (Park DH 2002 Archives of Craniofacial Surgery) 표본 기반. "
+    "봉안·삼백안·도화안 등 학파 라벨 인용 X (ADR-006 정신 / ADR-102)."
+)
+
+# 의료 차단 정상 범위 (ADR-102 가드레일)
+_EYE_PATHOLOGICAL_PFW_MIN_MM = 18.0   # 선천성 검열협착증 임계
+_EYE_PATHOLOGICAL_PFW_MAX_MM = 32.0
+_EYE_PATHOLOGICAL_PFH_MIN_MM = 5.0
+_EYE_PATHOLOGICAL_MRD1_MIN_MM = 2.0   # 임상 안검하수 진단 기준
+
+
+@dataclass(frozen=True)
+class EyeCanthalTiltResult:
+    """외안각 기울기 분류 결과 (ADR-102).
+
+    Attributes:
+        tilt_type: "외안각 상행형" / "보통 외안각" / "외안각 하행형"
+        pfi_deg: 입력 외안각 기울기 (도, palpebral fissure inclination)
+        age: 만나이 (옵션, ADR-015) — 노화 영향 미미, 정보용
+        confidence: HIGH (MediaPipe 키포인트 역산) / MEDIUM (2D 사진 추정)
+        source_urls: 출처 URL 풀
+        disclaimer: ADR-006 면책 (학파 라벨 거부 명시)
+    """
+    tilt_type: str
+    pfi_deg: float
+    age: int | None
+    confidence: str
+    source_urls: tuple[str, ...]
+    disclaimer: str
+
+
+def classify_eye_canthal_tilt(
+    pfi_deg: float,
+    age: int | None = None,
+    *,
+    confidence: str = "HIGH",
+) -> EyeCanthalTiltResult | None:
+    """외안각 기울기 분류 (ADR-102, Park DH 2002 N=996).
+
+    Args:
+        pfi_deg: 외안각 기울기 (도). 양수 = 외안각이 내안각보다 위.
+        age: 만나이 (옵션). 노화 영향 미미 — 정보용만, 보정 X.
+        confidence: HIGH (3D landmark 측정) / MEDIUM (2D 사진 추정)
+
+    Returns:
+        EyeCanthalTiltResult 또는 None (입력 부정합).
+
+    임계값 (Park DH 2002, baseline 8.65° ± 1SD 2.0°):
+        - PFI > 10.65° → 외안각 상행형
+        - 6.65° ≤ PFI ≤ 10.65° → 보통 외안각
+        - PFI < 6.65° → 외안각 하행형
+
+    ★ 학파 라벨 거부 (ADR-006): 봉안(鳳眼)·삼백안 등은 운명·관운 함의 강함.
+       본 함수는 인체계측 형태 라벨만 반환.
+
+    Examples:
+        >>> r = classify_eye_canthal_tilt(8.65)
+        >>> r.tilt_type
+        '보통 외안각'
+        >>> r = classify_eye_canthal_tilt(12.0)
+        >>> r.tilt_type
+        '외안각 상행형'
+        >>> r = classify_eye_canthal_tilt(5.0)
+        >>> r.tilt_type
+        '외안각 하행형'
+    """
+    if not isinstance(pfi_deg, (int, float)):
+        return None
+    # 의료 범위 외 (극단치) — 측정 오류 또는 병리 가능성, ADR-006 의료 영역 차단
+    if pfi_deg < -30.0 or pfi_deg > 30.0:
+        return None
+    if age is not None and (not isinstance(age, int) or age < 0 or age > 120):
+        return None
+
+    pfi = float(pfi_deg)
+    if pfi > _PFI_UPSLANT_MIN:
+        tilt = EYE_CANTHAL_UPSLANT
+    elif pfi < _PFI_DOWNSLANT_MAX:
+        tilt = EYE_CANTHAL_DOWNSLANT
+    else:
+        tilt = EYE_CANTHAL_NORMAL
+
+    return EyeCanthalTiltResult(
+        tilt_type=tilt,
+        pfi_deg=round(pfi, 2),
+        age=age,
+        confidence=confidence,
+        source_urls=_CANTHAL_SOURCE_URLS,
+        disclaimer=_CANTHAL_DISCLAIMER,
+    )
+
+
+def is_eye_measurement_pathological(
+    pfw_mm: float | None = None,
+    pfh_mm: float | None = None,
+    mrd1_mm: float | None = None,
+) -> tuple[bool, str | None]:
+    """의료 차단 가드레일 (ADR-102 + ADR-006 의료 영역 차단).
+
+    정상 범위 외 입력 시 (True, 사유) 반환 → 호출자는 분류 알고리즘 중지 의무.
+    모든 입력이 정상 범위 내일 때만 (False, None) 반환.
+
+    임계값 (Phase 1 라이브 검증 출처):
+        - PFW < 18 mm: 선천성 검열협착증 임계 (Jung HB 2020 N=240, ±3SD 안전 마진)
+        - PFW > 32 mm: 극단치 (측정 오류 또는 안검외반)
+        - PFH < 5 mm: 측정 오류 또는 안검열 폐쇄
+        - MRD1 < 2 mm: 경도 안검하수 임상 진단 기준 (임상안과학 표준)
+
+    Args:
+        pfw_mm: 검열 폭 (mm). None이면 미점검.
+        pfh_mm: 검열 높이 (mm). None이면 미점검.
+        mrd1_mm: 상안검 거상연 거리 (mm). None이면 미점검.
+
+    Returns:
+        (is_pathological: bool, reason: str | None)
+
+    Examples:
+        >>> is_eye_measurement_pathological(mrd1_mm=1.5)
+        (True, 'MRD1<2mm 안검하수 의심 (ADR-006 의료 영역)')
+        >>> is_eye_measurement_pathological(pfw_mm=15.0)
+        (True, 'PFW<18mm 선천성 검열협착증 의심 (ADR-006 의료 영역)')
+        >>> is_eye_measurement_pathological(pfw_mm=27.0, pfh_mm=9.0, mrd1_mm=3.3)
+        (False, None)
+        >>> is_eye_measurement_pathological()  # 미점검 모두
+        (False, None)
+    """
+    if mrd1_mm is not None and isinstance(mrd1_mm, (int, float)):
+        if mrd1_mm < _EYE_PATHOLOGICAL_MRD1_MIN_MM:
+            return (True, "MRD1<2mm 안검하수 의심 (ADR-006 의료 영역)")
+    if pfw_mm is not None and isinstance(pfw_mm, (int, float)):
+        if pfw_mm < _EYE_PATHOLOGICAL_PFW_MIN_MM:
+            return (True, "PFW<18mm 선천성 검열협착증 의심 (ADR-006 의료 영역)")
+        if pfw_mm > _EYE_PATHOLOGICAL_PFW_MAX_MM:
+            return (True, "PFW>32mm 극단치 — 측정 오류 또는 안검외반 의심 (ADR-006)")
+    if pfh_mm is not None and isinstance(pfh_mm, (int, float)):
+        if pfh_mm < _EYE_PATHOLOGICAL_PFH_MIN_MM:
+            return (True, "PFH<5mm 측정 오류 또는 안검열 폐쇄 의심 (ADR-006)")
+    return (False, None)
