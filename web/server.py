@@ -2257,7 +2257,13 @@ class PersonalityAPIServer:
         try:
             from engine.llm_sync import bizrouter_client
             client = bizrouter_client()
-            model = os.environ.get("BIZROUTER_MODEL", "google/gemini-2.5-flash-lite")
+            # ADR-098: char_key별 모델 분리 라우팅 — dream만 Flash 업그레이드 A/B 테스트
+            # DREAM_MODEL > BIZROUTER_MODEL > 기본값 순 우선순위
+            default_model = os.environ.get("BIZROUTER_MODEL", "google/gemini-2.5-flash-lite")
+            if char_key == "dream":
+                model = os.environ.get("DREAM_MODEL", default_model)
+            else:
+                model = default_model
             resp = await asyncio.to_thread(
                 client.chat.completions.create,
                 model=model,
