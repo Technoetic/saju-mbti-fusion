@@ -2370,6 +2370,62 @@ class PersonalityAPIServer:
             except Exception:
                 deterministic_blocks.append("[손금 결정론 — 산출 실패]")
 
+        # ─── ADR-118 토정비결 (palm/tojeong content_key + birth) ───
+        if char_key == "palm" and content_key == "tojeong" and birth_str:
+            try:
+                from datetime import datetime as _dt_tj, date as _date_tj
+                from engine.divination.tojeong import compute_tojeong_for_year, format_hexagram_for_prompt
+                birth_d = _dt_tj.strptime(birth_str, "%Y-%m-%d").date()
+                target_year = _date_tj.today().year
+                hex_r = compute_tojeong_for_year(birth_d, target_year)
+                if hex_r:
+                    deterministic_blocks.append(format_hexagram_for_prompt(hex_r, target_year))
+            except Exception:
+                pass
+
+        # ─── ADR-119 12지 띠 운세 (palm/zodiac content_key + birth) ───
+        if char_key == "palm" and content_key == "zodiac" and birth_str:
+            try:
+                from datetime import datetime as _dt_zo, date as _date_zo
+                from engine.divination.zodiac_ko import (
+                    animal_by_year, compute_year_fortune, format_animal_for_prompt,
+                )
+                birth_d = _dt_zo.strptime(birth_str, "%Y-%m-%d").date()
+                my_animal = animal_by_year(birth_d.year)
+                target_year = _date_zo.today().year
+                year_compat = compute_year_fortune(birth_d.year, target_year)
+                deterministic_blocks.append(
+                    format_animal_for_prompt(my_animal, target_year, year_compat)
+                )
+            except Exception:
+                pass
+
+        # ─── ADR-120 산통점 (palm/spirit content_key + 산가지 입력) ───
+        # 사용자가 3 산가지 값 (stick1·stick2·stick3) 입력 시 결정론 산출
+        if char_key == "palm" and content_key == "spirit":
+            try:
+                from engine.divination.santong import compute_santong_reading, format_santong_for_prompt
+                # fields에서 stick1·stick2·stick3 또는 무작위 fallback
+                s1 = int((fields.get("stick1") or "3").strip() or "3")
+                s2 = int((fields.get("stick2") or "5").strip() or "5")
+                s3 = int((fields.get("stick3") or "7").strip() or "7")
+                santong_r = compute_santong_reading(s1, s2, s3)
+                if santong_r:
+                    deterministic_blocks.append(format_santong_for_prompt(santong_r))
+            except Exception:
+                pass
+
+        # ─── ADR-121 부적 4 표준 (palm/talisman content_key + talismanType) ───
+        if char_key == "palm" and content_key == "talisman":
+            try:
+                from engine.divination.talisman import compute_talisman_reading, format_talisman_for_prompt
+                talisman_type = (fields.get("talismanType") or fields.get("type") or "hapgyeok").strip()
+                talisman_r = compute_talisman_reading(talisman_type)
+                if talisman_r:
+                    deterministic_blocks.append(format_talisman_for_prompt(talisman_r))
+            except Exception:
+                pass
+
         # ─── face 결정론 (ADR-075·082, char_key='face') ───
         # ADR-082: imageB64 입력 시 Phase 2 → generate_face_reading Vision 호출
         # ADR-075: 사진 미입력 시 4 학파 + 삼정 + 12궁 메타만 인용
