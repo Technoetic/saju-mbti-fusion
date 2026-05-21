@@ -20,6 +20,11 @@ from engine.divination.tojeong.scoring import (
     hexagram_by_id,
     format_hexagram_for_prompt,
 )
+from engine.divination.tojeong.sanitize import (
+    sanitize_tojeong_verse,
+    TOJEONG_FORBIDDEN_WORDS,
+    TOJEONG_FLOW_TONE_SUBSTITUTIONS,
+)
 
 __all__ = [
     "TojeongHexagram",
@@ -27,4 +32,7 @@ __all__ = [
     "compute_tojeong_for_year",
     "hexagram_by_id",
     "format_hexagram_for_prompt",
+    "sanitize_tojeong_verse",
+    "TOJEONG_FORBIDDEN_WORDS",
+    "TOJEONG_FLOW_TONE_SUBSTITUTIONS",
 ]
