@@ -63,15 +63,27 @@ _KONGMANG_BY_SUN: List[List[str]] = [
 ]
 
 
-# ADR-128 양인살(羊刃殺) — 양간 5종 (정통 사주명리 자평진전 옵션 A 디폴트).
-# 자평진전(沈孝瞻 1734, 이담북스 김정혜·서소옥·안명순 역 2011, ISBN 검증) 정통.
-# 음간 포함 10간 확장은 삼명통회 옵션 B (학파 분기, 본 시스템 비채택).
+# ADR-128 양인살(羊刃殺) 옵션 A — 양간 5종 (자평진전 정통 디폴트).
+# 자평진전(沈孝瞻 1734) — 범진 직역본 ISBN 9791196084417 (박영창·김미석 옮김 2018),
+# 이담북스 (2011, 김정혜·서소옥·안명순 역) 등 ISBN 다수 검증.
 _YANGIN: Dict[str, str] = {
     "甲": "卯",
     "丙": "午",
     "戊": "午",
     "庚": "酉",
     "壬": "子",
+}
+
+# ADR-132 양인살 옵션 B — 삼명통회 음간 5종 확장 (학파 분기 명시 채택).
+# 삼명통회(萬民英 1578) ISBN 9791139035261·9791137216822 — 음간 관대(冠帶)·묘고(墓庫)
+# 진입 시 음인(陰刃) 작용 인정 (자평진전 격국론과 분기).
+# 학파 출처: 보고서 「사주 신살 학파별 분류 표준 조사」 §2.4 + §6 라인 230~234.
+_YANGIN_OPTION_B: Dict[str, str] = {
+    "乙": "辰",
+    "丁": "未",
+    "己": "未",
+    "辛": "戌",
+    "癸": "丑",
 }
 
 # ADR-128 괴강살(魁罡殺) — 정통 4 일주 (자평진전·삼명통회 일치 표준).
@@ -104,23 +116,23 @@ def _ji_list(pillars: Dict) -> List[str]:
     ]
 
 
-def compute_shensha(pillars: Dict) -> Dict[str, List[str]]:
+def compute_shensha(pillars: Dict, *, yangin_school: str = "jappyeong") -> Dict[str, List[str]]:
     """4주(年月日時)에서 주요 신살 8종을 계산.
 
     학파:
       - 천을귀인·문창귀인·역마·도화·공망: 본 시스템 기존 5종 (전통)
       - 양인·괴강·백호: ADR-128 신규 (자평진전·삼명통회 정통)
+      - 양인 옵션 B (삼명통회 음간 확장): ADR-132 추가
 
     Args:
         pillars: {year_pillar, month_pillar, day_pillar, hour_pillar} —
                  각 항목은 {gan_han, ji_han, gan, ji}.
+        yangin_school: 양인살 학파 옵션 (ADR-132) —
+            - 'jappyeong' (디폴트): 자평진전 옵션 A 양간 5종
+            - 'samyeong': 삼명통회 옵션 B 음간 5종 추가 확장
 
     Returns:
-        {cheoneul, munchang, yeokma, dohwa, kongmang, yangin, goegang, baekho}:
-        각 키 값은 해당 신살에 해당하는 지지(한자) 리스트, 없으면 빈 리스트.
-        - yangin: 양인 지지 한자 (양간 5종 디폴트, 음간은 항상 빈 리스트)
-        - goegang: 일주가 4 괴강 일주에 해당하면 [day_pillar], 아니면 []
-        - baekho: 일주가 7 백호 일주에 해당하면 [day_pillar], 아니면 []
+        {cheoneul, munchang, yeokma, dohwa, kongmang, yangin, goegang, baekho}.
     """
     day_gan = pillars["day_pillar"]["gan_han"]
     day_ji = pillars["day_pillar"]["ji_han"]
@@ -155,9 +167,13 @@ def compute_shensha(pillars: Dict) -> Dict[str, List[str]]:
     else:
         kongmang = []
 
-    # 6. ADR-128 양인살 (양간 5종 디폴트 — 자평진전 옵션 A)
+    # 6. ADR-128 양인살 (양간 디폴트) + ADR-132 음간 옵션 B 확장
     yangin_target = _YANGIN.get(day_gan)
     yangin = [j for j in all_ji if yangin_target and j == yangin_target]
+    if yangin_school == "samyeong":
+        yangin_target_b = _YANGIN_OPTION_B.get(day_gan)
+        if yangin_target_b:
+            yangin.extend([j for j in all_ji if j == yangin_target_b])
 
     # 7·8. ADR-128 괴강·백호 (일주 매칭 — 매칭 시 일주 한자 반환)
     day_pillar_han = day_gan + day_ji
@@ -179,14 +195,28 @@ def compute_shensha(pillars: Dict) -> Dict[str, List[str]]:
 # ─────────────────────────── ADR-128 단독 API ───────────────────────────
 
 
-def is_yangin(day_gan_han: str, ji_han: str) -> bool:
-    """일간·지지 한자 → 양인살 여부 (옵션 A 양간 5종 디폴트).
+def is_yangin(day_gan_han: str, ji_han: str, *, school: str = "jappyeong") -> bool:
+    """일간·지지 한자 → 양인살 여부.
 
-    학파: 자평진전(沈孝瞻 1734) 정통 — 양간 5종만 양인 인정.
-    음간 포함 10간 확장은 삼명통회 옵션 B (본 시스템 비채택).
+    Args:
+        day_gan_han: 일간 한자 (甲~癸).
+        ji_han: 지지 한자 (子~亥).
+        school: 학파 옵션 (ADR-132) —
+            - 'jappyeong' (옵션 A 디폴트): 자평진전 정통 양간 5종
+            - 'samyeong' (옵션 B): 삼명통회 음간 5종 추가 (10간 확장)
+
+    학파 출처:
+        - 자평진전 ISBN 9791196084417 (범진 직역, 박영창·김미석 2018)
+        - 삼명통회 ISBN 9791139035261·9791137216822 (음인 학파)
     """
     target = _YANGIN.get(day_gan_han)
-    return target is not None and ji_han == target
+    if target is not None and ji_han == target:
+        return True
+    if school == "samyeong":
+        target_b = _YANGIN_OPTION_B.get(day_gan_han)
+        if target_b is not None and ji_han == target_b:
+            return True
+    return False
 
 
 def is_goegang(day_pillar_han: str) -> bool:
@@ -242,3 +272,90 @@ SHENSHA_MEANINGS: Dict[str, Dict[str, str]] = {
         "summary": "7 특수 일주(甲辰·乙未·丙戌·丁丑·戊辰·壬戌·癸丑)의 활동 기운. 외향·활동성의 흐름.",
     },
 }
+
+
+# ─────────────────────────── ADR-133 신살 강도 가중치 + 톤 분기 ───────────────────────────
+
+
+# ADR-133 양인+괴강+백호 강도 신살 중첩 가중치 (보고서 §6.3 라인 159~169 명시).
+# 본 매핑은 학파 출처 부재 — 보고서 자체 시스템 설계 명제 (수학적 결정론).
+_INTENSE_SINSAL_KEYS: tuple = ("yangin", "goegang", "baekho")
+
+
+def compute_sinsal_synergy_weight(shensha_result: Dict[str, List[str]]) -> Dict[str, object]:
+    """양인·괴강·백호 중첩 가중치 산출 — ADR-133.
+
+    보고서 「사주 신살 학파별 분류 표준 조사」 §6.3 명시:
+      - 0개 (해당 없음): 0.0
+      - 1개 (단일 발현): 1.0 — 성격적 억양 톤
+      - 2개 (중첩): 1.5 — 직업적 특성 톤
+      - 3개 (양인+괴강+백호 동시): 2.0 — 메인 동력 톤
+
+    Args:
+        shensha_result: compute_shensha() 반환 dict.
+
+    Returns:
+        {
+          "active_count": int (0~3),
+          "active_sinsals": list[str],
+          "weight": float (0.0·1.0·1.5·2.0),
+          "tone_branch": str ("none"·"single_personality"·"dual_professional"·"triple_main_engine"),
+        }
+    """
+    active: List[str] = []
+    for key in _INTENSE_SINSAL_KEYS:
+        if shensha_result.get(key):
+            active.append(key)
+
+    count = len(active)
+    if count == 0:
+        weight = 0.0
+        tone = "none"
+    elif count == 1:
+        weight = 1.0
+        tone = "single_personality"
+    elif count == 2:
+        weight = 1.5
+        tone = "dual_professional"
+    else:  # 3
+        weight = 2.0
+        tone = "triple_main_engine"
+
+    return {
+        "active_count": count,
+        "active_sinsals": active,
+        "weight": weight,
+        "tone_branch": tone,
+    }
+
+
+# ADR-133 톤 분기 가이드 텍스트 (LLM 시스템 프롬프트 주입용)
+SYNERGY_TONE_GUIDE: Dict[str, str] = {
+    "none": "",
+    "single_personality": (
+        "본 사주에 양인·괴강·백호 중 1개 신살 발현 — 성격적 억양으로 자연스럽게 묘사. "
+        "(예: 추진력이 돋보이는 성향)"
+    ),
+    "dual_professional": (
+        "본 사주에 양인·괴강·백호 중 2개 중첩 — 뚜렷하고 강렬한 직업적·기질적 특성으로 묘사. "
+        "(예: 불굴의 에너지로 위기를 기회로 뒤집는 위기관리 능력)"
+    ),
+    "triple_main_engine": (
+        "본 사주에 양인·괴강·백호 3개 동시 중첩 — 인생 전반의 메인 동력(Main Engine)으로 작용. "
+        "권력형 전문직·사업가·독립적 리더 포지션 적합. 강력한 카리스마와 추진력의 결."
+    ),
+}
+
+
+def render_synergy_tone_guide(shensha_result: Dict[str, List[str]]) -> str:
+    """LLM 시스템 프롬프트 주입용 신살 중첩 톤 가이드 텍스트 생성.
+
+    Args:
+        shensha_result: compute_shensha() 반환 dict.
+
+    Returns:
+        톤 가이드 텍스트. 신살 중첩 없으면 빈 문자열.
+    """
+    synergy = compute_sinsal_synergy_weight(shensha_result)
+    tone_branch = str(synergy["tone_branch"])
+    return SYNERGY_TONE_GUIDE.get(tone_branch, "")
