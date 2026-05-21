@@ -403,14 +403,18 @@
   return;
   }
 
-  // premium/season: 결제 안내 모달 — 사용자 UX 피드백 보장
-  // (사업 결정 영역: 실 결제 게이트웨이는 별도 — 본 모달은 안내만)
-  if (tier === 'premium' || tier === 'season') {
+  // ★ 베타 모드 (window.WHM_BETA_MODE === true) — premium/season도 무료 풀이 허용.
+  //   사용자 UX 차단 없이 모든 풀이 받음. 정식 결제 시스템 도입 시 본 분기 제거.
+  //   ADR-105 후속 — premium 콘텐츠가 결제 게이트로 막혀 풀이 못 받는 베타 결함 해소.
+  const isBeta = window.WHM_BETA_MODE === true;
+
+  // premium/season: 베타 모드면 free처럼 처리, 아니면 결제 안내 모달
+  if ((tier === 'premium' || tier === 'season') && !isBeta) {
   showPremiumPrompt(contentKey, tier);
   return;
   }
 
-  // free: LLM 호출 → 결과 렌더
+  // free 또는 베타 모드: LLM 호출 → 결과 렌더
   await callContentReading(currentMaster, contentKey, cta);
   }
   });

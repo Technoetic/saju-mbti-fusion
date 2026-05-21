@@ -13,6 +13,9 @@
 <!-- ADR-038 Phase 2: 핵심 유틸 외부 모듈 (body inline script보다 먼저 로드) -->
 <!-- ADR-052: ES6 module 본격 전환 — function 자동 글로벌 X → Object.assign(window) 패턴 의무
      인라인 호출자 호환 검증 완료 (window.SAJU.X prefix). -->
+<!-- ★ 베타 모드 — 정식 결제 시스템 도입 전 모든 premium/season 콘텐츠 무료 풀이 허용.
+     정식 결제 도입 시 false로 변경. content-system.js의 CTA 핸들러가 본 플래그 확인. -->
+<script>window.WHM_BETA_MODE = true;</script>
 <script type="module" src="js/core/html-utils.js"></script>
 <script type="module" src="js/core/llm-utils.js"></script>
 <script type="module" src="js/core/base-reader.js"></script>
