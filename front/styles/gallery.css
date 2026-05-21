@@ -23,7 +23,10 @@
   .card-deck {
   display: flex;
   gap: 0;
-  will-change: transform;
+  /* will-change: transform 제거 — ADR-105 후속 fix.
+     일부 환경에서 GPU 합성 시 자식 element 픽셀이 별도 레이어로 분리되어
+     활성 카드 외 child(poster img·video)가 보이지 않는 문제 발생.
+     transition만 유지 → 부드러운 슬라이드는 그대로. */
   transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
   }
   .card-deck.is-dragging {
@@ -48,7 +51,9 @@
   .char-card:active { cursor: grabbing; }
   /* ADR-105 후속 fix — poster 백업 img element.
      비디오 디코더가 안 동작하는 환경 (헤드리스·구형 브라우저·네트워크 지연)에서도
-     첫 프레임 정지 이미지로 카드 본체 항상 가시. */
+     첫 프레임 정지 이미지로 카드 본체 항상 가시.
+     ★ 모든 카드에 opacity 1 강제 — 비활성 카드도 잠시 보이는 transition 중 가시.
+        활성 외 카드는 #cardDeck transform으로 화면 밖에 있어 시각 영향 없음. */
   .char-card-poster {
   position: absolute;
   inset: 0;
@@ -56,10 +61,8 @@
   object-fit: cover;
   pointer-events: none;
   z-index: 0;
-  opacity: 0;
-  transition: opacity 0.6s ease;
+  opacity: 1;  /* 항상 보임 — deck transform이 화면 영역 제어 */
   }
-  .char-card.is-active .char-card-poster { opacity: 0.85; }
 
   .char-card-video {
   position: absolute;
