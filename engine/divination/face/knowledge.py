@@ -267,4 +267,233 @@ __all__ = [
     "get_palace_by_key",
     "format_schools_metadata_for_prompt",
     "format_korean_folk_for_prompt",
+    # ADR-103 — 육경형 + 다학파 해석 메타
+    "SixMeridianType",
+    "SIX_MERIDIAN_TYPES",
+    "FaceSchoolInterpretation",
+    "FACE_SCHOOL_INTERPRETATIONS",
+    "get_six_meridian_by_key",
+    "get_school_interpretation_by_feature",
+    "format_school_interpretations_for_prompt",
 ]
+
+
+# ═════════════════════════════════════════════════════════════════════════════
+# ADR-103 — 형상의학 육경형(六經形) + 다학파 해석 컨텍스트
+#
+# ★ ADR-102 경계 명확화: 학파 라벨은 본 메타 풀에만 격리.
+#    classify_* 함수 출력은 절대 학파 라벨 노출 X (인체계측 용어만).
+#
+# 출처 (Phase 1 라이브 검증):
+#   - PMC10568153 "East Asian Medical Knowledge & Donguibogam Currents" ✅
+#   - hyungsang.or.kr 형상의학회 공식 (박인규 지산) ✅
+#   - mediclassics.kr 한국의학고전DB (상한론·동의보감) ⚠ LOW (PDF 바이너리)
+# ═════════════════════════════════════════════════════════════════════════════
+
+
+@dataclass(frozen=True)
+class SixMeridianType:
+    """형상의학 육경형(六經形) 벡터 메타데이터 (ADR-103).
+
+    분류 함수 반환 X — 본 메타는 Stage 2 자연어 풀이 컨텍스트로만 사용.
+    feature_classifier.py classify_* 함수는 ADR-102 정신 유지
+    (인체계측 용어 anthropometric_label만 반환).
+
+    Attributes:
+        key: 내부 식별자 (taeyang·taeeum·soyang·soeum)
+        name_ko: 한국어 학파 명칭 ("태양형" 등) — Stage 2 자연어 풀이용
+        name_hanja: 한자 명칭 ("太陽形" 등)
+        eye_vector_description: 외안각 벡터 형태 설명
+        nose_vector_description: 코 승강 벡터 형태 설명
+        anthropometric_label: ★ 분류 함수 매핑용 인체계측 라벨
+            (예: "upturned_eye_upturned_nose") — ADR-102 정신
+        primary_source_url: 1차 출처 (hyungsang.or.kr 또는 PMC live)
+        secondary_source_url: 2차 출처 (mediclassics LOW) — fallback만
+        adr_006_safety_note: 의료·운명 단정 차단 명시
+    """
+    key: str
+    name_ko: str
+    name_hanja: str
+    eye_vector_description: str
+    nose_vector_description: str
+    anthropometric_label: str
+    primary_source_url: str
+    secondary_source_url: str
+    adr_006_safety_note: str
+
+
+# 4 육경형 메타 (보고서 §3.2, Phase 1 라이브 검증)
+_HYUNGSANG_PRIMARY = "https://hyungsang.or.kr/a-introduce"
+_MEDICLASSICS_SECONDARY = "https://mediclassics.kr/"  # LOW 검증 (PDF 바이너리)
+_SHANGHAN_ADR_006_NOTE = (
+    "본 형태 벡터는 형상의학 학파 분류이며, 방광염·만성위염·불임·당뇨 등 "
+    "질환 단정 인용 X (보고서 §7.2 영구 차단 리스트 준수). "
+    "운명·관운·성격 단정 X (ADR-006)."
+)
+
+SIX_MERIDIAN_TYPES: tuple[SixMeridianType, ...] = (
+    SixMeridianType(
+        key="taeyang",
+        name_ko="태양형",
+        name_hanja="太陽形",
+        eye_vector_description="외안각 상행 (수평축 대비 위로 올라감)",
+        nose_vector_description="코끝 상승 벡터 (상방향으로 들림)",
+        anthropometric_label="upturned_eye_upturned_nose",
+        primary_source_url=_HYUNGSANG_PRIMARY,
+        secondary_source_url=_MEDICLASSICS_SECONDARY,
+        adr_006_safety_note=_SHANGHAN_ADR_006_NOTE,
+    ),
+    SixMeridianType(
+        key="taeeum",
+        name_ko="태음형",
+        name_hanja="太陰形",
+        eye_vector_description="외안각 하행 (수평축 대비 아래로 처짐)",
+        nose_vector_description="코끝 하강 벡터 (하방향)",
+        anthropometric_label="downturned_eye_downturned_nose",
+        primary_source_url=_HYUNGSANG_PRIMARY,
+        secondary_source_url=_MEDICLASSICS_SECONDARY,
+        adr_006_safety_note=_SHANGHAN_ADR_006_NOTE,
+    ),
+    SixMeridianType(
+        key="soyang",
+        name_ko="소양형",
+        name_hanja="少陽形",
+        eye_vector_description="외안각 상행 + 코는 보통",
+        nose_vector_description="코 수평 (벡터 0)",
+        anthropometric_label="upturned_eye_neutral_nose",
+        primary_source_url=_HYUNGSANG_PRIMARY,
+        secondary_source_url=_MEDICLASSICS_SECONDARY,
+        adr_006_safety_note=_SHANGHAN_ADR_006_NOTE,
+    ),
+    SixMeridianType(
+        key="soeum",
+        name_ko="소음형",
+        name_hanja="少陰形",
+        eye_vector_description="외안각 보통 + 코끝 하강",
+        nose_vector_description="코끝 하강 (수평축 아래)",
+        anthropometric_label="neutral_eye_downturned_nose",
+        primary_source_url=_HYUNGSANG_PRIMARY,
+        secondary_source_url=_MEDICLASSICS_SECONDARY,
+        adr_006_safety_note=_SHANGHAN_ADR_006_NOTE,
+    ),
+)
+
+
+def get_six_meridian_by_key(key: str) -> SixMeridianType | None:
+    """육경형 key로 메타 조회 (ADR-103)."""
+    for t in SIX_MERIDIAN_TYPES:
+        if t.key == key:
+            return t
+    return None
+
+
+@dataclass(frozen=True)
+class FaceSchoolInterpretation:
+    """동일 형태에 대한 학파별 해석 메타 (ADR-103, ADR-002 강화).
+
+    Stage 2 자연어 풀이 프롬프트 주입용. UI 직접 출력 X.
+    classify_* 함수는 본 메타와 무관 — ADR-102 정신 유지.
+
+    Attributes:
+        feature_key: 인체계측 형태 식별자 ("upturned_eye"·"square_jaw" 등)
+        anthropometric_name: 인체계측 라벨 ("외안각 상행형" 등)
+        school_interpretations: 학파별 해석 풀
+            {school_key: {label, interpretation, source_url, adr_006_warning}}
+    """
+    feature_key: str
+    anthropometric_name: str
+    school_interpretations: dict[str, dict[str, str]]
+
+
+_MAUI_SOURCE = "https://www.dbpia.co.kr/journal/articleDetail?nodeId=NODE11235666"
+_PMC_DONGUIBOGAM = "https://pmc.ncbi.nlm.nih.gov/articles/PMC10568153/"
+
+FACE_SCHOOL_INTERPRETATIONS: tuple[FaceSchoolInterpretation, ...] = (
+    FaceSchoolInterpretation(
+        feature_key="upturned_eye",
+        anthropometric_name="외안각 상행형",
+        school_interpretations={
+            "maui": {
+                "label": "봉안(鳳眼)",
+                "interpretation": "봉황의 눈에 비유한 형태 — 동물 비유 학파 해석",
+                "source_url": _MAUI_SOURCE,
+                "adr_006_warning": "운명·관운·재물 단정 X — 형태 비유만 인용",
+            },
+            "hyungsang": {
+                "label": "태양형(太陽形)",
+                "interpretation": "외안각 + 코끝 상행 벡터 — 형상의학 육경형",
+                "source_url": _HYUNGSANG_PRIMARY,
+                "adr_006_warning": "방광염·교감신경 항진 등 의료 단정 X (보고서 §7.2)",
+            },
+        },
+    ),
+    FaceSchoolInterpretation(
+        feature_key="square_jaw",
+        anthropometric_name="사각형 턱",
+        school_interpretations={
+            "maui": {
+                "label": "지각방원(地閣方圓)",
+                "interpretation": "대지의 풍요로움에 비유한 형태",
+                "source_url": _MAUI_SOURCE,
+                "adr_006_warning": "말년 재물복·고독 단정 X — 형태 비유만",
+            },
+            "hyungsang": {
+                "label": "기과(氣科)",
+                "interpretation": "기혈 순환 강도 지표 — 정기신혈과 분류",
+                "source_url": _PMC_DONGUIBOGAM,
+                "adr_006_warning": "기병·만성질환 단정 X (보고서 §7.2)",
+            },
+        },
+    ),
+    FaceSchoolInterpretation(
+        feature_key="prominent_nose",
+        anthropometric_name="현저한 코",
+        school_interpretations={
+            "maui": {
+                "label": "현담비(懸膽鼻)",
+                "interpretation": "쓸개를 매단 듯한 형태 — 중악(中嶽) 지표",
+                "source_url": _MAUI_SOURCE,
+                "adr_006_warning": "재물 축적·관운 단정 X — 형태 비유만",
+            },
+            "hyungsang": {
+                "label": "육경형 y축 벡터",
+                "interpretation": "얼굴 전체 승강 벡터 결정 인자",
+                "source_url": _HYUNGSANG_PRIMARY,
+                "adr_006_warning": "성격·질환 단정 X (ADR-006)",
+            },
+        },
+    ),
+)
+
+
+def get_school_interpretation_by_feature(feature_key: str) -> FaceSchoolInterpretation | None:
+    """feature_key로 학파 해석 메타 조회 (ADR-103)."""
+    for interp in FACE_SCHOOL_INTERPRETATIONS:
+        if interp.feature_key == feature_key:
+            return interp
+    return None
+
+
+def format_school_interpretations_for_prompt(feature_key: str) -> str | None:
+    """Stage 2 자연어 풀이용 학파 해석 텍스트 빌드 (ADR-103).
+
+    LLM 시스템 프롬프트에 직접 주입. UI 출력 X.
+    학파 라벨 노출은 본 함수 호출 결과에만 한정 (ADR-102 정신 유지 —
+    classify_* 함수는 인체계측 용어만 반환).
+
+    Returns:
+        프롬프트 텍스트 또는 None (feature_key 미존재 시).
+    """
+    interp = get_school_interpretation_by_feature(feature_key)
+    if interp is None:
+        return None
+    lines = [
+        f"[학파별 해석 컨텍스트 — {interp.anthropometric_name}]",
+        f"(다학파 병행 — ADR-002 정합. 운명·질환 단정 X — ADR-006)",
+        "",
+    ]
+    for school_key, s in interp.school_interpretations.items():
+        lines.append(f"- {s['label']} ({school_key}): {s['interpretation']}")
+        lines.append(f"  출처: {s['source_url']}")
+        lines.append(f"  안전 가드: {s['adr_006_warning']}")
+    return "\n".join(lines)
