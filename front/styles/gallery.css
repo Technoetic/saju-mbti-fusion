@@ -46,7 +46,10 @@
   cursor: grab;
   }
   .char-card:active { cursor: grabbing; }
-  .char-card-video {
+  /* ADR-105 후속 fix — poster 백업 img element.
+     비디오 디코더가 안 동작하는 환경 (헤드리스·구형 브라우저·네트워크 지연)에서도
+     첫 프레임 정지 이미지로 카드 본체 항상 가시. */
+  .char-card-poster {
   position: absolute;
   inset: 0;
   width: 100%; height: 100%;
@@ -56,11 +59,23 @@
   opacity: 0;
   transition: opacity 0.6s ease;
   }
+  .char-card.is-active .char-card-poster { opacity: 0.85; }
+
+  .char-card-video {
+  position: absolute;
+  inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+  z-index: 1;  /* poster 위 — 비디오가 디코드되면 poster를 덮음 */
+  opacity: 0;
+  transition: opacity 0.6s ease;
+  }
   .char-card.is-active .char-card-video { opacity: 0.85; }
   .char-card-veil {
   position: absolute;
   inset: 0;
-  z-index: 1;
+  z-index: 2;  /* poster(0) < video(1) < veil(2) < body(3) — ADR-105 후속 fix */
   pointer-events: none;
   /* 상단은 살짝, 하단은 두텁게 — 텍스트 영역(아래 50%) 완전히 가려서 글씨 대비 확보 */
   background:
@@ -74,7 +89,7 @@
   .char-card-body {
   position: absolute;
   inset: 0;
-  z-index: 2;
+  z-index: 3;  /* veil(2) 위 — ADR-105 후속 fix */
   display: flex;
   flex-direction: column;
   align-items: center;
