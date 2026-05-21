@@ -78,6 +78,31 @@ _BRANCH_HAE = {
     frozenset({"酉", "戌"}): "酉戌害",
 }
 
+
+# ADR-130 지지 삼합(三合) 4국 — 자평진전·삼명통회 정통 표준 일치
+# 화국: 申子辰 → 水局 (수국)
+# 금국: 巳酉丑 → 金局 (금국)
+# 화국: 寅午戌 → 火局 (화국)
+# 목국: 亥卯未 → 木局 (목국)
+_BRANCH_SAMHAP = {
+    frozenset({"申", "子", "辰"}): {"label": "申子辰", "guk": "水局", "ohaeng": "수"},
+    frozenset({"巳", "酉", "丑"}): {"label": "巳酉丑", "guk": "金局", "ohaeng": "금"},
+    frozenset({"寅", "午", "戌"}): {"label": "寅午戌", "guk": "火局", "ohaeng": "화"},
+    frozenset({"亥", "卯", "未"}): {"label": "亥卯未", "guk": "木局", "ohaeng": "목"},
+}
+
+# ADR-130 지지 방합(方合) 4국 — 자평진전·삼명통회 정통 표준 일치
+# 춘목국: 寅卯辰 → 春木 (봄·동방·木)
+# 하화국: 巳午未 → 夏火 (여름·남방·火)
+# 추금국: 申酉戌 → 秋金 (가을·서방·金)
+# 동수국: 亥子丑 → 冬水 (겨울·북방·水)
+_BRANCH_BANGHAP = {
+    frozenset({"寅", "卯", "辰"}): {"label": "寅卯辰", "guk": "春木", "ohaeng": "목", "direction": "동방"},
+    frozenset({"巳", "午", "未"}): {"label": "巳午未", "guk": "夏火", "ohaeng": "화", "direction": "남방"},
+    frozenset({"申", "酉", "戌"}): {"label": "申酉戌", "guk": "秋金", "ohaeng": "금", "direction": "서방"},
+    frozenset({"亥", "子", "丑"}): {"label": "亥子丑", "guk": "冬水", "ohaeng": "수", "direction": "북방"},
+}
+
 # 오행 상생 (생하는 관계)
 _WX_GENERATE = {"목": "화", "화": "토", "토": "금", "금": "수", "수": "목"}
 # 오행 상극 (극하는 관계)
@@ -266,4 +291,87 @@ def _mbti_socionics_label(a: str, b: str) -> str:
     return label or "Standard (표준)"
 
 
-__all__ = ["analyze_compat"]
+# ─────────────────────────── ADR-130 삼합·방합 API ───────────────────────────
+
+
+def detect_samhap(branches: list[str]) -> list[dict]:
+    """4주 지지 한자 리스트 → 삼합(三合) 완전 4국 매칭 결과.
+
+    학파: 자평진전·삼명통회 정통 표준 일치.
+    학술 출처: 본 시스템 shensha.py _TRIPLES 동일 매핑 검증.
+
+    Args:
+        branches: 4주 지지 한자 리스트 (例: ["子", "卯", "申", "辰"]).
+
+    Returns:
+        매칭된 삼합 국 정보 리스트. 4 지지 모두 한 국에 포함되어야 매칭.
+        부분 매칭(반합·2지지만 일치)은 X.
+        [{"label": "申子辰", "guk": "水局", "ohaeng": "수"}, ...]
+    """
+    if not branches:
+        return []
+    branch_set = set(branches)
+    out = []
+    for samhap_set, info in _BRANCH_SAMHAP.items():
+        if samhap_set.issubset(branch_set):
+            out.append(dict(info))
+    return out
+
+
+def detect_banghap(branches: list[str]) -> list[dict]:
+    """4주 지지 한자 리스트 → 방합(方合) 완전 4국 매칭 결과.
+
+    학파: 자평진전·삼명통회 정통 표준 일치.
+
+    Args:
+        branches: 4주 지지 한자 리스트.
+
+    Returns:
+        매칭된 방합 국 정보 리스트.
+        [{"label": "寅卯辰", "guk": "春木", "ohaeng": "목", "direction": "동방"}, ...]
+    """
+    if not branches:
+        return []
+    branch_set = set(branches)
+    out = []
+    for banghap_set, info in _BRANCH_BANGHAP.items():
+        if banghap_set.issubset(branch_set):
+            out.append(dict(info))
+    return out
+
+
+def detect_compat_relations(branches: list[str]) -> dict:
+    """4주 지지 합국·합충 일괄 매칭 (삼합·방합·6합·6충 통합).
+
+    Returns:
+        {
+          "samhap": [...],        # 삼합 매칭 4국
+          "banghap": [...],       # 방합 매칭 4국
+          "yukhap_pairs": [...],  # 6합 쌍 라벨
+          "yukchong_pairs": [...],# 6충 쌍 라벨
+        }
+    """
+    samhap = detect_samhap(branches)
+    banghap = detect_banghap(branches)
+
+    # 6합·6충 쌍 점검
+    yukhap_pairs = []
+    yukchong_pairs = []
+    n = len(branches)
+    for i in range(n):
+        for j in range(i + 1, n):
+            pair = frozenset({branches[i], branches[j]})
+            if pair in _BRANCH_HE:
+                yukhap_pairs.append(_BRANCH_HE[pair])
+            if pair in _BRANCH_CHONG:
+                yukchong_pairs.append(_BRANCH_CHONG[pair])
+
+    return {
+        "samhap": samhap,
+        "banghap": banghap,
+        "yukhap_pairs": yukhap_pairs,
+        "yukchong_pairs": yukchong_pairs,
+    }
+
+
+__all__ = ["analyze_compat", "detect_samhap", "detect_banghap", "detect_compat_relations"]
