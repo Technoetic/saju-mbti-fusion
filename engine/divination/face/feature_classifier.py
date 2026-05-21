@@ -280,6 +280,17 @@ _NOSE_KOREAN_20S_MEAN: dict[str, dict[str, float]] = {
     },
 }
 
+# ADR-110 보강: 한국 20대 NI 평균 (Bae SS, Lee JH et al. 2023)
+# 출처: "Classification of Nasal Index in Koreans According to Sex",
+#   한국치위생과학회지 (JKDHS) 23(3): 193-200, KCI 등재
+#   https://www.jkdhs.org/journal/view.html?doi=10.17135/jdhs.2023.23.3.193
+# 표본: 한국 20대 100명 (남/녀 각 50명) 3D CBCT 계측
+# 결과: 한국인 76%가 Mesorrhine — 본 시스템 임계값 (70~85) 정합 확증
+_NOSE_KOREAN_20S_NI_MEAN: dict[str, dict[str, float]] = {
+    "male": {"ni_mean": 76.16, "ni_sd": 6.78, "sample_size": 50},
+    "female": {"ni_mean": 77.84, "ni_sd": 7.16, "sample_size": 50},
+}
+
 # 비지수 임계값 (PMC11431719 + 인체측정학 표준 분류)
 _NASAL_INDEX_LEPTORRHINE_MAX = 70.0   # NI < 70 → 좁은 코
 _NASAL_INDEX_PLATYRRHINE_MIN = 85.0   # NI > 85 → 넓은 코
@@ -322,21 +333,45 @@ class NoseShapeResult:
 
 
 # ADR-101: 코 비지수 연령별 팽창 회귀 함수
-# 출처: Kwon et al. 3D 사진측량 (보고서 §4 Table 3, R²=0.720)
+# 출처: Kwon SH, Huh CH et al. (2021) "Three-dimensional photogrammetric study
+#   on age-related facial characteristics in Korean females", Annals of Dermatology
+#   33(1): 52-60. PMID 33911812 / PMC7875215 / DOI 10.5021/ad.2021.33.1.52
+# 표본: 한국 성인 여성 192명 (20-39·40-59·60-79세 3분할, BMI 18.5~24.9)
 # NI_norm = NI_obs - [0.0035 × (age - 25)²]
 # baseline age = 25 (한국 20대 ADR-064 정합)
+#
+# ADR-110 (2026-05-21): 원전 표본 상한 79세 — 80세 이상 외삽 차단.
+# 본 시스템 이전 ADR-101 회귀 식은 age=80 호출 시 외삽 위험
+# (NI 보정 = 0.0035 × (80-25)² = 10.59, 큰 보정량).
+# fix: age > _NOSE_AGE_UPPER_LIMIT 시 79세 baseline cap (외삽 차단).
 _NOSE_AGE_BASELINE = 25
 _NOSE_AGE_COEF = 0.0035
+_NOSE_AGE_UPPER_LIMIT = 79  # Kwon et al. 2021 표본 상한 (ADR-110)
 
 
 def _nose_age_correction(nasal_index_obs: float, age: int) -> float:
-    """코 비지수 age 보정 (ADR-101).
+    """코 비지수 age 보정 (ADR-101 + ADR-110 외삽 가드).
 
-    age < 25는 보정 0 (baseline). age ≥ 25는 2차 함수 감산.
+    Args:
+        nasal_index_obs: 측정 NI (Nasal Width / Nasal Height × 100)
+        age: 사용자 만나이
+
+    Returns:
+        보정된 NI (Mesorrhine 방향 팽창 회귀)
+
+    회귀 식 (Kwon et al. 2021 PMID 33911812 R²=0.720):
+        NI_norm = NI_obs - 0.0035 × (age - 25)²
+
+    구간별 동작:
+        age ≤ 25: 보정 0 (20대 baseline)
+        25 < age ≤ 79: 2차 함수 감산 (원전 실측 표본 범위)
+        age > 79: 79세 cap 적용 — 80세 이상은 원전 표본 부재 (ADR-110)
     """
     if age <= _NOSE_AGE_BASELINE:
         return float(nasal_index_obs)
-    return float(nasal_index_obs) - _NOSE_AGE_COEF * (age - _NOSE_AGE_BASELINE) ** 2
+    # ADR-110: 80세 이상은 79세 baseline cap (외삽 차단)
+    age_effective = min(age, _NOSE_AGE_UPPER_LIMIT)
+    return float(nasal_index_obs) - _NOSE_AGE_COEF * (age_effective - _NOSE_AGE_BASELINE) ** 2
 
 
 def classify_nose_shape(
@@ -354,6 +389,7 @@ def classify_nose_shape(
         age: 사용자 만나이 (옵션, ADR-101 ADR-015 옵션 B 패턴).
             None이면 20대 baseline 가정 (ADR-064 정합).
             입력 시 2차 함수 보정: NI_norm = NI_obs - [0.0035 × (age - 25)²]
+            ADR-110: age > 79 시 79세 cap (Kwon et al. 2021 표본 상한 — 80대 외삽 차단)
         confidence: HIGH / MEDIUM (측정 정밀도)
 
     Returns:
@@ -416,6 +452,25 @@ def get_nose_korean_20s_mean(sex: str) -> dict[str, float] | None:
     if sex not in _NOSE_KOREAN_20S_MEAN:
         return None
     return dict(_NOSE_KOREAN_20S_MEAN[sex])
+
+
+def get_nose_korean_20s_ni_mean(sex: str) -> dict[str, float] | None:
+    """한국 20대 NI 평균 조회 (ADR-110 — Bae SS 2023 KCI).
+
+    Args:
+        sex: 'male' 또는 'female'
+
+    Returns:
+        NI 평균·표준편차·표본크기 dict 또는 None
+
+    Examples:
+        >>> r = get_nose_korean_20s_ni_mean('male')
+        >>> r['ni_mean']
+        76.16
+    """
+    if sex not in _NOSE_KOREAN_20S_NI_MEAN:
+        return None
+    return dict(_NOSE_KOREAN_20S_NI_MEAN[sex])
 
 
 # ─────────────────────────── ADR-099: 턱 하악각 분류 (Phase 2) ───────────────────────────
