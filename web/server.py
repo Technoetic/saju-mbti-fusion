@@ -2264,7 +2264,71 @@ class PersonalityAPIServer:
             except Exception:
                 deterministic_blocks.append("[관상 결정론 — 산출 실패]")
 
-        # ─── star 결정론 (ADR-076, char_key='star' + birth) ───
+        # ─── star compatibility 결정론 (ADR-106, char_key='star' + mySign/partnerSign 단독 OK) ───
+        # 144 별자리 궁합은 birth 없이도 호출 가능 (별자리 직접 입력)
+        if char_key == "star" and content_key == "compatibility":
+            my_sign = (fields.get("mySign") or "").strip()
+            partner_sign = (fields.get("partnerSign") or "").strip()
+            if my_sign and partner_sign:
+                try:
+                    from engine.divination.star.compatibility import compute_compatibility
+                    compat = compute_compatibility(my_sign, partner_sign)
+                    if compat:
+                        deterministic_blocks.append(
+                            "[별자리 144 궁합 결정론 — ADR-106]\n"
+                            f"  · 본인: {compat.sign1_label_ko} ({compat.element1}/{compat.modality1})\n"
+                            f"  · 상대: {compat.sign2_label_ko} ({compat.element2}/{compat.modality2})\n"
+                            f"  · 관계 유형: {compat.element_tone_ko}\n"
+                            f"  · 모달리티 결: {compat.modality_tone_ko}\n"
+                            f"  · element 호환 {compat.element_affinity_score}점 + "
+                            f"modality {compat.modality_affinity_score}점 + 종합 {compat.overall_score}점\n"
+                            f"  · 결혼·이별·연애 성공 단정 X (ADR-006). 흐름 톤으로만 풀이."
+                        )
+                except Exception:
+                    pass
+
+        # ─── star today-zodiac 결정론 (ADR-068, sign 직접 입력) ───
+        if char_key == "star" and content_key == "today-zodiac":
+            sign_key = (fields.get("sign") or "").strip()
+            if sign_key:
+                try:
+                    from datetime import date as _date_today
+                    from engine.divination.star.scoring import sign_by_key, daily_tone_for_sign
+                    sign_obj = sign_by_key(sign_key)
+                    if sign_obj:
+                        tone = daily_tone_for_sign(sign_key, _date_today.today())
+                        deterministic_blocks.append(
+                            "[오늘의 별자리 결정론 — ADR-068]\n"
+                            f"  · 별자리: {sign_obj.label_ko} {sign_obj.symbol}\n"
+                            f"  · 원소: {sign_obj.element} / 양태: {sign_obj.modality}\n"
+                            f"  · 지배 행성: {sign_obj.ruling_planet}\n"
+                            f"  · 오늘 일일 톤: {tone}\n"
+                            f"  · 운명·재물·연애 단정 X (ADR-006)."
+                        )
+                except Exception:
+                    pass
+
+        # ─── star east28 결정론 (ADR-107·112, birth 무관) ───
+        if char_key == "star" and content_key == "east28":
+            try:
+                from datetime import date as _date_28
+                from engine.divination.star.twenty_eight_mansions import (
+                    compute_twenty_eight_mansion_reading,
+                )
+                m_reading = compute_twenty_eight_mansion_reading(_date_28.today())
+                deterministic_blocks.append(
+                    "[동양 28수 결정론 — ADR-107 한국 천상열차분야지도 정통]\n"
+                    f"  · 오늘의 수: {m_reading.mansion_label_ko} ({m_reading.mansion_label_hanja})\n"
+                    f"  · 소속 궁: {m_reading.palace_label_ko} — {m_reading.palace_direction_ko}·{m_reading.palace_season_ko}\n"
+                    f"  · 배속 동물: {m_reading.animal_ko}\n"
+                    f"  · 배속 요일: {m_reading.weekday_ko}\n"
+                    f"  · 흐름 톤: {m_reading.flow_tone_ko}\n"
+                    f"  · 길일·흉일·관혼상제 단정 X (ADR-006). 국보 228호 정통."
+                )
+            except Exception:
+                pass
+
+        # ─── star 결정론 (ADR-068·106·107·112·114, char_key='star' + birth) ───
         wants_star = char_key == "star" and bool(birth_str)
         if wants_star:
             try:
@@ -2281,6 +2345,36 @@ class PersonalityAPIServer:
                     f"  · 일일 톤: {star_result.daily_tone_ko}\n"
                     f"  · 사랑·재물·진로 단정 부재 (love_outcome·career_outcome·money_outcome X — ADR-006)."
                 )
+
+                # ADR-114: Skyfield 빅3 + 하우스 + 트랜짓 (big3·classic·love-stars·transit·saju-star)
+                if content_key in ("big3", "classic", "love-stars", "transit", "saju-star"):
+                    try:
+                        from datetime import datetime as _dt, timezone as _tz
+                        from engine.divination.star.astronomy import (
+                            compute_big_three,
+                            compute_houses_whole_sign,
+                        )
+                        # 출생시간 미입력 → Sun만 fallback
+                        # 본 시스템 birth는 'YYYY-MM-DD' — 시간 미입력. 정오 12:00 UTC 가정 (Sun-only).
+                        dt_utc = _dt.combine(birth_d, _dt.min.time()).replace(hour=12, tzinfo=_tz.utc)
+                        # birthplace 입력 시도 — 본 시스템은 좌표 미입력, 한국 기본 (서울 37.5N, 127.0E) 가정 옵션
+                        # ★ Sun-only fallback 디폴트 (위경도 미입력)
+                        big3 = compute_big_three(dt_utc)
+                        if big3:
+                            lines = [
+                                "[Skyfield 빅3 결정론 — ADR-114 NASA JPL DE440s]",
+                                f"  · 태양 별자리: {big3.sun.sign_label_ko} {big3.sun.degree_in_sign:.1f}°",
+                            ]
+                            if big3.moon:
+                                lines.append(f"  · 달 별자리: {big3.moon.sign_label_ko} {big3.moon.degree_in_sign:.1f}°")
+                            else:
+                                lines.append("  · 달·상승: 출생시간·장소 미입력 — 산출 X (ADR-114 fallback 의무)")
+                            lines.append(
+                                "  · 운명·결혼·이혼·파산·건강 단정 X (Liz Greene·Arroyo 정통)."
+                            )
+                            deterministic_blocks.append("\n".join(lines))
+                    except Exception:
+                        pass
             except Exception:
                 deterministic_blocks.append("[황도대 결정론 — 산출 실패]")
 

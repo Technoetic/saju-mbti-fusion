@@ -42,6 +42,8 @@ COPY web ./web
 COPY front ./front
 # 작명 모듈이 data/hanja/korean_hanja_unihan.json (9,932자) 사용 — ADR-041 도메인 분리
 COPY data ./data
+# ADR-114: Skyfield + JPL DE440s ephemeris (1849-2150년 32MB, star 도메인 빅3·하우스·트랜짓)
+COPY de440s.bsp ./de440s.bsp
 
 # 빌드 컨텍스트에 __pycache__ 잔존 시 정리 (런타임 무용)
 RUN find /app -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true
