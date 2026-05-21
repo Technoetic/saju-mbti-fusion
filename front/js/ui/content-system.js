@@ -555,15 +555,76 @@
   modal.querySelector('.premium-prompt-backdrop').addEventListener('click', close);
   modal.querySelector('[data-action="close"]').addEventListener('click', close);
   modal.querySelector('[data-action="info"]').addEventListener('click', () => {
-  // 사업 결정 영역 — 실 결제 페이지가 생기면 여기 라우팅
-  // 현재는 닫기만 (UI fallback)
+  // 프리미엄 안내 화면 표시 — 기존 모달 닫고 안내 모달로 전환
   close();
+  showPremiumInfo(tier);
   });
   // ESC 키
   const onKey = (ev) => {
   if (ev.key === 'Escape') { close(); document.removeEventListener('keydown', onKey); }
   };
   document.addEventListener('keydown', onKey);
+  }
+
+  /**
+   * 프리미엄 안내 화면 — '프리미엄 안내 보기' 버튼에서 호출.
+   * 본 시스템 프리미엄 콘텐츠 혜택 + 가입 안내 표시.
+   * 실 결제 게이트웨이는 별도 사업 결정 영역.
+   */
+  function showPremiumInfo(tier) {
+  const existing = document.querySelector('.premium-info-modal');
+  if (existing) existing.remove();
+
+  const tierLabel = tier === 'season' ? '시즌 한정' : '프리미엄';
+  const modal = document.createElement('div');
+  modal.className = 'premium-prompt-modal premium-info-modal';
+  modal.setAttribute('role', 'dialog');
+  modal.setAttribute('aria-modal', 'true');
+  modal.setAttribute('aria-label', '프리미엄 안내');
+  modal.innerHTML = `
+  <div class="premium-prompt-backdrop"></div>
+  <div class="premium-prompt-panel premium-info-panel">
+  <div class="premium-prompt-icon">💎</div>
+  <h3 class="premium-prompt-title">${tierLabel} 콘텐츠 안내</h3>
+
+  <div class="premium-info-section">
+  <h4 class="premium-info-h4">${tierLabel} 혜택</h4>
+  <ul class="premium-info-list">
+  <li>14 AI 에이전트 · 30 도메인 심층 풀이</li>
+  <li>사주 · 성명학 · 화패 · 관상 · 손금 · 별빛 · 꿈 7 영역 통합</li>
+  <li>맞춤 입력 (이름 · 한자 · 생년월일 · 관계 · 상황) 정밀 반영</li>
+  <li>결정론 엔진 + LLM 자연어 풀이 결합</li>
+  </ul>
+  </div>
+
+  <div class="premium-info-section">
+  <h4 class="premium-info-h4">결제 안내</h4>
+  <p class="premium-info-body">
+  본 시스템은 현재 베타 운영 중이옵니다.<br>
+  정식 결제 시스템 도입 시 안내드리겠사옵니다.<br>
+  <span class="premium-info-note">문의: technoetic@hotmail.com</span>
+  </p>
+  </div>
+
+  <p class="premium-prompt-disclaimer">
+  ※ 본 풀이는 AI 시스템에 의해 생성된 콘텐츠입니다 (EU AI Act §50).<br>
+  참고용이며 의료·법률·금융 단독 근거가 될 수 없습니다.
+  </p>
+
+  <div class="premium-prompt-actions">
+  <button type="button" class="premium-prompt-close" data-action="close">닫기</button>
+  </div>
+  </div>
+  `;
+  document.body.appendChild(modal);
+
+  const closeFn = () => modal.remove();
+  modal.querySelector('.premium-prompt-backdrop').addEventListener('click', closeFn);
+  modal.querySelector('[data-action="close"]').addEventListener('click', closeFn);
+  const onInfoKey = (ev) => {
+  if (ev.key === 'Escape') { closeFn(); document.removeEventListener('keydown', onInfoKey); }
+  };
+  document.addEventListener('keydown', onInfoKey);
   }
 })();
 
