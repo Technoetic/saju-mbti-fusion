@@ -168,6 +168,25 @@ def _resolve_field_labels(
     return out
 
 
+# 공통 단정 어휘 — 모든 캐릭터(hwapae·face·palm·name·star·saju·dream) 적용
+_COMMON_ASSERTION_REPLACEMENTS = (
+    ("반드시 ", "대개 "),
+    ("확실히 ", "흔히 "),
+    ("100% ", "높은 가능성으로 "),
+    ("절대 ", "거의 "),
+    ("틀림없이 ", "매우 자주 "),
+)
+
+
+def _sanitize_common_assertion_words(text: str) -> str:
+    """모든 캐릭터 공통 단정 어휘 사후 필터링 (ADR-006/094 정신)."""
+    if not text:
+        return text
+    for pat, repl in _COMMON_ASSERTION_REPLACEMENTS:
+        text = text.replace(pat, repl)
+    return text
+
+
 def _sanitize_dream_assertion_words(text: str) -> str:
     """dream 도메인 LLM 응답 사후 필터링 — ADR-094 단정 어휘 차단 강화.
 
@@ -2432,6 +2451,9 @@ class PersonalityAPIServer:
             # 가능형 우회를 자주 사용. 본 필터로 실 응답에서 직접 치환.
             if char_key == "dream":
                 text = _sanitize_dream_assertion_words(text)
+            # ADR-006/094 공통 단정 어휘 사후 필터링 (모든 캐릭터).
+            # 화선 낭자·운학 도사 등 hwapae/face도 system 지시 우회 빈번.
+            text = _sanitize_common_assertion_words(text)
             return {
                 "text": text,
                 "char_key": char_key,
