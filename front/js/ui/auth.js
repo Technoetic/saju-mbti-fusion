@@ -170,6 +170,10 @@ async function submitAuth(modal) {
     updateUserBadge(data.account);
     prefillSajuForm(data.account);
     hideModal(modal);
+    // 프로필 탭이 이미 열려 있으면 즉시 갱신
+    if (window.WHM_TABS && typeof window.WHM_TABS.refreshProfile === 'function') {
+      window.WHM_TABS.refreshProfile();
+    }
   } catch (err) {
     console.error(err);
     setError('네트워크 오류입니다. 잠시 후 다시 시도해 주세요.');
