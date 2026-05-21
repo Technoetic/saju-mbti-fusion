@@ -403,8 +403,10 @@
   return;
   }
 
-  // premium/season: 결제 안내 유지 (사업 결정 영역)
+  // premium/season: 결제 안내 모달 — 사용자 UX 피드백 보장
+  // (사업 결정 영역: 실 결제 게이트웨이는 별도 — 본 모달은 안내만)
   if (tier === 'premium' || tier === 'season') {
+  showPremiumPrompt(contentKey, tier);
   return;
   }
 
@@ -492,6 +494,59 @@
   ctaBtn.textContent = origLabel;
   ctaBtn.disabled = false;
   }
+  }
+
+  /**
+   * premium/season 카드 CTA 클릭 시 결제 안내 모달.
+   * 본 함수는 사용자 UX 피드백 보장 (이전: return만 → 무반응 버그).
+   * 실 결제 게이트웨이는 별도 사업 결정 영역 — 본 모달은 안내만.
+   */
+  function showPremiumPrompt(contentKey, tier) {
+  // 기존 모달 제거 (중복 방지)
+  const existing = document.querySelector('.premium-prompt-modal');
+  if (existing) existing.remove();
+
+  const tierLabel = tier === 'season' ? '시즌 한정' : '프리미엄';
+  const modal = document.createElement('div');
+  modal.className = 'premium-prompt-modal';
+  modal.setAttribute('role', 'dialog');
+  modal.setAttribute('aria-modal', 'true');
+  modal.setAttribute('aria-label', '프리미엄 콘텐츠 안내');
+  modal.innerHTML = `
+  <div class="premium-prompt-backdrop"></div>
+  <div class="premium-prompt-panel">
+  <div class="premium-prompt-icon">💎</div>
+  <h3 class="premium-prompt-title">${tierLabel} 콘텐츠</h3>
+  <p class="premium-prompt-body">
+  본 풀이는 ${tierLabel} 콘텐츠이옵니다.<br>
+  정식 풀이를 받으시려면 프리미엄 가입이 필요합니다.
+  </p>
+  <p class="premium-prompt-disclaimer">
+  ※ 본 풀이는 AI 시스템에 의해 생성된 콘텐츠입니다 (EU AI Act §50).<br>
+  참고용이며 의료·법률·금융 단독 근거가 될 수 없습니다.
+  </p>
+  <div class="premium-prompt-actions">
+  <button type="button" class="premium-prompt-close" data-action="close">닫기</button>
+  <button type="button" class="premium-prompt-cta" data-action="info">프리미엄 안내 보기</button>
+  </div>
+  </div>
+  `;
+  document.body.appendChild(modal);
+
+  // 닫기 이벤트 (백드롭 클릭·닫기 버튼·ESC)
+  const close = () => modal.remove();
+  modal.querySelector('.premium-prompt-backdrop').addEventListener('click', close);
+  modal.querySelector('[data-action="close"]').addEventListener('click', close);
+  modal.querySelector('[data-action="info"]').addEventListener('click', () => {
+  // 사업 결정 영역 — 실 결제 페이지가 생기면 여기 라우팅
+  // 현재는 닫기만 (UI fallback)
+  close();
+  });
+  // ESC 키
+  const onKey = (ev) => {
+  if (ev.key === 'Escape') { close(); document.removeEventListener('keydown', onKey); }
+  };
+  document.addEventListener('keydown', onKey);
   }
 })();
 

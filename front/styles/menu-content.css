@@ -541,3 +541,96 @@
   .content-cta { padding: 11px 26px; font-size: 13.5px; letter-spacing: 3.5px; }
   }
 
+  /* ═══════════════════════════════════════════════════════
+   premium-prompt-modal — ADR-105 후속 fix
+   premium/season 카드 CTA 클릭 시 결제 안내 모달.
+   이전: return만 → 사용자 무반응 버그
+   ═══════════════════════════════════════════════════════ */
+  .premium-prompt-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  }
+  .premium-prompt-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(8, 5, 15, 0.78);
+  backdrop-filter: blur(3px);
+  }
+  .premium-prompt-panel {
+  position: relative;
+  z-index: 1;
+  max-width: 360px;
+  width: calc(100% - 32px);
+  background: linear-gradient(180deg, rgba(36, 24, 50, 0.98), rgba(20, 14, 30, 0.98));
+  border: 1px solid var(--gold);
+  border-radius: 4px;
+  padding: 28px 24px 22px;
+  text-align: center;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.7), 0 0 24px rgba(212, 175, 55, 0.18);
+  }
+  .premium-prompt-icon {
+  font-size: 36px;
+  margin-bottom: 8px;
+  }
+  .premium-prompt-title {
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 20px;
+  letter-spacing: 6px;
+  color: var(--gold-bri);
+  margin: 0 0 14px;
+  font-weight: 700;
+  }
+  .premium-prompt-body {
+  font-size: 14px;
+  line-height: 1.7;
+  color: #ecd9a8;
+  margin: 0 0 14px;
+  letter-spacing: 0.5px;
+  }
+  .premium-prompt-disclaimer {
+  font-size: 11px;
+  line-height: 1.6;
+  color: #a89878;
+  margin: 0 0 18px;
+  border-top: 1px solid rgba(212, 175, 55, 0.18);
+  padding-top: 12px;
+  }
+  .premium-prompt-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  }
+  .premium-prompt-close,
+  .premium-prompt-cta {
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 13px;
+  letter-spacing: 3px;
+  padding: 10px 20px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+  }
+  .premium-prompt-close {
+  background: transparent;
+  color: #a89878;
+  border: 1px solid #5a4830;
+  }
+  .premium-prompt-close:hover {
+  border-color: var(--gold);
+  color: var(--gold-bri);
+  }
+  .premium-prompt-cta {
+  background: linear-gradient(180deg, rgba(50, 38, 18, 0.95), rgba(28, 20, 10, 0.95));
+  color: var(--gold-bri);
+  border: 1px solid var(--gold);
+  font-weight: 600;
+  }
+  .premium-prompt-cta:hover {
+  background: linear-gradient(180deg, rgba(70, 52, 22, 0.95), rgba(40, 28, 14, 0.95));
+  box-shadow: 0 0 12px rgba(212, 175, 55, 0.3);
+  }
+

@@ -44,6 +44,39 @@ except ImportError:
 from engine.saju import SajuCLI
 
 
+# === ADR-094 후속 — dream 응답 단정 어휘 사후 필터링 ===
+# DREAM_SYSTEM 프롬프트가 차단해도 LLM(Gemini Flash Lite)이
+# "길몽으로 해석될 수 있습니다" 같은 가능형 우회 표현 자주 사용.
+# 본 함수로 실 응답을 정정 (학파 분류 라벨로 변환).
+_DREAM_ASSERTION_REPLACEMENTS = (
+    # (pattern, replacement) — 순서 중요 (구체 → 일반)
+    ("길몽으로 해석될 수 있습니다", "길한 결로 읽힐 수 있는 형상입니다"),
+    ("길몽으로 해석됩니다", "길한 결로 읽힙니다"),
+    ("길몽이라 할 수 있습니다", "길한 결로 읽히는 형상입니다"),
+    ("흉몽으로 해석될 수 있습니다", "흉한 결로 읽힐 수 있는 형상입니다"),
+    ("흉몽으로 해석됩니다", "흉한 결로 읽힙니다"),
+    ("길몽입니다", "길한 결로 읽힙니다"),
+    ("흉몽입니다", "흉한 결로 읽힙니다"),
+    ("대길의 꿈", "한국 민간 해몽에서 길조로 분류되는 형상"),
+    ("대흉의 꿈", "한국 민간 해몽에서 주의 결로 분류되는 형상"),
+    ("대길", "한국 민간 분류상 길조"),
+    ("대흉", "한국 민간 분류상 주의 결"),
+)
+
+
+def _sanitize_dream_assertion_words(text: str) -> str:
+    """dream 도메인 LLM 응답 사후 필터링 — ADR-094 단정 어휘 차단 강화.
+
+    DREAM_SYSTEM 프롬프트가 차단하지만 LLM 우회가 빈번 → 직접 치환.
+    학파 분류 라벨(길/흉 polarity)은 유지하되 단정 문장 표현만 가능형으로.
+    """
+    if not text:
+        return text
+    for pattern, replacement in _DREAM_ASSERTION_REPLACEMENTS:
+        text = text.replace(pattern, replacement)
+    return text
+
+
 # === 요청 모델 ===
 
 
@@ -2283,6 +2316,11 @@ class PersonalityAPIServer:
                 ],
             )
             text = resp.choices[0].message.content or ""
+            # ADR-094 강화 — dream 도메인 단정 어휘 사후 필터링.
+            # system 프롬프트가 차단해도 LLM이 "길몽으로 해석될 수 있습니다" 같은
+            # 가능형 우회를 자주 사용. 본 필터로 실 응답에서 직접 치환.
+            if char_key == "dream":
+                text = _sanitize_dream_assertion_words(text)
             return {
                 "text": text,
                 "char_key": char_key,
