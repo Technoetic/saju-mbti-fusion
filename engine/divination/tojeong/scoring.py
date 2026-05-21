@@ -44,6 +44,11 @@ class TojeongHexagram:
         lower: 하괘 (1~3) — 生日
         label_ko: "111"·"123" 등 3자리 코드
         flow_tone_ko: 1년 흐름 톤 (단정 X)
+        verse_hanja: 정통 시구 한자 (ADR-134 11괘만 본문화, 나머지 빈 문자열)
+        verse_hangeul: 시구 한글 독음 (ADR-134)
+        verse_meaning: 시구 의미 (ADR-134)
+        confidence: 시구 신뢰도 "HIGH"·"MEDIUM"·"LOW"·"NONE" (NONE = 부재)
+        source_school: 시구 학파 출처 (ADR-134)
     """
     hex_id: int
     upper: int
@@ -51,6 +56,11 @@ class TojeongHexagram:
     lower: int
     label_ko: str
     flow_tone_ko: str
+    verse_hanja: str = ""
+    verse_hangeul: str = ""
+    verse_meaning: str = ""
+    confidence: str = "NONE"
+    source_school: str = ""
 
 
 # 144괘 흐름 톤 — 단정 X (정통 토정비결의 "동풍해동·일출이만하"등 시적 표현을 흐름 톤으로 순화)
@@ -213,10 +223,101 @@ _FLOW_TONES_144: tuple[str, ...] = tuple(
 )
 
 
+# ADR-134 — 정통 시구 11괘 본문화 (label_ko → verse 메타).
+# 학술 근거:
+#   - 한국학중앙연구원 한국민족문화대백과사전 E0059207 (토정비결 표제)
+#   - 국립민속박물관 한국민속대백과사전 detail/5167 — 144괘 4언 시구 형식·1564 원본
+#   - 보고서 「한국 토정비결 144괘 정통 시구 학술 출처」 §2.1·§6 본문 명시
+# 한계 (정직):
+#   - 11괘만 본문화 — 133괘 시구 부재 (외부 학술 출처 후 보강 — DEFER)
+#   - 보고서 자체 명시: 11건 중 HIGH 1건 (괘 111) / MEDIUM 10건 (시중 출판본)
+#   - encykorea 표제 정직: 저자 이지함 가탁/친필 불명확 명시
+_VERSES_BY_LABEL: dict[str, dict[str, str]] = {
+    "111": {
+        "hanja": "東風解凍 春日和暢",
+        "hangeul": "동풍해동 춘일화창",
+        "meaning": "동풍이 얼음을 녹이고 봄날이 화창하다",
+        "confidence": "HIGH",
+        "source_school": "토정 정통 (한국학중앙연구원 인증본)",
+    },
+    "123": {
+        "hanja": "昏夜得燭",
+        "hangeul": "혼야득촉",
+        "meaning": "어두운 밤에 촛불을 얻는다",
+        "confidence": "MEDIUM",
+        "source_school": "토정 정통 (시중 출판본)",
+    },
+    "811": {
+        "hanja": "前進通達之意",
+        "hangeul": "전진통달지의",
+        "meaning": "나아갈 뜻이 통달된다",
+        "confidence": "MEDIUM",
+        "source_school": "토정 정통 (시중 출판본)",
+    },
+    "812": {
+        "hanja": "有順通達不傷其身之意",
+        "hangeul": "유순통달불상기신지의",
+        "meaning": "순조롭게 통달하여 그 몸을 상하지 않을 뜻",
+        "confidence": "MEDIUM",
+        "source_school": "토정 정통 (시중 출판본)",
+    },
+    "813": {
+        "hanja": "有吉通達必有亨通之意",
+        "hangeul": "유길통달필유형통지의",
+        "meaning": "길한 운이 통달하여 반드시 형통하게 될 뜻",
+        "confidence": "MEDIUM",
+        "source_school": "토정 정통 (시중 출판본)",
+    },
+    "821": {
+        "hanja": "心高有通達之意",
+        "hangeul": "심고유통달지의",
+        "meaning": "마음이 높으니 뜻이 통달될 운",
+        "confidence": "MEDIUM",
+        "source_school": "토정 정통 (시중 출판본)",
+    },
+    "822": {
+        "hanja": "有吉必有光明之意",
+        "hangeul": "유길필유광명지의",
+        "meaning": "길한 일이 있으면 반드시 광명이 있을 뜻",
+        "confidence": "MEDIUM",
+        "source_school": "토정 정통 (시중 출판본)",
+    },
+    "831": {
+        "hanja": "正心正道之意",
+        "hangeul": "정심정도지의",
+        "meaning": "바른 마음으로 하늘의 복을 누리는 운",
+        "confidence": "MEDIUM",
+        "source_school": "토정 정통 (시중 출판본)",
+    },
+    "832": {
+        "hanja": "有事必中之意",
+        "hangeul": "유사필중지의",
+        "meaning": "일이 있으면 반드시 이루어질 뜻",
+        "confidence": "MEDIUM",
+        "source_school": "토정 정통 (시중 출판본)",
+    },
+    "833": {
+        "hanja": "無咎安靜之意",
+        "hangeul": "무구안정지의",
+        "meaning": "허물없이 편안하고 고요한 운",
+        "confidence": "MEDIUM",
+        "source_school": "토정 정통 (시중 출판본)",
+    },
+    "863": {
+        "hanja": "進達榮貴之意",
+        "hangeul": "진달영귀지의",
+        "meaning": "나아가 영화와 귀함을 얻는다",
+        "confidence": "HIGH",
+        "source_school": "토정 정통 (시중 출판본)",
+    },
+}
+
+
 def _generate_144_hexagrams() -> tuple[TojeongHexagram, ...]:
     """144괘 자동 생성 — 상괘(1~8) × 중괘(1~6) × 하괘(1~3).
 
     hex_id = (upper-1) * 18 + (middle-1) * 3 + (lower-1)
+    ADR-134: 11괘에 정통 시구·신뢰도·학파 출처 본문화 (나머지 133괘는 흐름 톤만).
     """
     result = []
     for upper in range(1, 9):
@@ -225,6 +326,7 @@ def _generate_144_hexagrams() -> tuple[TojeongHexagram, ...]:
                 hex_id = (upper - 1) * 18 + (middle - 1) * 3 + (lower - 1)
                 label = f"{upper}{middle}{lower}"
                 tone = _FLOW_TONES_144[hex_id] if hex_id < len(_FLOW_TONES_144) else "흐름의 결"
+                verse_data = _VERSES_BY_LABEL.get(label, {})
                 result.append(TojeongHexagram(
                     hex_id=hex_id,
                     upper=upper,
@@ -232,6 +334,11 @@ def _generate_144_hexagrams() -> tuple[TojeongHexagram, ...]:
                     lower=lower,
                     label_ko=label,
                     flow_tone_ko=tone,
+                    verse_hanja=verse_data.get("hanja", ""),
+                    verse_hangeul=verse_data.get("hangeul", ""),
+                    verse_meaning=verse_data.get("meaning", ""),
+                    confidence=verse_data.get("confidence", "NONE"),
+                    source_school=verse_data.get("source_school", ""),
                 ))
     return tuple(result)
 

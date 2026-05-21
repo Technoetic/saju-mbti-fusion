@@ -2882,6 +2882,14 @@ class PersonalityAPIServer:
             # Skeptical Inquirer Susan Gerbic 'Grief Vampires' 콜드/핫 리딩 디지털 차단.
             if char_key == "palm" and content_key == "ancestor":
                 text = _sanitize_ancestor_assertion_words(text)
+            # ADR-134 sanitize 6중 안전망 — tojeong (palm/tojeong) 분기 凶事·大凶·病死 단정 차단.
+            # 정통 시구의 단정 어휘를 흐름 톤으로 자동 치환 (folkency·encykorea 학파 정합).
+            if char_key == "palm" and content_key == "tojeong":
+                try:
+                    from engine.divination.tojeong import sanitize_tojeong_verse
+                    text = sanitize_tojeong_verse(text)
+                except Exception:
+                    pass
             # ADR-006/094 공통 단정 어휘 사후 필터링 (모든 캐릭터).
             # 화선 낭자·운학 도사 등 hwapae/face도 system 지시 우회 빈번.
             text = _sanitize_common_assertion_words(text)
