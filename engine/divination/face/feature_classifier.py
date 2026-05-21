@@ -321,17 +321,39 @@ class NoseShapeResult:
     disclaimer: str
 
 
+# ADR-101: 코 비지수 연령별 팽창 회귀 함수
+# 출처: Kwon et al. 3D 사진측량 (보고서 §4 Table 3, R²=0.720)
+# NI_norm = NI_obs - [0.0035 × (age - 25)²]
+# baseline age = 25 (한국 20대 ADR-064 정합)
+_NOSE_AGE_BASELINE = 25
+_NOSE_AGE_COEF = 0.0035
+
+
+def _nose_age_correction(nasal_index_obs: float, age: int) -> float:
+    """코 비지수 age 보정 (ADR-101).
+
+    age < 25는 보정 0 (baseline). age ≥ 25는 2차 함수 감산.
+    """
+    if age <= _NOSE_AGE_BASELINE:
+        return float(nasal_index_obs)
+    return float(nasal_index_obs) - _NOSE_AGE_COEF * (age - _NOSE_AGE_BASELINE) ** 2
+
+
 def classify_nose_shape(
     nasal_width_mm: float,
     nasal_height_mm: float,
+    age: int | None = None,
     *,
     confidence: str = "HIGH",
 ) -> NoseShapeResult | None:
-    """코 비지수 기반 형태 분류 (Phase 2, ADR-064).
+    """코 비지수 기반 형태 분류 (Phase 2, ADR-064 + ADR-101 age 정규화).
 
     Args:
         nasal_width_mm: 콧방울 너비 (AL-AL) 밀리미터
         nasal_height_mm: 코 길이 (N-SN) 밀리미터
+        age: 사용자 만나이 (옵션, ADR-101 ADR-015 옵션 B 패턴).
+            None이면 20대 baseline 가정 (ADR-064 정합).
+            입력 시 2차 함수 보정: NI_norm = NI_obs - [0.0035 × (age - 25)²]
         confidence: HIGH / MEDIUM (측정 정밀도)
 
     Returns:
@@ -344,24 +366,36 @@ def classify_nose_shape(
         >>> r = classify_nose_shape(45.0, 48.0)  # 45/48*100=93.75 → >85
         >>> r.shape_type
         '넓은 코'
+        >>> # 50대 사용자, 콜라겐 팽창 보정 (ADR-101)
+        >>> r = classify_nose_shape(45.0, 48.0, age=50)
+        >>> # NI_obs=93.75, age 50 → NI_norm=93.75 - 0.0035×625=91.56 → 여전히 Platyrrhine
+        >>> r.shape_type
+        '넓은 코'
     """
     if not isinstance(nasal_width_mm, (int, float)) or not isinstance(nasal_height_mm, (int, float)):
         return None
     if nasal_width_mm <= 0 or nasal_height_mm <= 0:
         return None
+    if age is not None and (not isinstance(age, int) or age < 0 or age > 120):
+        return None
 
-    nasal_index = (nasal_width_mm / nasal_height_mm) * 100.0
+    nasal_index_obs = (nasal_width_mm / nasal_height_mm) * 100.0
+    # ADR-101 age 보정 (age=None이면 그대로)
+    if age is not None:
+        nasal_index_eff = _nose_age_correction(nasal_index_obs, age)
+    else:
+        nasal_index_eff = nasal_index_obs
 
-    if nasal_index < _NASAL_INDEX_LEPTORRHINE_MAX:
+    if nasal_index_eff < _NASAL_INDEX_LEPTORRHINE_MAX:
         shape = NOSE_LEPTORRHINE
-    elif nasal_index > _NASAL_INDEX_PLATYRRHINE_MIN:
+    elif nasal_index_eff > _NASAL_INDEX_PLATYRRHINE_MIN:
         shape = NOSE_PLATYRRHINE
     else:
         shape = NOSE_MESORRHINE
 
     return NoseShapeResult(
         shape_type=shape,
-        nasal_index=round(nasal_index, 2),
+        nasal_index=round(nasal_index_eff, 2),
         nasal_width_mm=float(nasal_width_mm),
         nasal_height_mm=float(nasal_height_mm),
         confidence=confidence,
@@ -518,3 +552,205 @@ def get_jaw_korean_mean(sample: str = "normal_korean") -> dict[str, float] | Non
     if sample not in _JAW_KOREAN_MEAN:
         return None
     return dict(_JAW_KOREAN_MEAN[sample])
+
+
+# ═════════════════════════════════════════════════════════════════════════════
+# ADR-101 — 눈 검열 폭(PFW)·높이(PFH) + 상안검 거상연 거리(MRD1) 연령 정규화
+#
+# 출처 (Phase 1 라이브 검증 100%):
+#   - KoreaMed 2119636 (Song 1999, n=498) — 한국 20대 PFW 27.0±1.8 mm
+#   - PMC6786987 (2019, n=7569) — KDC+Ansan-Ansung 연령별 PFW/PFH
+#   - PMC6976759 (2020, n=320 EEA) — 회귀 R²=0.807
+#   - Synapse KoreaMed 1098729 — 한국 380안 MRD1 연령별 3.23/3.33/2.42 mm, R²=0.850
+#
+# ADR-006 강화: age 보정으로 콜라겐 손실·노인성 안검하수를 형태 단정으로
+# 오분류하는 위험 차단.
+# ADR-015 옵션 B: age=None 디폴트 (옵션 A 정합) + age 입력 시 보정.
+# ═════════════════════════════════════════════════════════════════════════════
+
+# 눈 검열 폭(PFW)·높이(PFH) — 한국 20대 baseline (KoreaMed 2119636 + PMC6786987)
+_EYE_PFW_BASELINE_MM = 27.0      # 20대 평균
+_EYE_PFW_SD_MM = 1.8
+_EYE_PFH_BASELINE_MM = 9.0       # 20대 평균 (8.0~9.9 정상 범위 중간값)
+_EYE_PFH_SD_MM = 0.9
+
+# 분류 임계값 (정상 ±1SD 영역 = 보통 눈)
+_EYE_SMALL_PFW_MAX = _EYE_PFW_BASELINE_MM - _EYE_PFW_SD_MM   # 25.2 mm 미만
+_EYE_LARGE_PFW_MIN = _EYE_PFW_BASELINE_MM + _EYE_PFW_SD_MM   # 28.8 mm 초과
+
+# 노화 선형 보정 계수 (PMC6786987 한국 7,569명 회귀 R²=0.807)
+# PFH는 40대 이후 매년 -0.06 mm 감소 (보고서 §2.1 회귀식)
+_EYE_PFH_AGE_THRESHOLD = 40
+_EYE_PFH_AGE_COEF = 0.06         # mm/year, 40세 이후
+
+EYE_SMALL = "작은 눈"
+EYE_MEDIUM = "보통 눈"
+EYE_LARGE = "큰 눈"
+
+
+# MRD1 (Margin Reflex Distance 1) — 한국 380안 (Synapse KoreaMed 1098729)
+_MRD1_BASELINE_20_40 = 3.23      # 20-40세 평균 (mm)
+_MRD1_AGE_THRESHOLD_LOWER = 55   # 보정 시작 (계단형 보간)
+_MRD1_AGE_THRESHOLD_UPPER = 60   # 풀 보정 (+0.90 mm)
+_MRD1_AGE_DELTA_MAX = 0.90       # 60세 이상 가산 (mm)
+
+
+_EYE_SOURCE_URLS: tuple[str, ...] = (
+    "https://koreamed.org/article/2119636",
+    "https://pmc.ncbi.nlm.nih.gov/articles/PMC6786987/",
+    "https://pmc.ncbi.nlm.nih.gov/articles/PMC6976759/",
+    "https://synapse.koreamed.org/articles/1098729",
+)
+
+_EYE_DISCLAIMER = (
+    "본 분류는 안면 인체계측 결과로, 운명·길흉·관운 인과 매핑 X. "
+    "한국 표본 PFW 498~7569명·MRD1 380안 (KoreaMed·Synapse) 기반. "
+    "age 보정은 평균 회귀 — 개인차 자연 변동 명시 (ADR-101). "
+    "안검하수·노인성 안검이완 등 의료 진단 영역 X (ADR-006)."
+)
+
+
+@dataclass(frozen=True)
+class EyeSizeResult:
+    """눈 검열 폭·높이 분류 결과 (ADR-101).
+
+    Attributes:
+        size_type: "작은 눈" / "보통 눈" / "큰 눈"
+        pfw_mm: 입력 PFW (mm)
+        pfh_mm: 입력 PFH (mm)
+        pfw_age_corrected: age 보정 후 PFW (age=None이면 None)
+        pfh_age_corrected: age 보정 후 PFH (age=None이면 None)
+        age: 사용자 만나이 (None or int)
+        confidence: HIGH (3D CBCT·정량) / MEDIUM (2D 사진 추정)
+        source_urls: 출처 URL 풀
+        disclaimer: ADR-006 면책
+    """
+    size_type: str
+    pfw_mm: float
+    pfh_mm: float
+    pfw_age_corrected: float | None
+    pfh_age_corrected: float | None
+    age: int | None
+    confidence: str
+    source_urls: tuple[str, ...]
+    disclaimer: str
+
+
+def _eye_pfh_age_correction(pfh_obs_mm: float, age: int) -> float:
+    """PFH 연령 선형 보정 (40세 이상 매년 -0.06 mm, baseline 복원).
+
+    PMC6786987 한국 7,569명 회귀 (보고서 §2.1, R²=0.807).
+    age < 40: 보정 0 (baseline).
+    age ≥ 40: 손실분 가산 → baseline 복원값 반환.
+    """
+    if age < _EYE_PFH_AGE_THRESHOLD:
+        return float(pfh_obs_mm)
+    loss = _EYE_PFH_AGE_COEF * (age - _EYE_PFH_AGE_THRESHOLD)
+    return float(pfh_obs_mm) + loss
+
+
+def mrd1_normalize(mrd1_obs_mm: float, age: int | None = None) -> float:
+    """MRD1 연령 정규화 — 계단형 비선형 보정 (ADR-101).
+
+    출처: Synapse KoreaMed 1098729 (한국 380안, R²=0.850).
+    20-40세: 3.23 / 40-60세: 3.33 (정체기) / 60+세: 2.42 mm
+
+    계단형 모델:
+    - age=None or age<55: 보정 0 (pass-through)
+    - 55 ≤ age < 60: 선형 보간 (0 → +0.90 mm)
+    - age ≥ 60: +0.90 mm 가산 (노인성 안검하수 보상)
+
+    Args:
+        mrd1_obs_mm: 관측 MRD1 (mm)
+        age: 사용자 만나이 (옵션)
+
+    Returns:
+        20대 baseline 복원 MRD1 값 (mm). age=None이면 입력값 그대로.
+    """
+    if not isinstance(mrd1_obs_mm, (int, float)):
+        return float(mrd1_obs_mm) if isinstance(mrd1_obs_mm, (int, float)) else 0.0
+    if age is None:
+        return float(mrd1_obs_mm)
+    if not isinstance(age, int) or age < 0:
+        return float(mrd1_obs_mm)
+
+    if age < _MRD1_AGE_THRESHOLD_LOWER:
+        return float(mrd1_obs_mm)
+    if age >= _MRD1_AGE_THRESHOLD_UPPER:
+        return float(mrd1_obs_mm) + _MRD1_AGE_DELTA_MAX
+    # 55 ≤ age < 60: 선형 보간
+    ratio = (age - _MRD1_AGE_THRESHOLD_LOWER) / (
+        _MRD1_AGE_THRESHOLD_UPPER - _MRD1_AGE_THRESHOLD_LOWER
+    )
+    return float(mrd1_obs_mm) + _MRD1_AGE_DELTA_MAX * ratio
+
+
+def classify_eye_size(
+    pfw_mm: float,
+    pfh_mm: float,
+    age: int | None = None,
+    *,
+    confidence: str = "HIGH",
+) -> EyeSizeResult | None:
+    """눈 검열 폭(PFW)·높이(PFH) 기반 형태 분류 + 연령 보정 (ADR-101).
+
+    Args:
+        pfw_mm: 검열 폭 (palpebral fissure width, mm)
+        pfh_mm: 검열 높이 (palpebral fissure height, mm)
+        age: 만나이 (옵션, ADR-015 옵션 B).
+            None이면 20대 baseline 가정 (분류만).
+            age ≥ 40 시 PFH 선형 보정 적용.
+        confidence: HIGH (3D CBCT 측정) / MEDIUM (2D 사진 추정)
+
+    Returns:
+        EyeSizeResult 또는 None (입력 부정합).
+
+    Examples:
+        >>> r = classify_eye_size(27.0, 9.0)
+        >>> r.size_type
+        '보통 눈'
+        >>> r = classify_eye_size(24.0, 8.0)  # PFW < 25.2 → 작은 눈
+        >>> r.size_type
+        '작은 눈'
+        >>> r = classify_eye_size(29.5, 10.0)  # PFW > 28.8 → 큰 눈
+        >>> r.size_type
+        '큰 눈'
+        >>> # 50대 사용자 — PFH 노화 -0.6 mm 보정
+        >>> r = classify_eye_size(27.0, 8.4, age=50)
+        >>> r.pfh_age_corrected  # 8.4 + 0.06*10 = 9.0
+        9.0
+    """
+    if not isinstance(pfw_mm, (int, float)) or not isinstance(pfh_mm, (int, float)):
+        return None
+    if pfw_mm <= 0 or pfh_mm <= 0:
+        return None
+    if age is not None and (not isinstance(age, int) or age < 0 or age > 120):
+        return None
+
+    pfw_corrected: float | None = None
+    pfh_corrected: float | None = None
+    if age is not None:
+        pfw_corrected = float(pfw_mm)  # PFW 연령 선형 변화는 보고서상 미미 (불변 가정)
+        pfh_corrected = round(_eye_pfh_age_correction(float(pfh_mm), age), 2)
+
+    # 분류는 PFW 기준 (age 보정 후값 우선, 없으면 raw)
+    pfw_for_class = pfw_corrected if pfw_corrected is not None else float(pfw_mm)
+
+    if pfw_for_class < _EYE_SMALL_PFW_MAX:
+        size = EYE_SMALL
+    elif pfw_for_class > _EYE_LARGE_PFW_MIN:
+        size = EYE_LARGE
+    else:
+        size = EYE_MEDIUM
+
+    return EyeSizeResult(
+        size_type=size,
+        pfw_mm=float(pfw_mm),
+        pfh_mm=float(pfh_mm),
+        pfw_age_corrected=pfw_corrected,
+        pfh_age_corrected=pfh_corrected,
+        age=age,
+        confidence=confidence,
+        source_urls=_EYE_SOURCE_URLS,
+        disclaimer=_EYE_DISCLAIMER,
+    )
