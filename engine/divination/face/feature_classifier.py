@@ -382,3 +382,139 @@ def get_nose_korean_20s_mean(sex: str) -> dict[str, float] | None:
     if sex not in _NOSE_KOREAN_20S_MEAN:
         return None
     return dict(_NOSE_KOREAN_20S_MEAN[sex])
+
+
+# ─────────────────────────── ADR-099: 턱 하악각 분류 (Phase 2) ───────────────────────────
+# 출처: PMC4738126 (한국 106명 3D CBCT) + PMC11417696 (taiwanese 100명) + KCI 차인호 한국 117명.
+# 본 시스템 ADR-064 코 분류 동일 정신 — 운명 매핑 X (ADR-006).
+
+# 하악각 (Gonial Angle) 카테고리 — 인체계측학 정상 범위 (120~140°)
+JAW_SQUARE = "사각형 턱"          # 강한 교근 비후, 하악각 < 124°
+JAW_OVAL = "계란형 턱"            # 균형, 125~132°
+JAW_POINTED = "뾰족형 턱"         # 하방 뾰족, > 132°
+JAW_ROUND = "둥근형 턱"           # 둥근 윤곽, 계란 범위 + 하악체 짧음
+
+# 정상 범위 (인체계측학 정상 변동) — 외부 값은 측정 오류 또는 병리 가능성
+_JAW_NORMAL_MIN_DEG = 100.0
+_JAW_NORMAL_MAX_DEG = 150.0
+
+# 4분류 경계 (PMC4738126·PMC11417696·차인호 한국 117명 정합)
+_JAW_SQUARE_MAX = 124.0
+_JAW_OVAL_MIN = 125.0
+_JAW_OVAL_MAX = 132.0
+_JAW_POINTED_MIN = 133.0
+
+_JAW_KOREAN_MEAN: dict[str, dict[str, float]] = {
+    # PMC4738126 한국 106명 (사각턱 환자군) 3D CBCT
+    "patient_3d_cbct": {
+        "right_mean": 134.37, "right_sd": 8.44,
+        "left_mean": 131.54, "left_sd": 7.14,
+        "n": 106,
+    },
+    # KCI 차인호 (한국 117명, 정상교합)
+    "normal_korean": {
+        "mean": 128.71, "sd": 3.87, "n": 117,
+    },
+}
+
+_JAW_SOURCE_URLS: tuple[str, ...] = (
+    "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4738126/",   # 한국 106명 3D CBCT
+    "https://pmc.ncbi.nlm.nih.gov/articles/PMC11417696/",      # taiwanese 100명 사각턱
+)
+
+_JAW_DISCLAIMER = (
+    "본 분류는 안면 골격 형태학적 측정 결과로, 운명·길흉·관운 인과 매핑 X. "
+    "한국 표본 PMC4738126(106명 3D CBCT) + KCI 차인호(117명 정상교합) 기반. "
+    "사상체질·태음인 인용 X (ADR-006 정신). "
+    "선천성 안면 기형·증후군(KBG·SRD5A2·MBTPS1·CDKN2A) 의료 진단 영역 X."
+)
+
+
+@dataclass(frozen=True)
+class JawShapeResult:
+    """턱 하악각 분류 결과 (ADR-099).
+
+    Attributes:
+        shape_type: 분류명 (사각형·계란형·뾰족형·둥근형)
+        gonial_angle_deg: 입력 하악각 (도)
+        gonial_angle_side: 측정 측면 (right·left·avg)
+        confidence: HIGH (3D CBCT) / MEDIUM (2D 사진계측)
+        source_urls: 출처 URL 풀
+        disclaimer: ADR-006 면책 텍스트
+    """
+    shape_type: str
+    gonial_angle_deg: float
+    gonial_angle_side: str
+    confidence: str
+    source_urls: tuple[str, ...]
+    disclaimer: str
+
+
+def classify_jaw_shape(
+    gonial_angle_deg: float,
+    *,
+    side: str = "avg",
+    confidence: str = "HIGH",
+) -> JawShapeResult | None:
+    """하악각 기반 턱 형태 4분류 (ADR-099).
+
+    Args:
+        gonial_angle_deg: 하악각 (도, gonial angle)
+        side: 측정 측면 ('right'·'left'·'avg')
+        confidence: HIGH (3D CBCT) / MEDIUM (2D 사진)
+
+    Returns:
+        JawShapeResult — 사각·계란·뾰족·둥근 중 하나.
+        입력 부정합 또는 정상 범위 외 (100~150° 밖) 시 None (의료 진단 영역 차단).
+
+    Examples:
+        >>> r = classify_jaw_shape(120.0)
+        >>> r.shape_type
+        '사각형 턱'
+        >>> r = classify_jaw_shape(128.0)
+        >>> r.shape_type
+        '계란형 턱'
+        >>> r = classify_jaw_shape(135.0)
+        >>> r.shape_type
+        '뾰족형 턱'
+        >>> classify_jaw_shape(95.0)  # 정상 범위 외 → None
+    """
+    if not isinstance(gonial_angle_deg, (int, float)):
+        return None
+    angle = float(gonial_angle_deg)
+    # 정상 인체계측 범위 외 → 측정 오류 또는 병리 (의료 진단 영역, ADR-006)
+    if angle < _JAW_NORMAL_MIN_DEG or angle > _JAW_NORMAL_MAX_DEG:
+        return None
+    if side not in ("right", "left", "avg"):
+        side = "avg"
+
+    if angle <= _JAW_SQUARE_MAX:
+        shape = JAW_SQUARE
+    elif angle >= _JAW_POINTED_MIN:
+        shape = JAW_POINTED
+    else:
+        # 계란 범위 (125~132°) — 둥근형은 별도 하안면부 비율 데이터 필요 (별도 ADR)
+        shape = JAW_OVAL
+
+    return JawShapeResult(
+        shape_type=shape,
+        gonial_angle_deg=round(angle, 2),
+        gonial_angle_side=side,
+        confidence=confidence,
+        source_urls=_JAW_SOURCE_URLS,
+        disclaimer=_JAW_DISCLAIMER,
+    )
+
+
+def get_jaw_korean_mean(sample: str = "normal_korean") -> dict[str, float] | None:
+    """한국 표본 하악각 평균 조회 (ADR-099).
+
+    Args:
+        sample: 'normal_korean' (KCI 차인호 117명) 또는 'patient_3d_cbct' (PMC4738126)
+
+    Returns:
+        평균·표준편차·표본크기 dict 또는 None
+    """
+    if sample not in _JAW_KOREAN_MEAN:
+        return None
+    return dict(_JAW_KOREAN_MEAN[sample])
