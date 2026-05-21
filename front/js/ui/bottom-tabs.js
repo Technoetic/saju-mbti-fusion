@@ -200,4 +200,4 @@ if (document.readyState === 'loading') {
   init();
 }
 
-window.WHM_TABS = { activate: activateTab };
+window.WHM_TABS = { activate: activateTab, refreshProfile: refreshProfileView };

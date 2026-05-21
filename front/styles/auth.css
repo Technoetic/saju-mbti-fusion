@@ -213,13 +213,15 @@
 /* 로그인 모드일 때 가입 전용 필드 숨김 */
 .auth-modal[data-mode="login"] .auth-only-signup { display: none; }
 
-/* 우상단 사용자 배지 */
+/* 우상단 사용자 배지 — 사용자 요청으로 제거 (프로필 탭에서 관리) */
 .user-badge {
+  display: none !important;
+}
+.user-badge-disabled-block {
   position: fixed;
   top: 14px;
   right: 14px;
   z-index: 200;
-  display: flex;
   gap: 8px;
   align-items: center;
   background: rgba(10, 15, 30, 0.7);
