@@ -339,6 +339,59 @@ def _sanitize_dream_assertion_words(text: str) -> str:
     return text
 
 
+# ADR-122 sanitize 5중 안전망 — ancestor (조상 메시지) 단정·빙의·접신 차단
+# 학술 근거: 한국학중앙연구원·국립민속박물관·이능화 1927·Skeptical Inquirer
+# Susan Gerbic 'Grief Vampires' 콜드/핫 리딩 비판
+_ANCESTOR_FORBIDDEN_REPLACEMENTS: list[tuple[str, str]] = [
+    # 접신·빙의 어휘 (11건 — 보고서 §3.3 + YAML permanently_forbidden 정합)
+    ("빙의된", "보살핌이 깃든"),
+    ("빙의", "선대의 보살핌"),
+    ("접신한", "정성스러운"),
+    ("접신", "선대 추모"),
+    ("신내림을 받은", "정성스러운"),
+    ("신내림", "선대 추모의 결"),
+    ("영안이 트인", "지혜로운"),
+    ("영안", "혜안"),
+    ("망자의 목소리", "선대의 결"),
+    ("영혼의 대화", "추모의 결"),
+    ("저승사자", "사후 의례의 결"),
+    ("환생하신", "선대로 이어진"),
+    ("환생", "이어지는 결"),
+    ("채널링", "추모의 결"),
+    # 1인칭 망자 빙의 화법 (§3.3 명시 단정 화법 차단)
+    ("내가 너를 늘 지켜보고 있다", "선대의 결이 따뜻하게 비추는 흐름"),
+    ("네 할아버지가 지금 내게 말하기를", "선대로부터 이어져 온 인연의 결이"),
+    ("네 할머니가 지금 내게 말하기를", "선대로부터 이어져 온 인연의 결이"),
+    ("네 뒤에 영혼이 서 있다", "선대의 보이지 않는 보살핌이 함께하는 흐름"),
+    ("억울하게 물에 빠져 죽은 조상", "선대의 결"),
+    ("억울하게 돌아가신 조상이 크게 노했다", "선대의 추모를 다하는 정성이 필요한 흐름"),
+    # 사망 원인·윤회·업보 단정 차단
+    ("위장병으로 고통받다 돌아가신 조상의 원한", "선대를 추모하는 정성의 흐름"),
+    ("전생에 지은 씻을 수 없는 업보", "현재를 보살피는 결"),
+    ("전생의 업보", "현재의 결"),
+    ("지옥불에 떨어진 영혼의 외침", "선대 추모의 정서"),
+    ("지옥", "사후 의례의 결"),
+]
+
+
+def _sanitize_ancestor_assertion_words(text: str) -> str:
+    """ancestor 도메인 LLM 응답 사후 필터링 — ADR-122 sanitize 5중 안전망.
+
+    학술 근거 (한국학중앙연구원·국립민속박물관·이능화 1927·Skeptical Inquirer):
+      - 접신·빙의·신내림·영안·채널링 어휘 차단 (11건)
+      - 망자 1인칭 빙의 화법 차단 (예: "내가 너를 늘 지켜보고 있다")
+      - 사망 원인·윤회·업보 단정 차단
+
+    Grief Vampire 위험 (Susan Gerbic 콜드/핫 리딩 비판) 자동 격리.
+    LLM(Gemini Flash Lite) 우회 빈번 → 직접 치환.
+    """
+    if not text:
+        return text
+    for pattern, replacement in _ANCESTOR_FORBIDDEN_REPLACEMENTS:
+        text = text.replace(pattern, replacement)
+    return text
+
+
 # === 요청 모델 ===
 
 
@@ -2426,6 +2479,49 @@ class PersonalityAPIServer:
             except Exception:
                 pass
 
+        # ─── ADR-122·123·124 조상 메시지 (palm/ancestor content_key + birth) ───
+        # 천살 방위 (ADR-122) + 어휘 풀·흐름 톤 (ADR-123) + 4 권역 위령 의례 (ADR-124).
+        # 한국 무속 정통 학파 (이능화 1927·한국학중앙연구원·국립민속박물관) 정합.
+        # 자문 거절 정신: 망자 1인칭 빙의 화법·접신 어휘 절대 금지 (sanitize 5중).
+        if char_key == "palm" and content_key == "ancestor":
+            try:
+                from engine.divination.ancestor import (
+                    build_ancestor_prompt_injection,
+                    get_cheonsal_direction,
+                )
+                ancestor_block_lines = [
+                    "[조상 메시지 결정론 — ADR-122·123·124 정통 학파 정합]"
+                ]
+                # 천살 방위 (출생 연도 지지 → 풍수 방위)
+                if birth_str:
+                    try:
+                        from datetime import date as _date_anc
+                        from engine.saju.pillars import compute_pillars
+                        birth_d_anc = _date_anc.fromisoformat(birth_str)
+                        pillars_anc = compute_pillars(
+                            birth_d_anc.year, birth_d_anc.month, birth_d_anc.day, 12
+                        )
+                        year_ji = pillars_anc.get("year", {}).get("ji_han", "") if isinstance(pillars_anc, dict) else ""
+                        if year_ji:
+                            cheonsal = get_cheonsal_direction(year_ji)
+                            ancestor_block_lines.append(
+                                f"  · 천살(天殺) 방위: {cheonsal['cheonsal_ji']} "
+                                f"({cheonsal['direction_ko']}, {cheonsal['direction_degree']}도) "
+                                f"— 삼합 {cheonsal['samhap']} 기준 정통 사주명리 십이신살."
+                            )
+                            ancestor_block_lines.append(
+                                "  · 전통 제례 헌작·조상 묘 방위 안내용 결정론 산출 "
+                                "(메트로신문 김상회 칼럼·정통 사주명리)."
+                            )
+                    except Exception:
+                        pass
+                # 어휘 풀 + 흐름 톤 + 금지 어휘 LLM 시스템 프롬프트 주입
+                ancestor_block_lines.append("")
+                ancestor_block_lines.append(build_ancestor_prompt_injection())
+                deterministic_blocks.append("\n".join(ancestor_block_lines))
+            except Exception:
+                pass
+
         # ─── face 결정론 (ADR-075·082, char_key='face') ───
         # ADR-082: imageB64 입력 시 Phase 2 → generate_face_reading Vision 호출
         # ADR-075: 사진 미입력 시 4 학파 + 삼정 + 12궁 메타만 인용
@@ -2781,6 +2877,11 @@ class PersonalityAPIServer:
             # 가능형 우회를 자주 사용. 본 필터로 실 응답에서 직접 치환.
             if char_key == "dream":
                 text = _sanitize_dream_assertion_words(text)
+            # ADR-122 sanitize 5중 안전망 — ancestor (palm/ancestor) 분기 망자 1인칭·빙의·접신 차단.
+            # 한국 무속 정통 학파 정합 (이능화 1927·한국학중앙연구원·국립민속박물관).
+            # Skeptical Inquirer Susan Gerbic 'Grief Vampires' 콜드/핫 리딩 디지털 차단.
+            if char_key == "palm" and content_key == "ancestor":
+                text = _sanitize_ancestor_assertion_words(text)
             # ADR-006/094 공통 단정 어휘 사후 필터링 (모든 캐릭터).
             # 화선 낭자·운학 도사 등 hwapae/face도 system 지시 우회 빈번.
             text = _sanitize_common_assertion_words(text)
