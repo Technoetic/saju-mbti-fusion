@@ -260,6 +260,72 @@ def _sanitize_foreign_hallucination(text: str) -> str:
     return cleaned
 
 
+# ADR-117 (2026-05-22): face 2단계 파이프라인 응답 한국어 문법 어미·단어 중복 차단.
+# 발견 사례 (face 실 어진 라이브 검증):
+# - "평평한한" (어미 '한' 중복)
+# - "차분한한" (동일 패턴)
+# - "콧방울 들린 콧방울" (단어 중복)
+# - "이마 넓음 평평함한" (조사 문법 깨짐)
+# 원인: Stage 1 영문 라벨 단일어 → Stage 2 사극풍 변환 시 LLM 조립 오류.
+
+# 어미 중복 패턴: ㄴ한·ㄹ한·ㅁ한 같이 종성+한 중복 (한국어 형용사 어미 깨짐)
+# ★ 순서 의무: 더 긴 패턴 먼저 적용 (specific → general)
+_KOREAN_GRAMMAR_REPAIRS = (
+    # 1. 'X음 평평함한' → 'X은 평평한' (조사·어미 정합) — 가장 긴 패턴 먼저
+    (_re.compile(r"([가-힣])음 평평함한(?![가-힣])"), r"\1은 평평한"),
+    (_re.compile(r"([가-힣])음 ([가-힣]+)함한(?![가-힣])"), r"\1은 \2한"),
+    # 2. 'X곧음 하고' → 'X 곧고' 형식 정정 (Stage 2 영문 라벨 조립 오류 fix)
+    (_re.compile(r"([가-힣]+)음하고"), r"\1고"),
+    (_re.compile(r"([가-힣]+)함하고"), r"\1하고"),
+    # 3. 어미 'X한한' → 'X한' (반복 정정) — 가장 일반적 패턴 마지막
+    (_re.compile(r"([가-힣])한한(?![가-힣])"), r"\1한"),
+    # 4. 어미 'X함한' → 'X함' (어미 병합)
+    (_re.compile(r"([가-힣])함한(?![가-힣])"), r"\1함"),
+)
+
+
+def _sanitize_korean_grammar_dupes(text: str) -> str:
+    """ADR-117 — 한국어 응답 어미·단어 중복 정정.
+
+    예시:
+    - "평평한한" → "평평한"
+    - "차분한한" → "차분한"
+    - "콧방울 들린 콧방울이로세" → "콧방울 들린 형태이로세"
+    - "이마 넓음 평평함한" → "이마 넓은 평평한"
+
+    Args:
+        text: LLM 응답 텍스트
+
+    Returns:
+        문법 정정된 텍스트.
+    """
+    if not text:
+        return text
+
+    # 1. 정규식 어미 중복 정정
+    for pat, repl in _KOREAN_GRAMMAR_REPAIRS:
+        text = pat.sub(repl, text)
+
+    # 2. 단어 중복 정정 (2개 이상 연속 동일 단어 검출 → 1개로)
+    # 예: "콧방울 들린 콧방울" → "콧방울 들린 (단어 보존)"
+    #     2~4 글자 한글 단어가 짧은 거리(15자 이내) 반복 시 후위 단어 제거
+    def _dedupe_pattern(m):
+        word = m.group(1)
+        # 일반 한국어 명사 (얼굴 부위 등) — 너무 짧으면 skip
+        if len(word) < 2:
+            return m.group(0)
+        return f"{word}{m.group(2)}"
+
+    text = _re.sub(
+        r"([가-힣]{2,4})(\s+[가-힣]{1,6}\s+)\1",
+        _dedupe_pattern,
+        text,
+    )
+
+    # 3. "X은 평평한 결에" / "X 결" 자연 보존 (불필요 정정 X)
+    return text
+
+
 def _sanitize_dream_assertion_words(text: str) -> str:
     """dream 도메인 LLM 응답 사후 필터링 — ADR-094 단정 어휘 차단 강화.
 
@@ -1972,6 +2038,7 @@ class PersonalityAPIServer:
             if isinstance(result, dict) and "text" in result:
                 result["text"] = _sanitize_common_assertion_words(result["text"])
                 result["text"] = _sanitize_foreign_hallucination(result["text"])
+                result["text"] = _sanitize_korean_grammar_dupes(result["text"])
             return result
         except Exception as e:
             raise HTTPException(500, str(e))
@@ -2011,6 +2078,7 @@ class PersonalityAPIServer:
             if isinstance(result, dict) and "text" in result:
                 result["text"] = _sanitize_common_assertion_words(result["text"])
                 result["text"] = _sanitize_foreign_hallucination(result["text"])
+                result["text"] = _sanitize_korean_grammar_dupes(result["text"])
             # LLM 출력 운영 모니터링 — 1% 샘플링, 사용자 영향 0
             try:
                 from engine.safety.llm.output_sampler import sample_llm_output
@@ -2042,6 +2110,7 @@ class PersonalityAPIServer:
             if isinstance(result, dict) and "text" in result:
                 result["text"] = _sanitize_common_assertion_words(result["text"])
                 result["text"] = _sanitize_foreign_hallucination(result["text"])
+                result["text"] = _sanitize_korean_grammar_dupes(result["text"])
             return result
         except ValueError as ve:
             raise HTTPException(400, str(ve))
@@ -2662,6 +2731,7 @@ class PersonalityAPIServer:
             # ADR-115 다국어 hallucination 차단 (모든 캐릭터).
             # 발견: face/reading.py 운학 도사 응답에 포르투갈어 "saudável" 침입 (2026-05-21).
             text = _sanitize_foreign_hallucination(text)
+            text = _sanitize_korean_grammar_dupes(text)
             return {
                 "text": text,
                 "char_key": char_key,
@@ -2693,6 +2763,7 @@ class PersonalityAPIServer:
             if isinstance(result, dict) and "text" in result:
                 result["text"] = _sanitize_common_assertion_words(result["text"])
                 result["text"] = _sanitize_foreign_hallucination(result["text"])
+                result["text"] = _sanitize_korean_grammar_dupes(result["text"])
             return result
         except ValueError as ve:
             raise HTTPException(400, str(ve))
