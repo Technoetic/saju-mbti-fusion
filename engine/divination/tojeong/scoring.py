@@ -429,6 +429,47 @@ def tojeong_verse_coverage_stats() -> dict[str, object]:
     }
 
 
+# ─────────────────────────── ADR-155 — RISS 김수년 (2016) 연구 메타 영속 ───────────────────────────
+
+# 2026-05-23 WebFetch 라이브 검증으로 확보한 김수년 박사학위논문 핵심 학술 메타.
+# /domain-priorities 잔여 #1 추가 부분 해소 — RISS PDF 다운로드 외부 결단 부재 상태에서도
+# 본 AI WebFetch로 확보 가능한 학술 인용 메타 영속.
+
+KIM_2016_RESEARCH_META: dict[str, object] = {
+    "title_hanja": "土亭秘訣 占法 硏究",
+    "title_en": "Analysis of 『土亭秘訣』Divination Study",
+    "author_ko": "김수년",
+    "author_en": "Kim Su-nyeon",
+    "publication_year": 2016,
+    "degree": "박사학위",
+    "riss_control_no": "000014351511",
+    "appendix_has_144_full": True,  # WebFetch 확인 — 권말부록 144괘 원문 전체 수록
+    "original_verse_char_count": 8,  # 원본 시구 8자 (확장본은 더 김)
+    "classical_reference_ratio_pct": 61,  # 육효점·매화역수 인용률 약 61%
+    "historical_records_range": "1870년대~1900년대",
+    "research_focus_ko": (
+        "토정비결 占法의 古典 (육효점·매화역수) 비교 분석. "
+        "원본 8자 시구가 후대 확장본으로 발전하며 기초 원리 일관 유지."
+    ),
+    "academic_significance_ko": (
+        "토정비결을 한국 토착 점복 시스템 + 庶民 喜怒哀樂 민중 텍스트로 학술 자리매김."
+    ),
+    "source_validation": "WebFetch 라이브 (riss.kr 식별 T14351511)",
+}
+
+
+def get_kim_2016_research_meta() -> dict[str, object]:
+    """ADR-155 — 김수년 (2016) 박사학위논문 학술 연구 메타.
+
+    /domain-priorities 잔여 #1 본 AI WebFetch 라이브 확보 메타.
+    RISS PDF 직접 다운로드는 사용자 결단 영역.
+
+    Returns:
+        제목·저자·기관·61% 인용률·8자 원본 시구·144괘 부록 여부 등.
+    """
+    return dict(KIM_2016_RESEARCH_META)
+
+
 def get_verse_source_status(hex_id: int) -> dict[str, str]:
     """ADR-154 — 단일 괘 시구 출처 정직 상태.
 
@@ -598,4 +639,6 @@ __all__ = [
     "get_tojeong_academic_citations", "format_tojeong_citations_for_prompt",
     # ADR-154 시구 본문화 진행도
     "tojeong_verse_coverage_stats", "get_verse_source_status",
+    # ADR-155 RISS 김수년 (2016) 연구 메타
+    "KIM_2016_RESEARCH_META", "get_kim_2016_research_meta",
 ]

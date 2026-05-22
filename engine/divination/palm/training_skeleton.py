@@ -113,6 +113,63 @@ def compute_line_metric_mae(
 # ─────────────────────────── 학습 진입점 (사용자 결단 후만) ───────────────────────────
 
 
+# ─────────────────────────── ADR-155 — 11k Hands fair use 정책 영속 ───────────────────────────
+
+# 2026-05-23 WebFetch 라이브 검증 결과 (sites.google.com/view/11khands).
+# /domain-priorities 잔여 #2 추가 부분 해소 — 외부 결단 (사용자 다운로드) 부재 상태에서도
+# 본 AI WebFetch로 확보 가능한 fair use 정책·인용 의무 자동화.
+
+HANDS_11K_FAIR_USE_POLICY: dict[str, object] = {
+    "academic_use": True,           # 학술 연구 fair use 가능
+    "commercial_use": False,        # 상업 사용 불가 — 본 시스템 사용 시 사용자 명시 결단 필요
+    "citation_required": True,      # 사용 시 논문 인용 의무
+    "dataset_size_mb": 632,
+    "total_images": 11076,
+    "official_url": "https://sites.google.com/view/11khands",
+    "doi": "10.1007/s11042-019-7424-8",
+    "paper_year": 2019,             # 데이터셋 2017, 논문 2019
+    "bibtex": (
+        "@article{afifi201911kHands,\n"
+        "  title = {11K Hands: gender recognition and biometric identification "
+        "using a large dataset of hand images},\n"
+        "  author = {Afifi, Mahmoud},\n"
+        "  journal = {Multimedia Tools and Applications},\n"
+        "  doi = {10.1007/s11042-019-7424-8},\n"
+        "  year = {2019}\n"
+        "}"
+    ),
+    "source_validation": "WebFetch 라이브 (2026-05-23 sites.google.com/view/11khands)",
+}
+
+
+def get_11k_hands_policy() -> dict[str, object]:
+    """ADR-155 — 11k Hands 데이터셋 fair use 정책 조회.
+
+    Returns:
+        academic_use·commercial_use·bibtex·official_url 등.
+    """
+    return dict(HANDS_11K_FAIR_USE_POLICY)
+
+
+def validate_commercial_use_blocked(intent: str) -> tuple[bool, str]:
+    """ADR-155 — 상업 사용 의도 차단 검증.
+
+    11k Hands는 학술 fair use만 — 본 시스템이 SaaS 상업 서비스이므로
+    사용 시 사용자 명시 결단 (별 license 협의·자체 데이터셋 수집) 필요.
+
+    Args:
+        intent: "academic_research" | "commercial_saas" | "personal_study"
+
+    Returns:
+        (사용 가능 여부, 사유)
+    """
+    if intent == "commercial_saas":
+        return (False, "11k Hands는 학술 fair use만 — 상업 SaaS 사용 시 사용자 결단 + 별도 라이선스 협의 필요")
+    if intent in ("academic_research", "personal_study"):
+        return (True, "학술 fair use 범위 내 (인용 의무).")
+    return (False, f"알 수 없는 의도 '{intent}' — 명시 의도 입력 필요")
+
+
 def train_palm_model(config: PalmTrainingConfig) -> None:
     """ML 학습 진입점 — 사용자 결단 (#2 외부 영역) 후 호출.
 
@@ -142,4 +199,6 @@ __all__ = [
     "PalmKeypoint", "PalmLineMetric", "PalmTrainingConfig", "PalmModel",
     "compute_keypoint_iou", "compute_line_metric_mae",
     "train_palm_model",
+    # ADR-155 11k Hands fair use 정책
+    "HANDS_11K_FAIR_USE_POLICY", "get_11k_hands_policy", "validate_commercial_use_blocked",
 ]

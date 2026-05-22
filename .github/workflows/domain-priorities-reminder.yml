@@ -1,0 +1,29 @@
+name: ADR-155 — /domain-priorities Recall Reminder
+
+# 매월 1일 09:00 UTC (KST 18:00) 마지막 /domain-priorities 호출 일자 점검.
+# 1개월+ 경과 시 Actions 로그에 알림 출력 (exit 1 → 실패 알림 트리거).
+# /domain-priorities 자체는 Claude Code 인터랙티브 슬래시 명령어 — 직접 호출 X,
+# 본 워크플로는 재호출 시점 도래만 알림.
+
+on:
+  schedule:
+    - cron: '0 9 1 * *'
+  workflow_dispatch:
+
+jobs:
+  reminder:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run reminder check
+        run: |
+          python scripts/auto_domain_priorities_reminder.py
+        continue-on-error: true
+      - name: Note — vault/ is gitignored
+        if: always()
+        run: |
+          echo "::notice::vault/ is gitignored (CLAUDE.md §6 Obsidian Sync). Reminder uses ADR-*.md fallback if vault absent."

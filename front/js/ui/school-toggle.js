@@ -175,3 +175,35 @@ export const SAJU_SYNERGY_SCHOOL_OPTIONS = [
     isDefault: false,
   },
 ];
+
+/** ADR-155 star compatibility 분석 학파 (element vs element+modality) */
+export const STAR_COMPATIBILITY_OPTIONS = [
+  {
+    key: 'element_only',
+    label: 'element 호환 (디폴트)',
+    description: '4 element (불·흙·바람·물) 동기·보완·이질 분류 — Liz Greene 1976 정통.',
+    isDefault: true,
+  },
+  {
+    key: 'element_modality',
+    label: 'element + modality',
+    description: '4 element + 3 modality (활동·고정·변동) 가중 — Stephen Arroyo 1975 정밀.',
+    isDefault: false,
+  },
+];
+
+/** ADR-155 tojeong 시구 출처 학파 (ADR-134 11괘 본문화 + 합성) */
+export const TOJEONG_VERSE_SOURCE_OPTIONS = [
+  {
+    key: 'synthesized_only',
+    label: '흐름 톤만 (디폴트)',
+    description: '본 시스템 자체 흐름 톤 144괘 — 운명 단정 X.',
+    isDefault: true,
+  },
+  {
+    key: 'mixed_original',
+    label: '원문 시구 우선 (11괘)',
+    description: 'ADR-134 한국학중앙연구원 인증본 11괘는 원문 시구 + 나머지 흐름 톤.',
+    isDefault: false,
+  },
+];
