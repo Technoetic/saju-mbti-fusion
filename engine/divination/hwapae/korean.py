@@ -29,6 +29,48 @@ from dataclasses import dataclass, field
 from typing import Literal
 
 
+# ─────────────────────────── ADR-147 KCI 학술 인용 영속 상수 ───────────────────────────
+# /domain-priorities #9 stale 정정 영속 보장 (2026-05-23).
+# 모듈 주석 line 86-88 KCI 인용을 코드 상수로 박아 회귀로 영속.
+
+@dataclass(frozen=True)
+class HwapaeKciCitation:
+    """ADR-025 hwapae 모듈 KCI 학술 인용 메타.
+
+    Attributes:
+        authors_ko: 저자·연도
+        title_ko: 논문 제목 (원문)
+        kci_id: KCI 식별번호 (FI*)
+        topic_focus: 본 시스템 활용 영역
+    """
+    authors_ko: str
+    title_ko: str
+    kci_id: str
+    topic_focus: str
+
+
+HWAPAE_KCI_CITATIONS: tuple[HwapaeKciCitation, ...] = (
+    HwapaeKciCitation(
+        authors_ko="권현주 (2013)",
+        title_ko="하나후다(花札)와 화투(花鬪)의 문화기호를 중심으로 한 시니피에(signifier) 분석",
+        kci_id="FI001859666",
+        topic_focus="48패 문화기호 시니피에 학술 분석",
+    ),
+    HwapaeKciCitation(
+        authors_ko="권현주 (2017)",
+        title_ko="화투의 놀이문화기호 재매개 과정 분석",
+        kci_id="FI002241673",
+        topic_focus="한국 화투 광·끗·피·띠 재매개 학파",
+    ),
+    HwapaeKciCitation(
+        authors_ko="서강대학교 생명문화연구소 (2022)",
+        title_ko="화투의 과거, 현재, 미래",
+        kci_id="FI002874136",
+        topic_focus="화투 시대별 변천 학술 정리",
+    ),
+)
+
+
 # ─────────────────────────── 카테고리 점수 (보고서 §3) ───────────────────────────
 
 
