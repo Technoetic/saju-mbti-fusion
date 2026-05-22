@@ -423,6 +423,40 @@
   line-height: 1.55;
   color: rgba(220, 200, 240, 0.65);
 }
+.psycho-share-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 14px 0 6px;
+  padding: 10px 12px;
+  background: rgba(40, 36, 60, 0.35);
+  border: 1px dashed rgba(180, 160, 220, 0.3);
+  border-radius: 8px;
+}
+.psycho-share-btn {
+  padding: 7px 14px;
+  background: rgba(120, 80, 180, 0.4);
+  border: 1px solid rgba(220, 180, 240, 0.5);
+  border-radius: 18px;
+  color: #f0e6f8;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.psycho-share-btn:hover {
+  background: rgba(140, 100, 200, 0.6);
+  border-color: rgba(240, 200, 250, 0.75);
+  transform: translateY(-1px);
+}
+.psycho-share-btn[hidden] { display: none; }
+.psycho-share-status {
+  flex: 1;
+  text-align: right;
+  font-size: 0.78rem;
+  color: rgba(180, 240, 200, 0.85);
+  min-height: 1em;
+}
 .psycho-card-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));

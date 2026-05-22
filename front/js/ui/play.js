@@ -7,6 +7,7 @@
 
 import { PSYCHOTEST, getPsychoCard } from '../data/psychotest.js';
 import { PSYCHO_CASE } from '../data/psycho.js';
+import { shareNative, downloadShareCard, copyShareText } from './psycho-share.js';
 
 const HISTORY_KEY = 'whm.play.history';
 const PSYCHO_DONE_KEY = 'whm.psycho.done';
@@ -209,6 +210,12 @@ function runPsychotest() {
       ${ch.shadow ? `<p class="psycho-card-shadow">그림자: ${escapeHtml(ch.shadow)}</p>` : ''}
       <p class="psycho-card-school">학파: ${escapeHtml(card.school || '')}</p>
       <p class="psycho-card-disclaimer">※ 본 결은 일상 심리 카테고리 가벼운 캐릭터 진단 (ADR-014 정합). 참고용이며 의료·법률·금융 의사결정의 단독 근거가 될 수 없습니다.</p>
+      <div class="psycho-share-actions">
+        <button type="button" class="psycho-share-btn" data-share="native" ${typeof navigator !== 'undefined' && navigator.share ? '' : 'hidden'}>공유</button>
+        <button type="button" class="psycho-share-btn" data-share="png">PNG 저장</button>
+        <button type="button" class="psycho-share-btn" data-share="copy">텍스트 복사</button>
+        <span class="psycho-share-status" data-role="share-status"></span>
+      </div>
       <div class="play-actions">
         <button type="button" class="play-action play-action-quiet" data-action="retry">이 카드 다시</button>
         <button type="button" class="play-action play-action-quiet" data-action="cards">다른 카드</button>
@@ -226,6 +233,25 @@ function runPsychotest() {
       school: card.school || '',
     });
     markPsychoDone(card.key);
+
+    const statusEl = stage.querySelector('[data-role="share-status"]');
+    const setStatus = (msg, ms = 2500) => {
+      if (!statusEl) return;
+      statusEl.textContent = msg;
+      if (ms > 0) setTimeout(() => { if (statusEl.textContent === msg) statusEl.textContent = ''; }, ms);
+    };
+    stage.querySelector('[data-share="native"]')?.addEventListener('click', async () => {
+      const r = await shareNative(card, ch);
+      if (!r.ok && r.reason !== 'cancelled') setStatus('공유 실패 — PNG 저장으로 보존하시오');
+    });
+    stage.querySelector('[data-share="png"]')?.addEventListener('click', () => {
+      downloadShareCard(card, ch);
+      setStatus('PNG 저장 완료 — 다운로드 폴더 확인');
+    });
+    stage.querySelector('[data-share="copy"]')?.addEventListener('click', async () => {
+      const r = await copyShareText(card, ch);
+      setStatus(r.ok ? '결 복사 완료 — 붙여넣어 결을 나누시오' : '복사 실패');
+    });
 
     stage.querySelector('[data-action="retry"]')?.addEventListener('click', () => renderCard(card));
     stage.querySelector('[data-action="cards"]')?.addEventListener('click', renderCardMenu);
