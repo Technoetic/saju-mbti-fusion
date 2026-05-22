@@ -1,10 +1,10 @@
 // 놀이 탭 동작
-//   - 심리테스트: 12 문항 → 4축 누적 → 8 유형 결과
+//   - 심리테스트: 12 미니 카드 → 1 카드 1 선택 → 즉시 캐릭터 결과
 //   - 사이코패스 프로파일링: 7 단계 인터랙티브 추리 → 정답률 결과
 //
 // 결과는 localStorage('whm.play.history')에 저장 (일지 탭에서 사용 예정)
 
-import { PSYCHOTEST, resolvePsychoType } from '../data/psychotest.js';
+import { PSYCHOTEST, getPsychoCard } from '../data/psychotest.js';
 import { PSYCHO_CASE } from '../data/psycho.js';
 
 const HISTORY_KEY = 'whm.play.history';
@@ -36,104 +36,105 @@ function backToMenu() {
 }
 
 // ──────────────────────────────────────────────
-// 심리 테스트
+// 심리 테스트 — 12 미니 카드 (1 카드 1 선택 → 즉시 캐릭터)
 // ──────────────────────────────────────────────
 function runPsychotest() {
   showView('playPsychotest');
   const stage = document.getElementById('psychotestStage');
   if (!stage) return;
 
-  const scores = { yang_yin: 0, dong_jeong: 0, in_ui: 0, gang_yu: 0 };
-  let idx = 0;
+  renderCardMenu();
 
-  function renderQuestion() {
-    const total = PSYCHOTEST.questions.length;
-    if (idx >= total) {
-      renderResult();
-      return;
-    }
-    const q = PSYCHOTEST.questions[idx];
-    const pct = Math.round((idx / total) * 100);
-
+  function renderCardMenu() {
+    const cards = PSYCHOTEST.cards;
     stage.innerHTML = `
-      <div class="play-progress">
-        <span>${idx + 1} / ${total}</span>
-        <div class="play-progress-bar"><span style="width:${pct}%"></span></div>
-        <span>${pct}%</span>
+      <p class="play-question">${escapeHtml(PSYCHOTEST.description || '')}</p>
+      <div class="psycho-card-grid">
+        ${cards.map((c, i) => `
+          <button type="button" class="psycho-mini-card" data-card-key="${c.key}">
+            <div class="psycho-mini-card-glyph">${escapeHtml(c.glyph || '心')}</div>
+            <div class="psycho-mini-card-title">${escapeHtml(c.title)}</div>
+            <div class="psycho-mini-card-num">${i + 1} / ${cards.length}</div>
+          </button>
+        `).join('')}
       </div>
-      <p class="play-question">${escapeHtml(q.q)}</p>
+      <div class="play-actions">
+        <button type="button" class="play-action play-action-quiet" data-action="back">놀이로</button>
+      </div>
+    `;
+
+    stage.querySelectorAll('.psycho-mini-card').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const key = btn.dataset.cardKey;
+        const card = getPsychoCard(key);
+        if (card) renderCard(card);
+      });
+    });
+    stage.querySelector('[data-action="back"]')?.addEventListener('click', backToMenu);
+  }
+
+  function renderCard(card) {
+    stage.innerHTML = `
+      <div class="psycho-card-header">
+        <span class="psycho-card-glyph">${escapeHtml(card.glyph || '心')}</span>
+        <h3 class="psycho-card-title">${escapeHtml(card.title)}</h3>
+      </div>
+      <p class="play-question">${escapeHtml(card.scene)}</p>
       <div class="play-choices">
-        ${q.choices.map((c, i) => `
+        ${card.choices.map((c, i) => `
           <button type="button" class="play-choice" data-i="${i}">${escapeHtml(c.text)}</button>
         `).join('')}
+      </div>
+      <p class="psycho-card-school">학파: ${escapeHtml(card.school || '')}</p>
+      <div class="play-actions">
+        <button type="button" class="play-action play-action-quiet" data-action="cards">다른 카드</button>
       </div>
     `;
 
     stage.querySelectorAll('.play-choice').forEach(btn => {
       btn.addEventListener('click', () => {
         const i = parseInt(btn.dataset.i, 10);
-        const delta = q.choices[i].s || {};
-        Object.keys(delta).forEach(k => {
-          scores[k] = (scores[k] || 0) + delta[k];
-        });
-        idx += 1;
-        renderQuestion();
+        renderResult(card, i);
       });
     });
+    stage.querySelector('[data-action="cards"]')?.addEventListener('click', renderCardMenu);
   }
 
-  function renderResult() {
-    const typeKey = resolvePsychoType(scores);
-    const type = PSYCHOTEST.types[typeKey] || PSYCHOTEST.types['yang_yu_in'];
-
-    // 4축을 0~100 비율로 환산해서 표시
-    const meters = [
-      { key: '陽 / 陰', val: scores.yang_yin },
-      { key: '動 / 靜', val: scores.dong_jeong },
-      { key: '仁 / 義', val: scores.in_ui },
-      { key: '剛 / 柔', val: scores.gang_yu },
-    ];
-    const maxAbs = 10; // 대략적 정규화
-    const renderMeter = m => {
-      // -maxAbs ~ +maxAbs 를 0 ~ 100 으로 매핑
-      const pct = Math.min(100, Math.max(0, ((m.val + maxAbs) / (maxAbs * 2)) * 100));
-      const signed = m.val >= 0 ? `+${m.val}` : `${m.val}`;
-      return `
-        <div class="play-result-meter">
-          <span class="play-result-meter-key">${m.key}</span>
-          <div class="play-result-meter-bar"><span style="width:${pct}%"></span></div>
-          <span class="play-result-meter-val">${signed}</span>
-        </div>
-      `;
-    };
+  function renderResult(card, choiceIdx) {
+    const choice = card.choices[choiceIdx];
+    const ch = choice.character || {};
 
     stage.innerHTML = `
-      <h3 class="play-result-title">${escapeHtml(type.title)}</h3>
-      <p class="play-result-subtitle">${escapeHtml(type.subtitle)}</p>
-      <div class="play-result-body">${escapeHtml(type.body)}</div>
-      ${meters.map(renderMeter).join('')}
+      <div class="psycho-card-header">
+        <span class="psycho-card-glyph">${escapeHtml(card.glyph || '心')}</span>
+        <h3 class="psycho-card-title">${escapeHtml(card.title)}</h3>
+      </div>
+      <h3 class="play-result-title">${escapeHtml(ch.title || '결의 결')}</h3>
+      <p class="play-result-subtitle">${escapeHtml(ch.archetype || '')}</p>
+      <div class="play-result-body">${escapeHtml(ch.body || '')}</div>
+      ${ch.shadow ? `<p class="psycho-card-shadow">그림자: ${escapeHtml(ch.shadow)}</p>` : ''}
+      <p class="psycho-card-school">학파: ${escapeHtml(card.school || '')}</p>
       <div class="play-actions">
-        <button type="button" class="play-action play-action-quiet" data-action="retry">다시 풀기</button>
+        <button type="button" class="play-action play-action-quiet" data-action="retry">이 카드 다시</button>
+        <button type="button" class="play-action play-action-quiet" data-action="cards">다른 카드</button>
         <button type="button" class="play-action" data-action="done">놀이로</button>
       </div>
     `;
 
     saveResult({
-      kind: 'psychotest',
-      type_key: typeKey,
-      type_title: type.title,
-      scores: { ...scores },
+      kind: 'psychotest_mini',
+      card_key: card.key,
+      card_title: card.title,
+      choice_idx: choiceIdx,
+      character_title: ch.title || '',
+      character_archetype: ch.archetype || '',
+      school: card.school || '',
     });
 
-    stage.querySelector('[data-action="retry"]')?.addEventListener('click', () => {
-      runPsychotest();
-    });
-    stage.querySelector('[data-action="done"]')?.addEventListener('click', () => {
-      backToMenu();
-    });
+    stage.querySelector('[data-action="retry"]')?.addEventListener('click', () => renderCard(card));
+    stage.querySelector('[data-action="cards"]')?.addEventListener('click', renderCardMenu);
+    stage.querySelector('[data-action="done"]')?.addEventListener('click', backToMenu);
   }
-
-  renderQuestion();
 }
 
 // ──────────────────────────────────────────────
