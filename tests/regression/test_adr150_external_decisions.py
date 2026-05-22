@@ -11,9 +11,17 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
 VAULT_ROOT = Path(__file__).resolve().parent.parent.parent / "vault"
 ADR_FILE = VAULT_ROOT / "decisions" / "ADR-150-external-decisions-support-brief.md"
 BRIEF_FILE = VAULT_ROOT / "reports" / "external-decisions-brief-2026-05-23.md"
+
+# CLAUDE.md §6 — vault/는 .gitignore (Obsidian Sync 전용). CI 환경 부재 시 자동 스킵.
+pytestmark = pytest.mark.skipif(
+    not ADR_FILE.exists() or not BRIEF_FILE.exists(),
+    reason="vault/ 부재 (CLAUDE.md §6 — Obsidian Sync 전용, CI git 무시). 로컬 환경에서만 검증.",
+)
 
 
 class TestADR150FileExists:
