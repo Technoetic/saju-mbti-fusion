@@ -359,3 +359,78 @@ def render_synergy_tone_guide(shensha_result: Dict[str, List[str]]) -> str:
     synergy = compute_sinsal_synergy_weight(shensha_result)
     tone_branch = str(synergy["tone_branch"])
     return SYNERGY_TONE_GUIDE.get(tone_branch, "")
+
+
+# ─────────────────────────── ADR-140 지지 반합(半合) 약합 매칭 ───────────────────────────
+
+# 반합 8쌍 (자평진전·삼명통회 일치 표준 — 학파 분쟁 없음).
+# 삼합 4국 중 왕지(子午卯酉) 1지지 + 생지(寅申巳亥) 또는 묘지(辰戌丑未) 1지지 매칭.
+# ADR-130 detect_samhap()(완전 3지지 매칭)와 의도적 분리 — 半合은 약합(strength=0.5).
+# frozenset 패턴 — 지지 순서 무관.
+_BANHAP_PAIRS: Dict[frozenset, Dict[str, object]] = {
+    # 火 局 (삼합 寅午戌)
+    frozenset(("寅", "午")): {"label": "寅午", "ohaeng": "화", "guk_full": "寅午戌"},
+    frozenset(("午", "戌")): {"label": "午戌", "ohaeng": "화", "guk_full": "寅午戌"},
+    # 木 局 (삼합 亥卯未)
+    frozenset(("亥", "卯")): {"label": "亥卯", "ohaeng": "목", "guk_full": "亥卯未"},
+    frozenset(("卯", "未")): {"label": "卯未", "ohaeng": "목", "guk_full": "亥卯未"},
+    # 水 局 (삼합 申子辰)
+    frozenset(("申", "子")): {"label": "申子", "ohaeng": "수", "guk_full": "申子辰"},
+    frozenset(("子", "辰")): {"label": "子辰", "ohaeng": "수", "guk_full": "申子辰"},
+    # 金 局 (삼합 巳酉丑)
+    frozenset(("巳", "酉")): {"label": "巳酉", "ohaeng": "금", "guk_full": "巳酉丑"},
+    frozenset(("酉", "丑")): {"label": "酉丑", "ohaeng": "금", "guk_full": "巳酉丑"},
+}
+
+# 半合 약합 강도 (자평진전 정통 — 완전 삼합 1.0 대비 0.5).
+_BANHAP_STRENGTH: float = 0.5
+
+
+def detect_banhap(branches: List[str]) -> List[Dict[str, object]]:
+    """4주 지지에서 반합(半合) 8쌍 매칭 — ADR-140.
+
+    반합은 삼합 3지지 중 왕지(子午卯酉) 포함 2지지만 일치 시 성립하는 약합(strength=0.5).
+    완전 삼합(strength=1.0)은 ADR-130 detect_samhap() 별도 API 사용.
+
+    학파 출처 (자평진전·삼명통회 일치 표준 — 학파 분쟁 없음):
+      - 자평진전 ISBN 9791196084417 (범진 직역, 박영창·김미석 2018)
+      - 삼명통회 ISBN 9791139035261·9791137216822
+      - 외부 보고서: 「월하몽 도메인 지식 보강 가이드 v7」 §1.2 라인 49~61
+
+    Args:
+        branches: 4주 지지 한자 리스트 (예: ["子", "寅", "午", "戌"]).
+
+    Returns:
+        매칭된 반합 목록 (순서 무관, 중복 허용):
+        [{"label": str, "ohaeng": str, "guk_full": str, "strength": float, "pair": list[str]}]
+
+    Example:
+        >>> detect_banhap(["寅", "午", "卯", "丑"])
+        [{"label": "寅午", "ohaeng": "화", "guk_full": "寅午戌", "strength": 0.5, "pair": ["寅", "午"]}]
+    """
+    branch_set = set(branches)
+    results: List[Dict[str, object]] = []
+    for pair_set, info in _BANHAP_PAIRS.items():
+        if pair_set.issubset(branch_set):
+            results.append(
+                {
+                    "label": info["label"],
+                    "ohaeng": info["ohaeng"],
+                    "guk_full": info["guk_full"],
+                    "strength": _BANHAP_STRENGTH,
+                    "pair": list(pair_set),
+                }
+            )
+    return results
+
+
+def is_banhap_pair(ji1: str, ji2: str) -> bool:
+    """두 지지 한자가 반합(半合) 쌍 여부 — ADR-140.
+
+    Args:
+        ji1, ji2: 지지 한자 (子~亥).
+
+    Returns:
+        반합 8쌍 중 1쌍이면 True.
+    """
+    return frozenset((ji1, ji2)) in _BANHAP_PAIRS
