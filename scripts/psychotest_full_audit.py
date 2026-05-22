@@ -1,4 +1,4 @@
-"""psychotest 12 미니 카드 × 48 캐릭터 풀 전수 검증·평가.
+"""psychotest 100 미니 카드 × 400 캐릭터 풀 전수 검증·평가 (동적 1~N 카드 정합).
 
 검증 영역:
   1. 구조 무결성 — 12 카드 × 4 선택 × 4 캐릭터 필드 (title·archetype·body·shadow)
@@ -157,8 +157,8 @@ def check_school_attribution(data: dict) -> dict:
             r"사주|12지|12 방위|12 시진|24절기|七情|五常|오상|오행|낙서|토정|자평진전|삼명통회|한국 정통",
             school
         ))
-        # 연도 (4 digits) 포함 여부 — ADR 인용 또는 동양 학파면 면제
-        if not re.search(r"\d{4}", school) and not has_adr and not has_eastern_school:
+        # 연도 (3~4 digits) 포함 여부 — ADR 인용 또는 동양 학파면 면제 (Ptolemy 150 AD 등 고대 학파 포함)
+        if not re.search(r"\d{3,4}", school) and not has_adr and not has_eastern_school:
             findings["missing_year"].append(f"Card {i+1} '{card['key']}': {school}")
         # 저자 (한글 또는 영문 이름) 포함 여부 — ADR 인용 또는 동양 학파면 면제
         if (not re.search(r"[A-Z][a-z]+|[가-힣]{2,4}", school)
@@ -216,7 +216,7 @@ def check_determinism(data: dict) -> dict:
 
 def main():
     print("="*72)
-    print("psychotest 12 미니 카드 × 48 캐릭터 전수 검증·평가")
+    print("psychotest 100 미니 카드 × 400 캐릭터 전수 검증·평가 (1~N 동적 정합)")
     print("="*72)
 
     data = export_to_json()
@@ -318,6 +318,8 @@ def main():
             "foreign_count": len(sa["foreign_per_character"]),
             "korean_dupes_count": len(sa["korean_dupes_per_character"]),
             "total_violations": sa["total_violations"],
+            "korean_dupes_detail": sa["korean_dupes_per_character"],
+            "forbidden_detail": sa["forbidden_per_character"],
         },
         "schools": sc,
         "balance": {

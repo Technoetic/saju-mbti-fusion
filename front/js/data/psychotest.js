@@ -2204,6 +2204,2346 @@ export const PSYCHOTEST = {
         },
       ],
     },
+    {
+      key: 'color-luscher-emotion',
+      title: '뤼셔 색 — 감정의 결',
+      glyph: '色',
+      school: 'Lüscher (1969) — Color Test 8 색 감정 매핑',
+      scene: '오늘 그대 결을 적시는 색은?',
+      choices: [
+        {
+          text: '청(藍) — 깊은 물의 결',
+          character: {
+            title: '청람의 결 (藍)',
+            archetype: '靜·안정의 결',
+            body: 'Lüscher (1969) — 청은 안정·평온·신뢰의 결.\n그대는 결의 결을 고요로 다듬는 본성.\n\n다만 청에만 잠기면 활기를 잃으니, 적의 결도 두라.',
+            shadow: '소극',
+          },
+        },
+        {
+          text: '적(赤) — 타오르는 결',
+          character: {
+            title: '적염의 결 (赤)',
+            archetype: '活·활력의 결',
+            body: 'Lüscher (1969) — 적은 활력·열정·자기주장의 결.\n그대는 결의 결을 열로 키우는 본성.\n\n다만 적이 강하면 곁을 태우니, 청의 결도 두라.',
+            shadow: '조급',
+          },
+        },
+        {
+          text: '황(黃) — 빛나는 결',
+          character: {
+            title: '황광의 결 (黃)',
+            archetype: '希·희망의 결',
+            body: 'Lüscher (1969) — 황은 희망·자유·기대의 결.\n그대는 결의 결을 빛으로 펴는 본성.\n\n다만 황이 흩어지면 결단이 약하니, 녹의 결도 두라.',
+            shadow: '산만',
+          },
+        },
+        {
+          text: '녹(綠) — 자라는 결',
+          character: {
+            title: '녹림의 결 (綠)',
+            archetype: '誠·성장의 결',
+            body: 'Lüscher (1969) — 녹은 성장·자기존중·항상성의 결.\n그대는 결의 결을 뿌리로 키우는 본성.\n\n다만 녹이 짙으면 변화를 막으니, 황의 결도 두라.',
+            shadow: '완고',
+          },
+        },
+      ],
+    },
+    {
+      key: 'color-plutchik-eight',
+      title: '플루치크 감정 — 8 결',
+      glyph: '情',
+      school: 'Plutchik (1980) — Wheel of Emotions 8 기본 감정',
+      scene: '지금 그대 결에 가장 가까운 감정은?',
+      choices: [
+        {
+          text: '기쁨(Joy) — 환한 결',
+          character: {
+            title: '환희의 결 (喜)',
+            archetype: '喜·기쁨의 결',
+            body: 'Plutchik (1980) — Joy는 결합·축복의 결.\n그대는 결의 결을 환함으로 채우는 본성.\n\n다만 환함만 좇으면 슬픔을 외면하니, 그늘의 결도 두라.',
+            shadow: '회피',
+          },
+        },
+        {
+          text: '신뢰(Trust) — 기대는 결',
+          character: {
+            title: '신의 결 (信)',
+            archetype: '信·신뢰의 결',
+            body: 'Plutchik (1980) — Trust는 곁에 기대는 결.\n그대는 결의 결을 사람으로 묶는 본성.\n\n다만 신뢰가 깊으면 경계가 흐려지니, 두려움의 결도 두라.',
+            shadow: '경계 흐림',
+          },
+        },
+        {
+          text: '예감(Anticipation) — 앞을 보는 결',
+          character: {
+            title: '예지의 결 (豫)',
+            archetype: '豫·기대의 결',
+            body: 'Plutchik (1980) — Anticipation은 앞을 그리는 결.\n그대는 결의 결을 미래로 당기는 본성.\n\n다만 예감이 짙으면 현재를 놓치니, 지금의 결도 두라.',
+            shadow: '현재 결락',
+          },
+        },
+        {
+          text: '놀람(Surprise) — 멎는 결',
+          character: {
+            title: '경이의 결 (驚)',
+            archetype: '驚·각성의 결',
+            body: 'Plutchik (1980) — Surprise는 결의 결을 멈춰 다시 보는 결.\n그대는 결의 결을 멈춤으로 새로 여는 본성.\n\n다만 놀람만 좇으면 흔들림이 잦으니, 신뢰의 결도 두라.',
+            shadow: '동요',
+          },
+        },
+      ],
+    },
+    {
+      key: 'color-five-direction',
+      title: '오방색 — 결의 방위',
+      glyph: '方',
+      school: '한국 정통 오방색 (오행·五方·五常 정합)',
+      scene: '그대 결이 향하는 방위의 색은?',
+      choices: [
+        {
+          text: '청(靑) — 동방의 결',
+          character: {
+            title: '동청의 결 (東)',
+            archetype: '木·仁·자라남',
+            body: '한국 정통 오방색 — 동은 청, 木의 결, 五常 중 仁.\n그대는 결의 결을 자라남으로 펴는 본성.\n\n다만 자라남만 좇으면 거둠이 늦으니, 서의 결도 두라.',
+            shadow: '거둠 약함',
+          },
+        },
+        {
+          text: '백(白) — 서방의 결',
+          character: {
+            title: '서백의 결 (西)',
+            archetype: '金·義·거둠',
+            body: '한국 정통 오방색 — 서는 백, 金의 결, 五常 중 義.\n그대는 결의 결을 단정한 거둠으로 다듬는 본성.\n\n다만 단정만 좇으면 부드러움이 옅으니, 남의 결도 두라.',
+            shadow: '엄숙',
+          },
+        },
+        {
+          text: '적(赤) — 남방의 결',
+          character: {
+            title: '남적의 결 (南)',
+            archetype: '火·禮·예의',
+            body: '한국 정통 오방색 — 남은 적, 火의 결, 五常 중 禮.\n그대는 결의 결을 예의 결로 다듬는 본성.\n\n다만 예가 강하면 곁이 어려우니, 북의 결도 두라.',
+            shadow: '경직',
+          },
+        },
+        {
+          text: '흑(玄) — 북방의 결',
+          character: {
+            title: '북현의 결 (北)',
+            archetype: '水·智·지혜',
+            body: '한국 정통 오방색 — 북은 흑(玄), 水의 결, 五常 중 智.\n그대는 결의 결을 깊이로 길러내는 본성.\n\n다만 깊이만 길면 빛이 옅으니, 동의 결도 두라.',
+            shadow: '내향 과다',
+          },
+        },
+      ],
+    },
+    {
+      key: 'color-goethe-light',
+      title: '괴테 색채 — 빛의 결',
+      glyph: '光',
+      school: 'Goethe (1810) — Theory of Colors 빛·어둠의 경계',
+      scene: '그대 결을 비추는 빛의 결은?',
+      choices: [
+        {
+          text: '여명 — 빛이 열리는 결',
+          character: {
+            title: '여명의 결 (黎)',
+            archetype: '始·시작의 결',
+            body: 'Goethe (1810) — 여명은 어둠 끝에서 빛이 열리는 결.\n그대는 결의 결을 시작으로 다듬는 본성.\n\n다만 시작만 좇으면 깊이가 옅으니, 황혼의 결도 두라.',
+            shadow: '미완',
+          },
+        },
+        {
+          text: '정오 — 빛이 가득한 결',
+          character: {
+            title: '정오의 결 (午)',
+            archetype: '滿·충만의 결',
+            body: 'Goethe (1810) — 정오는 빛이 만개한 결.\n그대는 결의 결을 풍성함으로 펴는 본성.\n\n다만 가득만 좇으면 그늘을 못 보니, 황혼의 결도 두라.',
+            shadow: '그늘 결락',
+          },
+        },
+        {
+          text: '황혼 — 빛이 잦아드는 결',
+          character: {
+            title: '황혼의 결 (昏)',
+            archetype: '沈·갈무리의 결',
+            body: 'Goethe (1810) — 황혼은 빛이 어둠에 잦아드는 결.\n그대는 결의 결을 갈무리로 다듬는 본성.\n\n다만 갈무리만 좇으면 새로움이 옅으니, 여명의 결도 두라.',
+            shadow: '머뭇거림',
+          },
+        },
+        {
+          text: '심야 — 어둠의 결',
+          character: {
+            title: '심야의 결 (夜)',
+            archetype: '玄·깊이의 결',
+            body: 'Goethe (1810) — 심야는 어둠이 가장 짙은 결.\n그대는 결의 결을 어둠으로 길러내는 본성.\n\n다만 어둠만 길면 빛의 결을 잊으니, 여명의 결도 두라.',
+            shadow: '고립',
+          },
+        },
+      ],
+    },
+    {
+      key: 'color-seven-emotion',
+      title: '칠정 — 결의 일곱 결',
+      glyph: '七',
+      school: '한국 정통 七情 (喜怒哀懼愛惡欲)',
+      scene: '오늘 그대 결을 흔든 정은?',
+      choices: [
+        {
+          text: '희(喜) — 기쁨의 결',
+          character: {
+            title: '희정의 결 (喜)',
+            archetype: '喜·환함',
+            body: '한국 정통 七情 — 喜는 결합의 결.\n그대는 결의 결을 환함으로 키우는 본성.\n\n다만 喜가 짙으면 노(怒)를 못 보니, 다른 정의 결도 두라.',
+            shadow: '회피',
+          },
+        },
+        {
+          text: '노(怒) — 결의 곤두서는 결',
+          character: {
+            title: '노정의 결 (怒)',
+            archetype: '怒·곤두',
+            body: '한국 정통 七情 — 怒는 결의 결단의 결.\n그대는 결의 결을 끊는 본성.\n\n다만 怒가 잦으면 곁을 다치게 하니, 애(愛)의 결도 두라.',
+            shadow: '경솔',
+          },
+        },
+        {
+          text: '애(哀) — 결의 잠기는 결',
+          character: {
+            title: '애정의 결 (哀)',
+            archetype: '哀·잠김',
+            body: '한국 정통 七情 — 哀는 결의 깊이의 결.\n그대는 결의 결을 잠김으로 길러내는 본성.\n\n다만 哀가 길면 정체되니, 희(喜)의 결도 두라.',
+            shadow: '정체',
+          },
+        },
+        {
+          text: '욕(欲) — 결의 당기는 결',
+          character: {
+            title: '욕정의 결 (欲)',
+            archetype: '欲·당김',
+            body: '한국 정통 七情 — 欲은 결의 결을 끌어당기는 결.\n그대는 결의 결을 동기로 다듬는 본성.\n\n다만 欲이 짙으면 곁을 못 보니, 애(愛)의 결도 두라.',
+            shadow: '집착',
+          },
+        },
+      ],
+    },
+    {
+      key: 'color-five-taste',
+      title: '오미 — 결의 다섯 맛',
+      glyph: '味',
+      school: '한국 정통 五味 (酸苦甘辛鹹 — 五行 정합)',
+      scene: '오늘 그대 결에 끌리는 맛은?',
+      choices: [
+        {
+          text: '산(酸) — 신맛의 결',
+          character: {
+            title: '산미의 결 (酸)',
+            archetype: '木·결단',
+            body: '한국 정통 五味 — 酸은 木의 결, 결단을 깨우는 맛.\n그대는 결의 결을 끊음으로 다듬는 본성.\n\n다만 산이 짙으면 부드러움이 옅으니, 단의 결도 두라.',
+            shadow: '날카로움',
+          },
+        },
+        {
+          text: '고(苦) — 쓴맛의 결',
+          character: {
+            title: '고미의 결 (苦)',
+            archetype: '火·정련',
+            body: '한국 정통 五味 — 苦는 火의 결, 정련의 맛.\n그대는 결의 결을 단련으로 키우는 본성.\n\n다만 고가 짙으면 즐거움이 옅으니, 단의 결도 두라.',
+            shadow: '엄숙',
+          },
+        },
+        {
+          text: '감(甘) — 단맛의 결',
+          character: {
+            title: '감미의 결 (甘)',
+            archetype: '土·중화',
+            body: '한국 정통 五味 — 甘은 土의 결, 중화의 맛.\n그대는 결의 결을 어우러짐으로 다듬는 본성.\n\n다만 단만 좇으면 결단이 옅으니, 산의 결도 두라.',
+            shadow: '결단 약함',
+          },
+        },
+        {
+          text: '신(辛) — 매운맛의 결',
+          character: {
+            title: '신미의 결 (辛)',
+            archetype: '金·정돈',
+            body: '한국 정통 五味 — 辛은 金의 결, 정돈의 맛.\n그대는 결의 결을 명료함으로 다듬는 본성.\n\n다만 매움이 짙으면 어려움이 잦으니, 감의 결도 두라.',
+            shadow: '날 선 결',
+          },
+        },
+      ],
+    },
+    {
+      key: 'color-five-virtue',
+      title: '오상 — 결의 다섯 덕',
+      glyph: '常',
+      school: '한국 정통 五常 (仁義禮智信)',
+      scene: '그대 결의 가장 깊은 덕은?',
+      choices: [
+        {
+          text: '인(仁) — 결을 펴는 결',
+          character: {
+            title: '인덕의 결 (仁)',
+            archetype: '仁·펴는 결',
+            body: '한국 정통 五常 — 仁은 곁을 품는 결.\n그대는 결의 결을 펴는 본성.\n\n다만 인이 짙으면 끊지 못하니, 의의 결도 두라.',
+            shadow: '단호 약함',
+          },
+        },
+        {
+          text: '의(義) — 결을 다듬는 결',
+          character: {
+            title: '의덕의 결 (義)',
+            archetype: '義·다듬는 결',
+            body: '한국 정통 五常 — 義는 결을 옳게 끊는 결.\n그대는 결의 결을 옳게 다듬는 본성.\n\n다만 의가 강하면 부드러움이 옅으니, 인의 결도 두라.',
+            shadow: '엄정',
+          },
+        },
+        {
+          text: '예(禮) — 결을 갖추는 결',
+          character: {
+            title: '예덕의 결 (禮)',
+            archetype: '禮·갖추는 결',
+            body: '한국 정통 五常 — 禮는 결을 갖춰 곁과 어우러지는 결.\n그대는 결의 결을 형식으로 다듬는 본성.\n\n다만 예가 짙으면 본 결이 옅으니, 지의 결도 두라.',
+            shadow: '형식 과다',
+          },
+        },
+        {
+          text: '지(智) — 결을 비추는 결',
+          character: {
+            title: '지덕의 결 (智)',
+            archetype: '智·비추는 결',
+            body: '한국 정통 五常 — 智는 결을 비추는 결.\n그대는 결의 결을 통찰로 다듬는 본성.\n\n다만 지만 좇으면 정이 옅으니, 인의 결도 두라.',
+            shadow: '냉정',
+          },
+        },
+      ],
+    },
+    {
+      key: 'color-luscher-second',
+      title: '뤼셔 색 — 거부하는 결',
+      glyph: '拒',
+      school: 'Lüscher (1969) — Color Test 거부색 해석',
+      scene: '오늘 그대가 멀리하고 싶은 색은?',
+      choices: [
+        {
+          text: '회(灰) — 흐린 결',
+          character: {
+            title: '거회의 결 (灰)',
+            archetype: '避·중립 회피',
+            body: 'Lüscher (1969) — 회 거부는 중립을 견디지 못하는 결.\n그대는 결의 결을 분명함으로 길러내는 본성.\n\n다만 분명만 좇으면 여유가 옅으니, 흐림의 결도 두라.',
+            shadow: '강박',
+          },
+        },
+        {
+          text: '갈(褐) — 흙의 결',
+          character: {
+            title: '거갈의 결 (褐)',
+            archetype: '避·뿌리 회피',
+            body: 'Lüscher (1969) — 갈 거부는 안락에서 멀어지려는 결.\n그대는 결의 결을 새 결로 옮기는 본성.\n\n다만 새 결만 좇으면 뿌리가 옅으니, 흙의 결도 두라.',
+            shadow: '뿌리 약함',
+          },
+        },
+        {
+          text: '흑(黑) — 짙은 결',
+          character: {
+            title: '거흑의 결 (黑)',
+            archetype: '避·종결 회피',
+            body: 'Lüscher (1969) — 흑 거부는 끝을 미루는 결.\n그대는 결의 결을 시작으로 펴는 본성.\n\n다만 시작만 좇으면 갈무리가 옅으니, 흑의 결도 두라.',
+            shadow: '갈무리 약함',
+          },
+        },
+        {
+          text: '자(紫) — 보랏빛의 결',
+          character: {
+            title: '거자의 결 (紫)',
+            archetype: '避·환상 회피',
+            body: 'Lüscher (1969) — 자 거부는 환상에서 멀어지려는 결.\n그대는 결의 결을 사실로 다듬는 본성.\n\n다만 사실만 좇으면 상상이 옅으니, 자의 결도 두라.',
+            shadow: '상상 약함',
+          },
+        },
+      ],
+    },
+    {
+      key: 'color-dream-mood',
+      title: '꿈의 색 — 무의식 결',
+      glyph: '夢',
+      school: 'Schredl (2009) — Dream Color Recall 학파 정합',
+      scene: '오늘 그대 꿈에 가장 짙던 색은?',
+      choices: [
+        {
+          text: '맑은 청',
+          character: {
+            title: '청몽의 결 (淸夢)',
+            archetype: '夢·평온',
+            body: 'Schredl (2009) — 청 꿈은 평온의 결.\n그대는 결의 결을 고요로 다듬는 본성.\n\n다만 고요만 좇으면 활기가 옅으니, 적몽의 결도 두라.',
+            shadow: '활기 부족',
+          },
+        },
+        {
+          text: '뜨거운 적',
+          character: {
+            title: '적몽의 결 (熱夢)',
+            archetype: '夢·활력',
+            body: 'Schredl (2009) — 적 꿈은 활력의 결.\n그대는 결의 결을 열로 키우는 본성.\n\n다만 열만 좇으면 차분함이 옅으니, 청몽의 결도 두라.',
+            shadow: '들끓음',
+          },
+        },
+        {
+          text: '흑백',
+          character: {
+            title: '흑백몽의 결 (素夢)',
+            archetype: '夢·정련',
+            body: 'Schredl (2009) — 흑백 꿈은 정련의 결.\n그대는 결의 결을 단정함으로 다듬는 본성.\n\n다만 단정만 좇으면 빛깔이 옅으니, 색몽의 결도 두라.',
+            shadow: '단조',
+          },
+        },
+        {
+          text: '여러 빛깔이 어우러진 결',
+          character: {
+            title: '채몽의 결 (彩夢)',
+            archetype: '夢·다채',
+            body: 'Schredl (2009) — 다채 꿈은 어우러짐의 결.\n그대는 결의 결을 여러 결로 펴는 본성.\n\n다만 다채만 좇으면 한 결에 못 잠기니, 흑백몽의 결도 두라.',
+            shadow: '집중 약함',
+          },
+        },
+      ],
+    },
+    {
+      key: 'animal-jung-totem',
+      title: '융 동물 원형 — 결의 토템',
+      glyph: '獸',
+      school: 'Jung (1959) — Archetypes and the Collective Unconscious CW Vol.9',
+      scene: '그대 결을 닮은 동물은?',
+      choices: [
+        {
+          text: '사자 — 결을 다스리는 결',
+          character: {
+            title: '사자의 결 (獅)',
+            archetype: '王·다스림',
+            body: 'Jung (1959) — 사자는 王의 원형, 다스림의 결.\n그대는 결의 결을 곁을 이끌어 다듬는 본성.\n\n다만 다스림이 짙으면 곁이 어려우니, 사슴의 결도 두라.',
+            shadow: '권위 과다',
+          },
+        },
+        {
+          text: '뱀 — 허물 벗는 결',
+          character: {
+            title: '뱀의 결 (蛇)',
+            archetype: '變·변용',
+            body: 'Jung (1959) — 뱀은 變의 원형, 허물을 벗는 결.\n그대는 결의 결을 변용으로 다듬는 본성.\n\n다만 변용만 좇으면 본 결이 옅으니, 곰의 결도 두라.',
+            shadow: '뿌리 약함',
+          },
+        },
+        {
+          text: '곰 — 잠과 깨는 결',
+          character: {
+            title: '곰의 결 (熊)',
+            archetype: '休·잠과 깸',
+            body: 'Jung (1959) — 곰은 休의 원형, 잠과 깸의 결.\n그대는 결의 결을 멈춤과 일어남으로 다듬는 본성.\n\n다만 잠이 길면 결단이 옅으니, 사자의 결도 두라.',
+            shadow: '느림',
+          },
+        },
+        {
+          text: '사슴 — 곁을 아끼는 결',
+          character: {
+            title: '사슴의 결 (鹿)',
+            archetype: '柔·곁을 아낌',
+            body: 'Jung (1959) — 사슴은 柔의 원형, 곁을 아끼는 결.\n그대는 결의 결을 부드러움으로 다듬는 본성.\n\n다만 부드러움만 좇으면 결단이 옅으니, 사자의 결도 두라.',
+            shadow: '결단 약함',
+          },
+        },
+      ],
+    },
+    {
+      key: 'animal-zodiac-first',
+      title: '12 지 — 새벽의 결',
+      glyph: '寅',
+      school: '한국 정통 12지 동물 (자평진전·삼명통회 정합)',
+      scene: '12 지 중 새벽의 결을 닮은 동물은?',
+      choices: [
+        {
+          text: '쥐(子) — 작고 빠른 결',
+          character: {
+            title: '자축의 결 (子)',
+            archetype: '機·기민',
+            body: '한국 정통 12지 — 子는 자정의 결, 기민함.\n그대는 결의 결을 작은 결단으로 다듬는 본성.\n\n다만 기민만 좇으면 깊이가 옅으니, 호의 결도 두라.',
+            shadow: '경박',
+          },
+        },
+        {
+          text: '소(丑) — 새벽의 우직한 결',
+          character: {
+            title: '축우의 결 (丑)',
+            archetype: '勤·근면',
+            body: '한국 정통 12지 — 丑은 새벽 들녘의 결, 근면.\n그대는 결의 결을 끈기로 다듬는 본성.\n\n다만 끈기만 좇으면 변화가 옅으니, 자의 결도 두라.',
+            shadow: '완고',
+          },
+        },
+        {
+          text: '범(寅) — 곤두선 결',
+          character: {
+            title: '인호의 결 (寅)',
+            archetype: '勇·곤두',
+            body: '한국 정통 12지 — 寅은 새벽 호랑이의 결, 곤두.\n그대는 결의 결을 결단으로 다듬는 본성.\n\n다만 곤두만 좇으면 곁이 어려우니, 묘의 결도 두라.',
+            shadow: '경솔',
+          },
+        },
+        {
+          text: '토끼(卯) — 결 가벼운 결',
+          character: {
+            title: '묘토의 결 (卯)',
+            archetype: '輕·민첩',
+            body: '한국 정통 12지 — 卯는 아침의 결, 민첩.\n그대는 결의 결을 가벼움으로 다듬는 본성.\n\n다만 가벼움만 좇으면 무게가 옅으니, 축의 결도 두라.',
+            shadow: '무게 약함',
+          },
+        },
+      ],
+    },
+    {
+      key: 'animal-zodiac-noon',
+      title: '12 지 — 한낮의 결',
+      glyph: '午',
+      school: '한국 정통 12지 동물 (자평진전·삼명통회 정합)',
+      scene: '12 지 중 한낮의 결을 닮은 동물은?',
+      choices: [
+        {
+          text: '용(辰) — 비를 부르는 결',
+          character: {
+            title: '진룡의 결 (辰)',
+            archetype: '雲·변용',
+            body: '한국 정통 12지 — 辰은 봄 용의 결, 비를 부름.\n그대는 결의 결을 큰 변용으로 다듬는 본성.\n\n다만 변용만 좇으면 안정이 옅으니, 사의 결도 두라.',
+            shadow: '안정 약함',
+          },
+        },
+        {
+          text: '뱀(巳) — 미끄러지는 결',
+          character: {
+            title: '사사의 결 (巳)',
+            archetype: '智·은밀',
+            body: '한국 정통 12지 — 巳는 봄 뱀의 결, 은밀.\n그대는 결의 결을 깊이로 다듬는 본성.\n\n다만 은밀만 좇으면 곁이 멀어지니, 진의 결도 두라.',
+            shadow: '거리감',
+          },
+        },
+        {
+          text: '말(午) — 달리는 결',
+          character: {
+            title: '오마의 결 (午)',
+            archetype: '進·달림',
+            body: '한국 정통 12지 — 午는 정오의 결, 달림.\n그대는 결의 결을 추진으로 다듬는 본성.\n\n다만 달림만 좇으면 멈춤이 옅으니, 미의 결도 두라.',
+            shadow: '소진',
+          },
+        },
+        {
+          text: '양(未) — 풀 뜯는 결',
+          character: {
+            title: '미양의 결 (未)',
+            archetype: '和·온화',
+            body: '한국 정통 12지 — 未는 한낮의 결, 온화.\n그대는 결의 결을 부드러움으로 다듬는 본성.\n\n다만 온화만 좇으면 결단이 옅으니, 오의 결도 두라.',
+            shadow: '결단 약함',
+          },
+        },
+      ],
+    },
+    {
+      key: 'animal-zodiac-evening',
+      title: '12 지 — 저녁의 결',
+      glyph: '酉',
+      school: '한국 정통 12지 동물 (자평진전·삼명통회 정합)',
+      scene: '12 지 중 저녁의 결을 닮은 동물은?',
+      choices: [
+        {
+          text: '원숭이(申) — 결 가지런한 결',
+          character: {
+            title: '신원의 결 (申)',
+            archetype: '巧·재주',
+            body: '한국 정통 12지 — 申은 저녁의 결, 재주.\n그대는 결의 결을 재기로 다듬는 본성.\n\n다만 재기만 좇으면 깊이가 옅으니, 술의 결도 두라.',
+            shadow: '얕음',
+          },
+        },
+        {
+          text: '닭(酉) — 결 우는 결',
+          character: {
+            title: '유계의 결 (酉)',
+            archetype: '節·절도',
+            body: '한국 정통 12지 — 酉는 저물녘의 결, 절도.\n그대는 결의 결을 시간으로 다듬는 본성.\n\n다만 절도만 좇으면 유연함이 옅으니, 신의 결도 두라.',
+            shadow: '경직',
+          },
+        },
+        {
+          text: '개(戌) — 결 지키는 결',
+          character: {
+            title: '술견의 결 (戌)',
+            archetype: '守·지킴',
+            body: '한국 정통 12지 — 戌은 밤의 결, 지킴.\n그대는 결의 결을 신의로 다듬는 본성.\n\n다만 지킴만 좇으면 변화가 옅으니, 해의 결도 두라.',
+            shadow: '완고',
+          },
+        },
+        {
+          text: '돼지(亥) — 결 깊은 결',
+          character: {
+            title: '해돈의 결 (亥)',
+            archetype: '厚·후덕',
+            body: '한국 정통 12지 — 亥는 깊은 밤의 결, 후덕.\n그대는 결의 결을 너그러움으로 다듬는 본성.\n\n다만 너그러움만 좇으면 결단이 옅으니, 술의 결도 두라.',
+            shadow: '결단 약함',
+          },
+        },
+      ],
+    },
+    {
+      key: 'animal-totem-night',
+      title: '꿈 동물 — 토템의 결',
+      glyph: '霊',
+      school: 'Hall & Van de Castle (1966) — Dream Animal Frequency',
+      scene: '꿈에 본 토템 동물은?',
+      choices: [
+        {
+          text: '검은 새 — 결을 알리는 결',
+          character: {
+            title: '검은 새의 결 (烏)',
+            archetype: '報·전갈',
+            body: 'Hall & Van de Castle (1966) — 검은 새 꿈은 전갈의 결.\n그대는 결의 결을 메시지로 받는 본성.\n\n다만 메시지만 좇으면 행동이 옅으니, 흰 새의 결도 두라.',
+            shadow: '관망',
+          },
+        },
+        {
+          text: '흰 새 — 결을 펴는 결',
+          character: {
+            title: '흰 새의 결 (白翼)',
+            archetype: '飛·자유',
+            body: 'Hall & Van de Castle (1966) — 흰 새 꿈은 자유의 결.\n그대는 결의 결을 가벼움으로 펴는 본성.\n\n다만 자유만 좇으면 뿌리가 옅으니, 검은 새의 결도 두라.',
+            shadow: '정처 없음',
+          },
+        },
+        {
+          text: '커다란 물고기 — 깊은 결',
+          character: {
+            title: '큰 물고기의 결 (鯤)',
+            archetype: '深·깊이',
+            body: 'Hall & Van de Castle (1966) — 큰 물고기 꿈은 깊이의 결.\n그대는 결의 결을 잠김으로 다듬는 본성.\n\n다만 깊이만 좇으면 표면이 옅으니, 흰 새의 결도 두라.',
+            shadow: '표면 거리감',
+          },
+        },
+        {
+          text: '거북 — 천천한 결',
+          character: {
+            title: '거북의 결 (龜)',
+            archetype: '久·오램',
+            body: 'Hall & Van de Castle (1966) — 거북 꿈은 오램의 결.\n그대는 결의 결을 시간으로 다듬는 본성.\n\n다만 오램만 좇으면 결단이 옅으니, 새의 결도 두라.',
+            shadow: '미루기',
+          },
+        },
+      ],
+    },
+    {
+      key: 'animal-water',
+      title: '물의 결 — 물 동물',
+      glyph: '水',
+      school: 'Lorenz (1966) — On Aggression 동물 본능 학파',
+      scene: '물의 결을 닮은 동물은?',
+      choices: [
+        {
+          text: '잉어 — 결 거슬러 오르는 결',
+          character: {
+            title: '잉어의 결 (鯉)',
+            archetype: '進·역행',
+            body: 'Lorenz (1966) — 잉어는 결을 거슬러 오르는 결.\n그대는 결의 결을 도전으로 다듬는 본성.\n\n다만 거슬러만 좇으면 흐름을 놓치니, 물고기의 결도 두라.',
+            shadow: '소진',
+          },
+        },
+        {
+          text: '돌고래 — 결 어울리는 결',
+          character: {
+            title: '돌고래의 결 (豚)',
+            archetype: '群·어울림',
+            body: 'Lorenz (1966) — 돌고래는 곁과 어울리는 결.\n그대는 결의 결을 어우러짐으로 다듬는 본성.\n\n다만 어울림만 좇으면 홀로 결이 옅으니, 잉어의 결도 두라.',
+            shadow: '홀로 결 약함',
+          },
+        },
+        {
+          text: '거북 — 물 위 결',
+          character: {
+            title: '물거북의 결 (龜)',
+            archetype: '靜·고요',
+            body: 'Lorenz (1966) — 거북은 물 위 고요의 결.\n그대는 결의 결을 잔잔함으로 다듬는 본성.\n\n다만 고요만 좇으면 결단이 옅으니, 돌고래의 결도 두라.',
+            shadow: '결단 약함',
+          },
+        },
+        {
+          text: '연어 — 결 회귀하는 결',
+          character: {
+            title: '연어의 결 (鮭)',
+            archetype: '歸·회귀',
+            body: 'Lorenz (1966) — 연어는 결의 결을 돌아오는 결.\n그대는 결의 결을 본 자리로 다듬는 본성.\n\n다만 회귀만 좇으면 새 결이 옅으니, 잉어의 결도 두라.',
+            shadow: '새 결 약함',
+          },
+        },
+      ],
+    },
+    {
+      key: 'animal-wild',
+      title: '야생 — 결의 본능',
+      glyph: '野',
+      school: 'Lorenz (1966) — On Aggression 본능 학파',
+      scene: '그대 결의 본능을 닮은 야생 동물은?',
+      choices: [
+        {
+          text: '늑대 — 결 무리 짓는 결',
+          character: {
+            title: '늑대의 결 (狼)',
+            archetype: '群·무리',
+            body: 'Lorenz (1966) — 늑대는 무리의 결, 위계.\n그대는 결의 결을 무리로 다듬는 본성.\n\n다만 무리만 좇으면 홀로 결이 옅으니, 표범의 결도 두라.',
+            shadow: '홀로 결 약함',
+          },
+        },
+        {
+          text: '표범 — 결 홀로 도는 결',
+          character: {
+            title: '표범의 결 (豹)',
+            archetype: '獨·홀로',
+            body: 'Lorenz (1966) — 표범은 홀로의 결, 은밀.\n그대는 결의 결을 홀로 다듬는 본성.\n\n다만 홀로만 좇으면 곁이 멀어지니, 늑대의 결도 두라.',
+            shadow: '거리감',
+          },
+        },
+        {
+          text: '여우 — 결 살피는 결',
+          character: {
+            title: '여우의 결 (狐)',
+            archetype: '察·살핌',
+            body: 'Lorenz (1966) — 여우는 결을 살피는 결.\n그대는 결의 결을 관찰로 다듬는 본성.\n\n다만 살핌만 좇으면 행동이 옅으니, 늑대의 결도 두라.',
+            shadow: '행동 약함',
+          },
+        },
+        {
+          text: '독수리 — 결 높이 도는 결',
+          character: {
+            title: '독수리의 결 (鷲)',
+            archetype: '高·조망',
+            body: 'Lorenz (1966) — 독수리는 높이의 결, 조망.\n그대는 결의 결을 전체로 다듬는 본성.\n\n다만 조망만 좇으면 곁이 멀어지니, 여우의 결도 두라.',
+            shadow: '거리감',
+          },
+        },
+      ],
+    },
+    {
+      key: 'animal-insect',
+      title: '곤충 — 결의 작은 결',
+      glyph: '蟲',
+      school: 'Lorenz (1966) — Ethology 곤충 본능',
+      scene: '그대 결에 가까운 곤충은?',
+      choices: [
+        {
+          text: '벌 — 결 부지런한 결',
+          character: {
+            title: '벌의 결 (蜂)',
+            archetype: '勤·근면',
+            body: 'Lorenz (1966) — 벌은 근면의 결, 무리.\n그대는 결의 결을 부지런함으로 다듬는 본성.\n\n다만 부지런만 좇으면 휴식이 옅으니, 나비의 결도 두라.',
+            shadow: '소진',
+          },
+        },
+        {
+          text: '나비 — 결 가벼이 도는 결',
+          character: {
+            title: '나비의 결 (蝶)',
+            archetype: '輕·자유',
+            body: 'Lorenz (1966) — 나비는 가벼움의 결, 자유.\n그대는 결의 결을 자유로 다듬는 본성.\n\n다만 자유만 좇으면 뿌리가 옅으니, 벌의 결도 두라.',
+            shadow: '뿌리 약함',
+          },
+        },
+        {
+          text: '거미 — 결 짜는 결',
+          character: {
+            title: '거미의 결 (蛛)',
+            archetype: '織·짜기',
+            body: 'Lorenz (1966) — 거미는 결을 짜는 결, 인내.\n그대는 결의 결을 엮음으로 다듬는 본성.\n\n다만 짜기만 좇으면 움직임이 옅으니, 나비의 결도 두라.',
+            shadow: '경직',
+          },
+        },
+        {
+          text: '반딧불이 — 결 빛 내는 결',
+          character: {
+            title: '반딧불의 결 (螢)',
+            archetype: '光·빛',
+            body: 'Lorenz (1966) — 반딧불은 빛의 결, 잠깐.\n그대는 결의 결을 짧은 빛으로 다듬는 본성.\n\n다만 짧음만 좇으면 결이 가벼우니, 거미의 결도 두라.',
+            shadow: '오램 약함',
+          },
+        },
+      ],
+    },
+    {
+      key: 'animal-mythic',
+      title: '신화 동물 — 결의 결',
+      glyph: '神',
+      school: 'Jung (1959) — Archetypes 신화 동물 원형 CW Vol.9',
+      scene: '그대 결을 닮은 신화 동물은?',
+      choices: [
+        {
+          text: '봉황 — 결 다시 사는 결',
+          character: {
+            title: '봉황의 결 (鳳)',
+            archetype: '生·재생',
+            body: 'Jung (1959) — 봉황은 재생의 결, 결의 회복.\n그대는 결의 결을 다시 살아남으로 다듬는 본성.\n\n다만 재생만 좇으면 끝을 못 받아들이니, 거북의 결도 두라.',
+            shadow: '끝 회피',
+          },
+        },
+        {
+          text: '청룡 — 결 펴는 결',
+          character: {
+            title: '청룡의 결 (龍)',
+            archetype: '大·펴짐',
+            body: 'Jung (1959) — 청룡은 大의 결, 자라남.\n그대는 결의 결을 큰 결로 펴는 본성.\n\n다만 펴짐만 좇으면 작은 결이 옅으니, 백호의 결도 두라.',
+            shadow: '세밀 약함',
+          },
+        },
+        {
+          text: '백호 — 결 다스리는 결',
+          character: {
+            title: '백호의 결 (虎)',
+            archetype: '威·위엄',
+            body: 'Jung (1959) — 백호는 威의 결, 다스림. 본 시스템 ADR-128 정합.\n그대는 결의 결을 위엄으로 다듬는 본성.\n\n다만 위엄만 좇으면 곁이 어려우니, 봉황의 결도 두라.',
+            shadow: '권위 과다',
+          },
+        },
+        {
+          text: '현무 — 결 깊은 결',
+          character: {
+            title: '현무의 결 (玄)',
+            archetype: '玄·깊이',
+            body: 'Jung (1959) — 현무는 玄의 결, 깊이.\n그대는 결의 결을 깊이로 다듬는 본성.\n\n다만 깊이만 좇으면 표면이 옅으니, 청룡의 결도 두라.',
+            shadow: '표면 거리감',
+          },
+        },
+      ],
+    },
+    {
+      key: 'need-maslow-survival',
+      title: '욕구 — 살아남는 결',
+      glyph: '生',
+      school: 'Maslow (1954) — Motivation and Personality 욕구 5단계',
+      scene: '재난 상황 — 그대가 가장 먼저 챙기는 결은?',
+      choices: [
+        {
+          text: '물·식량 — 살아남는 결',
+          character: {
+            title: '생리의 결 (生理)',
+            archetype: '生·살아남음',
+            body: 'Maslow (1954) — 생리 욕구는 살아남음의 결, 1단계.\n그대는 결의 결을 살아남음으로 다듬는 본성.\n\n다만 살아남음만 좇으면 안전이 옅으니, 안전의 결도 두라.',
+            shadow: '단기 결',
+          },
+        },
+        {
+          text: '튼튼한 거처 — 안전의 결',
+          character: {
+            title: '안전의 결 (安全)',
+            archetype: '安·안전',
+            body: 'Maslow (1954) — 안전 욕구는 안정의 결, 2단계.\n그대는 결의 결을 안전으로 다듬는 본성.\n\n다만 안전만 좇으면 결단이 옅으니, 자아실현의 결도 두라.',
+            shadow: '회피',
+          },
+        },
+        {
+          text: '가족·곁 — 사회의 결',
+          character: {
+            title: '사회의 결 (社會)',
+            archetype: '愛·소속',
+            body: 'Maslow (1954) — 소속 욕구는 곁의 결, 3단계.\n그대는 결의 결을 곁으로 다듬는 본성.\n\n다만 곁만 좇으면 자기가 옅으니, 존중의 결도 두라.',
+            shadow: '자기 결 약함',
+          },
+        },
+        {
+          text: '결의 결 — 자아실현의 결',
+          character: {
+            title: '실현의 결 (實現)',
+            archetype: '志·자아실현',
+            body: 'Maslow (1954) — 자아실현 욕구는 결의 결, 5단계.\n그대는 결의 결을 자기 결로 다듬는 본성.\n\n다만 자아실현만 좇으면 곁이 옅으니, 사회의 결도 두라.',
+            shadow: '곁 결 약함',
+          },
+        },
+      ],
+    },
+    {
+      key: 'need-maslow-esteem',
+      title: '욕구 — 결의 자리',
+      glyph: '尊',
+      school: 'Maslow (1954) — 욕구 5단계 존중 영역',
+      scene: '그대 결이 가장 깊이 바라는 자리는?',
+      choices: [
+        {
+          text: '곁의 인정 — 외 존중',
+          character: {
+            title: '외존의 결 (外尊)',
+            archetype: '尊·외부 인정',
+            body: 'Maslow (1954) — 외 존중은 곁의 인정으로 결을 다듬는 결.\n그대는 결의 결을 곁의 시선으로 키우는 본성.\n\n다만 외만 좇으면 자기가 옅으니, 내존의 결도 두라.',
+            shadow: '의존',
+          },
+        },
+        {
+          text: '결의 결 — 내 존중',
+          character: {
+            title: '내존의 결 (內尊)',
+            archetype: '尊·내적 존중',
+            body: 'Maslow (1954) — 내 존중은 자기 결을 자기로 인정하는 결.\n그대는 결의 결을 안에서 다듬는 본성.\n\n다만 내만 좇으면 곁이 옅으니, 외존의 결도 두라.',
+            shadow: '고립',
+          },
+        },
+        {
+          text: '결의 능력 — 숙달의 결',
+          character: {
+            title: '숙달의 결 (熟)',
+            archetype: '能·숙달',
+            body: 'Maslow (1954) — 숙달은 결의 결을 다듬는 능력.\n그대는 결의 결을 익힘으로 다듬는 본성.\n\n다만 숙달만 좇으면 새 결이 옅으니, 자유의 결도 두라.',
+            shadow: '완벽주의',
+          },
+        },
+        {
+          text: '결의 자유 — 결단의 결',
+          character: {
+            title: '결단의 결 (決)',
+            archetype: '志·자율',
+            body: 'Maslow (1954) — 자율은 결의 결을 스스로 결단하는 결.\n그대는 결의 결을 자기 의지로 다듬는 본성.\n\n다만 자율만 좇으면 곁이 옅으니, 외존의 결도 두라.',
+            shadow: '독불',
+          },
+        },
+      ],
+    },
+    {
+      key: 'value-schwartz-pole',
+      title: '가치 — 결의 극',
+      glyph: '價',
+      school: 'Schwartz (1992) — Universals in the Content and Structure of Values 10 가치 차원',
+      scene: '10년 후 그대 결이 가장 바라는 극은?',
+      choices: [
+        {
+          text: '자기 결단(Self-direction) — 결의 자유',
+          character: {
+            title: '자율의 결 (自律)',
+            archetype: '由·자기 결단',
+            body: 'Schwartz (1992) — Self-direction은 결의 결을 스스로 정하는 가치.\n그대는 결의 결을 자기로 다듬는 본성.\n\n다만 자율만 좇으면 곁이 옅으니, 자비의 결도 두라.',
+            shadow: '독불',
+          },
+        },
+        {
+          text: '성취(Achievement) — 결의 성과',
+          character: {
+            title: '성취의 결 (達)',
+            archetype: '達·성과',
+            body: 'Schwartz (1992) — Achievement는 결의 결을 성과로 다듬는 가치.\n그대는 결의 결을 결실로 다듬는 본성.\n\n다만 성취만 좇으면 곁이 옅으니, 자비의 결도 두라.',
+            shadow: '경쟁',
+          },
+        },
+        {
+          text: '자비(Benevolence) — 결의 곁',
+          character: {
+            title: '자비의 결 (慈)',
+            archetype: '慈·곁',
+            body: 'Schwartz (1992) — Benevolence는 곁을 돌보는 가치.\n그대는 결의 결을 곁으로 다듬는 본성.\n\n다만 자비만 좇으면 자기가 옅으니, 자율의 결도 두라.',
+            shadow: '자기 결 약함',
+          },
+        },
+        {
+          text: '전통(Tradition) — 결의 뿌리',
+          character: {
+            title: '전통의 결 (統)',
+            archetype: '統·뿌리',
+            body: 'Schwartz (1992) — Tradition은 결의 결을 뿌리로 다듬는 가치.\n그대는 결의 결을 옛 결로 다듬는 본성.\n\n다만 전통만 좇으면 새 결이 옅으니, 자율의 결도 두라.',
+            shadow: '완고',
+          },
+        },
+      ],
+    },
+    {
+      key: 'value-island',
+      title: '무인도 — 결의 한 가지',
+      glyph: '島',
+      school: 'Maslow (1954) — 욕구 5단계 응용 + Schwartz (1992) 가치 가설',
+      scene: '무인도에 한 가지만 가져갈 수 있다면?',
+      choices: [
+        {
+          text: '물·도구 — 살아남는 결',
+          character: {
+            title: '생존 한 결 (生)',
+            archetype: '生·생존 우선',
+            body: 'Maslow (1954) — 무인도에서 생존 도구 선택은 1단계 욕구의 결.\n그대는 결의 결을 살아남음으로 다듬는 본성.\n\n다만 생존만 좇으면 의미가 옅으니, 책의 결도 두라.',
+            shadow: '의미 약함',
+          },
+        },
+        {
+          text: '책 — 결의 결을 비추는 결',
+          character: {
+            title: '책의 한 결 (書)',
+            archetype: '思·인지',
+            body: 'Maslow (1954) — 책 선택은 인지·심미의 결, 후기 단계.\n그대는 결의 결을 생각으로 다듬는 본성.\n\n다만 생각만 좇으면 행동이 옅으니, 도구의 결도 두라.',
+            shadow: '관망',
+          },
+        },
+        {
+          text: '곁의 사진 — 결의 사람',
+          character: {
+            title: '곁의 한 결 (緣)',
+            archetype: '緣·관계',
+            body: 'Schwartz (1992) — 곁의 사진은 Benevolence 가치의 결.\n그대는 결의 결을 곁으로 다듬는 본성.\n\n다만 곁만 좇으면 자기가 옅으니, 책의 결도 두라.',
+            shadow: '자기 결 약함',
+          },
+        },
+        {
+          text: '악기 — 결의 결을 노래하는 결',
+          character: {
+            title: '소리의 한 결 (樂)',
+            archetype: '美·심미',
+            body: 'Maslow (1954) — 악기 선택은 심미 욕구의 결, 후기 단계.\n그대는 결의 결을 소리로 다듬는 본성.\n\n다만 소리만 좇으면 생존이 옅으니, 도구의 결도 두라.',
+            shadow: '실리 약함',
+          },
+        },
+      ],
+    },
+    {
+      key: 'value-frankl-meaning',
+      title: '의미 — 결의 결',
+      glyph: '意',
+      school: "Frankl (1946) — Man's Search for Meaning 의미치료",
+      scene: '결의 결이 가장 깊이 채워질 때는?',
+      choices: [
+        {
+          text: '결의 결을 만드는 결 — 창조',
+          character: {
+            title: '창조 의미의 결 (作)',
+            archetype: '作·창조 가치',
+            body: 'Frankl (1946) — 창조 가치는 결의 결을 만드는 결.\n그대는 결의 결을 작업으로 다듬는 본성.\n\n다만 창조만 좇으면 곁이 옅으니, 사랑의 결도 두라.',
+            shadow: '소진',
+          },
+        },
+        {
+          text: '결의 결을 곁과 나누는 결 — 사랑',
+          character: {
+            title: '사랑 의미의 결 (愛)',
+            archetype: '愛·체험 가치',
+            body: 'Frankl (1946) — 체험 가치는 결의 결을 곁과 나누는 결.\n그대는 결의 결을 곁으로 다듬는 본성.\n\n다만 사랑만 좇으면 자기가 옅으니, 창조의 결도 두라.',
+            shadow: '자기 결 약함',
+          },
+        },
+        {
+          text: '결의 결을 견디는 결 — 태도',
+          character: {
+            title: '태도 의미의 결 (態)',
+            archetype: '忍·태도 가치',
+            body: 'Frankl (1946) — 태도 가치는 결의 결을 견디는 결.\n그대는 결의 결을 인내로 다듬는 본성.\n\n다만 견딤만 좇으면 결단이 옅으니, 창조의 결도 두라.',
+            shadow: '수동',
+          },
+        },
+        {
+          text: '결의 결을 알아가는 결 — 인지',
+          character: {
+            title: '인지 의미의 결 (知)',
+            archetype: '知·인지 가치',
+            body: 'Frankl (1946) — 인지는 결의 결을 알아가는 결.\n그대는 결의 결을 통찰로 다듬는 본성.\n\n다만 앎만 좇으면 행동이 옅으니, 사랑의 결도 두라.',
+            shadow: '관망',
+          },
+        },
+      ],
+    },
+    {
+      key: 'value-lazarus-stress',
+      title: '결의 결 — 결의 대처',
+      glyph: '處',
+      school: 'Lazarus (1984) — Stress, Appraisal, and Coping',
+      scene: '결의 결이 어려울 때 그대의 결은?',
+      choices: [
+        {
+          text: '결의 결을 풀기 — 문제 중심',
+          character: {
+            title: '풀이의 결 (解)',
+            archetype: '解·문제 중심',
+            body: 'Lazarus (1984) — 문제 중심 대처는 결의 결을 푸는 결.\n그대는 결의 결을 행동으로 다듬는 본성.\n\n다만 풀이만 좇으면 감정이 옅으니, 정의의 결도 두라.',
+            shadow: '감정 결락',
+          },
+        },
+        {
+          text: '결의 결을 다듬기 — 정서 중심',
+          character: {
+            title: '정의의 결 (情)',
+            archetype: '情·정서 중심',
+            body: 'Lazarus (1984) — 정서 중심 대처는 결의 결을 가다듬는 결.\n그대는 결의 결을 마음으로 다듬는 본성.\n\n다만 정만 좇으면 행동이 옅으니, 풀이의 결도 두라.',
+            shadow: '행동 약함',
+          },
+        },
+        {
+          text: '결의 결을 곁과 나누기 — 사회 지지',
+          character: {
+            title: '의지의 결 (依)',
+            archetype: '依·사회 지지',
+            body: 'Lazarus (1984) — 사회 지지는 곁과 나누어 결의 결을 다듬는 결.\n그대는 결의 결을 곁으로 다듬는 본성.\n\n다만 의지만 좇으면 자기가 옅으니, 자율의 결도 두라.',
+            shadow: '의존',
+          },
+        },
+        {
+          text: '결의 결을 다시 보기 — 재평가',
+          character: {
+            title: '재평의 결 (再)',
+            archetype: '視·재평가',
+            body: 'Lazarus (1984) — 재평가는 결의 결을 다시 보는 결.\n그대는 결의 결을 시각으로 다듬는 본성.\n\n다만 재평가만 좇으면 결단이 옅으니, 풀이의 결도 두라.',
+            shadow: '결단 늦음',
+          },
+        },
+      ],
+    },
+    {
+      key: 'value-hofstede',
+      title: '문화 — 결의 차원',
+      glyph: '文',
+      school: 'Hofstede (1980) — Cultures and Organizations 6 차원',
+      scene: '그대 결이 어울리는 문화의 결은?',
+      choices: [
+        {
+          text: '곁 우선 — 집단주의',
+          character: {
+            title: '집단의 결 (集)',
+            archetype: '集·곁 우선',
+            body: 'Hofstede (1980) — 집단주의는 곁을 우선하는 문화 결.\n그대는 결의 결을 곁으로 다듬는 본성.\n\n다만 곁만 좇으면 자기가 옅으니, 개인의 결도 두라.',
+            shadow: '자기 결 약함',
+          },
+        },
+        {
+          text: '자기 우선 — 개인주의',
+          character: {
+            title: '개인의 결 (個)',
+            archetype: '個·자기 우선',
+            body: 'Hofstede (1980) — 개인주의는 자기 결을 우선하는 문화 결.\n그대는 결의 결을 자기로 다듬는 본성.\n\n다만 자기만 좇으면 곁이 옅으니, 집단의 결도 두라.',
+            shadow: '고립',
+          },
+        },
+        {
+          text: '결의 결 견디기 — 불확실성 회피',
+          character: {
+            title: '회피의 결 (避)',
+            archetype: '避·안정 우선',
+            body: 'Hofstede (1980) — 불확실성 회피는 결의 결을 안정으로 다듬는 결.\n그대는 결의 결을 예측으로 다듬는 본성.\n\n다만 회피만 좇으면 새 결이 옅으니, 모험의 결도 두라.',
+            shadow: '경직',
+          },
+        },
+        {
+          text: '결의 결 견디기 — 결의 모험',
+          character: {
+            title: '모험의 결 (冒)',
+            archetype: '冒·모험',
+            body: 'Hofstede (1980) — 모험은 불확실성을 견디는 결.\n그대는 결의 결을 새 결로 다듬는 본성.\n\n다만 모험만 좇으면 안정이 옅으니, 회피의 결도 두라.',
+            shadow: '경솔',
+          },
+        },
+      ],
+    },
+    {
+      key: 'value-east-confucian',
+      title: '동양 — 결의 다섯 덕',
+      glyph: '德',
+      school: '한국 정통 五常 (仁義禮智信) — 사주 학파 응용',
+      scene: '동양 五常 중 그대 결의 첫 결은?',
+      choices: [
+        {
+          text: '효(孝) — 결의 뿌리',
+          character: {
+            title: '효의 결 (孝)',
+            archetype: '孝·뿌리',
+            body: '한국 정통 — 孝는 결의 결을 부모에 두는 덕.\n그대는 결의 결을 뿌리로 다듬는 본성.\n\n다만 효만 좇으면 자기가 옅으니, 신의 결도 두라.',
+            shadow: '자기 결 약함',
+          },
+        },
+        {
+          text: '의(義) — 결의 옳음',
+          character: {
+            title: '의리의 결 (義)',
+            archetype: '義·옳음',
+            body: '한국 정통 — 義는 결의 결을 옳음으로 다듬는 덕.\n그대는 결의 결을 의리로 다듬는 본성.\n\n다만 의만 좇으면 부드러움이 옅으니, 인의 결도 두라.',
+            shadow: '엄정',
+          },
+        },
+        {
+          text: '예(禮) — 결의 형식',
+          character: {
+            title: '예의의 결 (禮)',
+            archetype: '禮·형식',
+            body: '한국 정통 — 禮는 결의 결을 갖추는 덕.\n그대는 결의 결을 형식으로 다듬는 본성.\n\n다만 예만 좇으면 본 결이 옅으니, 인의 결도 두라.',
+            shadow: '형식 과다',
+          },
+        },
+        {
+          text: '신(信) — 결의 신의',
+          character: {
+            title: '신의의 결 (信)',
+            archetype: '信·믿음',
+            body: '한국 정통 — 信은 결의 결을 곁과 묶는 덕.\n그대는 결의 결을 믿음으로 다듬는 본성.\n\n다만 신만 좇으면 결단이 옅으니, 의의 결도 두라.',
+            shadow: '결단 늦음',
+          },
+        },
+      ],
+    },
+    {
+      key: 'value-erikson-stage',
+      title: '생애 — 결의 단계',
+      glyph: '生',
+      school: 'Erikson (1950) — Childhood and Society 8 단계',
+      scene: '오늘 그대 결이 가장 풀고 있는 결은?',
+      choices: [
+        {
+          text: '결의 결 — 정체성',
+          character: {
+            title: '정체의 결 (定)',
+            archetype: '我·정체성',
+            body: 'Erikson (1950) — 정체성은 결의 결을 알아가는 단계.\n그대는 결의 결을 자기로 다듬는 본성.\n\n다만 정체성만 좇으면 곁이 옅으니, 친밀의 결도 두라.',
+            shadow: '곁 결 약함',
+          },
+        },
+        {
+          text: '곁의 결 — 친밀',
+          character: {
+            title: '친밀의 결 (親)',
+            archetype: '親·관계',
+            body: 'Erikson (1950) — 친밀은 결의 결을 곁과 잇는 단계.\n그대는 결의 결을 곁으로 다듬는 본성.\n\n다만 친밀만 좇으면 자기가 옅으니, 정체의 결도 두라.',
+            shadow: '자기 결 약함',
+          },
+        },
+        {
+          text: '결의 결을 남기는 결 — 생성',
+          character: {
+            title: '생성의 결 (育)',
+            archetype: '育·기여',
+            body: 'Erikson (1950) — 생성은 결의 결을 다음 결로 남기는 단계.\n그대는 결의 결을 곁으로 키우는 본성.\n\n다만 생성만 좇으면 자기가 옅으니, 통합의 결도 두라.',
+            shadow: '소진',
+          },
+        },
+        {
+          text: '결의 결을 갈무리하는 결 — 통합',
+          character: {
+            title: '통합의 결 (合)',
+            archetype: '合·갈무리',
+            body: 'Erikson (1950) — 통합은 결의 결을 갈무리하는 단계.\n그대는 결의 결을 받아들임으로 다듬는 본성.\n\n다만 통합만 좇으면 새 결이 옅으니, 생성의 결도 두라.',
+            shadow: '머뭇거림',
+          },
+        },
+      ],
+    },
+    {
+      key: 'food-bartoshuk-taster',
+      title: '맛 — 결의 혀',
+      glyph: '舌',
+      school: 'Bartoshuk (2000) — Comparing Sensory Experiences PROP/PTC 4 유형',
+      scene: '같은 음식을 먹어도 그대 결은?',
+      choices: [
+        {
+          text: '쓴맛이 유독 짙게 느껴진다',
+          character: {
+            title: '초미의 결 (超)',
+            archetype: '敏·예민',
+            body: 'Bartoshuk (2000) — supertaster는 PROP/PTC에 예민한 결.\n그대는 결의 결을 미세함으로 다듬는 본성.\n\n다만 예민만 좇으면 피로가 잦으니, 보통의 결도 두라.',
+            shadow: '소진',
+          },
+        },
+        {
+          text: '쓴맛이 적당히 느껴진다',
+          character: {
+            title: '보통의 결 (中)',
+            archetype: '均·균형',
+            body: 'Bartoshuk (2000) — taster는 PROP/PTC에 보통 결.\n그대는 결의 결을 균형으로 다듬는 본성.\n\n다만 균형만 좇으면 특별함이 옅으니, 초미의 결도 두라.',
+            shadow: '특이 결 약함',
+          },
+        },
+        {
+          text: '쓴맛이 거의 안 느껴진다',
+          character: {
+            title: '둔미의 결 (鈍)',
+            archetype: '鈍·무딘 결',
+            body: 'Bartoshuk (2000) — non-taster는 PROP/PTC에 둔감한 결.\n그대는 결의 결을 무딤으로 다듬는 본성.\n\n다만 둔함만 좇으면 미세함이 옅으니, 초미의 결도 두라.',
+            shadow: '세밀 약함',
+          },
+        },
+        {
+          text: '맛마다 느낌이 달라 일정치 않다',
+          character: {
+            title: '결의 결 변(變)',
+            archetype: '變·가변',
+            body: 'Bartoshuk (2000) — neutral은 미각 변화의 결.\n그대는 결의 결을 가변으로 다듬는 본성.\n\n다만 가변만 좇으면 결단이 옅으니, 보통의 결도 두라.',
+            shadow: '결단 늦음',
+          },
+        },
+      ],
+    },
+    {
+      key: 'food-rozin-five',
+      title: '맛 — 그대 결의 끌림',
+      glyph: '味',
+      school: 'Rozin (1986) — Disgust + Food Psychology 음식 선호',
+      scene: '오늘 그대 결에 끌리는 맛은?',
+      choices: [
+        {
+          text: '단맛 — 결의 위안',
+          character: {
+            title: '단결의 결 (甘)',
+            archetype: '安·위안',
+            body: 'Rozin (1986) — 단맛 선호는 위안의 결.\n그대는 결의 결을 다정함으로 다듬는 본성.\n\n다만 단만 좇으면 결단이 옅으니, 매운의 결도 두라.',
+            shadow: '결단 약함',
+          },
+        },
+        {
+          text: '짠맛 — 결의 균형',
+          character: {
+            title: '짠결의 결 (鹹)',
+            archetype: '衡·균형',
+            body: 'Rozin (1986) — 짠맛 선호는 균형의 결.\n그대는 결의 결을 어우러짐으로 다듬는 본성.\n\n다만 짠만 좇으면 자극이 옅으니, 매운의 결도 두라.',
+            shadow: '평이',
+          },
+        },
+        {
+          text: '매운맛 — 결의 자극',
+          character: {
+            title: '매운결의 결 (辣)',
+            archetype: '激·자극',
+            body: 'Rozin (1986) — 매운맛 선호는 자극의 결, 가벼운 위험 즐김.\n그대는 결의 결을 도전으로 다듬는 본성.\n\n다만 매움만 좇으면 부드러움이 옅으니, 단의 결도 두라.',
+            shadow: '날 선 결',
+          },
+        },
+        {
+          text: '신맛 — 결의 깨우는 결',
+          character: {
+            title: '신결의 결 (酸)',
+            archetype: '醒·각성',
+            body: 'Rozin (1986) — 신맛 선호는 각성의 결.\n그대는 결의 결을 깨움으로 다듬는 본성.\n\n다만 깨움만 좇으면 안식이 옅으니, 단의 결도 두라.',
+            shadow: '소진',
+          },
+        },
+      ],
+    },
+    {
+      key: 'food-rozin-disgust',
+      title: '음식 — 결의 거부',
+      glyph: '拒',
+      school: 'Rozin (1986) — Disgust 음식 거부 학파',
+      scene: '그대 결이 가장 멀리하고 싶은 음식은?',
+      choices: [
+        {
+          text: '오래된 음식 — 부패의 결',
+          character: {
+            title: '신선의 결 (鮮)',
+            archetype: '鮮·신선 우선',
+            body: 'Rozin (1986) — 부패 거부는 핵심 disgust, 결의 결을 신선으로 다듬는 결.\n그대는 결의 결을 새로움으로 다듬는 본성.\n\n다만 신선만 좇으면 깊이가 옅으니, 숙성의 결도 두라.',
+            shadow: '깊이 약함',
+          },
+        },
+        {
+          text: '기름진 음식 — 무거운 결',
+          character: {
+            title: '담박의 결 (淡)',
+            archetype: '淡·담박',
+            body: 'Rozin (1986) — 무거움 거부는 결의 결을 가볍게 다듬는 결.\n그대는 결의 결을 담박으로 다듬는 본성.\n\n다만 담박만 좇으면 풍성함이 옅으니, 진한 결도 두라.',
+            shadow: '소박 과다',
+          },
+        },
+        {
+          text: '비린 음식 — 비린 결',
+          character: {
+            title: '향취의 결 (香)',
+            archetype: '香·향',
+            body: 'Rozin (1986) — 비린 거부는 향취의 결, 결의 결을 향으로 다듬는 결.\n그대는 결의 결을 향으로 다듬는 본성.\n\n다만 향만 좇으면 본 결이 옅으니, 본맛의 결도 두라.',
+            shadow: '본맛 결락',
+          },
+        },
+        {
+          text: '낯선 향신료 — 결의 거부',
+          character: {
+            title: '익숙의 결 (慣)',
+            archetype: '慣·익숙',
+            body: 'Rozin (1986) — 낯선 향 거부는 음식 보수의 결.\n그대는 결의 결을 익숙함으로 다듬는 본성.\n\n다만 익숙만 좇으면 새 결이 옅으니, 향취의 결도 두라.',
+            shadow: '경직',
+          },
+        },
+      ],
+    },
+    {
+      key: 'food-tea-ceremony',
+      title: '차 — 결의 한 잔',
+      glyph: '茶',
+      school: '한국 정통 茶禮 — 한국 차문화 (다도)',
+      scene: '오늘 그대 결이 고르는 차 한 잔은?',
+      choices: [
+        {
+          text: '녹차 — 결의 청량',
+          character: {
+            title: '녹차의 결 (綠茶)',
+            archetype: '淸·청량',
+            body: '한국 정통 茶禮 — 녹차는 청량의 결.\n그대는 결의 결을 맑음으로 다듬는 본성.\n\n다만 맑음만 좇으면 무게가 옅으니, 흑차의 결도 두라.',
+            shadow: '무게 약함',
+          },
+        },
+        {
+          text: '홍차 — 결의 따뜻함',
+          character: {
+            title: '홍차의 결 (紅茶)',
+            archetype: '溫·따뜻',
+            body: '한국 정통 茶禮 — 홍차는 따뜻함의 결.\n그대는 결의 결을 온기로 다듬는 본성.\n\n다만 온기만 좇으면 맑음이 옅으니, 녹차의 결도 두라.',
+            shadow: '진중 과다',
+          },
+        },
+        {
+          text: '대추차 — 결의 자양',
+          character: {
+            title: '대추차의 결 (棗茶)',
+            archetype: '養·자양',
+            body: '한국 정통 茶禮 — 대추차는 자양의 결, 한국 전통 차.\n그대는 결의 결을 보살핌으로 다듬는 본성.\n\n다만 자양만 좇으면 결단이 옅으니, 녹차의 결도 두라.',
+            shadow: '결단 늦음',
+          },
+        },
+        {
+          text: '국화차 — 결의 향기',
+          character: {
+            title: '국화차의 결 (菊茶)',
+            archetype: '香·향취',
+            body: '한국 정통 茶禮 — 국화차는 향취의 결, 가을 차.\n그대는 결의 결을 향으로 다듬는 본성.\n\n다만 향만 좇으면 본 결이 옅으니, 대추차의 결도 두라.',
+            shadow: '본 결 약함',
+          },
+        },
+      ],
+    },
+    {
+      key: 'food-soup-bowl',
+      title: '국 — 결의 한 그릇',
+      glyph: '湯',
+      school: '한국 정통 韓食 — 국·찌개 한식 음식 문화',
+      scene: '오늘 그대 결이 고르는 국 한 그릇은?',
+      choices: [
+        {
+          text: '미역국 — 결의 부드러움',
+          character: {
+            title: '미역국의 결 (海)',
+            archetype: '柔·부드러움',
+            body: '한국 정통 — 미역국은 부드러움의 결, 생일의 음식.\n그대는 결의 결을 부드러움으로 다듬는 본성.\n\n다만 부드러움만 좇으면 결단이 옅으니, 김치찌개의 결도 두라.',
+            shadow: '결단 약함',
+          },
+        },
+        {
+          text: '김치찌개 — 결의 자극',
+          character: {
+            title: '김치찌개의 결 (辛)',
+            archetype: '激·자극',
+            body: '한국 정통 — 김치찌개는 자극의 결, 발효 + 매움.\n그대는 결의 결을 깨움으로 다듬는 본성.\n\n다만 깨움만 좇으면 부드러움이 옅으니, 미역국의 결도 두라.',
+            shadow: '날 선 결',
+          },
+        },
+        {
+          text: '된장국 — 결의 깊이',
+          character: {
+            title: '된장국의 결 (深)',
+            archetype: '深·깊이',
+            body: '한국 정통 — 된장국은 깊이의 결, 발효의 결.\n그대는 결의 결을 잠김으로 다듬는 본성.\n\n다만 깊이만 좇으면 가벼움이 옅으니, 미역국의 결도 두라.',
+            shadow: '무거움',
+          },
+        },
+        {
+          text: '시래기국 — 결의 검소',
+          character: {
+            title: '시래기국의 결 (素)',
+            archetype: '素·검소',
+            body: '한국 정통 — 시래기국은 검소의 결, 겨울 음식.\n그대는 결의 결을 단정함으로 다듬는 본성.\n\n다만 검소만 좇으면 풍성함이 옅으니, 된장국의 결도 두라.',
+            shadow: '풍성 약함',
+          },
+        },
+      ],
+    },
+    {
+      key: 'food-banchan',
+      title: '반찬 — 결의 한 가지',
+      glyph: '飯',
+      school: '한국 정통 韓食 — 반찬 한식 식문화',
+      scene: '오늘 그대 결이 가장 먼저 손이 가는 반찬은?',
+      choices: [
+        {
+          text: '김치 — 결의 발효',
+          character: {
+            title: '김치의 결 (酵)',
+            archetype: '酵·발효',
+            body: '한국 정통 — 김치는 발효의 결, 시간의 음식.\n그대는 결의 결을 시간으로 다듬는 본성.\n\n다만 시간만 좇으면 새 결이 옅으니, 나물의 결도 두라.',
+            shadow: '느림',
+          },
+        },
+        {
+          text: '나물 — 결의 풀',
+          character: {
+            title: '나물의 결 (草)',
+            archetype: '素·소박',
+            body: '한국 정통 — 나물은 소박의 결, 들녘의 음식.\n그대는 결의 결을 단정함으로 다듬는 본성.\n\n다만 단정만 좇으면 진한 결이 옅으니, 김치의 결도 두라.',
+            shadow: '강렬 약함',
+          },
+        },
+        {
+          text: '장조림 — 결의 단단함',
+          character: {
+            title: '장조림의 결 (堅)',
+            archetype: '堅·단단',
+            body: '한국 정통 — 장조림은 단단함의 결, 갈무리 음식.\n그대는 결의 결을 갈무리로 다듬는 본성.\n\n다만 갈무리만 좇으면 신선함이 옅으니, 나물의 결도 두라.',
+            shadow: '신선 약함',
+          },
+        },
+        {
+          text: '계란찜 — 결의 부드러움',
+          character: {
+            title: '계란찜의 결 (溫)',
+            archetype: '溫·따뜻',
+            body: '한국 정통 — 계란찜은 부드러움의 결, 어우러진 음식.\n그대는 결의 결을 따뜻함으로 다듬는 본성.\n\n다만 따뜻만 좇으면 결단이 옅으니, 장조림의 결도 두라.',
+            shadow: '결단 약함',
+          },
+        },
+      ],
+    },
+    {
+      key: 'food-rice',
+      title: '밥 — 결의 한 술',
+      glyph: '米',
+      school: '한국 정통 韓食 — 밥 주식 문화',
+      scene: '오늘 그대 결이 고르는 밥은?',
+      choices: [
+        {
+          text: '흰쌀밥 — 결의 단정',
+          character: {
+            title: '백반의 결 (白)',
+            archetype: '素·단정',
+            body: '한국 정통 — 흰밥은 단정의 결, 주식의 본.\n그대는 결의 결을 본 결로 다듬는 본성.\n\n다만 단정만 좇으면 풍성함이 옅으니, 잡곡밥의 결도 두라.',
+            shadow: '단조',
+          },
+        },
+        {
+          text: '잡곡밥 — 결의 풍성',
+          character: {
+            title: '잡곡의 결 (雜)',
+            archetype: '富·풍성',
+            body: '한국 정통 — 잡곡밥은 풍성의 결, 여러 결의 어우러짐.\n그대는 결의 결을 다채로움으로 다듬는 본성.\n\n다만 풍성만 좇으면 단정함이 옅으니, 흰밥의 결도 두라.',
+            shadow: '집중 약함',
+          },
+        },
+        {
+          text: '비빔밥 — 결의 어우러짐',
+          character: {
+            title: '비빔밥의 결 (混)',
+            archetype: '混·융합',
+            body: '한국 정통 — 비빔밥은 어우러짐의 결, 여러 결의 한 그릇.\n그대는 결의 결을 융합으로 다듬는 본성.\n\n다만 융합만 좇으면 한 결의 결이 옅으니, 흰밥의 결도 두라.',
+            shadow: '본 결 옅음',
+          },
+        },
+        {
+          text: '솥밥 — 결의 정성',
+          character: {
+            title: '솥밥의 결 (誠)',
+            archetype: '誠·정성',
+            body: '한국 정통 — 솥밥은 정성의 결, 시간의 음식.\n그대는 결의 결을 정성으로 다듬는 본성.\n\n다만 정성만 좇으면 결단이 옅으니, 잡곡밥의 결도 두라.',
+            shadow: '느림',
+          },
+        },
+      ],
+    },
+    {
+      key: 'culture-seasonal-festival',
+      title: '명절 — 결의 결',
+      glyph: '節',
+      school: '한국 정통 4 대 명절 (설·정월대보름·단오·추석)',
+      scene: '4 대 명절 중 그대 결의 결은?',
+      choices: [
+        {
+          text: '설 — 결의 시작',
+          character: {
+            title: '설의 결 (元)',
+            archetype: '始·시작',
+            body: '한국 정통 — 설은 결의시작, 한 해의 본 결.\n그대는 결의 결을 시작으로 다듬는 본성.\n\n다만 시작만 좇으면 갈무리가 옅으니, 추석의 결도 두라.',
+            shadow: '갈무리 약함',
+          },
+        },
+        {
+          text: '정월대보름 — 결의 가득',
+          character: {
+            title: '대보름의 결 (滿)',
+            archetype: '滿·충만',
+            body: '한국 정통 — 정월대보름은 가득의 결, 첫 보름.\n그대는 결의 결을 풍성함으로 다듬는 본성.\n\n다만 풍성만 좇으면 결단이 옅으니, 설의 결도 두라.',
+            shadow: '결단 늦음',
+          },
+        },
+        {
+          text: '단오 — 결의 활기',
+          character: {
+            title: '단오의 결 (陽)',
+            archetype: '陽·활기',
+            body: '한국 정통 — 단오는 양의 결의 절정, 5월 5일.\n그대는 결의 결을 활기로 다듬는 본성.\n\n다만 활기만 좇으면 갈무리가 옅으니, 추석의 결도 두라.',
+            shadow: '소진',
+          },
+        },
+        {
+          text: '추석 — 결의 갈무리',
+          character: {
+            title: '추석의 결 (秋)',
+            archetype: '收·갈무리',
+            body: '한국 정통 — 추석은 가을 결의 갈무리, 한 해의 결실.\n그대는 결의 결을 갈무리로 다듬는 본성.\n\n다만 갈무리만 좇으면 시작이 옅으니, 설의 결도 두라.',
+            shadow: '머뭇거림',
+          },
+        },
+      ],
+    },
+    {
+      key: 'culture-traditional-music',
+      title: '음악 — 결의 가락',
+      glyph: '樂',
+      school: '한국 정통 國樂 (정악·산조·판소리·민요)',
+      scene: '그대 결을 닮은 한국 음악의 결은?',
+      choices: [
+        {
+          text: '정악 — 결의 무게',
+          character: {
+            title: '정악의 결 (正)',
+            archetype: '正·정중',
+            body: '한국 정통 — 정악은 결의 결을 무게로 다듬는 결.\n그대는 결의 결을 정중함으로 다듬는 본성.\n\n다만 무게만 좇으면 가벼움이 옅으니, 민요의 결도 두라.',
+            shadow: '경직',
+          },
+        },
+        {
+          text: '산조 — 결의 흐름',
+          character: {
+            title: '산조의 결 (散)',
+            archetype: '流·흐름',
+            body: '한국 정통 — 산조는 결의 결을 흐름으로 다듬는 결.\n그대는 결의 결을 자유로 다듬는 본성.\n\n다만 흐름만 좇으면 형식이 옅으니, 정악의 결도 두라.',
+            shadow: '형식 약함',
+          },
+        },
+        {
+          text: '판소리 — 결의 한',
+          character: {
+            title: '판소리의 결 (恨)',
+            archetype: '恨·깊이',
+            body: '한국 정통 — 판소리는 결의 결을 한으로 다듬는 결.\n그대는 결의 결을 잠김으로 다듬는 본성.\n\n다만 한만 좇으면 환함이 옅으니, 민요의 결도 두라.',
+            shadow: '잠김',
+          },
+        },
+        {
+          text: '민요 — 결의 흥',
+          character: {
+            title: '민요의 결 (興)',
+            archetype: '興·흥',
+            body: '한국 정통 — 민요는 결의 결을 흥으로 다듬는 결.\n그대는 결의 결을 어우러짐으로 다듬는 본성.\n\n다만 흥만 좇으면 깊이가 옅으니, 판소리의 결도 두라.',
+            shadow: '깊이 약함',
+          },
+        },
+      ],
+    },
+    {
+      key: 'culture-four-art',
+      title: '사군자 — 결의 결',
+      glyph: '君',
+      school: '한국 정통 四君子 (梅·蘭·菊·竹)',
+      scene: '한국 사군자 중 그대 결의 결은?',
+      choices: [
+        {
+          text: '매(梅) — 추위에 피는 결',
+          character: {
+            title: '매화의 결 (梅)',
+            archetype: '寒·견딤',
+            body: '한국 정통 四君子 — 梅는 추위에 피는 결.\n그대는 결의 결을 견딤으로 다듬는 본성.\n\n다만 견딤만 좇으면 부드러움이 옅으니, 난의 결도 두라.',
+            shadow: '날 선 결',
+          },
+        },
+        {
+          text: '난(蘭) — 깊은 향의 결',
+          character: {
+            title: '난초의 결 (蘭)',
+            archetype: '香·은은',
+            body: '한국 정통 四君子 — 蘭은 은은한 향의 결.\n그대는 결의 결을 은은함으로 다듬는 본성.\n\n다만 은은함만 좇으면 결단이 옅으니, 죽의 결도 두라.',
+            shadow: '결단 약함',
+          },
+        },
+        {
+          text: '국(菊) — 가을의 결',
+          character: {
+            title: '국화의 결 (菊)',
+            archetype: '節·절개',
+            body: '한국 정통 四君子 — 菊는 가을의 결, 절개.\n그대는 결의 결을 절개로 다듬는 본성.\n\n다만 절개만 좇으면 어우러짐이 옅으니, 난의 결도 두라.',
+            shadow: '고립',
+          },
+        },
+        {
+          text: '죽(竹) — 곧은 결',
+          character: {
+            title: '대나무의 결 (竹)',
+            archetype: '直·곧음',
+            body: '한국 정통 四君子 — 竹은 곧음의 결, 절도.\n그대는 결의 결을 곧음으로 다듬는 본성.\n\n다만 곧음만 좇으면 유연함이 옅으니, 난의 결도 두라.',
+            shadow: '경직',
+          },
+        },
+      ],
+    },
+    {
+      key: 'culture-hanok',
+      title: '한옥 — 결의 자리',
+      glyph: '韓',
+      school: '한국 정통 韓屋 — 마루·온돌·마당·대청',
+      scene: '한옥에서 그대 결이 가장 머무는 자리는?',
+      choices: [
+        {
+          text: '마루 — 결의 어우러짐',
+          character: {
+            title: '마루의 결 (廳)',
+            archetype: '聚·모임',
+            body: '한국 정통 韓屋 — 마루는 결의어우러짐 자리.\n그대는 결의 결을 어우러짐으로 다듬는 본성.\n\n다만 어우러짐만 좇으면 홀로 결이 옅으니, 사랑방의 결도 두라.',
+            shadow: '홀로 결 약함',
+          },
+        },
+        {
+          text: '온돌방 — 결의 잠김',
+          character: {
+            title: '온돌의 결 (溫)',
+            archetype: '溫·잠김',
+            body: '한국 정통 韓屋 — 온돌방은 결의잠김 자리.\n그대는 결의 결을 따뜻함으로 다듬는 본성.\n\n다만 잠김만 좇으면 활기가 옅으니, 마당의 결도 두라.',
+            shadow: '머뭇거림',
+          },
+        },
+        {
+          text: '마당 — 결의 열림',
+          character: {
+            title: '마당의 결 (庭)',
+            archetype: '開·열림',
+            body: '한국 정통 韓屋 — 마당은 결의열림 자리.\n그대는 결의 결을 열림으로 다듬는 본성.\n\n다만 열림만 좇으면 갈무리가 옅으니, 온돌의 결도 두라.',
+            shadow: '경계 흐림',
+          },
+        },
+        {
+          text: '대청 — 결의 사이',
+          character: {
+            title: '대청의 결 (廳間)',
+            archetype: '中·사이',
+            body: '한국 정통 韓屋 — 대청은 결의사이 자리, 안과 밖의 결.\n그대는 결의 결을 경계로 다듬는 본성.\n\n다만 경계만 좇으면 한쪽에 못 잠기니, 온돌의 결도 두라.',
+            shadow: '결단 늦음',
+          },
+        },
+      ],
+    },
+    {
+      key: 'culture-hanbok',
+      title: '한복 — 결의 옷',
+      glyph: '服',
+      school: '한국 정통 韓服 — 색·옷고름·치마·도포',
+      scene: '오늘 그대 결이 고르는 한복의 색은?',
+      choices: [
+        {
+          text: '백의 — 결의 단정',
+          character: {
+            title: '백한복의 결 (白衣)',
+            archetype: '素·단정',
+            body: '한국 정통 韓服 — 백한복은 단정의 결, 백의민족의 본.\n그대는 결의 결을 단정함으로 다듬는 본성.\n\n다만 단정만 좇으면 화려함이 옅으니, 청의 결도 두라.',
+            shadow: '단조',
+          },
+        },
+        {
+          text: '청한복 — 결의 청량',
+          character: {
+            title: '청한복의 결 (靑衣)',
+            archetype: '淸·청량',
+            body: '한국 정통 韓服 — 청한복은 청량의 결.\n그대는 결의 결을 청량함으로 다듬는 본성.\n\n다만 청량만 좇으면 무게가 옅으니, 자한복의 결도 두라.',
+            shadow: '무게 약함',
+          },
+        },
+        {
+          text: '홍한복 — 결의 활기',
+          character: {
+            title: '홍한복의 결 (紅衣)',
+            archetype: '陽·활기',
+            body: '한국 정통 韓服 — 홍한복은 활기의 결, 혼례의 본.\n그대는 결의 결을 활기로 다듬는 본성.\n\n다만 활기만 좇으면 잠김이 옅으니, 백한복의 결도 두라.',
+            shadow: '소진',
+          },
+        },
+        {
+          text: '자한복 — 결의 깊이',
+          character: {
+            title: '자한복의 결 (紫衣)',
+            archetype: '玄·깊이',
+            body: '한국 정통 韓服 — 자한복은 깊이의 결, 귀한 색.\n그대는 결의 결을 깊이로 다듬는 본성.\n\n다만 깊이만 좇으면 가벼움이 옅으니, 청한복의 결도 두라.',
+            shadow: '거리감',
+          },
+        },
+      ],
+    },
+    {
+      key: 'culture-five-mountain',
+      title: '명산 — 결의 산',
+      glyph: '山',
+      school: '한국 정통 五嶽 — 백두·금강·묘향·지리·삼각',
+      scene: '한국 명산 중 그대 결의 산은?',
+      choices: [
+        {
+          text: '백두산 — 결의 시원',
+          character: {
+            title: '백두의 결 (祖)',
+            archetype: '祖·시원',
+            body: '한국 정통 五嶽 — 백두는 결의시원, 민족의 본.\n그대는 결의 결을 뿌리로 다듬는 본성.\n\n다만 뿌리만 좇으면 새 결이 옅으니, 삼각의 결도 두라.',
+            shadow: '경직',
+          },
+        },
+        {
+          text: '금강산 — 결의 아름다움',
+          character: {
+            title: '금강의 결 (秀)',
+            archetype: '美·수려',
+            body: '한국 정통 五嶽 — 금강은 결의수려.\n그대는 결의 결을 아름다움으로 다듬는 본성.\n\n다만 아름다움만 좇으면 무게가 옅으니, 지리의 결도 두라.',
+            shadow: '실리 약함',
+          },
+        },
+        {
+          text: '지리산 — 결의 너름',
+          character: {
+            title: '지리의 결 (廣)',
+            archetype: '廣·너름',
+            body: '한국 정통 五嶽 — 지리는 결의너름, 어머니 산.\n그대는 결의 결을 너름으로 다듬는 본성.\n\n다만 너름만 좇으면 결단이 옅으니, 백두의 결도 두라.',
+            shadow: '결단 늦음',
+          },
+        },
+        {
+          text: '삼각산 — 결의 가까움',
+          character: {
+            title: '삼각의 결 (近)',
+            archetype: '近·일상',
+            body: '한국 정통 五嶽 — 삼각은 서울의 산, 일상의 결.\n그대는 결의 결을 일상으로 다듬는 본성.\n\n다만 일상만 좇으면 큰 결이 옅으니, 백두의 결도 두라.',
+            shadow: '큰 결 약함',
+          },
+        },
+      ],
+    },
+    {
+      key: 'culture-four-river',
+      title: '강 — 결의 흐름',
+      glyph: '江',
+      school: '한국 정통 4 大江 — 한강·낙동·금강·영산',
+      scene: '한국 4 대강 중 그대 결의 강은?',
+      choices: [
+        {
+          text: '한강 — 결의 큰 흐름',
+          character: {
+            title: '한강의 결 (漢)',
+            archetype: '大·큰 흐름',
+            body: '한국 정통 — 한강은 큰 흐름의 결, 수도를 안는 강.\n그대는 결의 결을 큰 결로 다듬는 본성.\n\n다만 큰 결만 좇으면 깊이가 옅으니, 낙동강의 결도 두라.',
+            shadow: '세밀 약함',
+          },
+        },
+        {
+          text: '낙동강 — 결의 긴 결',
+          character: {
+            title: '낙동의 결 (洛)',
+            archetype: '久·오램',
+            body: '한국 정통 — 낙동강은 가장 긴 강, 오램의 결.\n그대는 결의 결을 시간으로 다듬는 본성.\n\n다만 오램만 좇으면 결단이 옅으니, 한강의 결도 두라.',
+            shadow: '느림',
+          },
+        },
+        {
+          text: '금강 — 결의 굽이',
+          character: {
+            title: '금강의 결 (錦)',
+            archetype: '曲·굽이',
+            body: '한국 정통 — 금강은 굽이의 결, 백제의 강.\n그대는 결의 결을 휘어짐으로 다듬는 본성.\n\n다만 굽이만 좇으면 곧음이 옅으니, 한강의 결도 두라.',
+            shadow: '결단 늦음',
+          },
+        },
+        {
+          text: '영산강 — 결의 깊이',
+          character: {
+            title: '영산의 결 (榮)',
+            archetype: '深·잠김',
+            body: '한국 정통 — 영산강은 깊은 흐름의 결, 호남의 강.\n그대는 결의 결을 잠김으로 다듬는 본성.\n\n다만 잠김만 좇으면 가벼움이 옅으니, 금강의 결도 두라.',
+            shadow: '잠김 과다',
+          },
+        },
+      ],
+    },
+    {
+      key: 'culture-four-season',
+      title: '사계 — 결의 결',
+      glyph: '季',
+      school: '한국 정통 24절기 (사계 정합)',
+      scene: '사계 중 그대 결이 가장 닮은 결은?',
+      choices: [
+        {
+          text: '봄 — 결의 자라남',
+          character: {
+            title: '춘기의 결 (春)',
+            archetype: '生·자라남',
+            body: '한국 정통 24절기 — 봄은 결의 자라남, 木의 결.\n그대는 결의 결을 자라남으로 다듬는 본성.\n\n다만 자라남만 좇으면 거둠이 옅으니, 가을의 결도 두라.',
+            shadow: '거둠 약함',
+          },
+        },
+        {
+          text: '여름 — 결의 활기',
+          character: {
+            title: '하기의 결 (夏)',
+            archetype: '盛·활기',
+            body: '한국 정통 24절기 — 여름은 활기의 결, 火의 결.\n그대는 결의 결을 열로 다듬는 본성.\n\n다만 활기만 좇으면 잠김이 옅으니, 겨울의 결도 두라.',
+            shadow: '소진',
+          },
+        },
+        {
+          text: '가을 — 결의 거둠',
+          character: {
+            title: '추기의 결 (秋)',
+            archetype: '收·거둠',
+            body: '한국 정통 24절기 — 가을은 거둠의 결, 金의 결.\n그대는 결의 결을 갈무리로 다듬는 본성.\n\n다만 거둠만 좇으면 새 결이 옅으니, 봄의 결도 두라.',
+            shadow: '머뭇거림',
+          },
+        },
+        {
+          text: '겨울 — 결의 잠김',
+          character: {
+            title: '동기의 결 (冬)',
+            archetype: '藏·잠김',
+            body: '한국 정통 24절기 — 겨울은 잠김의 결, 水의 결.\n그대는 결의 결을 잠김으로 다듬는 본성.\n\n다만 잠김만 좇으면 활기가 옅으니, 여름의 결도 두라.',
+            shadow: '거리감',
+          },
+        },
+      ],
+    },
+    {
+      key: 'culture-rites-passage',
+      title: '관혼상제 — 결의 결',
+      glyph: '禮',
+      school: '한국 정통 冠婚喪祭 — 통과의례 4 결',
+      scene: '관혼상제 중 그대 결의 결은?',
+      choices: [
+        {
+          text: '관(冠) — 결의 어른됨',
+          character: {
+            title: '관례의 결 (冠)',
+            archetype: '成·어른됨',
+            body: '한국 정통 冠禮 — 관은 결의어른됨, 성년의 본.\n그대는 결의 결을 어른됨으로 다듬는 본성.\n\n다만 어른됨만 좇으면 어림이 옅으니, 혼례의 결도 두라.',
+            shadow: '경직',
+          },
+        },
+        {
+          text: '혼(婚) — 결의 어우러짐',
+          character: {
+            title: '혼례의 결 (婚)',
+            archetype: '配·어우러짐',
+            body: '한국 정통 婚禮 — 혼은 결의어우러짐, 두 결의 한 결.\n그대는 결의 결을 어우러짐으로 다듬는 본성.\n\n다만 어우러짐만 좇으면 자기가 옅으니, 관례의 결도 두라.',
+            shadow: '자기 결 약함',
+          },
+        },
+        {
+          text: '상(喪) — 결의 갈무리',
+          character: {
+            title: '상례의 결 (喪)',
+            archetype: '別·이별',
+            body: '한국 정통 喪禮 — 상은 결의갈무리, 이별의 결.\n그대는 결의 결을 받아들임으로 다듬는 본성.\n\n다만 이별만 좇으면 시작이 옅으니, 제례의 결도 두라.',
+            shadow: '잠김 과다',
+          },
+        },
+        {
+          text: '제(祭) — 결의 기림',
+          character: {
+            title: '제례의 결 (祭)',
+            archetype: '敬·기림',
+            body: '한국 정통 祭禮 — 제는 결의기림, 곁의 결을 잇는 결.\n그대는 결의 결을 잇음으로 다듬는 본성.\n\n다만 기림만 좇으면 새 결이 옅으니, 혼례의 결도 두라.',
+            shadow: '뿌리 과다',
+          },
+        },
+      ],
+    },
+    {
+      key: 'culture-nature-symbol',
+      title: '자연 — 결의 결',
+      glyph: '自',
+      school: '한국 정통 자연 상징 — 소나무·달·바위·바람',
+      scene: '한국 자연 상징 중 그대 결의 결은?',
+      choices: [
+        {
+          text: '소나무 — 결의 절개',
+          character: {
+            title: '솔의 결 (松)',
+            archetype: '節·절개',
+            body: '한국 정통 — 솔은 절개의 결, 사철 푸른 결.\n그대는 결의 결을 절개로 다듬는 본성.\n\n다만 절개만 좇으면 유연함이 옅으니, 바람의 결도 두라.',
+            shadow: '경직',
+          },
+        },
+        {
+          text: '달 — 결의 비춤',
+          character: {
+            title: '달의 결 (月)',
+            archetype: '靜·비춤',
+            body: '한국 정통 — 달은 비춤의 결, 차고 기우는 결.\n그대는 결의 결을 잔잔함으로 다듬는 본성.\n\n다만 잔잔함만 좇으면 활기가 옅으니, 바람의 결도 두라.',
+            shadow: '잔잔 과다',
+          },
+        },
+        {
+          text: '바위 — 결의 굳음',
+          character: {
+            title: '바위의 결 (岩)',
+            archetype: '堅·굳음',
+            body: '한국 정통 — 바위는 굳음의 결, 변치 않는 결.\n그대는 결의 결을 굳음으로 다듬는 본성.\n\n다만 굳음만 좇으면 흐름이 옅으니, 달의 결도 두라.',
+            shadow: '완고',
+          },
+        },
+        {
+          text: '바람 — 결의 흐름',
+          character: {
+            title: '바람의 결 (風)',
+            archetype: '流·흐름',
+            body: '한국 정통 — 바람은 흐름의 결, 머무르지 않는 결.\n그대는 결의 결을 흐름으로 다듬는 본성.\n\n다만 흐름만 좇으면 뿌리가 옅으니, 솔의 결도 두라.',
+            shadow: '정처 없음',
+          },
+        },
+      ],
+    },
+    {
+      key: 'palm-line-direction',
+      title: '손금 — 결의 줄',
+      glyph: '掌',
+      school: 'Cheiro (1900) — Palmistry 손금 4 주선 학파',
+      scene: '오늘 그대 결의 손에서 가장 깊이 보이는 줄은?',
+      choices: [
+        {
+          text: '생명선 — 결의 뿌리',
+          character: {
+            title: '생명선의 결 (生線)',
+            archetype: '生·뿌리',
+            body: 'Cheiro (1900) — 생명선은 결의 뿌리, 본 시스템 ADR-113 면책 정합.\n그대는 결의 결을 뿌리로 다듬는 본성.\n\n다만 뿌리만 좇으면 새 결이 옅으니, 마음선의 결도 두라.',
+            shadow: '경직',
+          },
+        },
+        {
+          text: '두뇌선 — 결의 비춤',
+          character: {
+            title: '두뇌선의 결 (智線)',
+            archetype: '智·통찰',
+            body: 'Cheiro (1900) — 두뇌선은 결의 비춤, 결정론 손금 결.\n그대는 결의 결을 통찰로 다듬는 본성.\n\n다만 통찰만 좇으면 정이 옅으니, 마음선의 결도 두라.',
+            shadow: '냉정',
+          },
+        },
+        {
+          text: '마음선 — 결의 정',
+          character: {
+            title: '마음선의 결 (情線)',
+            archetype: '情·정',
+            body: 'Cheiro (1900) — 마음선은 결의 정의 결, 곁의 결.\n그대는 결의 결을 정으로 다듬는 본성.\n\n다만 정만 좇으면 결단이 옅으니, 두뇌선의 결도 두라.',
+            shadow: '결단 늦음',
+          },
+        },
+        {
+          text: '운명선 — 결의 흐름',
+          character: {
+            title: '운명선의 결 (命線)',
+            archetype: '命·흐름',
+            body: 'Cheiro (1900) — 운명선은 결의 흐름, 시간의 결.\n그대는 결의 결을 시간으로 다듬는 본성.\n\n다만 흐름만 좇으면 결단이 옅으니, 두뇌선의 결도 두라.',
+            shadow: '수동성',
+          },
+        },
+      ],
+    },
+    {
+      key: 'star-zodiac-element',
+      title: '별 — 결의 원소',
+      glyph: '星',
+      school: 'Ptolemy (150) — Tetrabiblos 4 원소 점성 학파',
+      scene: '점성술 4 원소 중 그대 결의 원소는?',
+      choices: [
+        {
+          text: '불 — 결의 활기',
+          character: {
+            title: '화원의 결 (火元)',
+            archetype: '火·활기',
+            body: 'Ptolemy (150) — 화 원소(양·사자·사수)는 활기의 결.\n그대는 결의 결을 열로 다듬는 본성.\n\n다만 열만 좇으면 잠김이 옅으니, 수원의 결도 두라.',
+            shadow: '소진',
+          },
+        },
+        {
+          text: '흙 — 결의 굳음',
+          character: {
+            title: '토원의 결 (土元)',
+            archetype: '土·굳음',
+            body: 'Ptolemy (150) — 토 원소(황소·처녀·염소)는 굳음의 결.\n그대는 결의 결을 안정으로 다듬는 본성.\n\n다만 굳음만 좇으면 흐름이 옅으니, 풍원의 결도 두라.',
+            shadow: '완고',
+          },
+        },
+        {
+          text: '바람 — 결의 흐름',
+          character: {
+            title: '풍원의 결 (風元)',
+            archetype: '風·흐름',
+            body: 'Ptolemy (150) — 풍 원소(쌍둥이·천칭·물병)는 흐름의 결.\n그대는 결의 결을 자유로 다듬는 본성.\n\n다만 흐름만 좇으면 뿌리가 옅으니, 토원의 결도 두라.',
+            shadow: '정처 없음',
+          },
+        },
+        {
+          text: '물 — 결의 잠김',
+          character: {
+            title: '수원의 결 (水元)',
+            archetype: '水·잠김',
+            body: 'Ptolemy (150) — 수 원소(게·전갈·물고기)는 잠김의 결.\n그대는 결의 결을 깊이로 다듬는 본성.\n\n다만 잠김만 좇으면 결단이 옅으니, 화원의 결도 두라.',
+            shadow: '잠김 과다',
+          },
+        },
+      ],
+    },
+    {
+      key: 'face-shape-five',
+      title: '관상 — 결의 얼굴',
+      glyph: '面',
+      school: '한국 정통 관상 五形 (木火土金水 정합)',
+      scene: '한국 관상 五形 중 그대 결의 얼굴 결은?',
+      choices: [
+        {
+          text: '목형(木) — 결의 길고 곧음',
+          character: {
+            title: '목형의 결 (木形)',
+            archetype: '木·자라남',
+            body: '한국 정통 관상 — 木形은 길고 곧은 결, 자라남. 본 시스템 ADR-116 면책 정합.\n그대는 결의 결을 자라남으로 다듬는 본성.\n\n다만 자라남만 좇으면 거둠이 옅으니, 금형의 결도 두라.',
+            shadow: '거둠 약함',
+          },
+        },
+        {
+          text: '화형(火) — 결의 뾰족함',
+          character: {
+            title: '화형의 결 (火形)',
+            archetype: '火·열기',
+            body: '한국 정통 관상 — 火形은 뾰족한 결, 열기. 본 시스템 ADR-116 면책 정합.\n그대는 결의 결을 열로 다듬는 본성.\n\n다만 열만 좇으면 잠김이 옅으니, 수형의 결도 두라.',
+            shadow: '조급',
+          },
+        },
+        {
+          text: '토형(土) — 결의 두툼함',
+          character: {
+            title: '토형의 결 (土形)',
+            archetype: '土·중후',
+            body: '한국 정통 관상 — 土形은 두툼한 결, 중후. 본 시스템 ADR-116 면책 정합.\n그대는 결의 결을 너름으로 다듬는 본성.\n\n다만 너름만 좇으면 민첩이 옅으니, 화형의 결도 두라.',
+            shadow: '느림',
+          },
+        },
+        {
+          text: '수형(水) — 결의 둥글함',
+          character: {
+            title: '수형의 결 (水形)',
+            archetype: '水·잠김',
+            body: '한국 정통 관상 — 水形은 둥근 결, 잠김. 본 시스템 ADR-116 면책 정합.\n그대는 결의 결을 잠김으로 다듬는 본성.\n\n다만 잠김만 좇으면 결단이 옅으니, 화형의 결도 두라.',
+            shadow: '잠김 과다',
+          },
+        },
+      ],
+    },
+    {
+      key: 'compat-five-element',
+      title: '궁합 — 결의 어울림',
+      glyph: '配',
+      school: '한국 정통 五行 궁합 (자평진전·삼명통회 정합)',
+      scene: '궁합 五行 중 그대 결이 끌리는 결은?',
+      choices: [
+        {
+          text: '相生 — 결의 키움',
+          character: {
+            title: '상생의 결 (生)',
+            archetype: '生·키움',
+            body: '한국 정통 — 相生은 결의 결을 곁이 키우는 어울림.\n그대는 결의 결을 키움으로 다듬는 본성.\n\n다만 키움만 좇으면 결단이 옅으니, 비화의 결도 두라.',
+            shadow: '의존',
+          },
+        },
+        {
+          text: '比和 — 결의 같은 결',
+          character: {
+            title: '비화의 결 (和)',
+            archetype: '和·같음',
+            body: '한국 정통 — 比和는 결의 결을 같은 결로 어울리는 결.\n그대는 결의 결을 어우러짐으로 다듬는 본성.\n\n다만 같음만 좇으면 새 결이 옅으니, 상생의 결도 두라.',
+            shadow: '단조',
+          },
+        },
+        {
+          text: '相剋 — 결의 다듬음',
+          character: {
+            title: '상극의 결 (剋)',
+            archetype: '剋·다듬음',
+            body: '한국 정통 — 相剋은 결의 결을 곁이 다듬는 어울림. 본 시스템 ADR-006 면책 — 단정 X.\n그대는 결의 결을 다듬음으로 키우는 본성.\n\n다만 다듬음만 좇으면 키움이 옅으니, 상생의 결도 두라.',
+            shadow: '날 선 결',
+          },
+        },
+        {
+          text: '相侮 — 결의 거스름',
+          character: {
+            title: '상모의 결 (侮)',
+            archetype: '逆·거스름',
+            body: '한국 정통 — 相侮는 결의 결이 거스르는 어울림. 본 시스템 ADR-006 면책 — 단정 X.\n그대는 결의 결을 거스름으로 다듬는 본성.\n\n다만 거스름만 좇으면 어우러짐이 옅으니, 비화의 결도 두라.',
+            shadow: '갈등',
+          },
+        },
+      ],
+    },
+    {
+      key: 'yutjeom-stick',
+      title: '윷 — 결의 점',
+      glyph: '柶',
+      school: '한국 정통 윷점 64괘 (engine/divination/yutjeom 정합)',
+      scene: '윷의 결 중 그대 결의 결은?',
+      choices: [
+        {
+          text: '도 — 결의 한 걸음',
+          character: {
+            title: '도의 결 (一)',
+            archetype: '始·한 걸음',
+            body: '한국 정통 윷점 — 도는 한 걸음의 결, 시작.\n그대는 결의 결을 신중함으로 다듬는 본성.\n\n다만 한 걸음만 좇으면 결단이 옅으니, 모의 결도 두라.',
+            shadow: '느림',
+          },
+        },
+        {
+          text: '걸 — 결의 세 걸음',
+          character: {
+            title: '걸의 결 (三)',
+            archetype: '進·진행',
+            body: '한국 정통 윷점 — 걸은 세 걸음의 결, 진행.\n그대는 결의 결을 진행으로 다듬는 본성.\n\n다만 진행만 좇으면 결단이 옅으니, 모의 결도 두라.',
+            shadow: '소진',
+          },
+        },
+        {
+          text: '윷 — 결의 한 번 더',
+          character: {
+            title: '윷의 결 (再)',
+            archetype: '再·다시',
+            body: '한국 정통 윷점 — 윷은 다시 던지는 결, 한 번 더.\n그대는 결의 결을 다시로 다듬는 본성.\n\n다만 다시만 좇으면 갈무리가 옅으니, 도의 결도 두라.',
+            shadow: '갈무리 약함',
+          },
+        },
+        {
+          text: '모 — 결의 다섯 걸음',
+          character: {
+            title: '모의 결 (五)',
+            archetype: '大·큰 결',
+            body: '한국 정통 윷점 — 모는 다섯 걸음의 결, 큰 결.\n그대는 결의 결을 큰 결로 다듬는 본성.\n\n다만 큰 결만 좇으면 세밀함이 옅으니, 도의 결도 두라.',
+            shadow: '세밀 약함',
+          },
+        },
+      ],
+    },
+    {
+      key: 'name-element-balance',
+      title: '이름 — 결의 자원오행',
+      glyph: '名',
+      school: '한국 정통 자원오행 (ADR-125·126·127) 5 결',
+      scene: '그대 이름에 끌리는 결의 오행은?',
+      choices: [
+        {
+          text: '木 — 결의 자라남',
+          character: {
+            title: '목명의 결 (木名)',
+            archetype: '木·자라남',
+            body: '한국 정통 자원오행 — 木 한자 이름은 자라남의 결. 본 시스템 ADR-125 정합.\n그대는 결의 결을 자라남으로 다듬는 본성.\n\n다만 자라남만 좇으면 거둠이 옅으니, 금명의 결도 두라.',
+            shadow: '거둠 약함',
+          },
+        },
+        {
+          text: '火 — 결의 활기',
+          character: {
+            title: '화명의 결 (火名)',
+            archetype: '火·활기',
+            body: '한국 정통 자원오행 — 火 한자 이름은 활기의 결. 본 시스템 ADR-125 정합.\n그대는 결의 결을 열로 다듬는 본성.\n\n다만 열만 좇으면 잠김이 옅으니, 수명의 결도 두라.',
+            shadow: '조급',
+          },
+        },
+        {
+          text: '土 — 결의 중심',
+          character: {
+            title: '토명의 결 (土名)',
+            archetype: '土·중심',
+            body: '한국 정통 자원오행 — 土 한자 이름은 중심의 결. 본 시스템 ADR-125 정합.\n그대는 결의 결을 어우러짐으로 다듬는 본성.\n\n다만 중심만 좇으면 결단이 옅으니, 금명의 결도 두라.',
+            shadow: '결단 약함',
+          },
+        },
+        {
+          text: '金 — 결의 결단',
+          character: {
+            title: '금명의 결 (金名)',
+            archetype: '金·결단',
+            body: '한국 정통 자원오행 — 金 한자 이름은 결단의 결. 본 시스템 ADR-125 정합.\n그대는 결의 결을 단호함으로 다듬는 본성.\n\n다만 단호만 좇으면 부드러움이 옅으니, 목명의 결도 두라.',
+            shadow: '엄정',
+          },
+        },
+      ],
+    },
+    {
+      key: 'ancestor-direction',
+      title: '조상 — 결의 자리',
+      glyph: '祖',
+      school: '한국 정통 4 권역 조상 신앙 (ADR-122·124 정합)',
+      scene: '한국 조상 신앙 4 권역 중 그대 결에 닿는 결은?',
+      choices: [
+        {
+          text: '영남 — 결의 단정',
+          character: {
+            title: '영남의 결 (嶺南)',
+            archetype: '正·단정',
+            body: '한국 정통 — 영남 권역은 단정한 제례의 결. 본 시스템 ADR-124 정합.\n그대는 결의 결을 단정함으로 다듬는 본성.\n\n다만 단정만 좇으면 유연함이 옅으니, 호남의 결도 두라.',
+            shadow: '경직',
+          },
+        },
+        {
+          text: '호남 — 결의 풍성',
+          character: {
+            title: '호남의 결 (湖南)',
+            archetype: '富·풍성',
+            body: '한국 정통 — 호남 권역은 풍성한 제례의 결. 본 시스템 ADR-124 정합.\n그대는 결의 결을 풍성함으로 다듬는 본성.\n\n다만 풍성만 좇으면 단정함이 옅으니, 영남의 결도 두라.',
+            shadow: '집중 약함',
+          },
+        },
+        {
+          text: '관서 — 결의 굳음',
+          character: {
+            title: '관서의 결 (關西)',
+            archetype: '剛·굳음',
+            body: '한국 정통 — 관서 권역은 굳은 제례의 결. 본 시스템 ADR-124 정합.\n그대는 결의 결을 굳음으로 다듬는 본성.\n\n다만 굳음만 좇으면 흐름이 옅으니, 강원의 결도 두라.',
+            shadow: '완고',
+          },
+        },
+        {
+          text: '강원 — 결의 깊이',
+          character: {
+            title: '강원의 결 (江原)',
+            archetype: '深·깊이',
+            body: '한국 정통 — 강원 권역은 깊은 제례의 결. 본 시스템 ADR-124 정합.\n그대는 결의 결을 깊이로 다듬는 본성.\n\n다만 깊이만 좇으면 가벼움이 옅으니, 호남의 결도 두라.',
+            shadow: '거리감',
+          },
+        },
+      ],
+    },
+    {
+      key: 'culture-final-hundred',
+      title: '백 결 — 종합의 결',
+      glyph: '百',
+      school: '본 시스템 9 도메인 + 학파 100 결 융합 (2026 종합)',
+      scene: '백 결의 결 중 그대 결의 한 결은?',
+      choices: [
+        {
+          text: '본 결 — 자기의 결',
+          character: {
+            title: '본 결의 합 (本)',
+            archetype: '我·자기',
+            body: '본 시스템 융합 — 백 결의 결 중 자기의 결, 사주·이름·관상.\n그대는 결의 결을 안으로 다듬는 본성.\n\n다만 안만 좇으면 곁이 옅으니, 곁 결의 합도 두라.',
+            shadow: '자기 침잠',
+          },
+        },
+        {
+          text: '곁 결 — 어우러짐의 결',
+          character: {
+            title: '곁 결의 합 (緣)',
+            archetype: '緣·관계',
+            body: '본 시스템 융합 — 백 결의 결 중 곁의 결, 궁합·조상·이름.\n그대는 결의 결을 곁으로 다듬는 본성.\n\n다만 곁만 좇으면 자기가 옅으니, 본 결의 합도 두라.',
+            shadow: '자기 결 약함',
+          },
+        },
+        {
+          text: '꿈 결 — 무의식의 결',
+          character: {
+            title: '꿈 결의 합 (夢)',
+            archetype: '夢·무의식',
+            body: '본 시스템 융합 — 백 결의 결 중 무의식의 결, 해몽·손금·점성.\n그대는 결의 결을 깊이로 다듬는 본성.\n\n다만 깊이만 좇으면 일상이 옅으니, 본 결의 합도 두라.',
+            shadow: '현실 거리감',
+          },
+        },
+        {
+          text: '시간 결 — 흐름의 결',
+          character: {
+            title: '시간 결의 합 (時)',
+            archetype: '時·흐름',
+            body: '본 시스템 융합 — 백 결의 결 중 시간의 결, 토정·신살·신점.\n그대는 결의 결을 흐름으로 다듬는 본성.\n\n다만 흐름만 좇으면 결단이 옅으니, 본 결의 합도 두라.',
+            shadow: '수동성',
+          },
+        },
+      ],
+    },
   ],
 };
 
