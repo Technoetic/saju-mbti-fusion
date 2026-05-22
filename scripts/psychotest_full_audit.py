@@ -230,18 +230,18 @@ def main():
     print("1. 구조 무결성")
     print("="*72)
     s = check_structure(data)
-    print(f"  카드 수: {s['total_cards']} (목표: 12)")
-    print(f"  총 캐릭터 수: {s['total_characters']} (목표: 48)")
+    print(f"  카드 수: {s['total_cards']} (목표: 100)")
+    print(f"  총 캐릭터 수: {s['total_characters']} (목표: 400)")
     if s["issues"]:
         print(f"  ❌ 이슈 {len(s['issues'])}건:")
         for i in s["issues"]:
             print(f"    - {i}")
     else:
-        print("  ✅ PASS — 12 카드 × 4 선택 × 캐릭터 필드 모두 정합")
+        print(f"  ✅ PASS — {s['total_cards']} 카드 × 4 선택 × 캐릭터 필드 모두 정합")
 
     # 2. sanitize
     print("\n" + "="*72)
-    print("2. ADR sanitize 7중 안전망 (48 캐릭터 텍스트)")
+    print(f"2. ADR sanitize 7중 안전망 ({s['total_characters']} 캐릭터 텍스트)")
     print("="*72)
     sa = check_sanitize_safety(data)
     print(f"  단정 어휘 위반: {len(sa['forbidden_per_character'])}건")
@@ -259,21 +259,22 @@ def main():
     print("3. 학파 출처 (school 필드)")
     print("="*72)
     sc = check_school_attribution(data)
-    print(f"  12 학파 명시:")
+    print(f"  {len(sc['schools'])} 카드 학파 명시:")
     for s_item in sc["schools"]:
         print(f"    {s_item['card']:2}. {s_item['title']:14} → {s_item['school']}")
     print(f"\n  연도 누락: {len(sc['missing_year'])}건")
     print(f"  저자 누락: {len(sc['missing_author'])}건")
     if not sc["missing_year"] and not sc["missing_author"]:
-        print("  ✅ PASS — 12 학파 모두 연도+저자 명시")
+        print(f"  ✅ PASS — {len(sc['schools'])} 카드 모두 학파 출처 정합 (서양 학파: 연도+저자, 동양·일상 심리: 학파 키워드 또는 ADR 인용)")
 
     # 4. 균형
     print("\n" + "="*72)
     print("4. 캐릭터 균형 (그림자 명시 + archetype 다양성)")
     print("="*72)
     b = check_balance(data)
-    print(f"  그림자 명시: {b['shadow_present']}/48")
-    print(f"  그림자 부재: {b['shadow_missing']}/48")
+    total_chars = s['total_characters']
+    print(f"  그림자 명시: {b['shadow_present']}/{total_chars}")
+    print(f"  그림자 부재: {b['shadow_missing']}/{total_chars}")
     print(f"  archetype 다양성: {len(b['archetype_diversity'])}종")
     # 처음 10개만 출력
     for a in b["archetype_diversity"][:10]:

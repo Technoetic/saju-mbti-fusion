@@ -2315,7 +2315,7 @@ export const PSYCHOTEST = {
     {
       key: 'present-gift',
       title: '연인 선물, 어떻게?',
-      glyph: '愛',
+      glyph: '贈',
       school: '일상 심리 — 라이프스타일 진단',
       scene: '연인 생일 — 그대 선물 결은?',
       choices: [
@@ -2405,7 +2405,7 @@ export const PSYCHOTEST = {
     {
       key: 'cinema-snack',
       title: '영화관 간식, 무엇?',
-      glyph: '映',
+      glyph: '玉',
       school: '일상 심리 — 취향 진단',
       scene: '영화관 — 그대가 사는 간식은?',
       choices: [
@@ -2810,7 +2810,7 @@ export const PSYCHOTEST = {
     {
       key: 'first-message',
       title: '카톡 첫 메시지, 어떻게?',
-      glyph: '初',
+      glyph: '信',
       school: '일상 심리 — 행동 진단',
       scene: '오랜만에 연락할 사람 — 그대 첫 메시지는?',
       choices: [
@@ -2900,7 +2900,7 @@ export const PSYCHOTEST = {
     {
       key: 'snack-mukbang',
       title: '먹방 보기, 좋아하나?',
-      glyph: '視',
+      glyph: '味',
       school: '일상 심리 — 취향 진단',
       scene: '유튜브 — 그대가 보는 채널은?',
       choices: [
@@ -3395,7 +3395,7 @@ export const PSYCHOTEST = {
     {
       key: 'class-seat',
       title: '강의실 자리, 어디?',
-      glyph: '席',
+      glyph: '室',
       school: '일상 심리 — 행동 진단',
       scene: '강의실 들어왔다. 그대 자리는?',
       choices: [
@@ -3530,7 +3530,7 @@ export const PSYCHOTEST = {
     {
       key: 'morning-mood',
       title: '아침 기분, 어떤가?',
-      glyph: '朝',
+      glyph: '醒',
       school: '일상 심리 — 라이프스타일 진단',
       scene: '아침에 눈 떴을 때 — 그대 첫 결은?',
       choices: [
@@ -3755,7 +3755,7 @@ export const PSYCHOTEST = {
     {
       key: 'travel-style',
       title: '여행, 어떤 결?',
-      glyph: '旅',
+      glyph: '途',
       school: '일상 심리 — 라이프스타일 진단',
       scene: '여행 가면 — 그대는?',
       choices: [
@@ -3800,7 +3800,7 @@ export const PSYCHOTEST = {
     {
       key: 'gift-receive-back',
       title: '받기 싫은 선물, 어떻게?',
-      glyph: '受',
+      glyph: '断',
       school: '일상 심리 — 행동 진단',
       scene: '취향 아닌 선물 받았다. 그대는?',
       choices: [
@@ -3845,7 +3845,7 @@ export const PSYCHOTEST = {
     {
       key: 'group-decide',
       title: '단체 식사, 메뉴?',
-      glyph: '會',
+      glyph: '群',
       school: '일상 심리 — 행동 진단',
       scene: '4 명 — 점심 뭐 먹지? 그대는?',
       choices: [
@@ -3935,7 +3935,7 @@ export const PSYCHOTEST = {
     {
       key: 'phone-volume',
       title: '폰 벨소리, 어떻게?',
-      glyph: '音',
+      glyph: '鈴',
       school: '일상 심리 — 행동 습관 진단',
       scene: '그대 폰 벨소리·진동은?',
       choices: [
@@ -4070,7 +4070,7 @@ export const PSYCHOTEST = {
     {
       key: 'sleep-time',
       title: '자는 시간, 언제?',
-      glyph: '夜',
+      glyph: '寢',
       school: '일상 심리 — 라이프스타일 진단',
       scene: '평일 — 그대 자는 시간은?',
       choices: [
@@ -4205,7 +4205,7 @@ export const PSYCHOTEST = {
     {
       key: 'group-talk',
       title: '단체 대화, 그대 역할?',
-      glyph: '話',
+      glyph: '談',
       school: '일상 심리 — 행동 진단',
       scene: '여러 명 모임 — 그대는?',
       choices: [
@@ -4250,7 +4250,7 @@ export const PSYCHOTEST = {
     {
       key: 'photo-take',
       title: '사진, 누가 찍나?',
-      glyph: '影',
+      glyph: '撮',
       school: '일상 심리 — 행동 진단',
       scene: '단체 사진 — 그대 역할은?',
       choices: [
@@ -4430,7 +4430,7 @@ export const PSYCHOTEST = {
     {
       key: 'gift-tag',
       title: '선물 가격표, 어떻게?',
-      glyph: '値',
+      glyph: '札',
       school: '일상 심리 — 행동 진단',
       scene: '선물 — 가격표 그대로 줌? 떼고 줌?',
       choices: [
