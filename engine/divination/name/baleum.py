@@ -19,6 +19,46 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 
+# ─────────────────────────── ADR-152 name KCI 학술 인용 ───────────────────────────
+# /domain-priorities (2026-05-23) #3 — name 도메인 KCI 학술 출처 영속.
+
+@dataclass(frozen=True)
+class NameKciCitation:
+    """name 도메인 KCI 학술 인용 메타 (ADR-010 사실성 분리 강화)."""
+    author_ko: str
+    title_ko: str
+    journal: str
+    volume_issue: str
+    publication_year: int
+    kci_artiId: str
+    doi: str
+    kci_citations: int
+    topic_focus: str
+
+
+NAME_KCI_CITATIONS: tuple[NameKciCitation, ...] = (
+    NameKciCitation(
+        author_ko="권익기 (2022)",
+        title_ko="성명학의 학문적 정체성 검토 — 학문적 범위와 선행연구 분석을 중심으로",
+        journal="East Asian Culture and Thought (동양문화와 사상)",
+        volume_issue="13호, 145-178",
+        publication_year=2022,
+        kci_artiId="ART002920855",
+        doi="10.35203/EACT.2022.13.145",
+        kci_citations=2,
+        topic_focus=(
+            "성명학 학문적 정체성·작명법 학파 분석. 본 시스템 발음오행 (ADR-129) + "
+            "자원오행 (ADR-027) + 한자 작명 학파 학술 출처."
+        ),
+    ),
+)
+
+
+def get_name_kci_citations() -> tuple[NameKciCitation, ...]:
+    """ADR-152 — name 도메인 KCI 학술 인용 풀 조회."""
+    return NAME_KCI_CITATIONS
+
+
 # 오행
 WOOD = "목"   # 木
 FIRE = "화"   # 火
