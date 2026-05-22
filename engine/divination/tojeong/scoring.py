@@ -393,13 +393,102 @@ def hexagram_by_id(hex_id: int) -> TojeongHexagram | None:
     return None
 
 
+# ─────────────────────────── ADR-146 KCI 학술 인용 (토정비결 144괘 원문) ───────────────────────────
+
+# /domain-priorities #1 (52점) 부분 해소 — 사용자 결단 2026-05-23.
+# 김수년 (2016) 박사학위논문 권말부록에 144괘 원문 전체 수록.
+# 본 시스템 11괘 본문화 (ADR-134) 외 133괘 시구 학술 출처 확보.
+
+from dataclasses import dataclass as _dataclass
+
+
+@_dataclass(frozen=True)
+class TojeongAcademicCitation:
+    """토정비결 학술 인용 메타데이터 (ADR-010 사실성 분리 강화).
+
+    /domain-priorities #1 해소 — 144괘 원문 전체 수록 학술 출처.
+
+    Attributes:
+        author_ko: 저자 (한국어)
+        title_ko: 학위논문 제목
+        degree: 학위 (박사·석사)
+        institution: 발행기관
+        department: 학과
+        advisor_ko: 지도교수
+        publication_year: 발행연도
+        pages: 페이지 수
+        riss_control_no: RISS 식별번호
+        appendix_note: 부록 144괘 원문 수록 여부
+        usage_note: 본 시스템 사용 시 주의 (ADR-006·010)
+    """
+    author_ko: str
+    title_ko: str
+    degree: str
+    institution: str
+    department: str
+    advisor_ko: str
+    publication_year: int
+    pages: int
+    riss_control_no: str
+    appendix_note: str
+    usage_note: str
+
+
+TOJEONG_ACADEMIC_CITATIONS: tuple[TojeongAcademicCitation, ...] = (
+    TojeongAcademicCitation(
+        author_ko="김수년",
+        title_ko="『土亭秘訣』점사의 易學的 硏究 — 총평 부분을 중심으로",
+        degree="박사학위논문",
+        institution="국제뇌교육종합대학원대학교",
+        department="국학과",
+        advisor_ko="임채우",
+        publication_year=2016,
+        pages=195,
+        riss_control_no="000014351511",
+        appendix_note="권말부록에 토정비결 144괘 원문 전체 수록",
+        usage_note=(
+            "본 시스템 144괘 시구 학술 출처. RISS 학위논문 식별번호 000014351511. "
+            "ADR-134 11괘 본문화 외 133괘 시구 보강 시 참조 가능. "
+            "단정 운명 매핑 X — 점사 易學的 분석 학술 출처로만."
+        ),
+    ),
+)
+
+
+def get_tojeong_academic_citations() -> tuple[TojeongAcademicCitation, ...]:
+    """ADR-146 — 토정비결 학술 인용 풀 조회."""
+    return TOJEONG_ACADEMIC_CITATIONS
+
+
+def format_tojeong_citations_for_prompt() -> str:
+    """ADR-146: Stage 2 자연어 풀이용 학술 인용 컨텍스트.
+
+    LLM 시스템 프롬프트 주입 — 144괘 원문 RISS 학위논문 출처 명시.
+    ADR-010 사실성 분리 강도 ↑ (학위논문 + 권말부록 원문 수록).
+    """
+    lines = [
+        "[토정비결 학술 인용 — ADR-146 144괘 원문 출처]",
+        "(본 시스템 144괘 시구 학술 출처. 운명 단정 X — 易學的 분석 출처로만.)",
+        "",
+    ]
+    for c in TOJEONG_ACADEMIC_CITATIONS:
+        lines.append(f"- {c.author_ko} ({c.publication_year}) \"{c.title_ko}\"")
+        lines.append(f"  {c.institution} {c.department} {c.degree} (지도: {c.advisor_ko})")
+        lines.append(f"  {c.pages}p · RISS 식별번호 {c.riss_control_no}")
+        lines.append(f"  {c.appendix_note}")
+        lines.append(f"  활용: {c.usage_note}")
+        lines.append("")
+    return "\n".join(lines)
+
+
 # ─────────────────────────── 면책 + 프롬프트 ───────────────────────────
 
 _DISCLAIMER = (
     "본 토정비결은 토정 이지함(土亭 李之菡, 1517-1578) 정통 144괘 결정론 "
     "흐름 톤으로, 길흉·결혼·이혼·사망 단정 X. 1년 운세 (정월~섣달) 흐름만 — "
     "참고용이며 의료·법률·금융 의사결정 단독 근거 X. "
-    "한국학중앙연구원 한국민족문화대백과사전 검증 가능."
+    "한국학중앙연구원 한국민족문화대백과사전 + 김수년 (2016) 박사학위논문 "
+    "(국제뇌교육종합대학원대학교, RISS 000014351511) 검증 가능."
 )
 
 
@@ -419,4 +508,7 @@ __all__ = [
     "TojeongHexagram", "SIXTY_FOUR_TOJEONG",
     "compute_tojeong_for_year", "hexagram_by_id",
     "format_hexagram_for_prompt",
+    # ADR-146 학술 인용
+    "TojeongAcademicCitation", "TOJEONG_ACADEMIC_CITATIONS",
+    "get_tojeong_academic_citations", "format_tojeong_citations_for_prompt",
 ]
