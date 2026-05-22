@@ -452,6 +452,23 @@ TOJEONG_ACADEMIC_CITATIONS: tuple[TojeongAcademicCitation, ...] = (
             "단정 운명 매핑 X — 점사 易學的 분석 학술 출처로만."
         ),
     ),
+    # ADR-153 (2026-05-23) 신규 — /domain-priorities #1 학술 출처 확장
+    TojeongAcademicCitation(
+        author_ko="김창경 (2017)",
+        title_ko="토정 이지함의 도학사상(道學思想) 연구",
+        degree="KCI 등재 학술논문",
+        institution="율곡학연구 35권",
+        department="율곡학회",
+        advisor_ko="(N/A — 학술논문)",
+        publication_year=2017,
+        pages=28,  # 397-424
+        riss_control_no="ART002295655",  # KCI 식별번호
+        appendix_note="토정 이지함의 도학사상 학술 분석 (토정비결 저자 학문 사상)",
+        usage_note=(
+            "본 시스템 tojeong 저자 (이지함 1517-1578) 학술 사상 출처. "
+            "KCI ART002295655. ADR-134 면책 강화 — 토정비결 저자의 도학적 배경 명시."
+        ),
+    ),
 )
 
 
