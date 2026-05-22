@@ -13,6 +13,67 @@ from __future__ import annotations
 from typing import Any
 
 
+# ─────────────────────────── ADR-152 dream KCI 학술 인용 ───────────────────────────
+# /domain-priorities (2026-05-23) #3 — dream 도메인 KCI 학술 출처 영속.
+
+from dataclasses import dataclass as _dataclass
+
+
+@_dataclass(frozen=True)
+class DreamKciCitation:
+    """dream 도메인 KCI/학술 인용 메타 (ADR-010 사실성 분리 강화).
+
+    Attributes:
+        author_ko: 저자·연도
+        title_ko: 논문 제목
+        journal: 학술지·발행기관
+        publication_year: 발행연도
+        kci_indexed: KCI 등재 여부
+        identifier: 학술 식별번호 (RISS·DIKO·KCI ART)
+        topic_focus: 본 시스템 활용 영역
+    """
+    author_ko: str
+    title_ko: str
+    journal: str
+    publication_year: int
+    kci_indexed: bool
+    identifier: str
+    topic_focus: str
+
+
+DREAM_KCI_CITATIONS: tuple[DreamKciCitation, ...] = (
+    DreamKciCitation(
+        author_ko="김재희",
+        title_ko="한국인의 태몽 유형과 변천 연구",
+        journal="박사학위논문 (5 상징 이미지 카테고리 + 융 집단무의식)",
+        publication_year=0,  # 발행년 명시 부재 — DIKO 식별번호로 추적
+        kci_indexed=True,
+        identifier="DIKO0014402351",
+        topic_focus=(
+            "한국 태몽 5 카테고리 (신성·자연·동물·식물·물건) 학술 분석. "
+            "본 시스템 dream_lex/korean_folk.py 태몽 영역 학술 출처."
+        ),
+    ),
+    DreamKciCitation(
+        author_ko="조규문 (2020)",
+        title_ko="고전(古典)에 담겨있는 꿈과 해몽에 대한 고찰",
+        journal="선도문화 (Sundo Culture) 28권, 411-442",
+        publication_year=2020,
+        kci_indexed=True,
+        identifier="Sundo Culture vol.28 (2020) — 국제뇌교육종합대학원대학교 국학연구원",
+        topic_focus=(
+            "고전 꿈 해석 통합 분석 (심리학·문학·역사·종교 횡단). "
+            "본 시스템 dream.py 다학파 융합 학술 출처."
+        ),
+    ),
+)
+
+
+def get_dream_kci_citations() -> tuple[DreamKciCitation, ...]:
+    """ADR-152 — dream 도메인 KCI 학술 인용 풀 조회."""
+    return DREAM_KCI_CITATIONS
+
+
 KOREAN_FOLK_CATEGORIES = {
     "태몽": "임신·자녀 잉태의 예지몽. 동물·과일·자연물의 강렬한 인상이 특징.",
     "재물몽": "금전·재물의 득실에 관한 꿈. 특정 사물의 등장 형태가 길흉 결정.",

@@ -33,6 +33,56 @@ from dataclasses import dataclass
 from datetime import datetime
 
 
+# ─────────────────────────── ADR-152 star KCI 학술 인용 ───────────────────────────
+# /domain-priorities (2026-05-23) #3 — star 도메인 KCI 학술 출처 영속.
+# 점성술 비판 학술 논문 (사이비과학 영역) — 본 시스템 ADR-006 정합 강화.
+
+@dataclass(frozen=True)
+class StarKciCitation:
+    """star 도메인 KCI 학술 인용 메타 (ADR-006·010 정합 강화).
+
+    Attributes:
+        author_ko: 저자·연도 (또는 익명)
+        title_ko: 논문 제목
+        journal: 학술지
+        publication_year: 발행연도
+        kci_artiId: KCI 식별번호
+        topic_focus: 본 시스템 활용 영역
+        critique_note: 비판적 관점 명시 (본 시스템 ADR-006 정합 보강)
+    """
+    author_ko: str
+    title_ko: str
+    journal: str
+    publication_year: int
+    kci_artiId: str
+    topic_focus: str
+    critique_note: str
+
+
+STAR_KCI_CITATIONS: tuple[StarKciCitation, ...] = (
+    StarKciCitation(
+        author_ko="(저자명 KCI 검증 필요)",
+        title_ko="사이비과학과 점성술 비판",
+        journal="KCI 등재 학술지 (ART000897391)",
+        publication_year=0,  # 발행년도 KCI 직접 검증 필요
+        kci_artiId="ART000897391",
+        topic_focus=(
+            "점성술 학술적 비판 — 본 시스템 ADR-006 자문 거절 정신 강화 출처. "
+            "점성술이 사이비과학으로 분류되는 학술 인용을 본 시스템이 정직 명시 가능."
+        ),
+        critique_note=(
+            "본 인용은 학계 비판 관점 — 본 시스템은 점성술 결정론 매핑만 제공하고 "
+            "운명·연애·결혼 단정 X (ADR-006 정합). 비판 학술 출처 인용은 사실성 강화."
+        ),
+    ),
+)
+
+
+def get_star_kci_citations() -> tuple[StarKciCitation, ...]:
+    """ADR-152 — star 도메인 KCI 학술 인용 풀 조회 (비판적 관점 포함)."""
+    return STAR_KCI_CITATIONS
+
+
 # ─────────────────────────── 10 행성 + 황도대 메타 ───────────────────────────
 
 PLANETS_10: tuple[str, ...] = (
