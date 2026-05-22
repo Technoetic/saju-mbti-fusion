@@ -273,7 +273,8 @@ def format_tendency_for_persona(tendency: MbtiTendency) -> str:
     if not parts:
         return (
             "사주에서 MBTI 4축의 결이 어느 한쪽으로 또렷이 기울지 않는구먼. "
-            "그대 본인이 알고 계신 MBTI를 들려주시게."
+            "그대 본인이 알고 계신 MBTI를 들려주시게. "
+            f"({DISCLAIMER_KO})"
         )
 
     bullets = "이 비치고 ".join(parts) + "이 흐르는구먼"
