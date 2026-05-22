@@ -341,3 +341,77 @@
   color: #f0b8b0;
   opacity: 0.85;
 }
+
+/* 심리테스트 12 미니 카드 (ADR-006/010/014 정합 — psychotest.js) */
+.psycho-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
+  margin: 16px 0;
+}
+.psycho-mini-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 16px 8px;
+  background: rgba(40, 36, 60, 0.5);
+  border: 1px solid rgba(180, 160, 220, 0.3);
+  border-radius: 12px;
+  color: #e8e0f0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 110px;
+}
+.psycho-mini-card:hover {
+  background: rgba(60, 50, 90, 0.7);
+  border-color: rgba(220, 200, 240, 0.55);
+  transform: translateY(-2px);
+}
+.psycho-mini-card-glyph {
+  font-size: 1.8rem;
+  margin-bottom: 6px;
+  letter-spacing: 0.1em;
+}
+.psycho-mini-card-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 4px;
+}
+.psycho-mini-card-num {
+  font-size: 0.75rem;
+  color: rgba(220, 200, 240, 0.6);
+}
+.psycho-card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(180, 160, 220, 0.25);
+}
+.psycho-card-glyph {
+  font-size: 1.6rem;
+  letter-spacing: 0.08em;
+}
+.psycho-card-title {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #ece0f0;
+}
+.psycho-card-school {
+  font-size: 0.78rem;
+  color: rgba(200, 180, 220, 0.65);
+  font-style: italic;
+  margin: 12px 0 0;
+}
+.psycho-card-shadow {
+  font-size: 0.85rem;
+  color: rgba(220, 180, 180, 0.85);
+  margin: 8px 0;
+  padding: 8px 12px;
+  background: rgba(60, 30, 50, 0.3);
+  border-left: 3px solid rgba(200, 100, 130, 0.6);
+  border-radius: 4px;
+}
