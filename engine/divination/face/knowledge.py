@@ -474,6 +474,120 @@ def get_school_interpretation_by_feature(feature_key: str) -> FaceSchoolInterpre
     return None
 
 
+# ─────────────────────────── ADR-144 KCI 학술 인용 (눈·턱 전문) ───────────────────────────
+
+# /domain-priorities #6 (face KCI 학술 자료) 해소 — 사용자 결단 2026-05-22.
+# Archives of Design Research = KCI 등재 + SCOPUS 동시 등재 (한국디자인학회 1978).
+# 본 시스템 face/reading.py Stage 2 자연어 풀이에서 학파 인용 시 사용.
+
+@dataclass(frozen=True)
+class KciCitation:
+    """KCI 등재 학술 논문 메타데이터 (ADR-010 사실성 분리 강화).
+
+    Attributes:
+        key: 내부 식별자
+        authors_ko: 저자 (한국어, 발표년도)
+        title_ko: 논문 제목 (한국어 원문)
+        journal: 학술지 (KCI 등재명)
+        volume_issue: 권·호 (예: "12권 1호")
+        pages: 페이지 범위
+        publication_year: 발행 연도
+        kci_indexed: KCI 등재 여부 (True 보장)
+        scopus_indexed: SCOPUS 등재 여부
+        publisher_url: 학회/학술지 공식 URL
+        dbpia_url: DBpia 검증 가능 URL
+        topic_focus: 본 시스템 활용 영역 (예: "눈", "턱", "MBTI 매핑")
+        usage_note: 본 시스템 사용 시 주의사항 (ADR-006·010 정합)
+    """
+    key: str
+    authors_ko: str
+    title_ko: str
+    journal: str
+    volume_issue: str
+    pages: str
+    publication_year: int
+    kci_indexed: bool
+    scopus_indexed: bool
+    publisher_url: str
+    dbpia_url: str
+    topic_focus: str
+    usage_note: str
+
+
+FACE_KCI_CITATIONS: tuple[KciCitation, ...] = (
+    KciCitation(
+        key="oh_1999_eye",
+        authors_ko="오근재 (1999)",
+        title_ko="영상기호로서의 눈(眼)의 표정에 관한 연구: 관상학적 담론에 근거한 얼굴형과 구조를 중심으로",
+        journal="Archives of Design Research (디자인학연구)",
+        volume_issue="12권 1호 (Issue 28)",
+        pages="121-130",
+        publication_year=1999,
+        kci_indexed=True,
+        scopus_indexed=True,
+        publisher_url="https://design-science.or.kr/",
+        dbpia_url="https://www.dbpia.co.kr/journal/articleDetail?nodeId=NODE00892585",
+        topic_focus="눈(眼) 관상학적 표정 분류 — 얼굴형·구조 의존성",
+        usage_note=(
+            "본 시스템 face/reading.py 눈 영역 자연어 풀이에 학파 인용 가능. "
+            "단정 운명 매핑 X — 시각 기호 분류만. ADR-006·116 sanitize 동반 의무."
+        ),
+    ),
+    KciCitation(
+        key="kang_2008_mbti_face",
+        authors_ko="강선희·김효동·이경원 (2008)",
+        title_ko="동양 관상학을 적용한 성격별 얼굴 설계 시스템에 관한 연구",
+        journal="Archives of Design Research (디자인학연구)",
+        volume_issue="21권 4호",
+        pages="해당 권 본문",
+        publication_year=2008,
+        kci_indexed=True,
+        scopus_indexed=True,
+        publisher_url="https://design-science.or.kr/",
+        dbpia_url="https://www.dbpia.co.kr/journal/articleDetail?nodeId=NODE01057824",
+        topic_focus=(
+            "얼굴 6대 부위 (얼굴형·눈·코·입·이마·눈썹) × 29 하위 분류 × "
+            "MBTI 39 성격 매핑 — 한국형 변환 시스템 FACE"
+        ),
+        usage_note=(
+            "본 시스템 face/knowledge.py 12궁 + 삼정 보강 인용. "
+            "MBTI 단정 매핑은 ADR-014 회피 — 본 인용은 부위 분류 체계만 활용. "
+            "성격 → 운명 변환 X — 형태 분류 학술 출처로만."
+        ),
+    ),
+)
+
+
+def get_kci_citation_by_key(key: str) -> KciCitation | None:
+    """KCI 인용 키로 조회 — Stage 2 프롬프트 빌드 시 참조."""
+    for c in FACE_KCI_CITATIONS:
+        if c.key == key:
+            return c
+    return None
+
+
+def format_kci_citations_for_prompt() -> str:
+    """ADR-144: Stage 2 자연어 풀이 시 KCI 학술 인용 컨텍스트 빌드.
+
+    LLM 시스템 프롬프트에 주입 — 본 시스템 출처가 KCI 등재 학술지임을 명시.
+    ADR-010 사실성 분리 강도 ↑ (KCI 등재 + SCOPUS 인덱싱).
+    """
+    lines = [
+        "[KCI 등재 학술 인용 — ADR-144 face 학술 출처 강화]",
+        "(본 시스템 face 영역 풀이의 학술 인용 출처. 운명 단정 X — 분류 체계만.)",
+        "",
+    ]
+    for c in FACE_KCI_CITATIONS:
+        lines.append(f"- {c.authors_ko} \"{c.title_ko}\"")
+        lines.append(f"  {c.journal} {c.volume_issue}, {c.pages}")
+        kci_tag = "KCI 등재" + (" + SCOPUS" if c.scopus_indexed else "")
+        lines.append(f"  {kci_tag} · {c.dbpia_url}")
+        lines.append(f"  활용: {c.topic_focus}")
+        lines.append(f"  주의: {c.usage_note}")
+        lines.append("")
+    return "\n".join(lines)
+
+
 def format_school_interpretations_for_prompt(feature_key: str) -> str | None:
     """Stage 2 자연어 풀이용 학파 해석 텍스트 빌드 (ADR-103).
 
