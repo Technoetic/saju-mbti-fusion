@@ -64,13 +64,13 @@ def export_to_json() -> dict:
 
 
 def check_structure(data: dict) -> dict:
-    """구조 무결성 검증."""
+    """구조 무결성 검증 — 동적 카드 수 (확장 정합, 1~100 카드 모두 PASS)."""
     findings = {"total_cards": 0, "total_characters": 0, "issues": []}
     cards = data.get("cards", [])
     findings["total_cards"] = len(cards)
 
-    if len(cards) != 12:
-        findings["issues"].append(f"Card count: {len(cards)} (expected 12)")
+    if len(cards) < 1:
+        findings["issues"].append(f"Card count: {len(cards)} (expected ≥1)")
 
     required_card_fields = ["key", "title", "glyph", "school", "scene", "choices"]
     required_char_fields = ["title", "archetype", "body"]
