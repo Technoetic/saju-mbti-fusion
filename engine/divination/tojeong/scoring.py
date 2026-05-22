@@ -393,6 +393,74 @@ def hexagram_by_id(hex_id: int) -> TojeongHexagram | None:
     return None
 
 
+# ─────────────────────────── ADR-154 — 144괘 원문 본문화 진행도 영속 ───────────────────────────
+
+def tojeong_verse_coverage_stats() -> dict[str, object]:
+    """ADR-154 (2026-05-23) — 144괘 원문 시구 본문화 충실도 통계.
+
+    /domain-priorities 잔여 #1 부분 해소 — RISS PDF 다운로드 외부 결단 필요한
+    영역의 본 AI 단독 가능 진행도 영속 (메타 회귀로 향후 본문화 추이 추적).
+
+    Returns:
+        {
+          "total": 144,
+          "with_original_verse": 본문화된 괘 수 (ADR-134),
+          "synthesized_only": 합성 흐름 톤만 보유,
+          "coverage_pct": 본문화율 (소수 2자리),
+          "confidence_breakdown": {"HIGH": N, "MEDIUM": N, "LOW": N, "NONE": N},
+          "by_source_school": {학파명: 개수},
+        }
+    """
+    total = len(SIXTY_FOUR_TOJEONG)
+    with_verse = sum(1 for h in SIXTY_FOUR_TOJEONG if h.verse_hanja)
+    confidence_breakdown: dict[str, int] = {"HIGH": 0, "MEDIUM": 0, "LOW": 0, "NONE": 0}
+    by_school: dict[str, int] = {}
+    for h in SIXTY_FOUR_TOJEONG:
+        confidence_breakdown[h.confidence] = confidence_breakdown.get(h.confidence, 0) + 1
+        if h.source_school:
+            by_school[h.source_school] = by_school.get(h.source_school, 0) + 1
+    return {
+        "total": total,
+        "with_original_verse": with_verse,
+        "synthesized_only": total - with_verse,
+        "coverage_pct": round(with_verse / total * 100, 2) if total else 0.0,
+        "confidence_breakdown": confidence_breakdown,
+        "by_source_school": by_school,
+    }
+
+
+def get_verse_source_status(hex_id: int) -> dict[str, str]:
+    """ADR-154 — 단일 괘 시구 출처 정직 상태.
+
+    Args:
+        hex_id: 0~143
+
+    Returns:
+        {
+          "status": "original" (verse_hanja 존재) | "synthesized" (흐름 톤만),
+          "confidence": "HIGH"|"MEDIUM"|"LOW"|"NONE",
+          "source_school": 학파 명 또는 빈 문자열,
+          "note": 사용자 출력용 짧은 설명 (단정 X)
+        }
+    """
+    h = hexagram_by_id(hex_id)
+    if h is None:
+        return {"status": "invalid", "confidence": "NONE", "source_school": "", "note": "괘 ID 범위 외"}
+    if h.verse_hanja:
+        return {
+            "status": "original",
+            "confidence": h.confidence,
+            "source_school": h.source_school,
+            "note": f"정통 시구 본문화 ({h.source_school} 학파, 신뢰도 {h.confidence}).",
+        }
+    return {
+        "status": "synthesized",
+        "confidence": "NONE",
+        "source_school": "",
+        "note": "원문 시구 미본문화 — 본 시스템 자체 흐름 톤만 (학술 출처 김수년 2016 RISS 000014351511 권말부록 별도 확인 가능).",
+    }
+
+
 # ─────────────────────────── ADR-146 KCI 학술 인용 (토정비결 144괘 원문) ───────────────────────────
 
 # /domain-priorities #1 (52점) 부분 해소 — 사용자 결단 2026-05-23.
@@ -528,4 +596,6 @@ __all__ = [
     # ADR-146 학술 인용
     "TojeongAcademicCitation", "TOJEONG_ACADEMIC_CITATIONS",
     "get_tojeong_academic_citations", "format_tojeong_citations_for_prompt",
+    # ADR-154 시구 본문화 진행도
+    "tojeong_verse_coverage_stats", "get_verse_source_status",
 ]
