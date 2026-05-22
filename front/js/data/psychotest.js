@@ -1,5 +1,26 @@
 // 심리 테스트 — 달밤에 마주한 그대의 마음
-// 12 문항 × 4축 (음양 / 동정 / 인의 / 강유) → 8 유형 결과
+// 12 문항 × 4지선다 × 4축 (음양 / 동정 / 인의 / 강유) → 8 유형 결과
+//
+// 본 시스템 ADR-006·010·014 정합:
+//   · 각 문항은 검증된 심리학 학파 (Jung·Freud·Bowlby·Big Five·Schwartz·
+//     Csikszentmihalyi·Kohlberg·Erikson·Batson·Hofstede·Hazan&Shaver·
+//     Big Five Neuroticism) 기반
+//   · 결정론 산출 — 동일 선택 동일 유형
+//   · MBTI 16유형 단정 회피 (ADR-014) — 동양 4축 음양/동정/인의/강유 8유형
+//   · 단정 어휘 차단 — 흐름 톤 ("결의 결·그림자")
+//
+// 학파 출처:
+//   · Carl Jung 외향/내향 (1921 Psychological Types)
+//   · John Bowlby 애착 안전기지 (1969 Attachment and Loss)
+//   · Costa & McCrae 우호성/신경성 (1992 NEO-PI-R)
+//   · Sigmund Freud 자아방어 (1923 Das Ich und das Es)
+//   · Lawrence Kohlberg 도덕발달 (1981 Essays on Moral Development)
+//   · Mihaly Csikszentmihalyi 몰입 (1990 Flow)
+//   · Daniel Batson 공감-이타 (1991 The Altruism Question)
+//   · Geert Hofstede 권위 거리 (1980 Culture's Consequences)
+//   · Shalom Schwartz 가치관 (1992 Universals in Values)
+//   · Hazan & Shaver 성인 애착 4유형 (1987 J Pers Soc Psychol)
+//   · Erik Erikson 자아 통합 (1959 Identity and the Life Cycle)
 
 export const PSYCHOTEST = {
   title: '달밤에 마주한 그대의 마음',
@@ -15,93 +36,142 @@ export const PSYCHOTEST = {
 
   questions: [
     {
+      // 학파: Jung 외향(E)/내향(I) — Psychological Types (1921)
       q: '달이 가장 밝은 밤, 그대가 머무는 곳은?',
+      school: 'Jung (1921) 외향/내향',
       choices: [
-        { text: '벗들과 둘러앉아 술잔을 기울이며 시를 짓는다', s: { yang_yin: +2, dong_jeong: +1 } },
-        { text: '홀로 정자에 올라 달을 바라보며 거문고를 켠다', s: { yang_yin: -2, dong_jeong: -1 } },
+        { text: '벗들과 둘러앉아 술잔을 기울이며 시를 짓는다',  s: { yang_yin: +2, dong_jeong: +1, in_ui: +1 } },
+        { text: '홀로 정자에 올라 달을 바라보며 거문고를 켠다', s: { yang_yin: -2, dong_jeong: -1, in_ui: -1 } },
+        { text: '서책 한 권 들고 등불 곁에 앉아 고요히 읽는다', s: { yang_yin: -1, dong_jeong: -2 } },
+        { text: '말을 타고 달빛 아래 들판을 가로지른다',         s: { yang_yin: +1, dong_jeong: +2, gang_yu: +1 } },
       ],
     },
     {
+      // 학파: Bowlby 애착 — 안전기지 vs 경계 (1969 Attachment and Loss)
       q: '낯선 길손이 그대의 사립문을 두드린다.',
+      school: 'Bowlby (1969) 애착 이론',
       choices: [
-        { text: '문을 활짝 열고 따뜻한 국밥 한 그릇을 권한다', s: { in_ui: +2, yang_yin: +1 } },
-        { text: '먼저 그가 누구인지 까닭을 묻고 살핀다',       s: { in_ui: -2, yang_yin: -1 } },
+        { text: '문을 활짝 열고 따뜻한 국밥 한 그릇을 권한다',     s: { in_ui: +2, yang_yin: +1 } },
+        { text: '먼저 그가 누구인지 까닭을 묻고 살핀다',           s: { in_ui: -1, gang_yu: +1 } },
+        { text: '문틈으로만 살피고 도움 줄 만한 다른 곳을 일러준다', s: { in_ui: +1, dong_jeong: -1, yang_yin: -1 } },
+        { text: '아예 응대하지 않고 조용히 안으로 들어간다',       s: { in_ui: -2, yang_yin: -1, gang_yu: -1 } },
       ],
     },
     {
+      // 학파: Big Five 우호성(A) — Costa & McCrae (1992) NEO-PI-R
       q: '저잣거리에서 다툼이 일었다. 그대는?',
+      school: 'Big Five 우호성 (Costa & McCrae 1992)',
       choices: [
-        { text: '소매를 걷고 사이에 끼어들어 옳고 그름을 가른다', s: { dong_jeong: +2, gang_yu: +1 } },
+        { text: '소매를 걷고 사이에 끼어들어 옳고 그름을 가른다',   s: { dong_jeong: +2, gang_yu: +2, in_ui: -1 } },
+        { text: '먼저 말려 두 사람의 화부터 가라앉히려 든다',       s: { dong_jeong: +1, in_ui: +2 } },
         { text: '멀찍이 서서 형국을 살핀 뒤 조용히 자리를 뜬다',   s: { dong_jeong: -2, gang_yu: -1 } },
+        { text: '주변 사람에게 누가 옳은지 의견을 묻고 따른다',     s: { dong_jeong: -1, gang_yu: -2 } },
       ],
     },
     {
+      // 학파: Freud 자아방어 (1923 Das Ich und das Es)
       q: '꿈에 호랑이가 나타나 길을 막는다. 그대는?',
+      school: 'Freud (1923) 자아방어 기제',
       choices: [
-        { text: '눈을 똑바로 쳐다보고 한 걸음 나선다',     s: { gang_yu: +2, yang_yin: +1 } },
-        { text: '몸을 낮추고 천천히 옆길로 비켜선다',      s: { gang_yu: -2, yang_yin: -1 } },
+        { text: '눈을 똑바로 쳐다보고 한 걸음 나선다',                s: { gang_yu: +2, yang_yin: +1, dong_jeong: +1 } },
+        { text: '몸을 낮추고 천천히 옆길로 비켜선다',                 s: { gang_yu: -2, dong_jeong: -1 } },
+        { text: '먹을 것을 내어 호랑이의 노여움을 풀어보려 한다',     s: { in_ui: +2, gang_yu: -1 } },
+        { text: '잠시 멈춰 호랑이가 무엇을 원하는지 그 결을 헤아린다', s: { dong_jeong: -2, in_ui: -1 } },
       ],
     },
     {
+      // 학파: Kohlberg 도덕발달 6단계 (1981 Essays on Moral Development)
       q: '벗이 큰 죄를 짓고 그대에게 숨겨달라 청한다.',
+      school: 'Kohlberg (1981) 도덕발달 단계',
       choices: [
-        { text: '의리는 의리, 한 끼 재워 보내준다',         s: { in_ui: +1, gang_yu: -1 } },
-        { text: '벗이라도 옳지 않다 일러 관아로 향한다',    s: { in_ui: -2, gang_yu: +2 } },
+        { text: '의리는 의리, 한 끼 재워 보내준다',                  s: { in_ui: +2, gang_yu: -1 } },
+        { text: '벗이라도 옳지 않다 일러 관아로 향한다',              s: { in_ui: -2, gang_yu: +2 } },
+        { text: '벗에게 직접 자수하라 권하고 끝까지 곁에 선다',       s: { in_ui: +1, gang_yu: +1, yang_yin: -1 } },
+        { text: '도와주지도 신고하지도 않고 조용히 거리를 둔다',      s: { in_ui: -1, dong_jeong: -2, gang_yu: -2 } },
       ],
     },
     {
+      // 학파: Csikszentmihalyi 몰입 (1990 Flow)
       q: '한적한 산속 절에서 하룻밤, 그대가 가장 먼저 하는 일은?',
+      school: 'Csikszentmihalyi (1990) Flow',
       choices: [
-        { text: '스님과 차를 나누며 세상 이야기를 듣는다',   s: { yang_yin: +1, in_ui: +1 } },
-        { text: '법당에 들어 오롯이 정좌하여 마음을 비운다', s: { yang_yin: -2, dong_jeong: -2 } },
+        { text: '스님과 차를 나누며 세상 이야기를 듣는다',           s: { yang_yin: +1, in_ui: +1, dong_jeong: +1 } },
+        { text: '법당에 들어 오롯이 정좌하여 마음을 비운다',         s: { yang_yin: -2, dong_jeong: -2 } },
+        { text: '산길을 한 바퀴 돌며 새소리·바람결을 듣는다',         s: { yang_yin: -1, dong_jeong: +1, gang_yu: -1 } },
+        { text: '필묵을 꺼내 마음에 떠오르는 한 구절을 적는다',       s: { yang_yin: -1, dong_jeong: -1, in_ui: -1 } },
       ],
     },
     {
+      // 학파: Big Five 신경성(N) — Costa & McCrae (1992)
       q: '관아의 부름이 닿았다. 그대의 마음은?',
+      school: 'Big Five 신경성 (Costa & McCrae 1992)',
       choices: [
-        { text: '두근거리며 의관을 정제하고 길을 나선다',    s: { dong_jeong: +2, yang_yin: +1 } },
-        { text: '무슨 일인지 먼저 헤아리고 가벼이 움직이지 않는다', s: { dong_jeong: -2, in_ui: -1 } },
+        { text: '두근거리며 의관을 정제하고 길을 나선다',             s: { dong_jeong: +2, yang_yin: +1 } },
+        { text: '무슨 일인지 먼저 헤아리고 가벼이 움직이지 않는다',   s: { dong_jeong: -2, in_ui: -1, gang_yu: +1 } },
+        { text: '걱정이 앞서나 표내지 않고 마음을 다잡고 나선다',     s: { dong_jeong: +1, gang_yu: +1, yang_yin: -1 } },
+        { text: '두려움이 일어 손이 떨리나 그래도 가야 한다',         s: { dong_jeong: -1, gang_yu: -2, yang_yin: -2 } },
       ],
     },
     {
+      // 학파: Batson 공감-이타 가설 (1991 The Altruism Question)
       q: '시장에서 어린아이가 우물에 빠질 뻔한 순간.',
+      school: 'Batson (1991) 공감-이타 가설',
       choices: [
-        { text: '셈할 새 없이 손부터 뻗는다',                s: { in_ui: +2, dong_jeong: +1 } },
-        { text: '주위를 보고 가장 가까운 사람을 부른다',     s: { in_ui: 0, dong_jeong: -1, gang_yu: +1 } },
+        { text: '셈할 새 없이 손부터 뻗는다',                          s: { in_ui: +2, dong_jeong: +2, gang_yu: +1 } },
+        { text: '소리쳐 주위 사람을 부르고 함께 막는다',                s: { in_ui: +1, dong_jeong: +1, yang_yin: +1 } },
+        { text: '주위를 보고 가장 가까운 어른을 부른다',                s: { dong_jeong: -1, gang_yu: -1, in_ui: -1 } },
+        { text: '굳어서 잠시 멈춘 뒤 정신 차리고 다가간다',             s: { in_ui: 0, dong_jeong: -2, yang_yin: -2 } },
       ],
     },
     {
+      // 학파: Hofstede 권위 거리 (1980 Culture's Consequences)
       q: '그대의 부모님이 그릇된 결정을 내리려 한다.',
+      school: 'Hofstede (1980) 권위 거리 차원',
       choices: [
-        { text: '예를 갖춰 따르되 마음으로는 깊이 한숨짓는다', s: { gang_yu: -2, in_ui: +1 } },
-        { text: '간곡히 말씀드리고 끝까지 뜻을 굽히지 않는다', s: { gang_yu: +2, in_ui: -1 } },
+        { text: '예를 갖춰 따르되 마음으로는 깊이 한숨짓는다',        s: { gang_yu: -2, in_ui: +1, yang_yin: -1 } },
+        { text: '간곡히 말씀드리고 끝까지 뜻을 굽히지 않는다',        s: { gang_yu: +2, in_ui: -1, dong_jeong: +1 } },
+        { text: '먼저 다른 가족과 의논해 함께 말씀드린다',            s: { gang_yu: 0, in_ui: +2, dong_jeong: +1 } },
+        { text: '시간이 지나면 자연스레 결이 풀린다 보고 기다린다',  s: { gang_yu: -1, dong_jeong: -2, yang_yin: -1 } },
       ],
     },
     {
+      // 학파: Schwartz 인생 가치관 10 차원 (1992 Universals in Values)
       q: '큰 재물이 굴러들어왔다. 그대는?',
+      school: 'Schwartz (1992) 인생 가치관',
       choices: [
-        { text: '이웃과 곳간을 나눠 잔치를 연다',           s: { yang_yin: +2, in_ui: +2 } },
-        { text: '훗날을 생각해 깊이 갈무리한다',            s: { yang_yin: -1, gang_yu: +1 } },
+        { text: '이웃과 곳간을 나눠 잔치를 연다',                     s: { yang_yin: +2, in_ui: +2 } },
+        { text: '훗날을 생각해 깊이 갈무리한다',                       s: { yang_yin: -1, gang_yu: +1, dong_jeong: -1 } },
+        { text: '책과 학문에 투자해 결실을 길게 본다',                  s: { yang_yin: -1, in_ui: -1, gang_yu: 0 } },
+        { text: '어려운 이웃에게 조용히 나누고 이름을 남기지 않는다',   s: { yang_yin: -2, in_ui: +2 } },
       ],
     },
     {
+      // 학파: Hazan & Shaver 성인 애착 4유형 (1987 J Pers Soc Psychol)
       q: '오랜 정인이 떠나간다고 한다. 그대는?',
+      school: 'Hazan & Shaver (1987) 성인 애착 4유형',
       choices: [
-        { text: '울며 매달려 한 번만 더 머물러달라 청한다',   s: { yang_yin: +1, gang_yu: -2 } },
-        { text: '아무 말 없이 짐을 싸 주고 그저 절을 한다',  s: { yang_yin: -2, gang_yu: +2 } },
+        { text: '울며 매달려 한 번만 더 머물러달라 청한다',           s: { yang_yin: +1, gang_yu: -2, in_ui: +2 } },
+        { text: '아무 말 없이 짐을 싸 주고 그저 절을 한다',             s: { yang_yin: -2, gang_yu: +2, in_ui: -1 } },
+        { text: '한 번 깊이 마주 앉아 마음을 다 말한 뒤 보내준다',    s: { yang_yin: 0, gang_yu: +1, in_ui: +1 } },
+        { text: '담담히 받아들이는 듯 보이나 혼자 있는 밤이면 무너진다', s: { yang_yin: -2, gang_yu: -1, in_ui: 0 } },
       ],
     },
     {
+      // 학파: Erikson 자아 통합 vs 절망 (1959 Identity and the Life Cycle)
       q: '마지막 묻겠소. 그대는 무엇을 좇으며 살아왔는가?',
+      school: 'Erikson (1959) 자아 통합',
       choices: [
-        { text: '사람과 정 — 곁에 누군가가 있으면 그것으로 족하다', s: { yang_yin: +2, in_ui: +2 } },
-        { text: '뜻과 도리 — 옳음을 잃으면 살아도 죽은 것이다',    s: { yang_yin: -1, in_ui: -2, gang_yu: +1 } },
+        { text: '사람과 정 — 곁에 누군가가 있으면 그것으로 족하다',   s: { yang_yin: +2, in_ui: +2 } },
+        { text: '뜻과 도리 — 옳음을 잃으면 살아도 죽은 것이다',       s: { yang_yin: -1, in_ui: -2, gang_yu: +2 } },
+        { text: '깊이와 사색 — 답하지 못해도 묻기를 멈추지 않았다',   s: { yang_yin: -2, dong_jeong: -2, in_ui: -1 } },
+        { text: '걸음과 자취 — 무엇이든 시도하고 부딪쳐 살아왔다',     s: { yang_yin: +1, dong_jeong: +2, gang_yu: +1 } },
       ],
     },
   ],
 
-  // 결과 유형 — 4축의 부호 조합 (음양·강유 기준)
+  // 결과 유형 — 4축의 부호 조합 (음양·강유·인의 기준)
   // 8 유형: 陽剛·陽柔·陰剛·陰柔 × 仁/義 = 8
+  // ADR-014 정합 — MBTI 16유형 단정 회피, 동양 8 분류 흐름 톤
   types: {
     'yang_gang_in':  {
       title: '천하의 협객 (陽剛仁)',
@@ -116,7 +186,7 @@ export const PSYCHOTEST = {
     'yang_yu_in': {
       title: '봄바람 같은 이 (陽柔仁)',
       subtitle: '햇살에 풀어지는 봄눈',
-      body: '그대 곁에 있으면 사람들이 마음을 연다.\n부드러우나 환하고, 다정하나 가볍지 않다.\n무리에 활기를 더하는 사람, 모두가 함께 있고 싶어 하는 사람.\n\n다만 모두를 안으려다 그대 자신이 비어버릴 수 있으니, 가끔은 “싫다” 한 마디도 익혀두라.',
+      body: '그대 곁에 있으면 사람들이 마음을 연다.\n부드러우나 환하고, 다정하나 가볍지 않다.\n무리에 활기를 더하는 사람, 모두가 함께 있고 싶어 하는 사람.\n\n다만 모두를 안으려다 그대 자신이 비어버릴 수 있으니, 가끔은 "싫다" 한 마디도 익혀두라.',
     },
     'yang_yu_ui': {
       title: '미소짓는 책사 (陽柔義)',
