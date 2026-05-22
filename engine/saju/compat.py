@@ -294,7 +294,39 @@ def _mbti_socionics_label(a: str, b: str) -> str:
 # ─────────────────────────── ADR-130 삼합·방합 API ───────────────────────────
 
 
-def detect_samhap(branches: list[str]) -> list[dict]:
+def _compute_guk_strength(matched_branches: set[str], pillars: list[str]) -> float:
+    """ADR-130 supplement: 합국 위치별 강도 가중치 계산.
+
+    자평진전(子平眞詮) 「合化」 절 정통 표준:
+    합국 구성 지지가 어느 주(柱)에 있느냐에 따라 가중치 차등.
+    - 월지(月支) = 월령 득함 → strength 1.0 (최강)
+    - 일지(日支) = 일주 직접 → strength 0.7 (중)
+    - 년지(年支)·시지(時支) → strength 0.5 (약)
+
+    합국 강도 = 매칭된 지지들의 위치 가중치 중 **최대값** (정통 표준).
+
+    Args:
+        matched_branches: 합국에 매칭된 지지 집합 (예: {"申", "子", "辰"}).
+        pillars: 4주 지지 (년·월·일·시 순). 길이 4가 아니면 0.5 회신.
+
+    Returns:
+        0.5 (모두 년/시지), 0.7 (일지 포함), 1.0 (월지 포함).
+        pillars 길이 != 4 시 0.5 (위치 정보 부족).
+    """
+    if len(pillars) != 4:
+        return 0.5
+    # 4주 위치: pillars[0]=년, [1]=월, [2]=일, [3]=시
+    position_weights = {1: 1.0, 2: 0.7, 0: 0.5, 3: 0.5}  # 월=1, 일=0.7, 년·시=0.5
+    max_strength = 0.5
+    for i, branch in enumerate(pillars):
+        if branch in matched_branches:
+            w = position_weights.get(i, 0.5)
+            if w > max_strength:
+                max_strength = w
+    return max_strength
+
+
+def detect_samhap(branches: list[str], with_strength: bool = False) -> list[dict]:
     """4주 지지 한자 리스트 → 삼합(三合) 완전 4국 매칭 결과.
 
     학파: 자평진전·삼명통회 정통 표준 일치.
@@ -302,11 +334,15 @@ def detect_samhap(branches: list[str]) -> list[dict]:
 
     Args:
         branches: 4주 지지 한자 리스트 (例: ["子", "卯", "申", "辰"]).
+                  with_strength=True 시 년·월·일·시 순 의무.
+        with_strength: True 시 강도 가중치 (자평진전 합화 절) 추가.
+                       월지 1.0 / 일지 0.7 / 년·시지 0.5.
 
     Returns:
         매칭된 삼합 국 정보 리스트. 4 지지 모두 한 국에 포함되어야 매칭.
-        부분 매칭(반합·2지지만 일치)은 X.
+        부분 매칭(반합·2지지만 일치)은 X (반합은 ADR-140 detect_banhap 참조).
         [{"label": "申子辰", "guk": "水局", "ohaeng": "수"}, ...]
+        with_strength=True 시 각 dict에 "strength" 필드 추가 (0.5 / 0.7 / 1.0).
     """
     if not branches:
         return []
@@ -314,21 +350,27 @@ def detect_samhap(branches: list[str]) -> list[dict]:
     out = []
     for samhap_set, info in _BRANCH_SAMHAP.items():
         if samhap_set.issubset(branch_set):
-            out.append(dict(info))
+            result: dict = dict(info)
+            if with_strength:
+                result["strength"] = _compute_guk_strength(set(samhap_set), branches)
+            out.append(result)
     return out
 
 
-def detect_banghap(branches: list[str]) -> list[dict]:
+def detect_banghap(branches: list[str], with_strength: bool = False) -> list[dict]:
     """4주 지지 한자 리스트 → 방합(方合) 완전 4국 매칭 결과.
 
     학파: 자평진전·삼명통회 정통 표준 일치.
 
     Args:
         branches: 4주 지지 한자 리스트.
+                  with_strength=True 시 년·월·일·시 순 의무.
+        with_strength: True 시 강도 가중치 (자평진전 합화 절) 추가.
 
     Returns:
         매칭된 방합 국 정보 리스트.
         [{"label": "寅卯辰", "guk": "春木", "ohaeng": "목", "direction": "동방"}, ...]
+        with_strength=True 시 각 dict에 "strength" 필드 추가.
     """
     if not branches:
         return []
@@ -336,12 +378,20 @@ def detect_banghap(branches: list[str]) -> list[dict]:
     out = []
     for banghap_set, info in _BRANCH_BANGHAP.items():
         if banghap_set.issubset(branch_set):
-            out.append(dict(info))
+            result: dict = dict(info)
+            if with_strength:
+                result["strength"] = _compute_guk_strength(set(banghap_set), branches)
+            out.append(result)
     return out
 
 
-def detect_compat_relations(branches: list[str]) -> dict:
+def detect_compat_relations(branches: list[str], with_strength: bool = False) -> dict:
     """4주 지지 합국·합충 일괄 매칭 (삼합·방합·6합·6충 통합).
+
+    Args:
+        branches: 4주 지지 한자 리스트.
+                  with_strength=True 시 년·월·일·시 순 의무.
+        with_strength: True 시 삼합·방합 결과에 강도 필드 추가.
 
     Returns:
         {
@@ -351,8 +401,8 @@ def detect_compat_relations(branches: list[str]) -> dict:
           "yukchong_pairs": [...],# 6충 쌍 라벨
         }
     """
-    samhap = detect_samhap(branches)
-    banghap = detect_banghap(branches)
+    samhap = detect_samhap(branches, with_strength=with_strength)
+    banghap = detect_banghap(branches, with_strength=with_strength)
 
     # 6합·6충 쌍 점검
     yukhap_pairs = []
