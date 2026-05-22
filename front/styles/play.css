@@ -342,7 +342,87 @@
   opacity: 0.85;
 }
 
-/* 심리테스트 12 미니 카드 (ADR-006/010/014 정합 — psychotest.js) */
+/* 심리테스트 100 미니 카드 (ADR-006/010/014 정합 — psychotest.js) */
+.psycho-progress {
+  margin: 12px 0 16px;
+  padding: 10px 14px;
+  background: rgba(40, 36, 60, 0.4);
+  border: 1px solid rgba(180, 160, 220, 0.25);
+  border-radius: 10px;
+}
+.psycho-progress-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  color: rgba(220, 200, 240, 0.85);
+  margin-bottom: 6px;
+}
+.psycho-progress-bar {
+  height: 6px;
+  background: rgba(20, 18, 32, 0.6);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.psycho-progress-bar > span {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, rgba(180, 130, 220, 0.85), rgba(220, 180, 240, 0.95));
+  transition: width 0.35s ease;
+}
+.psycho-cat-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 12px 0;
+}
+.psycho-cat-tab {
+  padding: 6px 12px;
+  background: rgba(40, 36, 60, 0.45);
+  border: 1px solid rgba(180, 160, 220, 0.25);
+  border-radius: 16px;
+  color: rgba(220, 200, 240, 0.78);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.psycho-cat-tab:hover:not(:disabled) {
+  background: rgba(60, 50, 90, 0.65);
+  border-color: rgba(220, 200, 240, 0.5);
+  color: #f0e6f8;
+}
+.psycho-cat-tab:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+.psycho-cat-tab-active {
+  background: rgba(120, 80, 180, 0.55);
+  border-color: rgba(220, 180, 240, 0.7);
+  color: #fff;
+}
+.psycho-cat-count {
+  display: inline-block;
+  margin-left: 4px;
+  padding: 0 6px;
+  background: rgba(20, 18, 32, 0.45);
+  border-radius: 8px;
+  font-size: 0.75rem;
+  color: rgba(220, 200, 240, 0.85);
+}
+.psycho-cat-summary {
+  font-size: 0.85rem;
+  color: rgba(220, 200, 240, 0.75);
+  margin: 8px 0 4px;
+}
+.psycho-card-disclaimer {
+  margin-top: 14px;
+  padding: 10px 12px;
+  background: rgba(20, 18, 32, 0.45);
+  border-left: 3px solid rgba(180, 160, 220, 0.4);
+  border-radius: 4px;
+  font-size: 0.78rem;
+  line-height: 1.55;
+  color: rgba(220, 200, 240, 0.65);
+}
 .psycho-card-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
@@ -350,6 +430,7 @@
   margin: 16px 0;
 }
 .psycho-mini-card {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -367,6 +448,25 @@
   background: rgba(60, 50, 90, 0.7);
   border-color: rgba(220, 200, 240, 0.55);
   transform: translateY(-2px);
+}
+.psycho-mini-card-done {
+  background: rgba(30, 50, 40, 0.45);
+  border-color: rgba(150, 220, 180, 0.4);
+  opacity: 0.78;
+}
+.psycho-mini-card-done:hover {
+  background: rgba(45, 70, 55, 0.6);
+  border-color: rgba(180, 240, 200, 0.6);
+  opacity: 1;
+}
+.psycho-mini-card-check {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: rgba(150, 230, 180, 0.95);
+  line-height: 1;
 }
 .psycho-mini-card-glyph {
   font-size: 1.8rem;
