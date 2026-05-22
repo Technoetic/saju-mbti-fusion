@@ -226,35 +226,47 @@ def _call_vision(
             raise ValueError("empty model response")
         return content
 
-    # Anthropic fallback
+    # Anthropic fallback (ADR-143 Opus 4.7 디폴트, ADR-151 Sonnet 4.6 2차 fallback)
     client = _anthropic_client()
-    msg = client.messages.create(
-        model="claude-opus-4-7",
-        max_tokens=_MAX_TOKENS,
-        system=[
-            {
-                "type": "text",
-                "text": system_prompt,
-                "cache_control": {"type": "ephemeral"},
-            }
-        ],
-        messages=[
-            {
-                "role": "user",
-                "content": [
-                    {"type": "text", "text": user_text},
+    # ADR-151 SLA 보강: Opus 4.7 실패 시 Sonnet 4.6 자동 fallback
+    fallback_models = ("claude-opus-4-7", "claude-sonnet-4-6")
+    msg = None
+    last_error: Exception | None = None
+    for model_name in fallback_models:
+        try:
+            msg = client.messages.create(
+                model=model_name,
+                max_tokens=_MAX_TOKENS,
+                system=[
                     {
-                        "type": "image",
-                        "source": {
-                            "type": "base64",
-                            "media_type": mime,
-                            "data": raw_b64,
-                        },
-                    },
+                        "type": "text",
+                        "text": system_prompt,
+                        "cache_control": {"type": "ephemeral"},
+                    }
                 ],
-            }
-        ],
-    )
+                messages=[
+                    {
+                        "role": "user",
+                        "content": [
+                            {"type": "text", "text": user_text},
+                            {
+                                "type": "image",
+                                "source": {
+                                    "type": "base64",
+                                    "media_type": mime,
+                                    "data": raw_b64,
+                                },
+                            },
+                        ],
+                    }
+                ],
+            )
+            break  # 성공 시 즉시 종료
+        except Exception as e:
+            last_error = e
+            continue
+    if msg is None:
+        raise ValueError(f"all Anthropic models failed (last: {last_error})")
     text = next(
         (
             getattr(b, "text", None)
