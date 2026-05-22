@@ -197,46 +197,227 @@ def _generate_64_hexagrams() -> tuple[YutHexagram, ...]:
 SIXTY_FOUR_HEXAGRAMS: tuple[YutHexagram, ...] = _generate_64_hexagrams()
 
 
+# ─────────────────────────── ADR-145 모(5) 별개 사위 옵션 B (125괘) ───────────────────────────
+
+# 모(5) 별개 사위 — 윷(4)보다 한 단계 위, 한국 일부 지역·민속 변형 학파
+# /domain-priorities #13 (32점) 해소 — 사용자 결단 2026-05-22
+MO_SIDE = YutSide("mo", "모", 5, "다섯 걸음의 비약")
+
+SIDES_5: tuple[YutSide, ...] = YUT_SIDES + (MO_SIDE,)  # 5사위 (도·개·걸·윷·모)
+
+
+def yut_side_by_value_v5(value: int) -> YutSide | None:
+    """모(5) 별개 사위 옵션 B — 값(1~5)으로 조회.
+
+    옵션 A (디폴트 yut_side_by_value)와 달리 모(5)를 별개 사위로 반환.
+    """
+    if not (1 <= value <= 5):
+        return None
+    return SIDES_5[value - 1]
+
+
+# 125괘 흐름 톤 — 모(5) 포함 5^3=125 조합
+# 64괘는 _FLOW_TONES 그대로 재사용 (4사위 부분 동일)
+# 추가 61괘 = 모(5) 1회 이상 포함된 조합
+# 모(5) 의미: 윷(4) "도약" 위의 "비약·초월·예외" 결
+#
+# 매핑 순서: upper(0~4) × middle(0~4) × lower(0~4)
+# hex_id_125 = upper*25 + middle*5 + lower (0~124)
+_FLOW_TONES_125_EXTRA: dict[int, str] = {
+    # upper=도(0), middle=도(0), lower=모(4) — hex_id 4
+    4: "기초 위에 비약의 결 — 작은 시작이 큰 도약을 부르는 흐름",
+    # upper=도(0), middle=개(1), lower=모(4) — hex_id 9
+    9: "흐름이 비약으로 이어지는 결 — 의외의 전환",
+    # upper=도(0), middle=걸(2), lower=모(4) — hex_id 14
+    14: "진전 끝에 비약이 비치는 결",
+    # upper=도(0), middle=윷(3), lower=모(4) — hex_id 19
+    19: "도약 위의 비약 — 한 번 더 솟는 결",
+    # upper=도(0), middle=모(4), lower=도(0) — hex_id 20
+    20: "시작의 비약 — 처음부터 큰 결의 흐름",
+    21: "비약 뒤 흐름이 차분해지는 결",
+    22: "비약 뒤 진전이 이어지는 결",
+    23: "비약 뒤 도약으로 가는 결",
+    24: "두 번 비약 — 큰 결이 겹치는 흐름",
+    # upper=개(1), middle=도(0), lower=모(4) — hex_id 29
+    29: "흐름의 끝에 비약이 솟는 결",
+    34: "흐름 속의 비약 — 리듬이 깨지는 듯한 결",
+    39: "흐름 위 진전 + 비약 — 큰 결로 가는 흐름",
+    44: "흐름 위 도약 + 비약 — 한계 너머의 결",
+    45: "흐름 속에서 비약 — 갑작스러운 큰 결",
+    46: "비약 뒤 차분한 흐름 — 큰 결의 여운",
+    47: "비약 + 진전 — 한 단계씩 솟는 흐름",
+    48: "비약 + 도약 — 두 번 솟는 결",
+    49: "두 비약의 흐름 — 큰 결이 잇따르는 흐름",
+    # upper=걸(2), middle=*, lower=모 / upper=걸, middle=모 — hex_id 54·59·64·69·70·71·72·73·74
+    54: "진전 위에 비약이 비치는 결",
+    59: "진전 + 흐름 + 비약 — 다층의 결",
+    64: "진전의 진전 + 비약 — 깊은 비약의 결",
+    69: "진전 + 도약 + 비약 — 큰 결의 정점",
+    70: "비약이 시작을 안내하는 결",
+    71: "비약 뒤 흐름 — 잔잔해지는 큰 결",
+    72: "비약 + 진전 — 단단해지는 큰 결",
+    73: "비약 + 도약 — 두 번 비약의 결",
+    74: "비약의 진전 — 큰 결의 깊이",
+    # upper=윷(3), * — hex_id 79·84·89·94·95·96·97·98·99
+    79: "도약 위에 비약 — 한 단계 더 솟는 결",
+    84: "도약 + 흐름 + 비약 — 큰 결의 리듬",
+    89: "도약 + 진전 + 비약 — 거대한 결의 도약",
+    94: "도약 + 도약 + 비약 — 한계를 넘는 결",
+    95: "비약이 도약을 부르는 결",
+    96: "비약 뒤 도약 + 흐름 — 큰 결의 정착",
+    97: "비약 + 도약 + 진전 — 큰 결의 다지기",
+    98: "비약 + 두 도약 — 정점의 결",
+    99: "비약 + 도약 + 비약 — 더 큰 결로",
+    # upper=모(4), middle=*, lower=* — hex_id 100~124
+    100: "비약 + 시작 + 시작 — 큰 결이 작은 결로 가지치는 흐름",
+    101: "비약 뒤 시작 + 흐름 — 큰 결이 잔잔해지는 결",
+    102: "비약 + 시작 + 진전 — 큰 결의 단계 밟기",
+    103: "비약 + 시작 + 도약 — 큰 결의 다시 솟는 결",
+    104: "비약 + 시작 + 비약 — 두 비약을 잇는 흐름",
+    105: "비약 + 흐름 + 시작 — 큰 결의 평탄",
+    106: "비약 + 두 흐름 — 큰 결이 흐름에 녹는 결",
+    107: "비약 + 흐름 + 진전 — 큰 결의 진행",
+    108: "비약 + 흐름 + 도약 — 큰 결의 재도약",
+    109: "비약 + 흐름 + 비약 — 비약을 잇는 결",
+    110: "비약 + 진전 + 시작 — 큰 결의 새 출발",
+    111: "비약 + 진전 + 흐름 — 큰 결의 안정",
+    112: "비약 + 두 진전 — 큰 결의 단단함",
+    113: "비약 + 진전 + 도약 — 큰 결의 정점 진입",
+    114: "비약 + 진전 + 비약 — 큰 결의 거듭",
+    115: "비약 + 도약 + 시작 — 큰 결의 새 시작",
+    116: "비약 + 도약 + 흐름 — 큰 결의 흐름 잇기",
+    117: "비약 + 도약 + 진전 — 큰 결의 깊이",
+    118: "비약 + 두 도약 — 정점 위 정점의 결",
+    119: "비약 + 도약 + 비약 — 비약 위 비약의 결",
+    120: "두 비약 + 시작 — 큰 결의 다음 사이클",
+    121: "두 비약 + 흐름 — 큰 결의 잔잔한 끝",
+    122: "두 비약 + 진전 — 큰 결의 다지기",
+    123: "두 비약 + 도약 — 큰 결의 도약",
+    124: "세 비약 — 정점의 정점, 결의 결의 결",
+}
+
+
+def _hex_id_125(upper_idx: int, middle_idx: int, lower_idx: int) -> int:
+    """5사위 hex_id 계산 — upper*25 + middle*5 + lower (0~124)."""
+    return upper_idx * 25 + middle_idx * 5 + lower_idx
+
+
+def _hex_id_64(upper_idx: int, middle_idx: int, lower_idx: int) -> int:
+    """4사위 hex_id 계산 — upper*16 + middle*4 + lower (0~63)."""
+    return upper_idx * 16 + middle_idx * 4 + lower_idx
+
+
+def _generate_125_hexagrams() -> tuple[YutHexagram, ...]:
+    """125괘 자동 생성 — 5사위 (도·개·걸·윷·모) 3중 조합.
+
+    모(5) 포함 안 한 조합 = 64괘 흐름 톤 재사용.
+    모(5) 포함 조합 = _FLOW_TONES_125_EXTRA에서 신규 톤.
+    """
+    sides = SIDES_5
+    result = []
+    for upper_idx, upper in enumerate(sides):
+        for middle_idx, middle in enumerate(sides):
+            for lower_idx, lower in enumerate(sides):
+                hex_id_125 = _hex_id_125(upper_idx, middle_idx, lower_idx)
+                label = f"{upper.label_ko}{middle.label_ko}{lower.label_ko}"
+                # 모(idx=4) 포함 여부 검사
+                if 4 in (upper_idx, middle_idx, lower_idx):
+                    # 신규 톤 (없으면 fallback)
+                    tone = _FLOW_TONES_125_EXTRA.get(hex_id_125, "비약의 결 — 큰 흐름")
+                else:
+                    # 64괘 재사용 (4사위 조합)
+                    hex_id_64 = _hex_id_64(upper_idx, middle_idx, lower_idx)
+                    tone = _FLOW_TONES[hex_id_64]
+                result.append(YutHexagram(
+                    hex_id=hex_id_125,
+                    upper=upper.key,
+                    middle=middle.key,
+                    lower=lower.key,
+                    label_ko=label,
+                    flow_tone_ko=tone,
+                ))
+    return tuple(result)
+
+
+ONE_HUNDRED_TWENTY_FIVE_HEXAGRAMS: tuple[YutHexagram, ...] = _generate_125_hexagrams()
+
+
 # ─────────────────────────── 결정론 함수 ───────────────────────────
 
-def compute_yut_hexagram(upper_value: int, middle_value: int, lower_value: int) -> YutHexagram | None:
-    """3사위 → 64괘 결정론.
+def compute_yut_hexagram(
+    upper_value: int,
+    middle_value: int,
+    lower_value: int,
+    school: str = "folkmuseum",
+) -> YutHexagram | None:
+    """3사위 → 윷괘 결정론 (학파 옵션).
 
     Args:
-        upper_value: 상괘 사위 값 (1~4, 5는 4로 단일화)
-        middle_value: 중괘 사위 값 (1~4)
-        lower_value: 하괘 사위 값 (1~4)
+        upper_value: 상괘 사위 값 (1~4 또는 1~5)
+        middle_value: 중괘 사위 값
+        lower_value: 하괘 사위 값
+        school: 학파 옵션.
+            - "folkmuseum" (디폴트): 국립민속박물관·이능화 정통 — 4사위 64괘.
+              모(5) 입력 시 윷(4)로 단일화 (ADR-112 기존 동작 보존).
+            - "mo_separate" (옵션 B, ADR-145): 모(5) 별개 사위 학파 — 5사위 125괘.
 
     Returns:
-        YutHexagram 또는 None (잘못된 입력)
+        YutHexagram 또는 None (잘못된 입력).
 
     Examples:
-        >>> r = compute_yut_hexagram(1, 1, 1)  # 도-도-도
+        >>> # 디폴트 — 64괘
+        >>> r = compute_yut_hexagram(1, 1, 1)
         >>> r.hex_id
         0
-        >>> r.label_ko
-        '도도도'
-        >>> r = compute_yut_hexagram(4, 4, 4)  # 윷-윷-윷
-        >>> r.hex_id
-        63
+        >>> r = compute_yut_hexagram(5, 5, 5)  # 모 단일화 → 윷윷윷
         >>> r.label_ko
         '윷윷윷'
+        >>> # 옵션 B — 125괘
+        >>> r = compute_yut_hexagram(5, 5, 5, school="mo_separate")
+        >>> r.label_ko
+        '모모모'
+        >>> r.hex_id
+        124
     """
+    if school == "mo_separate":
+        # 5사위 (모 별개)
+        if not all(1 <= v <= 5 for v in (upper_value, middle_value, lower_value)):
+            return None
+        u_idx = upper_value - 1
+        m_idx = middle_value - 1
+        l_idx = lower_value - 1
+        hex_id = _hex_id_125(u_idx, m_idx, l_idx)
+        return ONE_HUNDRED_TWENTY_FIVE_HEXAGRAMS[hex_id]
+
+    if school not in ("folkmuseum", "mo_separate"):
+        return None
+
+    # 디폴트 — 4사위 64괘 (모는 윷으로 단일화)
     u = yut_side_by_value(upper_value)
     m = yut_side_by_value(middle_value)
     l = yut_side_by_value(lower_value)
     if u is None or m is None or l is None:
         return None
-
     upper_idx = u.value - 1
     middle_idx = m.value - 1
     lower_idx = l.value - 1
-    hex_id = upper_idx * 16 + middle_idx * 4 + lower_idx
+    hex_id = _hex_id_64(upper_idx, middle_idx, lower_idx)
     return SIXTY_FOUR_HEXAGRAMS[hex_id]
 
 
-def hexagram_by_id(hex_id: int) -> YutHexagram | None:
-    """0~63 ID로 64괘 조회."""
+def hexagram_by_id(hex_id: int, school: str = "folkmuseum") -> YutHexagram | None:
+    """ID로 윷괘 조회 (학파 옵션).
+
+    Args:
+        hex_id: 0~63 (folkmuseum) 또는 0~124 (mo_separate).
+        school: "folkmuseum" (64괘) 또는 "mo_separate" (125괘).
+    """
+    if school == "mo_separate":
+        if 0 <= hex_id < 125:
+            return ONE_HUNDRED_TWENTY_FIVE_HEXAGRAMS[hex_id]
+        return None
+    if school != "folkmuseum":
+        return None
     if 0 <= hex_id < 64:
         return SIXTY_FOUR_HEXAGRAMS[hex_id]
     return None
@@ -271,4 +452,7 @@ __all__ = [
     "YutHexagram", "SIXTY_FOUR_HEXAGRAMS",
     "compute_yut_hexagram", "hexagram_by_id",
     "format_hexagram_for_prompt",
+    # ADR-145 모(5) 별개 사위 옵션 B
+    "MO_SIDE", "SIDES_5", "yut_side_by_value_v5",
+    "ONE_HUNDRED_TWENTY_FIVE_HEXAGRAMS",
 ]
