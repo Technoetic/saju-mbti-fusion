@@ -99,7 +99,7 @@ def _build_sinsal_mapping(year_ji: str) -> Dict[str, str]:
 
 
 def get_sinsal_for_year(year_ji: str) -> Dict[str, Dict[str, str]]:
-    """출생 연도 지지 → 12 신살 풀 결정론 매핑.
+    """출생 연도 지지 → 12 신살 풀 결정론 매핑 (자평진전 정통 — 연주 기준).
 
     Args:
         year_ji: 출생 연도 지지 한자.
@@ -124,19 +124,70 @@ def get_sinsal_for_year(year_ji: str) -> Dict[str, Dict[str, str]]:
     }
 
 
+def get_sinsal_for_day(day_ji: str) -> Dict[str, Dict[str, str]]:
+    """일주 지지 → 12 신살 풀 결정론 매핑 (명리정종 학파 — 일주 기준).
+
+    ADR-141 supplement: ADR-131 한계 절 line 105 "일주 지지 기준 분기는
+    학파 분기 영역 (DEFER)" 해소. 본 함수는 명리정종(命理正宗) 학파에서
+    채택하는 일주(日柱) 지지 기준 12 신살 산출.
+
+    매핑 룰은 자평진전(연주 기준)과 동일 — 삼합 기준 12 지지 순환.
+    차이는 기준 지지만 (연 → 일).
+
+    Args:
+        day_ji: 일주 지지 한자 (子~亥).
+
+    Returns:
+        {신살명: {ji: 지지 한자, han: 신살 한자}} 12건.
+
+    Examples:
+        >>> # 일주 지지 子 → 申子辰 수국 → 겁살 巳
+        >>> result = get_sinsal_for_day("子")
+        >>> result["겁살"]["ji"]
+        '巳'
+    """
+    return get_sinsal_for_year(day_ji)
+
+
+def get_sinsal_by_basis(
+    branch_ji: str,
+    basis: str = "year",
+) -> Dict[str, Dict[str, str]]:
+    """기준 학파별 12 신살 매핑 — 통합 API.
+
+    Args:
+        branch_ji: 기준 지지 한자 (연주 또는 일주).
+        basis: 학파 기준.
+            - "year" (디폴트): 자평진전 정통 — 연주 지지 기준
+            - "day": 명리정종 학파 — 일주 지지 기준
+
+    Returns:
+        {신살명: {ji: 지지 한자, han: 신살 한자}} 12건.
+        잘못된 basis 또는 입력 시 빈 dict.
+    """
+    if basis not in ("year", "day"):
+        return {}
+    return get_sinsal_for_year(branch_ji)
+
+
 def detect_sinsal_in_pillars(
     year_ji: str,
     pillar_ji_list: List[str],
+    basis: str = "year",
 ) -> Dict[str, List[str]]:
     """4주 지지에 출현한 12 신살 매칭.
 
     Args:
-        year_ji: 출생 연도 지지 한자 (삼합 기준).
+        year_ji: 기준 지지 한자 (basis="year" 시 연주, basis="day" 시 일주).
         pillar_ji_list: 4주 지지 한자 리스트 (예: 4주 모두 또는 일부).
+        basis: 학파 기준.
+            - "year" (디폴트): 자평진전 정통 — 연주 기준
+            - "day": 명리정종 학파 — 일주 기준
+            매핑 룰은 동일 — 의미 라벨만 다름 (caller 결단).
 
     Returns:
         {신살명: [매칭된 지지 한자 리스트]} 12건.
-        매칭 없으면 빈 리스트.
+        매칭 없으면 빈 리스트. 잘못된 basis 시 빈 dict 12건.
 
     Examples:
         >>> # 申子辰 수국 + 4주에 子·亥·辰·未 있는 사주
@@ -146,6 +197,8 @@ def detect_sinsal_in_pillars(
         >>> result["천살"]  # 未未 = 천살
         ['未']
     """
+    if basis not in ("year", "day"):
+        return {name: [] for name in _SINSAL_ORDER}
     base_mapping = _build_sinsal_mapping(year_ji)
     if not base_mapping:
         return {name: [] for name in _SINSAL_ORDER}
