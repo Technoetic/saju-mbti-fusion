@@ -282,25 +282,47 @@ SHENSHA_MEANINGS: Dict[str, Dict[str, str]] = {
 _INTENSE_SINSAL_KEYS: tuple = ("yangin", "goegang", "baekho")
 
 
-def compute_sinsal_synergy_weight(shensha_result: Dict[str, List[str]]) -> Dict[str, object]:
-    """양인·괴강·백호 중첩 가중치 산출 — ADR-133.
+# ADR-153 (2026-05-23) 신살 시너지 학파별 가중치 분기 — /domain-priorities #11 해소
+# 표준 학파 (보고서 §6.3 — ADR-133 디폴트): 0.0/1.0/1.5/2.0
+# 보수적 학파 (강도 약화 변형): 0.0/0.8/1.4/1.8
+# 강조적 학파 (강도 강화 변형): 0.0/1.2/1.8/2.5
+_SYNERGY_WEIGHT_SCHOOLS: Dict[str, tuple] = {
+    "standard": (0.0, 1.0, 1.5, 2.0),     # ADR-133 디폴트 (보고서 §6.3)
+    "conservative": (0.0, 0.8, 1.4, 1.8), # 보수적 학파 — 신살 영향 약화
+    "emphatic": (0.0, 1.2, 1.8, 2.5),     # 강조적 학파 — 신살 영향 강화
+}
 
-    보고서 「사주 신살 학파별 분류 표준 조사」 §6.3 명시:
+
+def compute_sinsal_synergy_weight(
+    shensha_result: Dict[str, List[str]],
+    school: str = "standard",
+) -> Dict[str, object]:
+    """양인·괴강·백호 중첩 가중치 산출 — ADR-133 + ADR-153 학파 분기.
+
+    보고서 「사주 신살 학파별 분류 표준 조사」 §6.3 디폴트 (standard):
       - 0개 (해당 없음): 0.0
       - 1개 (단일 발현): 1.0 — 성격적 억양 톤
       - 2개 (중첩): 1.5 — 직업적 특성 톤
       - 3개 (양인+괴강+백호 동시): 2.0 — 메인 동력 톤
 
+    ADR-153 학파 옵션:
+      - school="standard" (디폴트): ADR-133 정통 (0.0/1.0/1.5/2.0)
+      - school="conservative": 보수 학파 (0.0/0.8/1.4/1.8) — 신살 영향 약화
+      - school="emphatic": 강조 학파 (0.0/1.2/1.8/2.5) — 신살 영향 강화
+
     Args:
         shensha_result: compute_shensha() 반환 dict.
+        school: 학파 옵션 (디폴트 "standard" — 무회귀 보장).
 
     Returns:
         {
           "active_count": int (0~3),
           "active_sinsals": list[str],
-          "weight": float (0.0·1.0·1.5·2.0),
+          "weight": float,
           "tone_branch": str ("none"·"single_personality"·"dual_professional"·"triple_main_engine"),
+          "school": str (적용 학파 명시),
         }
+        잘못된 school → standard 디폴트 fallback (안전).
     """
     active: List[str] = []
     for key in _INTENSE_SINSAL_KEYS:
@@ -308,17 +330,21 @@ def compute_sinsal_synergy_weight(shensha_result: Dict[str, List[str]]) -> Dict[
             active.append(key)
 
     count = len(active)
+    # ADR-153 학파 가중치 분기 (디폴트 standard로 fallback)
+    weights = _SYNERGY_WEIGHT_SCHOOLS.get(school, _SYNERGY_WEIGHT_SCHOOLS["standard"])
+    applied_school = school if school in _SYNERGY_WEIGHT_SCHOOLS else "standard"
+
     if count == 0:
-        weight = 0.0
+        weight = weights[0]
         tone = "none"
     elif count == 1:
-        weight = 1.0
+        weight = weights[1]
         tone = "single_personality"
     elif count == 2:
-        weight = 1.5
+        weight = weights[2]
         tone = "dual_professional"
     else:  # 3
-        weight = 2.0
+        weight = weights[3]
         tone = "triple_main_engine"
 
     return {
@@ -326,6 +352,7 @@ def compute_sinsal_synergy_weight(shensha_result: Dict[str, List[str]]) -> Dict[
         "active_sinsals": active,
         "weight": weight,
         "tone_branch": tone,
+        "school": applied_school,
     }
 
 

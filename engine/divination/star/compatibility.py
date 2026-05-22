@@ -203,6 +203,48 @@ def compatibility_matrix_summary() -> dict[str, int]:
     return counts
 
 
+def compatibility_score_distribution() -> dict[str, float]:
+    """ADR-153 (2026-05-23) — 144 매트릭스 overall_score 분포 통계.
+
+    /domain-priorities #16 (점수 22) 합성 베이스라인 확장.
+    운영 데이터 누적 시 비교 기준.
+
+    Returns:
+        {
+          "min": float,
+          "max": float,
+          "mean": float,
+          "median": float,
+          "stdev": float,
+          "p25": float,  # 1사분위
+          "p75": float,  # 3사분위
+        }
+    """
+    import statistics
+
+    scores: list[int] = []
+    for s1 in ZODIAC_SIGNS:
+        for s2 in ZODIAC_SIGNS:
+            r = compute_compatibility(s1.key, s2.key)
+            if r is not None:
+                scores.append(r.overall_score)
+
+    if not scores:
+        return {"min": 0.0, "max": 0.0, "mean": 0.0, "median": 0.0, "stdev": 0.0, "p25": 0.0, "p75": 0.0}
+
+    sorted_scores = sorted(scores)
+    n = len(sorted_scores)
+    return {
+        "min": float(min(scores)),
+        "max": float(max(scores)),
+        "mean": round(statistics.mean(scores), 2),
+        "median": round(statistics.median(scores), 2),
+        "stdev": round(statistics.pstdev(scores), 2),
+        "p25": float(sorted_scores[n // 4]),
+        "p75": float(sorted_scores[3 * n // 4]),
+    }
+
+
 def format_compatibility_for_prompt(r: ZodiacCompatibility) -> str:
     """Stage 2 시스템 프롬프트에 주입할 궁합 메타 텍스트."""
     return (
@@ -225,5 +267,6 @@ __all__ = [
     "ZodiacCompatibility",
     "compute_compatibility",
     "compatibility_matrix_summary",
+    "compatibility_score_distribution",
     "format_compatibility_for_prompt",
 ]

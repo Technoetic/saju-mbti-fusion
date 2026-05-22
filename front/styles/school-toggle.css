@@ -1,0 +1,89 @@
+/* ADR-153 (2026-05-23) — 학파 옵션 토글 UI 스타일.
+ * /domain-priorities #10 (사용자 결단) 해소.
+ *
+ * 정책:
+ *   · ADR-006 정합 (단정 어휘 0건, 면책 자동)
+ *   · 옵션 변경 직관성 (active 강조 + 디폴트 ★)
+ *   · 다국어 폰트 호환 (한자 라벨 가독성)
+ */
+
+.school-toggle {
+  margin: 12px 0;
+  padding: 14px 16px;
+  background: rgba(40, 36, 60, 0.35);
+  border: 1px dashed rgba(180, 160, 220, 0.3);
+  border-radius: 10px;
+}
+
+.school-toggle-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.school-toggle-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: rgba(220, 200, 240, 0.95);
+}
+
+.school-toggle-adr {
+  font-size: 0.7rem;
+  color: rgba(180, 160, 200, 0.7);
+  font-family: monospace;
+}
+
+.school-toggle-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.school-toggle-btn {
+  padding: 6px 14px;
+  background: rgba(60, 50, 90, 0.4);
+  border: 1px solid rgba(180, 160, 220, 0.35);
+  border-radius: 16px;
+  color: rgba(220, 200, 240, 0.85);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  position: relative;
+}
+
+.school-toggle-btn:hover {
+  background: rgba(80, 60, 120, 0.6);
+  border-color: rgba(220, 200, 240, 0.55);
+  color: #f0e6f8;
+}
+
+.school-toggle-btn-active {
+  background: rgba(140, 100, 200, 0.65);
+  border-color: rgba(240, 200, 250, 0.85);
+  color: #fff;
+  font-weight: 600;
+}
+
+.school-toggle-default-mark {
+  margin-left: 4px;
+  font-size: 0.75rem;
+  color: rgba(255, 220, 100, 0.85);
+}
+
+.school-toggle-description {
+  font-size: 0.8rem;
+  line-height: 1.55;
+  color: rgba(220, 200, 240, 0.75);
+  margin: 6px 0;
+}
+
+.school-toggle-disclaimer {
+  font-size: 0.7rem;
+  line-height: 1.5;
+  color: rgba(180, 160, 200, 0.55);
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(180, 160, 220, 0.2);
+}
