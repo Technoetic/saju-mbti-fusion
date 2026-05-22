@@ -98,6 +98,59 @@ def _build_sinsal_mapping(year_ji: str) -> Dict[str, str]:
     return mapping
 
 
+# ─────────────────────────── ADR-151 KCI 학술 인용 영속 ───────────────────────────
+# /domain-priorities (2026-05-23) #2·#3 보강 — saju 12 신살 학술 출처 강화.
+# 김만태 (2025) "사주명리의 주요 신살(神殺)에 관한 고찰" KCI 등재 + 1 인용.
+
+from dataclasses import dataclass as _dataclass
+
+
+@_dataclass(frozen=True)
+class SinsalKciCitation:
+    """saju 신살 KCI 학술 인용 메타 (ADR-010 사실성 분리 강화).
+
+    Attributes:
+        author_ko: 저자·연도
+        title_ko: 논문 제목 (한국어 원문)
+        journal: 학술지
+        volume_issue: 권·호
+        pages: 페이지 범위
+        kci_artiId: KCI 식별번호 (ART*)
+        kci_url: KCI 검증 URL
+        topic_focus: 본 시스템 활용 영역
+    """
+    author_ko: str
+    title_ko: str
+    journal: str
+    volume_issue: str
+    pages: str
+    kci_artiId: str
+    kci_url: str
+    topic_focus: str
+
+
+SINSAL_KCI_CITATIONS: tuple[SinsalKciCitation, ...] = (
+    SinsalKciCitation(
+        author_ko="김만태 (2025)",
+        title_ko="사주명리의 주요 신살(神殺)에 관한 고찰",
+        journal="역사와 융합 (The Journal of Korean History & Convergence)",
+        volume_issue="9권 1호",
+        pages="243-275",
+        kci_artiId="ART003175177",
+        kci_url="https://www.kci.go.kr/kciportal/ci/sereArticleSearch/ciSereArtiView.kci?sereArticleSearchBean.artiId=ART003175177",
+        topic_focus=(
+            "사주명리 주요 신살 (천을귀인·삼재·역마·도화·공망 등) 학술 분석. "
+            "본 시스템 12 신살 풀 (ADR-131) + 신살 학파 분기 (ADR-142) 학술 출처."
+        ),
+    ),
+)
+
+
+def get_sinsal_kci_citations() -> tuple[SinsalKciCitation, ...]:
+    """ADR-151 — saju 신살 KCI 인용 풀 조회."""
+    return SINSAL_KCI_CITATIONS
+
+
 def get_sinsal_for_year(year_ji: str) -> Dict[str, Dict[str, str]]:
     """출생 연도 지지 → 12 신살 풀 결정론 매핑 (자평진전 정통 — 연주 기준).
 
