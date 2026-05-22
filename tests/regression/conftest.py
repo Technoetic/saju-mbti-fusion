@@ -21,10 +21,16 @@ class _Handler(http.server.SimpleHTTPRequestHandler):
         pass  # silence
 
 
+class _ThreadingHttpd(socketserver.ThreadingMixIn, socketserver.TCPServer):
+    """ADR-156 — 동시 요청 처리 (Windows ConnectionAbortedError 회피)."""
+    allow_reuse_address = True
+    daemon_threads = True
+
+
 @pytest.fixture(scope="session")
 def local_server():
-    """세션 1회만 로컬 HTTP 서버 기동 (front/ root)."""
-    httpd = socketserver.TCPServer(("127.0.0.1", SERVER_PORT), _Handler)
+    """세션 1회만 로컬 HTTP 서버 기동 (front/ root). ADR-156 threading."""
+    httpd = _ThreadingHttpd(("127.0.0.1", SERVER_PORT), _Handler)
     thread = threading.Thread(target=httpd.serve_forever, daemon=True)
     thread.start()
     time.sleep(0.5)
@@ -50,7 +56,12 @@ def page(local_server):
             if msg.type == "error"
             else None,
         )
-        pg.goto(f"{local_server}/index.html", wait_until="domcontentloaded", timeout=15000)
+        # ADR-156 — Windows 환경 ConnectionAbortedError 회피 (timeout 15→30s + 1회 재시도).
+        try:
+            pg.goto(f"{local_server}/index.html", wait_until="domcontentloaded", timeout=30000)
+        except Exception:
+            time.sleep(1)
+            pg.goto(f"{local_server}/index.html", wait_until="domcontentloaded", timeout=30000)
         time.sleep(2)
         pg.errors = errors  # type: ignore[attr-defined]
         yield pg
