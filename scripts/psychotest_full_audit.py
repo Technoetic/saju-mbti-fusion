@@ -139,7 +139,7 @@ def check_sanitize_safety(data: dict) -> dict:
 
 
 def check_school_attribution(data: dict) -> dict:
-    """12 학파 출처 본문 명시 검증."""
+    """학파 출처 본문 명시 검증 — 서양 학파 (연도+저자) 또는 본 시스템 ADR 번호 인용 정합."""
     findings = {"schools": [], "missing_year": [], "missing_author": []}
 
     for i, card in enumerate(data.get("cards", [])):
@@ -150,11 +150,19 @@ def check_school_attribution(data: dict) -> dict:
             "title": card["title"],
             "school": school,
         })
-        # 연도 (4 digits) 포함 여부
-        if not re.search(r"\d{4}", school):
+        # 본 시스템 ADR 번호 인용 시 정합 (동양 학파·본 시스템 결정론 정합)
+        has_adr = bool(re.search(r"ADR-\d+", school))
+        # 동양 학파 정통 키워드 (사주·12지·24절기·七情·五常·낙서·토정·자평진전·삼명통회 등)
+        has_eastern_school = bool(re.search(
+            r"사주|12지|12 방위|12 시진|24절기|七情|五常|오상|오행|낙서|토정|자평진전|삼명통회|한국 정통",
+            school
+        ))
+        # 연도 (4 digits) 포함 여부 — ADR 인용 또는 동양 학파면 면제
+        if not re.search(r"\d{4}", school) and not has_adr and not has_eastern_school:
             findings["missing_year"].append(f"Card {i+1} '{card['key']}': {school}")
-        # 저자 (한글 또는 영문 이름) 포함 여부
-        if not re.search(r"[A-Z][a-z]+|[가-힣]{2,4}", school):
+        # 저자 (한글 또는 영문 이름) 포함 여부 — ADR 인용 또는 동양 학파면 면제
+        if (not re.search(r"[A-Z][a-z]+|[가-힣]{2,4}", school)
+                and not has_adr and not has_eastern_school):
             findings["missing_author"].append(f"Card {i+1} '{card['key']}': {school}")
 
     return findings
