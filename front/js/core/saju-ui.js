@@ -313,8 +313,45 @@ function renderResult(r) {
   ${metaHTML}
   </div>
   </details>
+  <div id="saju-school-toggle-guk" class="saju-school-toggle-slot"></div>
+  <div id="saju-school-toggle-sinsal" class="saju-school-toggle-slot"></div>
+  <div id="saju-school-toggle-synergy" class="saju-school-toggle-slot"></div>
   `;
   document.getElementById('result').innerHTML = html;
+
+  // ADR-153 학파 토글 마운트 (동적 import — 결과 영역에만 노출).
+  // 사용자가 학파 선택 시 localStorage 저장 (다음 호출 시 디폴트 반영은 별건).
+  import('../ui/school-toggle.js').then((mod) => {
+    mod.renderSchoolToggle({
+      containerId: 'saju-school-toggle-guk',
+      title: '사주 합국 강도 학파',
+      options: mod.SAJU_GUK_STRENGTH_OPTIONS,
+      adrRef: 'ADR-141',
+      onSelect: (key) => {
+        try { localStorage.setItem('whm.school.guk', key); } catch (e) {}
+      },
+    });
+    mod.renderSchoolToggle({
+      containerId: 'saju-school-toggle-sinsal',
+      title: '12 신살 기준 학파',
+      options: mod.SAJU_SINSAL_BASIS_OPTIONS,
+      adrRef: 'ADR-142',
+      onSelect: (key) => {
+        try { localStorage.setItem('whm.school.sinsal_basis', key); } catch (e) {}
+      },
+    });
+    mod.renderSchoolToggle({
+      containerId: 'saju-school-toggle-synergy',
+      title: '신살 시너지 가중치 학파',
+      options: mod.SAJU_SYNERGY_SCHOOL_OPTIONS,
+      adrRef: 'ADR-153',
+      onSelect: (key) => {
+        try { localStorage.setItem('whm.school.synergy', key); } catch (e) {}
+      },
+    });
+  }).catch((err) => {
+    console.warn('[saju-ui] school-toggle 마운트 실패:', err);
+  });
 }
 
 /**
