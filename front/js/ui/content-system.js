@@ -500,11 +500,36 @@
   `<div class="content-section">
   <div class="content-section-title">― ${item.name} 풀이 ―</div>
   ${text.split(/\n\s*\n/).map(p => `<p>${escapeHtml(p).replace(/\n/g, '<br>')}</p>`).join('')}
+  <div id="content-school-toggle-slot" class="content-school-toggle-slot"></div>
   <p class="content-result-footer" style="opacity:.6;font-size:12px;margin-top:14px">
   ※ 본 풀이는 AI 시스템에 의해 생성된 콘텐츠입니다 (EU AI Act §50).
   참고용이며 의료·법률·금융 의사결정의 단독 근거가 될 수 없습니다.
   </p>
   </div>`;
+
+  // ADR-155 — content_key별 학파 토글 마운트 (동적 import).
+  // compatibility → STAR_COMPATIBILITY_OPTIONS,
+  // tojeong → TOJEONG_VERSE_SOURCE_OPTIONS.
+  if (contentKey === 'compatibility' || contentKey === 'tojeong') {
+    import('./school-toggle.js').then((mod) => {
+      const cfg = (contentKey === 'compatibility')
+      ? { title: '별자리 궁합 분석 학파', options: mod.STAR_COMPATIBILITY_OPTIONS,
+          adrRef: 'ADR-155', storageKey: 'whm.school.star_compat' }
+      : { title: '토정비결 시구 출처', options: mod.TOJEONG_VERSE_SOURCE_OPTIONS,
+          adrRef: 'ADR-155', storageKey: 'whm.school.tojeong_source' };
+      mod.renderSchoolToggle({
+        containerId: 'content-school-toggle-slot',
+        title: cfg.title,
+        options: cfg.options,
+        adrRef: cfg.adrRef,
+        onSelect: (key) => {
+          try { localStorage.setItem(cfg.storageKey, key); } catch (e) {}
+        },
+      });
+    }).catch((err) => {
+      console.warn('[content-system] school-toggle 마운트 실패:', err);
+    });
+  }
   if (hintEl) hintEl.style.display = 'none';
   ctaBtn.textContent = '다시 받기';
   ctaBtn.disabled = false;

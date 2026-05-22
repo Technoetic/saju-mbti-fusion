@@ -103,6 +103,85 @@ def list_marketing_candidates() -> tuple[MarketingMessage, ...]:
     return MARKETING_CANDIDATES
 
 
+# ─────────────────────────── ADR-155 — A/B 테스트 측정 인프라 ───────────────────────────
+
+# /domain-priorities 잔여 #3 추가 부분 해소 — 사용자 사업 결단 (어느 메시지 채택)을
+# 데이터 기반으로 가능하게 하는 측정 인프라. 본 AI 단독 코드 영속.
+
+import hashlib
+
+
+@dataclass
+class ABTestExposure:
+    """단일 노출 이벤트 (사용자 anon_id × variant_key × timestamp)."""
+    anon_id: str           # localStorage 익명 ID
+    variant_key: str       # 'academic_kci' 등
+    timestamp_ms: int      # UTC ms
+    converted: bool = False  # 전환 여부 (구매·CTA 클릭)
+
+
+# 인메모리 누적 (운영 시 SQLite·Redis 영속 별건).
+_AB_EXPOSURES: list[ABTestExposure] = []
+
+
+def assign_variant(anon_id: str, candidate_keys: tuple[str, ...] | None = None) -> str:
+    """ADR-155 — 결정론 변형 할당 (anon_id 해시 → variant).
+
+    동일 사용자는 항상 동일 variant 노출 (UX 일관성).
+
+    Args:
+        anon_id: localStorage 익명 ID
+        candidate_keys: 후보 키 풀 (None = MARKETING_CANDIDATES 전체)
+
+    Returns:
+        할당된 variant_key
+    """
+    keys = candidate_keys or tuple(m.key for m in MARKETING_CANDIDATES)
+    if not keys:
+        return ACTIVE_MARKETING_KEY
+    digest = hashlib.sha256(anon_id.encode("utf-8")).digest()
+    idx = int.from_bytes(digest[:4], "big") % len(keys)
+    return keys[idx]
+
+
+def record_exposure(anon_id: str, variant_key: str, timestamp_ms: int) -> None:
+    """노출 이벤트 기록 (인메모리). 운영 시 영속 DB로 별건."""
+    _AB_EXPOSURES.append(ABTestExposure(
+        anon_id=anon_id, variant_key=variant_key, timestamp_ms=timestamp_ms,
+    ))
+
+
+def record_conversion(anon_id: str, variant_key: str) -> bool:
+    """전환 이벤트 (구매·CTA 클릭). 가장 최근 노출에 converted=True."""
+    for exposure in reversed(_AB_EXPOSURES):
+        if exposure.anon_id == anon_id and exposure.variant_key == variant_key and not exposure.converted:
+            exposure.converted = True
+            return True
+    return False
+
+
+def compute_ab_test_stats() -> dict[str, dict[str, float]]:
+    """ADR-155 — variant별 노출·전환·전환율 집계.
+
+    Returns:
+        {variant_key: {"exposures": N, "conversions": N, "conversion_rate": 0.0~1.0}}
+    """
+    stats: dict[str, dict[str, float]] = {}
+    for e in _AB_EXPOSURES:
+        s = stats.setdefault(e.variant_key, {"exposures": 0.0, "conversions": 0.0, "conversion_rate": 0.0})
+        s["exposures"] += 1
+        if e.converted:
+            s["conversions"] += 1
+    for s in stats.values():
+        s["conversion_rate"] = round(s["conversions"] / s["exposures"], 4) if s["exposures"] else 0.0
+    return stats
+
+
+def reset_ab_test_state() -> None:
+    """회귀·테스트용 — 인메모리 상태 초기화."""
+    _AB_EXPOSURES.clear()
+
+
 def validate_adr_006_compliance(msg: MarketingMessage) -> tuple[bool, list[str]]:
     """ADR-006 단정 어휘 차단 검증 — 사용자 신규 메시지 추가 시 호출.
 
@@ -119,4 +198,7 @@ __all__ = [
     "MarketingMessage", "MARKETING_CANDIDATES", "ACTIVE_MARKETING_KEY",
     "get_active_marketing_message", "list_marketing_candidates",
     "validate_adr_006_compliance",
+    # ADR-155 A/B 테스트 측정 인프라
+    "ABTestExposure", "assign_variant", "record_exposure", "record_conversion",
+    "compute_ab_test_stats", "reset_ab_test_state",
 ]
