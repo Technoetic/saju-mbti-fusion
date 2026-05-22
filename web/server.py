@@ -2382,6 +2382,130 @@ class PersonalityAPIServer:
             except Exception:
                 deterministic_blocks.append("[성명학 결정론 — 산출 실패]")
 
+        # ─── ADR-135 today-hanja (오늘의 한자) ───
+        if char_key == "name" and content_key == "today-hanja":
+            try:
+                from engine.divination.name.daily_hanja import get_daily_hanja
+                r135 = get_daily_hanja()
+                if r135:
+                    deterministic_blocks.append(
+                        f"[ADR-135 오늘의 한자 결정론]\n"
+                        f"  · 날짜: {r135.date_iso} (시드: {r135.seed_int})\n"
+                        f"  · 오늘의 한자: {r135.char} ({r135.hangul})\n"
+                        f"  · 강희자전 획수: {r135.kangxi_strokes}\n"
+                        f"  · 자원오행: {r135.resource_ohaeng or '(매핑 부재)'}\n"
+                        f"  · KCI 학파 출처: {r135.kci_school_source or '(부재)'}\n"
+                        f"  · 본의: {r135.kci_reason or '(부재)'}"
+                    )
+            except Exception:
+                pass
+
+        # ─── ADR-136 biz (상호 작명) ───
+        if char_key == "name" and content_key == "biz":
+            try:
+                from engine.divination.name.biz_naming import compute_biz_naming
+                biz_type = (fields.get("bizType") or "").strip()
+                concept = (fields.get("concept") or "").strip()
+                if biz_type:
+                    r136 = compute_biz_naming(biz_type, concept=concept)
+                    hanja_samples = ", ".join(
+                        f"{h['char']}({h['hangul']})" for h in r136.recommended_hanja[:8]
+                    )
+                    deterministic_blocks.append(
+                        f"[ADR-136 상호 작명 결정론]\n"
+                        f"  · 업종: {r136.biz_type} / 컨셉: {r136.concept or '(미입력)'}\n"
+                        f"  · 1차 추천 오행: {', '.join(r136.target_ohaeng_primary)}\n"
+                        f"  · 2차 보조 오행: {r136.target_ohaeng_secondary or '(없음)'}\n"
+                        f"  · 추천 한자 풀 ({len(r136.recommended_hanja)}자): {hanja_samples}\n"
+                        f"  · 학파: {r136.school_source[:80]}"
+                    )
+            except Exception:
+                pass
+
+        # ─── ADR-137 pen (예명 작명) ───
+        if char_key == "name" and content_key == "pen":
+            try:
+                from engine.divination.name.pen_naming import compute_pen_naming
+                field_code = (fields.get("field") or "other").strip()
+                r137 = compute_pen_naming(field_code)
+                hanja_samples = ", ".join(
+                    f"{h['char']}({h['hangul']})" for h in r137.recommended_hanja[:8]
+                )
+                deterministic_blocks.append(
+                    f"[ADR-137 예명 작명 결정론]\n"
+                    f"  · 활동 분야: {r137.field_label_ko}\n"
+                    f"  · 추천 오행: {', '.join(r137.target_ohaeng)}\n"
+                    f"  · 학파 근거: {r137.rationale}\n"
+                    f"  · 추천 한자 풀 ({len(r137.recommended_hanja)}자): {hanja_samples}"
+                )
+            except Exception:
+                pass
+
+        # ─── ADR-138 newborn (신생아 작명) ───
+        if char_key == "name" and content_key == "newborn":
+            try:
+                from engine.divination.name.newborn import compute_newborn_naming
+                surname = (fields.get("surname") or "").strip()
+                baby_birth = (fields.get("babyBirth") or "").strip()
+                baby_hour = (fields.get("babyHour") or "").strip() or None
+                baby_gender = (fields.get("babyGender") or "").strip() or None
+                parent_wish = (fields.get("parentWish") or "").strip()
+                if surname and baby_birth:
+                    r138 = compute_newborn_naming(
+                        surname=surname,
+                        baby_birth_iso=baby_birth,
+                        baby_hour_branch=baby_hour,
+                        baby_gender=baby_gender,
+                        parent_wish=parent_wish,
+                    )
+                    if r138:
+                        hanja_samples = ", ".join(
+                            f"{h['char']}({h['hangul']})" for h in r138.recommended_hanja[:8]
+                        )
+                        deterministic_blocks.append(
+                            f"[ADR-138 신생아 작명 결정론]\n"
+                            f"  · 성: {r138.surname} / 출생: {r138.baby_birth_iso} {r138.baby_hour or '(시각 미입력)'}\n"
+                            f"  · {r138.saju_summary}\n"
+                            f"  · 사주 추천 오행: {', '.join(r138.saju_recommended_ohaeng) or '(균형 양호)'}\n"
+                            f"  · 추천 한자 풀 ({len(r138.recommended_hanja)}자): {hanja_samples}\n"
+                            f"  · 부모 바람: {r138.parent_wish or '(미입력)'}"
+                        )
+            except Exception:
+                pass
+
+        # ─── ADR-139 rename (개명 추천) ───
+        if char_key == "name" and content_key == "rename":
+            try:
+                from engine.divination.name.rename import compute_rename
+                current = (fields.get("currentName") or "").strip()
+                birth_iso = (fields.get("birth") or "").strip()
+                hour_b = (fields.get("hourBranch") or "").strip() or None
+                gender = (fields.get("gender") or "").strip() or None
+                reason = (fields.get("reason") or "").strip()
+                if current and birth_iso:
+                    r139 = compute_rename(
+                        current_name=current,
+                        birth_iso=birth_iso,
+                        hour_branch=hour_b,
+                        gender=gender,
+                        user_reason=reason,
+                    )
+                    if r139:
+                        hanja_samples = ", ".join(
+                            f"{h['char']}({h['hangul']})" for h in r139.recommended_hanja[:8]
+                        )
+                        deterministic_blocks.append(
+                            f"[ADR-139 개명 진단 결정론]\n"
+                            f"  · 현재 이름: {r139.current_name}\n"
+                            f"  · 오행 충돌 진단: {r139.conflict_detail}\n"
+                            f"  · 발음오행 등급: {r139.baleum_grade or '(미산출)'}\n"
+                            f"  · 사주 추천 오행: {', '.join(r139.saju_recommended_ohaeng) or '(균형 양호)'}\n"
+                            f"  · 추천 한자 풀 ({len(r139.recommended_hanja)}자): {hanja_samples}\n"
+                            f"  · 사용자 이유: {r139.user_reason or '(미입력)'}"
+                        )
+            except Exception:
+                pass
+
         # ─── palm 결정론 (ADR-074·081, char_key='palm') ───
         # ADR-081: imageB64 입력 시 Phase 2 → generate_palm_reading Vision 호출
         # ADR-074: 사진 미입력 시 학파/라벨 풀 메타만 LLM 인용
