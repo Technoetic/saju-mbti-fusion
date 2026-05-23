@@ -165,11 +165,25 @@
       const originalLoadingMsg = loadingMsgEl ? loadingMsgEl.textContent : null;
       try {
         const sentImage = await window.LLMUtils.downsampleDataUrl(this.capturedDataUrl, 1280, 0.85);
+
+        // ADR-159 Phase 1.5 — MediaPipe Face Landmarker 메트릭 산출 (실패 시 0.5 폴백)
+        let metrics = null;
+        if (window.FaceMetrics && window.FaceMetrics.computeMetrics) {
+          if (loadingMsgEl) loadingMsgEl.textContent = '허허, 그대의 상을 살피는 중이로세…';
+          const canvas = $('faceCanvas');
+          try {
+            metrics = await window.FaceMetrics.computeMetrics(canvas);
+          } catch (e) {
+            console.warn('[face-reader] 메트릭 산출 건너뜀:', e);
+          }
+        }
+
         const resp = await this.post({
           image_base64: sentImage,
           age: Number.isFinite(age) ? age : null,
           gender,
           question,
+          metrics,
         }, {
           retries: 1,
           backoffMs: 3000,
