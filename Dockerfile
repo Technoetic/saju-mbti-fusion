@@ -44,6 +44,9 @@ COPY front ./front
 COPY data ./data
 # ADR-114: Skyfield + JPL DE440s ephemeris (1849-2150년 32MB, star 도메인 빅3·하우스·트랜짓)
 COPY de440s.bsp ./de440s.bsp
+# ADR-246 — CFM 가중치 (11MB). data/ 는 Fly.io 볼륨 마운트(/app/data)에
+# 가려지므로 models/ 별도 경로. unet_line_extractor 가 models/ 우선 탐색.
+COPY models ./models
 
 # ADR-245 — CFM 가중치 사전 학습 + repo 포함 + 빌드 시 COPY (학습 X)
 # 이전 (ADR-224): 빌드 시 11k Hands 다운로드 + 5 epoch 학습 + self-training

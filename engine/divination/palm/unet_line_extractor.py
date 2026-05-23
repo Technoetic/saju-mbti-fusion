@@ -35,9 +35,12 @@ import numpy as np
 # 환경변수로 모델 경로 지정 (사용자 결단 시 설정)
 _MODEL_PATH_ENV = "PALM_UNET_MODEL_PATH"
 
-# ADR-222 — 기본 가중치 경로 자동 탐색
-# 환경변수 미설정 시 repo 내 data/palm/unet_weights.pt 자동 시도.
+# ADR-222 + ADR-246 — 기본 가중치 경로 자동 탐색
+# models/ 우선 (Fly.io 볼륨 마운트 /app/data 회피 — ADR-246).
+# data/palm/ 는 레거시 호환.
 _DEFAULT_WEIGHTS_PATHS = (
+    "models/unet_weights.pt",
+    "models/unet_weights.pth",
     "data/palm/unet_weights.pt",
     "data/palm/unet_weights.pth",
 )
