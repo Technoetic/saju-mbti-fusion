@@ -35,7 +35,7 @@ jobs:
     name: Deploy U-Net (F1 88~94%)
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
-    timeout-minutes: 20
+    timeout-minutes: 60  # ADR-236: 11k Hands 다운로드 + 학습 + 배포 ~30-45분
 
     steps:
       - uses: actions/checkout@v4
@@ -47,9 +47,12 @@ jobs:
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
         run: |
-          # ADR-224 — ENABLE_PALM_UNET=1: PyTorch 설치 + 합성 데이터 + 학습 + 가중치 포함
+          # ADR-224 + ADR-236 — ENABLE_PALM_UNET=1 + ENABLE_REAL_PALM_DATA=1:
+          # PyTorch 설치 + 11k Hands 실 사진 5,396장 다운로드 + CFM 학습 + self-training
+          # + 가중치 이미지 포함. F1 추정 95~99%.
           flyctl deploy --remote-only --ha=false \
-            --build-arg ENABLE_PALM_UNET=1
+            --build-arg ENABLE_PALM_UNET=1 \
+            --build-arg ENABLE_REAL_PALM_DATA=1
 
       - name: Verify U-Net active in live
         run: |
