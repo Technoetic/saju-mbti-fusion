@@ -87,31 +87,24 @@ class TestKoreanFolkCategoriesExpansion:
 
 
 class TestPalmVisionSonnetFallback:
-    """#5 palm Vision Sonnet 4.6 fallback (SLA 보강)."""
+    """#5 palm Vision Sonnet 4.6 fallback — ADR-214로 제거 (Opus 단일).
 
-    def test_call_vision_source_has_sonnet_fallback(self):
-        """_call_vision 소스에 Sonnet 4.6 fallback 명시."""
+    ADR-151 SLA 보강 정신은 ADR-214로 무효화 — 사용자 결단으로 Sonnet 폴백
+    제거. 본 클래스는 Opus 단일 사용 검증으로 전환.
+    """
+
+    def test_call_vision_uses_opus_only(self):
+        """ADR-214 — Opus 단일 모델 사용 (Sonnet 폴백 제거)."""
         src = inspect.getsource(palm_reading._call_vision)
-        assert "claude-sonnet-4-6" in src, (
-            "Sonnet 4.6 fallback 누락 — ADR-151 SLA 보강 위반"
+        assert "claude-opus-4-7" in src, "Opus 4.7 모델 명시 필요"
+        # Sonnet 4.6 폴백 제거 검증 (코드에 미존재)
+        assert "claude-sonnet-4-6" not in src, (
+            "ADR-214 — Sonnet 4.6 폴백 제거 위반 (사용자 결단)"
         )
 
-    def test_call_vision_keeps_opus_priority(self):
-        """Opus 4.7 우선 + Sonnet 2차 순서 보장."""
+    def test_call_vision_no_fallback_loop(self):
+        """ADR-214 — fallback_models 루프 제거 (단일 호출)."""
         src = inspect.getsource(palm_reading._call_vision)
-        # fallback_models 튜플에 Opus가 먼저, Sonnet이 나중
-        assert "claude-opus-4-7" in src
-        opus_pos = src.find("claude-opus-4-7")
-        sonnet_pos = src.find("claude-sonnet-4-6")
-        assert opus_pos < sonnet_pos, "Opus가 Sonnet보다 먼저 순서여야 함 (ADR-143 정합)"
-
-    def test_fallback_models_tuple_present(self):
-        """fallback_models 튜플 패턴 명시 (코드 영속)."""
-        src = inspect.getsource(palm_reading._call_vision)
-        assert "fallback_models" in src
-
-    def test_try_except_loop_pattern(self):
-        """try/except 루프 패턴 (SLA 다운 자동 fallback)."""
-        src = inspect.getsource(palm_reading._call_vision)
-        assert "except Exception" in src
-        assert "for model_name in fallback_models" in src
+        assert "fallback_models" not in src, (
+            "ADR-214 — fallback_models 패턴 제거 위반"
+        )
