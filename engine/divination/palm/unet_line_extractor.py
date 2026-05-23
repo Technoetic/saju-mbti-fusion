@@ -196,17 +196,34 @@ def _run_unet_inference(
         # 동적 import (PyTorch 부재 시 모듈 import 실패 없도록)
         import torch as _torch
         from engine.divination.palm.unet_model import UNet as _UNet
+        # ADR-233 — CFM 모델 옵션
+        try:
+            from engine.divination.palm.unet_cfm import UNetCFM as _UNetCFM
+            _has_cfm = True
+        except ImportError:
+            _has_cfm = False
     except ImportError:
         return None
 
     try:
-        # 모델 초기화 (n_channels=3 RGB → n_classes=1 binary mask)
-        device = _torch.device("cuda" if _torch.cuda.is_available() else "cpu")
-        model = _UNet(n_channels=3, n_classes=1)
         # 가중치 로드 (weights_only=True for security)
+        device = _torch.device("cuda" if _torch.cuda.is_available() else "cpu")
         state = _torch.load(weights_path, map_location=device, weights_only=True)
         if isinstance(state, dict) and "state_dict" in state:
             state = state["state_dict"]
+
+        # ADR-233 — 가중치 키 패턴으로 모델 자동 식별
+        # CFM 모델은 'cfm.' / 'attention' / 'branch1' 등 키 보유
+        is_cfm_weights = (
+            _has_cfm and isinstance(state, dict) and any(
+                "cfm" in k or "attention" in k or "branch" in k
+                for k in state.keys()
+            )
+        )
+        if is_cfm_weights:
+            model = _UNetCFM(n_channels=3, n_classes=1)
+        else:
+            model = _UNet(n_channels=3, n_classes=1)
         model.load_state_dict(state, strict=False)
         model.to(device).eval()
 
