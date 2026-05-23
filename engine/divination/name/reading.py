@@ -274,6 +274,39 @@ def generate_name_reading(
     # ADR-013 prompt cache telemetry sink 동반
     usage_sink: list[Any] = []
     text = _call_llm(_NAME_SYSTEM, user_text, usage_sink=usage_sink)
+
+    # ADR-165 — name 안전망 본문 활성화 (ADR-163·164 패턴 확산).
+    # name은 텍스트 입력 단독 — Vision X. fact_check는 gender만 의미 있음
+    # (age·metrics·region 없음) + alignment + persona + pii + token_guard 작동.
+    safety_verdict: str | None = None
+    safety_failures: list[str] = []
+    safety_fallback_used = False
+    if text:
+        try:
+            from engine.safety.llm.output_safety_gate import (
+                run_safety_gates, VERDICT_WARN, VERDICT_CRITICAL,
+            )
+            gate_result = run_safety_gates(
+                text,
+                question=None,  # name은 화두 인자 부재
+                age=None,
+                gender=gender,
+                metrics=None,
+                lang="ko",
+                palace_scores=None,
+            )
+            safety_verdict = gate_result.verdict
+            safety_failures = list(gate_result.failures)
+            if gate_result.verdict in (VERDICT_WARN, VERDICT_CRITICAL):
+                from engine.safety.incident.llm_fallback_router import (
+                    deterministic_stub_response,
+                )
+                text = deterministic_stub_response("ko")
+                safety_fallback_used = True
+        except Exception:
+            safety_verdict = None
+            safety_failures = []
+
     legal = build_legal_footer(is_crisis=False)
     full_text = (text or "").strip() + legal
 
@@ -288,6 +321,9 @@ def generate_name_reading(
         "prompt_cache_usage": prompt_cache_usage,
         "crisis_alert": None,
         "legal_notice": legal,
+        "safety_gate_verdict": safety_verdict,
+        "safety_gate_failures": safety_failures,
+        "safety_gate_fallback_used": safety_fallback_used,
     }
     _save_cache(key, out)
     return out
