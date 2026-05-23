@@ -55,6 +55,7 @@ def run_safety_gates(
     metrics: dict[str, Any] | None = None,
     region: str | None = None,
     lang: str = "ko",
+    palace_scores: dict[str, float] | None = None,
 ) -> SafetyGateResult:
     """모든 후처리 게이트를 순서대로 실행.
 
@@ -63,6 +64,8 @@ def run_safety_gates(
         question: 화두 본문 (alignment 검증용)
         age/gender/metrics/region: 입력 보조정보 (fact_check용)
         lang: 'ko'면 한글 비율 검사 활성화 (token_guard용)
+        palace_scores: ADR-004 Phase 3 — 결정론 12궁 점수.
+            전달되면 LLM 단정 어휘 ↔ 점수 충돌 검출(palace_score_mismatch).
     """
     if not response_text or not isinstance(response_text, str):
         return SafetyGateResult(
@@ -126,6 +129,7 @@ def run_safety_gates(
         gender=gender,
         metrics=metrics,
         region=region,
+        palace_scores=palace_scores,
     )
     details["fact_check"] = {
         "violations": list(fact_r.violations),

@@ -222,3 +222,136 @@ def test_engine_safety_exports_fact_check():
     assert hasattr(safety, "FACT_FACE_COUNT")
     assert hasattr(safety, "FACT_REGION")
     assert hasattr(safety, "FACT_GAZE")
+
+
+# ───── ADR-004 Phase 3 — palace_score 단정 환각 검출 회귀 ─────
+
+def test_palace_score_none_skips_check():
+    """palace_scores=None이면 검증 면제(역호환)."""
+    from engine.safety.llm.response_fact_check import (
+        check_response, FACT_PALACE_SCORE,
+    )
+    r = check_response("재백궁이 환하게 빛나는도다.", palace_scores=None)
+    assert FACT_PALACE_SCORE not in r.violations
+
+
+def test_palace_score_strong_assertion_with_low_score_violates():
+    """결정론 점수 0.15인데 '재물복이 풍성' 단정 → 위반."""
+    from engine.safety.llm.response_fact_check import (
+        check_response, FACT_PALACE_SCORE,
+    )
+    r = check_response(
+        "허허, 그대 재물복이 풍성하니 곳간이 넉넉하리라.",
+        palace_scores={"jaebaek": 0.15},
+    )
+    assert FACT_PALACE_SCORE in r.violations
+    assert any("jaebaek:strong" in m for m in r.matched_terms)
+
+
+def test_palace_score_weak_assertion_with_high_score_violates():
+    """결정론 점수 0.85인데 '재물이 빈약' 단정 → 위반."""
+    from engine.safety.llm.response_fact_check import (
+        check_response, FACT_PALACE_SCORE,
+    )
+    r = check_response(
+        "허허, 그대 재물이 빈약한 결이로구먼.",
+        palace_scores={"jaebaek": 0.85},
+    )
+    assert FACT_PALACE_SCORE in r.violations
+    assert any("jaebaek:weak" in m for m in r.matched_terms)
+
+
+def test_palace_score_medium_score_allows_either_phrasing():
+    """중간 점수(0.5)는 두 어휘 모두 허용 — 단정 환각 검출만 목표."""
+    from engine.safety.llm.response_fact_check import (
+        check_response, FACT_PALACE_SCORE,
+    )
+    r1 = check_response("재백궁이 환하게 빛나는도다.",
+                        palace_scores={"jaebaek": 0.5})
+    r2 = check_response("재물이 빈약한 결이로다.",
+                        palace_scores={"jaebaek": 0.5})
+    assert FACT_PALACE_SCORE not in r1.violations
+    assert FACT_PALACE_SCORE not in r2.violations
+
+
+def test_palace_score_consistent_strong_passes():
+    """결정론 점수 0.85 + '재백궁이 환하' 단정 → 일치, 위반 아님."""
+    from engine.safety.llm.response_fact_check import (
+        check_response, FACT_PALACE_SCORE,
+    )
+    r = check_response(
+        "허허, 그대 재백궁이 환하게 빛나는도다.",
+        palace_scores={"jaebaek": 0.85},
+    )
+    assert FACT_PALACE_SCORE not in r.violations
+
+
+def test_palace_score_negated_assertion_ignored():
+    """'재물복이 풍성한 것은 아니로다' 부정문맥은 위반 아님."""
+    from engine.safety.llm.response_fact_check import (
+        check_response, FACT_PALACE_SCORE,
+    )
+    r = check_response(
+        "재물복이 풍성한 것은 아니라 평이한 결이로세.",
+        palace_scores={"jaebaek": 0.15},
+    )
+    assert FACT_PALACE_SCORE not in r.violations
+
+
+def test_palace_score_multi_palace_independent():
+    """여러 궁 동시 검증 — 한 궁 위반이 다른 궁 면제 안 함."""
+    from engine.safety.llm.response_fact_check import (
+        check_response, FACT_PALACE_SCORE,
+    )
+    r = check_response(
+        "재백궁이 환하고 관록궁이 흐리니, 재물은 두텁고 벼슬은 약하리라.",
+        palace_scores={"jaebaek": 0.10, "gwanrok": 0.90},
+    )
+    # jaebaek: 점수 낮은데 "환하" 단정 → 위반
+    # gwanrok: 점수 높은데 "흐리" 단정 → 위반
+    assert FACT_PALACE_SCORE in r.violations
+    matched = " ".join(r.matched_terms)
+    assert "jaebaek" in matched
+    assert "gwanrok" in matched
+
+
+def test_palace_score_non_numeric_skipped():
+    """점수가 숫자가 아니면 해당 궁만 스킵, 다른 궁은 검증."""
+    from engine.safety.llm.response_fact_check import (
+        check_response, FACT_PALACE_SCORE,
+    )
+    r = check_response(
+        "재백궁이 환하게 빛나는도다.",
+        palace_scores={"jaebaek": "invalid", "gwanrok": 0.5},  # type: ignore[dict-item]
+    )
+    # jaebaek 점수가 비정상이므로 검증 면제
+    assert FACT_PALACE_SCORE not in r.violations
+
+
+def test_palace_score_fallback_trigger_maps_to_persona_failed():
+    """단정 환각 검출 시 폴백 트리거 = persona_failed."""
+    from engine.safety.llm.response_fact_check import (
+        check_response, to_fallback_trigger,
+    )
+    r = check_response(
+        "재물복이 풍성하리라.",
+        palace_scores={"jaebaek": 0.10},
+    )
+    assert to_fallback_trigger(r) == "persona_failed"
+
+
+def test_palace_score_exported_const():
+    """FACT_PALACE_SCORE 상수 노출 확인."""
+    from engine.safety.llm.response_fact_check import FACT_PALACE_SCORE
+    assert FACT_PALACE_SCORE == "palace_score_mismatch"
+
+
+def test_safety_gate_accepts_palace_scores_kwarg():
+    """run_safety_gates가 palace_scores kwarg를 받아 fact_check로 전달."""
+    from engine.safety.llm.output_safety_gate import run_safety_gates
+    r = run_safety_gates(
+        "재물복이 풍성하리니 곳간이 넉넉하리라. 허허, 청년의 결이 두텁고 결이 환하니 좋은 자리로다.",
+        palace_scores={"jaebaek": 0.10},
+    )
+    # 단정 환각 검출이 fact_check로 흘러야 함
+    assert "fact_mismatch" in r.failures
