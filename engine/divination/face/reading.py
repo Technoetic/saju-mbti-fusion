@@ -872,11 +872,17 @@ def _call_stage2_persona(
         )
         try:
             client = _bizrouter_client()
+            # ADR-213 — persona_vocab 사극 어휘 가이드 동적 첨부
+            try:
+                from engine.divination.face.persona_vocab import render_for_system_prompt
+                system_content = _STAGE2_PERSONA_SYSTEM + "\n\n" + render_for_system_prompt()
+            except Exception:
+                system_content = _STAGE2_PERSONA_SYSTEM
             resp = client.chat.completions.create(
                 model=model,
                 max_tokens=_MAX_TOKENS,
                 messages=[
-                    {"role": "system", "content": _STAGE2_PERSONA_SYSTEM},
+                    {"role": "system", "content": system_content},
                     {"role": "user", "content": user_text},
                 ],
             )
@@ -890,13 +896,19 @@ def _call_stage2_persona(
     # Fallback — Opus가 페르소나 변환 수행 (사진 없이 텍스트만)
     try:
         client = _anthropic_client()
+        # ADR-213 — persona_vocab 사극 어휘 가이드 동적 첨부 (Opus도 동일)
+        try:
+            from engine.divination.face.persona_vocab import render_for_system_prompt
+            system_text = _STAGE2_PERSONA_SYSTEM + "\n\n" + render_for_system_prompt()
+        except Exception:
+            system_text = _STAGE2_PERSONA_SYSTEM
         msg = client.messages.create(
             model="claude-opus-4-7",
             max_tokens=_MAX_TOKENS,
             system=[
                 {
                     "type": "text",
-                    "text": _STAGE2_PERSONA_SYSTEM,
+                    "text": system_text,
                     "cache_control": {"type": "ephemeral"},
                 }
             ],
