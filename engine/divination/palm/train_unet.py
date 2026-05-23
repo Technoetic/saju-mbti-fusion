@@ -141,39 +141,83 @@ def train_unet(
     else:
         from engine.divination.palm.unet_model import UNet as _ModelClass
 
-    # 1. 데이터 로드
-    images = load_images_from_dir(data_dir)
-    if not images:
+    # ADR-237 — 스트리밍 Dataset (메모리 효율): 전체 사진 메모리 적재 X.
+    # 5,396장 × 1600×1200 = 31GB → 200MB (batch 16만 메모리).
+    from pathlib import Path as _Path
+
+    image_paths = []
+    if os.path.isdir(data_dir):
+        p = _Path(data_dir)
+        for ext in ("*.png", "*.jpg", "*.jpeg", "*.JPG"):
+            image_paths.extend(sorted(p.glob(ext)))
+
+    if not image_paths:
         return {"epochs_trained": 0, "final_loss": float("inf"),
                 "output_path": "", "error": f"이미지 없음: {data_dir}"}
 
-    # 2. 약지도 생성 (Gabor)
-    labels = generate_weak_labels(images)
+    # Gabor 약지도 생성 — lazy (Dataset __getitem__에서 단일 이미지만)
+    from engine.divination.palm.line_extraction import (
+        gabor_kernel, to_grayscale, _convolve,
+    )
+    thetas = np.linspace(0, np.pi, 4, endpoint=False)
+    gabor_kernels = [gabor_kernel(theta=float(t)) for t in thetas]
 
-    # 3. 리사이즈
     def _resize_to(img: np.ndarray, h: int, w: int) -> np.ndarray:
         if img.ndim == 2:
             return _resize_nearest(img[..., None], h, w)[..., 0]
         return _resize_nearest(img, h, w)
 
-    images_resized = [_resize_to(img, img_size, img_size) for img in images]
-    labels_resized = [_resize_to(lbl, img_size, img_size) for lbl in labels]
+    def _make_weak_label(img_resized: np.ndarray) -> np.ndarray:
+        """단일 이미지 → Gabor 약지도 마스크 (단일 사진만 메모리)."""
+        try:
+            gray = to_grayscale(img_resized)
+            response = np.zeros_like(gray, dtype=np.float64)
+            for k in gabor_kernels:
+                r = _convolve(gray, k)
+                response = np.maximum(response, np.abs(r))
+            threshold = float(np.percentile(response, 90.0))
+            return (response > threshold).astype(np.float32)
+        except Exception:
+            return np.zeros(img_resized.shape[:2], dtype=np.float32)
 
-    # 4. Dataset
-    class PalmDataset(Dataset):
+    class StreamingPalmDataset(Dataset):
+        """ADR-237 — lazy loading. __getitem__ 호출 시만 단일 이미지 로드."""
+
+        def __init__(self, paths: list, size: int):
+            self.paths = paths
+            self.size = size
+            # torchvision read_image 동적 import
+            from torchvision.io import read_image as _ri
+            self._read_image = _ri
+
         def __len__(self):
-            return len(images_resized)
+            return len(self.paths)
 
         def __getitem__(self, idx):
-            img = images_resized[idx].astype(np.float32) / 255.0
-            lbl = labels_resized[idx].astype(np.float32)
-            # (H, W, 3) → (3, H, W)
-            img_t = torch.from_numpy(img.transpose(2, 0, 1))
-            lbl_t = torch.from_numpy(lbl).unsqueeze(0)  # (1, H, W)
+            try:
+                # 1. 단일 이미지 디스크에서 로드
+                tensor = self._read_image(str(self.paths[idx]))
+                arr = tensor.permute(1, 2, 0).numpy()
+                if arr.shape[-1] >= 3:
+                    arr = arr[..., :3].astype(np.uint8)
+                else:
+                    arr = np.stack([arr[..., 0]] * 3, axis=-1).astype(np.uint8)
+                # 2. 리사이즈
+                img_resized = _resize_to(arr, self.size, self.size)
+                # 3. 약지도 생성 (단일)
+                lbl = _make_weak_label(img_resized)
+            except Exception:
+                # 손상된 이미지 — zero placeholder
+                img_resized = np.zeros((self.size, self.size, 3), dtype=np.uint8)
+                lbl = np.zeros((self.size, self.size), dtype=np.float32)
+            # 4. 텐서 변환
+            img_norm = img_resized.astype(np.float32) / 255.0
+            img_t = torch.from_numpy(img_norm.transpose(2, 0, 1))
+            lbl_t = torch.from_numpy(lbl).unsqueeze(0)
             return img_t, lbl_t
 
-    dataset = PalmDataset()
-    loader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
+    dataset = StreamingPalmDataset(image_paths, img_size)
+    loader = DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=0)
 
     # 5. 모델·optimizer·loss (ADR-233 — model_type 선택)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -212,7 +256,7 @@ def train_unet(
         "epochs_trained": epochs,
         "final_loss": final_loss,
         "output_path": output_path,
-        "n_images": len(images),
+        "n_images": len(image_paths),
         "model_type": model_type,
     }
 
