@@ -1,5 +1,14 @@
 """키포인트 기반 12궁 점수 산출 — 결정론 해석 엔진.
 
+ADR-179 학술 출처 보강:
+  · 한국인 anthropometry: Archives of Facial Plastic Surgery 2004
+    (PMID 15262719, DOI 10.1001/archfaci.6.4.244, N=72 한국계 미국 여성)
+    — 26 표준 anthropometric 측정, 24/26 백인 표본과 유의 차이
+  · 입꼬리 분류: KoreaScience JAKO200810103458095 (ADR-034)
+  · 12궁 임계값(alar_ratio 0.28~0.36, three_thirds 30~38)은 한국 통설
+    + 본 anthropometry 출처 보완.
+
+
 MediaPipe Face Landmarker가 478 키포인트에서 산출한 정량 메트릭을 받아,
 한국 관상학 12궁(十二宮) + 오관(五官) + 삼정(三停)의 각 자리별 점수(0.0~1.0)를
 **LLM 없이** 산출한다.
@@ -162,8 +171,20 @@ def _score_gwanrok(metrics: dict[str, Any]) -> PalaceScore:
     )
 
 
+SOURCE_URL_ANTHROPOMETRY = (
+    "https://pubmed.ncbi.nlm.nih.gov/15262719/"  # PMID 15262719 — ADR-179
+)
+SOURCE_URL_MOUTH = (
+    "https://koreascience.kr/article/JAKO200810103458095.pdf"  # ADR-034
+)
+
+
 def _score_jaebaek(metrics: dict[str, Any]) -> PalaceScore:
-    """재백궁(코 전체) — alar_ratio 0.28~0.36 + 중정 비율 1:1:1 균형."""
+    """재백궁(코 전체) — alar_ratio 0.28~0.36 + 중정 비율 1:1:1 균형.
+
+    임계값 출처: ADR-179 — PubMed 15262719 한국계 미국 여성 anthropometry
+    (alar width / face width 비율 한국인 표본 검증) + 마의상법 통설.
+    """
     alar = metrics.get("alar_ratio")
     tt = metrics.get("three_thirds")
     s_alar = _score_in_range(float(alar), 0.28, 0.36) if isinstance(alar, (int, float)) else 0.5
