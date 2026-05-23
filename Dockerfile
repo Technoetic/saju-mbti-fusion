@@ -56,6 +56,7 @@ ARG ENABLE_REAL_PALM_DATA=0
 COPY requirements-ml.txt ./requirements-ml.txt
 RUN if [ "$ENABLE_PALM_UNET" = "1" ]; then \
         pip install --user --no-warn-script-location -r requirements-ml.txt && \
+        mkdir -p data/palm/training/ && \
         if [ "$ENABLE_REAL_PALM_DATA" = "1" ]; then \
             pip install --user --quiet gdown && \
             python -m engine.divination.palm.download_11k_hands \
@@ -68,7 +69,7 @@ RUN if [ "$ENABLE_PALM_UNET" = "1" ]; then \
         python -m engine.divination.palm.train_unet \
             --data-dir data/palm/training/ \
             --output data/palm/unet_weights.pt \
-            --epochs 10 --batch-size 8 --img-size 256 --model cfm && \
+            --epochs 5 --batch-size 16 --img-size 256 --model cfm && \
         python -c "from engine.divination.palm.self_training import run_self_training; \
             print(run_self_training( \
                 initial_weights_path='data/palm/unet_weights.pt', \
