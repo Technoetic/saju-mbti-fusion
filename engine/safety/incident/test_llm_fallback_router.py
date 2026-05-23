@@ -198,3 +198,61 @@ def test_engine_safety_exports_llm_fallback_router():
     assert hasattr(safety, "BACKEND_GEMINI")
     assert hasattr(safety, "BACKEND_CLAUDE")
     assert hasattr(safety, "BACKEND_STUB")
+
+
+# ───── ADR-170 페르소나별 stub 회귀 ─────
+
+def test_adr170_persona_face_returns_unhak_dosa_stub():
+    from engine.safety.incident.llm_fallback_router import deterministic_stub_response
+    s = deterministic_stub_response("ko", persona="face")
+    assert "운학 도사" in s
+    assert "이 늙은이" in s
+
+
+def test_adr170_persona_palm_returns_okseon_halmi_stub():
+    from engine.safety.incident.llm_fallback_router import deterministic_stub_response
+    s = deterministic_stub_response("ko", persona="palm")
+    assert "옥선 할미" in s
+    assert "손금" in s
+
+
+def test_adr170_persona_name_returns_mukhyang_seonsaeng_stub():
+    from engine.safety.incident.llm_fallback_router import deterministic_stub_response
+    s = deterministic_stub_response("ko", persona="name")
+    assert "묵향 선생" in s
+    assert "이름" in s
+
+
+def test_adr170_persona_dream_returns_calm_stub():
+    from engine.safety.incident.llm_fallback_router import deterministic_stub_response
+    s = deterministic_stub_response("ko", persona="dream")
+    assert "꿈" in s
+    assert ("습니다" in s) or ("지요" in s)
+
+
+def test_adr170_persona_hwapae_returns_hwaseon_nangja_stub():
+    from engine.safety.incident.llm_fallback_router import deterministic_stub_response
+    s = deterministic_stub_response("ko", persona="hwapae")
+    assert "화선" in s
+    assert "화패" in s
+
+
+def test_adr170_persona_none_falls_back_to_default_ko():
+    from engine.safety.incident.llm_fallback_router import deterministic_stub_response
+    default_s = deterministic_stub_response("ko")
+    none_s = deterministic_stub_response("ko", persona=None)
+    assert default_s == none_s
+
+
+def test_adr170_persona_unknown_falls_back_to_default_ko():
+    from engine.safety.incident.llm_fallback_router import deterministic_stub_response
+    default_s = deterministic_stub_response("ko")
+    unknown_s = deterministic_stub_response("ko", persona="some_other")
+    assert default_s == unknown_s
+
+
+def test_adr170_persona_ignored_for_non_ko_lang():
+    from engine.safety.incident.llm_fallback_router import deterministic_stub_response
+    en_default = deterministic_stub_response("en")
+    en_persona = deterministic_stub_response("en", persona="face")
+    assert en_default == en_persona
