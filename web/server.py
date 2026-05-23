@@ -516,13 +516,18 @@ class FaceReadingRequest(BaseModel):
 
 
 class PalmReadingRequest(BaseModel):
-    """옥선 할미 손금 풀이 요청 — 손바닥 사진(base64) + 보조 정보."""
+    """옥선 할미 손금 풀이 요청 — 손바닥 사진(base64) + 보조 정보.
+
+    ADR-160 Phase 1.5: metrics 필드는 MediaPipe Hand Landmarker 21 keypoint
+    프론트 추론 결과 (engine/divination/palm/scoring.score_palm 인터페이스 정합).
+    """
 
     image_base64: str
     age: int | None = None
     gender: str | None = None
     hand: str | None = None  # '왼손' / '오른손' / 자유
     question: str | None = None
+    metrics: dict[str, Any] | None = None  # ADR-160 MediaPipe Hand 21 keypoint + 메타
 
 
 class NameReadingRequest(BaseModel):
@@ -2147,9 +2152,35 @@ class PersonalityAPIServer:
     async def post_palm_reading(
         self, req: PalmReadingRequest
     ) -> dict[str, Any]:
-        """옥선 할미 손금 풀이 — Gemini Vision 멀티모달 호출 + 캐시."""
+        """옥선 할미 손금 풀이 — Vision 멀티모달 + ADR-160 MediaPipe 결정론 점수."""
         try:
             from engine.divination.palm.reading import generate_palm_reading
+
+            # ADR-160 — MediaPipe Hand 21 keypoint 입력 시 결정론 점수 산출.
+            # 산출 실패·keypoint 부재 시 LLM Vision 단독 유지 (무회귀).
+            palm_deterministic_block = None
+            if req.metrics and isinstance(req.metrics, dict):
+                keypoints = req.metrics.get("keypoints")
+                if isinstance(keypoints, dict) and any(k.startswith("kp") for k in keypoints):
+                    try:
+                        from engine.divination.palm.scoring import score_palm
+                        hand_side = req.hand or req.metrics.get("hand_side_mp") or "unknown"
+                        palm_report = await asyncio.to_thread(score_palm, keypoints, hand_side)
+                        # 결정론 점수 메타를 system prompt 주입용 블록으로 압축.
+                        lines_summary = " · ".join(
+                            f"{ls.name}({ls.label_ko or ls.label}/{ls.score:.2f})"
+                            for ls in palm_report.lines.values()
+                        )
+                        palm_deterministic_block = (
+                            "[손금 결정론 — ADR-160 MediaPipe Hand 21 keypoint]\n"
+                            f"  · 손 측: {palm_report.hand_side}\n"
+                            f"  · 4 손금선 + 금성대 점수: {lines_summary}\n"
+                            f"[안전 장치 — ADR-006/113] 결정론 점수만 인용. "
+                            f"수명·재물·운명 단정 금지. 형태 분류 메타로만 풀이.\n"
+                            f"{palm_report.disclaimer_ko}"
+                        )
+                    except Exception:
+                        pass
 
             result = await asyncio.to_thread(
                 generate_palm_reading,
@@ -2159,6 +2190,9 @@ class PersonalityAPIServer:
                 req.hand,
                 req.question,
             )
+            # 결정론 블록을 result에 노출 (LLM 호출자 inject 가능).
+            if palm_deterministic_block and isinstance(result, dict):
+                result["deterministic_block"] = palm_deterministic_block
             # ADR-006/094/113 단정 어휘 + ADR-115 다국어 hallucination 사후 필터링
             if isinstance(result, dict) and "text" in result:
                 result["text"] = _sanitize_common_assertion_words(result["text"])
