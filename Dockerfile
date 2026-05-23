@@ -56,17 +56,17 @@ COPY requirements-ml.txt ./requirements-ml.txt
 RUN if [ "$ENABLE_PALM_UNET" = "1" ]; then \
         pip install --user --no-warn-script-location -r requirements-ml.txt && \
         python -m engine.divination.palm.generate_training_data \
-            --output-dir data/palm/training/ --n-images 50 --img-size 256 && \
+            --output-dir data/palm/training/ --n-images 500 --img-size 256 && \
         python -m engine.divination.palm.train_unet \
             --data-dir data/palm/training/ \
             --output data/palm/unet_weights.pt \
-            --epochs 10 --batch-size 4 --img-size 256 --model unet && \
+            --epochs 10 --batch-size 8 --img-size 256 --model cfm && \
         python -c "from engine.divination.palm.self_training import run_self_training; \
             print(run_self_training( \
                 initial_weights_path='data/palm/unet_weights.pt', \
                 data_dir='data/palm/training/', \
                 output_path='data/palm/unet_weights.pt', \
-                n_iterations=3, epochs_per_iter=5, batch_size=4, img_size=256, \
+                n_iterations=3, epochs_per_iter=5, batch_size=8, img_size=256, \
                 use_augmentation=True))" && \
         rm -rf data/palm/training/ ; \
     fi
