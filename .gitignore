@@ -78,10 +78,14 @@ data/app.db-shm
 vault/
 vault/.trash/
 
-# ADR-223 — ML 가중치 파일 (52MB Repo bloat 회피, train_unet.py로 재생성 가능)
-data/palm/unet_weights.pt
+# ADR-245 — CFM 가중치 11MB는 repo 포함 (ADR-223 폐기).
+# 사유: 매 deploy마다 11k Hands 다운로드 + CFM 5 epoch + self-training
+# = 45분~ CI 빌드 시간 + GitHub Actions 분 사용량. 11MB는 GitHub 제한 안전.
+# data/palm/unet_weights.pt 는 git 포함.
 data/palm/unet_weights.pth
 data/palm/training/
+# 학습 부산물 — 백업·실험용 .pt 만 제외
+data/palm/unet_weights_*.pt
 
 # 합성 학습 데이터 생성 스크립트만 영속 (재현성)
 !engine/divination/palm/train_unet.py

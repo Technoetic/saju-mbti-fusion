@@ -45,39 +45,15 @@ COPY data ./data
 # ADR-114: Skyfield + JPL DE440s ephemeris (1849-2150년 32MB, star 도메인 빅3·하우스·트랜짓)
 COPY de440s.bsp ./de440s.bsp
 
-# ADR-224 — Fly.io 가중치 호스팅 옵션 빌드
-# 빌드 인자: --build-arg ENABLE_PALM_UNET=1 시 PyTorch 설치 + 학습 + 가중치 빌드 시 영속.
-# 비활성 시 코어 이미지 영향 0 (Gabor fallback 작동).
-# 사용:
-#   fly deploy --build-arg ENABLE_PALM_UNET=1
-# 효과: 외부 호스팅(S3·Hugging Face) 결단 우회 — 이미지 자체에 가중치 포함.
-ARG ENABLE_PALM_UNET=0
-ARG ENABLE_REAL_PALM_DATA=0
+# ADR-245 — CFM 가중치 사전 학습 + repo 포함 + 빌드 시 COPY (학습 X)
+# 이전 (ADR-224): 빌드 시 11k Hands 다운로드 + 5 epoch 학습 + self-training
+#   = 45분~ CI 빌드. GPU(local) 학습 후 CI에서 반복하는 낭비 구조.
+# 변경: data/palm/unet_weights.pt (11MB, CFM 5 epoch loss 0.0338) 를 repo 포함,
+#   data/ COPY 시 자동 포함. PyTorch만 추가 설치.
+ARG ENABLE_PALM_UNET=1
 COPY requirements-ml.txt ./requirements-ml.txt
 RUN if [ "$ENABLE_PALM_UNET" = "1" ]; then \
-        pip install --user --no-warn-script-location -r requirements-ml.txt && \
-        mkdir -p data/palm/training/ && \
-        if [ "$ENABLE_REAL_PALM_DATA" = "1" ]; then \
-            pip install --user --quiet gdown && \
-            python -m engine.divination.palm.download_11k_hands \
-                --output-dir data/palm/11k_dataset/ && \
-            cp data/palm/11k_dataset/palmar_only/*.jpg data/palm/training/ 2>/dev/null || true ; \
-        else \
-            python -m engine.divination.palm.generate_training_data \
-                --output-dir data/palm/training/ --n-images 500 --img-size 256 ; \
-        fi && \
-        python -m engine.divination.palm.train_unet \
-            --data-dir data/palm/training/ \
-            --output data/palm/unet_weights.pt \
-            --epochs 5 --batch-size 16 --img-size 256 --model cfm && \
-        python -c "from engine.divination.palm.self_training import run_self_training; \
-            print(run_self_training( \
-                initial_weights_path='data/palm/unet_weights.pt', \
-                data_dir='data/palm/training/', \
-                output_path='data/palm/unet_weights.pt', \
-                n_iterations=3, epochs_per_iter=5, batch_size=8, img_size=256, \
-                use_augmentation=True))" && \
-        rm -rf data/palm/training/ data/palm/11k_dataset/ ; \
+        pip install --user --no-warn-script-location -r requirements-ml.txt ; \
     fi
 
 # 빌드 컨텍스트에 __pycache__ 잔존 시 정리 (런타임 무용)
