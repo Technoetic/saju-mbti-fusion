@@ -125,14 +125,10 @@ jobs:
       - name: Deploy to Fly.io
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
-        # ADR-243 — 코어 deploy도 ENABLE_PALM_UNET=1 + ENABLE_REAL_PALM_DATA=1
-        # 으로 CFM 가중치 유지 (이전: 코어 deploy가 deploy-unet 결과를 덮어쓰는
-        # 구조 결함 — 손금 라이브 F1 99% → Gabor fallback 80% 회귀).
-        # 빌드 시간 +25분, 이미지 +300MB 트레이드오프 수용.
-        run: |
-          flyctl deploy --remote-only --ha=false \
-            --build-arg ENABLE_PALM_UNET=1 \
-            --build-arg ENABLE_REAL_PALM_DATA=1
+        # ADR-245 — 가중치 repo 포함 → 빌드 시 COPY만, 학습 X.
+        # ENABLE_PALM_UNET=1 은 Dockerfile 기본값. PyTorch만 설치.
+        # 빌드 ~5분, 이미지 +300MB (PyTorch wheel).
+        run: flyctl deploy --remote-only --ha=false
 
       - name: Verify live
         run: |
