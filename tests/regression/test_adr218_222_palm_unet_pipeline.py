@@ -24,18 +24,21 @@ except ImportError:
 # ───── ADR-218 라이선스 재분류 ─────
 
 def test_adr218_unet_model_docstring_mit_compatible():
-    """ADR-218 — unet_model.py docstring에 Ronneberger 학술 공개 명시."""
-    import engine.divination.palm.unet_model as um
-    src_doc = um.__doc__ or ""
-    assert "Ronneberger" in src_doc
-    assert "ADR-218" in src_doc
+    """ADR-218 — unet_model.py docstring에 Ronneberger 학술 공개 명시.
+
+    PyTorch 부재 시 소스 파일 직접 파싱으로 docstring 검증 (CI 안전).
+    """
+    src_path = _ROOT / "engine" / "divination" / "palm" / "unet_model.py"
+    src = src_path.read_text(encoding="utf-8")
+    assert "Ronneberger" in src
+    assert "ADR-218" in src
 
 
 def test_adr218_no_gpl_warning_in_module():
-    """ADR-218 — milesial GPL-3.0 코드 직접 복사 X 명시."""
-    import engine.divination.palm.unet_model as um
-    src_doc = um.__doc__ or ""
-    assert "직접 복사 X" in src_doc or "독립 구현" in src_doc
+    """ADR-218 — milesial GPL-3.0 코드 직접 복사 X 명시 (소스 파일 직접 검증)."""
+    src_path = _ROOT / "engine" / "divination" / "palm" / "unet_model.py"
+    src = src_path.read_text(encoding="utf-8")
+    assert "직접 복사 X" in src or "독립 구현" in src
 
 
 # ───── ADR-219 requirements 분리 ─────
