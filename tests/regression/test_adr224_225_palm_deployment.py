@@ -32,19 +32,33 @@ def test_adr224_dockerfile_conditional_pytorch_install():
     assert "requirements-ml.txt" in content
 
 
-def test_adr224_dockerfile_includes_training_in_build():
-    """빌드 타임 학습 명령 포함."""
+def test_adr245_dockerfile_no_build_time_training():
+    """ADR-245 폐기 — 빌드 타임 학습 제거 (사전 학습 가중치 repo 포함).
+    이전 ADR-224 의 train_unet/generate_training_data/rm -rf 패턴은 사라져야 한다.
+    """
     dockerfile = _ROOT / "Dockerfile"
     content = dockerfile.read_text(encoding="utf-8")
-    assert "engine.divination.palm.train_unet" in content
-    assert "engine.divination.palm.generate_training_data" in content
+    assert "engine.divination.palm.train_unet" not in content
+    assert "engine.divination.palm.generate_training_data" not in content
+    assert "rm -rf data/palm/training/" not in content
+    assert "ADR-245" in content
 
 
-def test_adr224_dockerfile_cleans_training_data_after_build():
-    """학습 후 training/ 임시 데이터 정리 (이미지 크기 ↓)."""
+def test_adr246_dockerfile_copies_models_dir():
+    """ADR-246 — 가중치 models/ 경로 COPY (Fly 볼륨 /app/data 회피)."""
     dockerfile = _ROOT / "Dockerfile"
     content = dockerfile.read_text(encoding="utf-8")
-    assert "rm -rf data/palm/training/" in content
+    assert "COPY models" in content
+    assert "ADR-246" in content
+
+
+def test_adr246_weights_file_in_models_dir():
+    """ADR-246 — models/unet_weights.pt 실존."""
+    weights = _ROOT / "models" / "unet_weights.pt"
+    assert weights.exists(), "models/unet_weights.pt 누락 (ADR-246)"
+    # CFM 11MB 안전 범위 (8MB ~ 60MB)
+    size = weights.stat().st_size
+    assert 8 * 1024 * 1024 < size < 60 * 1024 * 1024, f"가중치 크기 비정상: {size}"
 
 
 # ───── ADR-225 데이터셋 파이프라인 ─────
