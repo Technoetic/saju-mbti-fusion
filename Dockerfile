@@ -45,6 +45,25 @@ COPY data ./data
 # ADR-114: Skyfield + JPL DE440s ephemeris (1849-2150년 32MB, star 도메인 빅3·하우스·트랜짓)
 COPY de440s.bsp ./de440s.bsp
 
+# ADR-224 — Fly.io 가중치 호스팅 옵션 빌드
+# 빌드 인자: --build-arg ENABLE_PALM_UNET=1 시 PyTorch 설치 + 학습 + 가중치 빌드 시 영속.
+# 비활성 시 코어 이미지 영향 0 (Gabor fallback 작동).
+# 사용:
+#   fly deploy --build-arg ENABLE_PALM_UNET=1
+# 효과: 외부 호스팅(S3·Hugging Face) 결단 우회 — 이미지 자체에 가중치 포함.
+ARG ENABLE_PALM_UNET=0
+COPY requirements-ml.txt ./requirements-ml.txt
+RUN if [ "$ENABLE_PALM_UNET" = "1" ]; then \
+        pip install --user --no-warn-script-location -r requirements-ml.txt && \
+        python -m engine.divination.palm.generate_training_data \
+            --output-dir data/palm/training/ --n-images 20 --img-size 256 && \
+        python -m engine.divination.palm.train_unet \
+            --data-dir data/palm/training/ \
+            --output data/palm/unet_weights.pt \
+            --epochs 10 --batch-size 4 --img-size 256 && \
+        rm -rf data/palm/training/ ; \
+    fi
+
 # 빌드 컨텍스트에 __pycache__ 잔존 시 정리 (런타임 무용)
 RUN find /app -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true
 
