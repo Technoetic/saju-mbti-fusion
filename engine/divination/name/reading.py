@@ -295,6 +295,7 @@ def generate_name_reading(
                 metrics=None,
                 lang="ko",
                 palace_scores=None,
+                domain="name",
             )
             # ADR-169 — MINOR 재호출 1회
             if should_retry_minor(gate_result):
@@ -304,7 +305,7 @@ def generate_name_reading(
                         retry_result = run_safety_gates(
                             retry_text, question=None, age=None,
                             gender=gender, metrics=None, lang="ko",
-                            palace_scores=None,
+                            palace_scores=None, domain="name",
                         )
                         verdict_rank = {"clean": 0, "minor": 1, "warn": 2, "critical": 3}
                         if (verdict_rank.get(retry_result.verdict, 99)

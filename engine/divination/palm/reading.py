@@ -365,6 +365,7 @@ def generate_palm_reading(
                 metrics=None,
                 lang="ko",
                 palace_scores=None,
+                domain="palm",
             )
             # ADR-169 — MINOR 재호출 1회 시도
             if should_retry_minor(gate_result):
@@ -378,6 +379,7 @@ def generate_palm_reading(
                             retry_text,
                             question=question, age=age, gender=gender,
                             metrics=None, lang="ko", palace_scores=None,
+                            domain="palm",
                         )
                         # 재호출이 더 나으면 채택 (verdict 등급 하향 시)
                         verdict_rank = {"clean": 0, "minor": 1, "warn": 2, "critical": 3}

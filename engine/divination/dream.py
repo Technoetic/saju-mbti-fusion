@@ -646,6 +646,7 @@ def interpret_dream(
                 metrics=None,
                 lang="ko",
                 palace_scores=None,
+                domain="dream",
             )
             # ADR-169 — MINOR 재호출 1회 (critic loop와 독립)
             if should_retry_minor(gate_result):
@@ -659,7 +660,7 @@ def interpret_dream(
                             retry_text, question=dream_text,
                             age=getattr(ctx, "age", None),
                             gender=gender_norm, metrics=None, lang="ko",
-                            palace_scores=None,
+                            palace_scores=None, domain="dream",
                         )
                         verdict_rank = {"clean": 0, "minor": 1, "warn": 2, "critical": 3}
                         if (verdict_rank.get(retry_result.verdict, 99)
