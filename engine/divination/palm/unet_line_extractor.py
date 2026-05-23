@@ -162,22 +162,90 @@ def _run_unet_inference(
     img: np.ndarray,
     weights_path: str | None,
 ) -> dict | None:
-    """U-Net 추론 — PyTorch + 가중치 가용 시만 실행.
+    """ADR-217 — U-Net 추론 실 구현.
 
-    NOTE: 본 함수는 **placeholder** — 실 모델 가중치·학습 데이터 부재로
-    실 추론 로직은 사용자 결단 후 구현. 본 ADR은 인터페이스만 영속.
+    PyTorch + 가중치 파일 가용 시 milesial/Pytorch-UNet 아키텍처로 추론.
+    GPL-3.0 라이선스 (본 시스템 학습·재사용 시 의무 — 운영 시 사용자 결단).
 
     Args:
-        img: 입력 이미지.
-        weights_path: 모델 가중치 파일 경로.
+        img: 입력 이미지 (H, W, 3) RGB.
+        weights_path: 모델 가중치 파일 경로 (.pt or .pth).
 
     Returns:
-        {"mask": np.ndarray, "raw_metrics": dict} or None if not implemented.
+        {"mask": np.ndarray, "raw_metrics": dict} or None on failure.
     """
-    # 사용자 결단 후 다음 구현 필요:
-    # 1. U-Net 모델 정의 (milesial/Pytorch-UNet 등에서 import)
-    # 2. weights_path로 torch.load() + state_dict 로드
-    # 3. 이미지 전처리 (resize·normalize)
-    # 4. model.forward(img) → 픽셀 마스크
-    # 5. 마스크를 5 영역으로 분할해 밀도 산출 (Gabor와 동일 형식)
-    return None
+    if not _HAS_TORCH or not weights_path:
+        return None
+
+    try:
+        # 동적 import (PyTorch 부재 시 모듈 import 실패 없도록)
+        import torch as _torch
+        from engine.divination.palm.unet_model import UNet as _UNet
+    except ImportError:
+        return None
+
+    try:
+        # 모델 초기화 (n_channels=3 RGB → n_classes=1 binary mask)
+        device = _torch.device("cuda" if _torch.cuda.is_available() else "cpu")
+        model = _UNet(n_channels=3, n_classes=1)
+        # 가중치 로드 (weights_only=True for security)
+        state = _torch.load(weights_path, map_location=device, weights_only=True)
+        if isinstance(state, dict) and "state_dict" in state:
+            state = state["state_dict"]
+        model.load_state_dict(state, strict=False)
+        model.to(device).eval()
+
+        # 전처리: RGB (H, W, 3) → (1, 3, 256, 256) 정규화
+        if img.ndim == 2:
+            img_rgb = np.stack([img] * 3, axis=-1)
+        else:
+            img_rgb = img[..., :3]
+        # 256x256 리사이즈 (간단 nearest neighbor — scipy 없을 때 안전)
+        img_resized = _resize_nearest(img_rgb.astype(np.float32), 256, 256)
+        img_norm = img_resized / 255.0
+        # (H, W, 3) → (1, 3, H, W)
+        tensor = _torch.from_numpy(img_norm.transpose(2, 0, 1)).unsqueeze(0).float().to(device)
+
+        # 추론
+        with _torch.no_grad():
+            logits = model(tensor)
+            prob = _torch.sigmoid(logits).cpu().numpy()[0, 0]  # (H, W)
+
+        # 픽셀 마스크 (확률 > 0.5)
+        mask = prob > 0.5
+
+        # 5 영역 밀도 (Gabor와 동일 형식)
+        h, w = mask.shape
+        upper = mask[: h // 3, :]
+        middle = mask[h // 3 : 2 * h // 3, :]
+        lower = mask[2 * h // 3 :, :]
+        lower_left = mask[2 * h // 3 :, : w // 2]
+        lower_right = mask[2 * h // 3 :, w // 2 :]
+
+        def _density(m: np.ndarray) -> float:
+            if m.size == 0:
+                return 0.0
+            return float(m.sum()) / m.size
+
+        raw_metrics = {
+            "upper_density": round(_density(upper), 4),
+            "middle_density": round(_density(middle), 4),
+            "lower_density": round(_density(lower), 4),
+            "lower_left_density": round(_density(lower_left), 4),
+            "lower_right_density": round(_density(lower_right), 4),
+            "overall_density": round(_density(mask), 4),
+            "unet_threshold": 0.5,
+        }
+        return {"mask": mask, "raw_metrics": raw_metrics}
+    except Exception:
+        return None
+
+
+def _resize_nearest(img: np.ndarray, target_h: int, target_w: int) -> np.ndarray:
+    """간단 nearest-neighbor 리사이즈 (PIL/cv2 의존성 회피)."""
+    h, w = img.shape[:2]
+    if h == target_h and w == target_w:
+        return img
+    y_idx = (np.arange(target_h) * h / target_h).astype(int)
+    x_idx = (np.arange(target_w) * w / target_w).astype(int)
+    return img[y_idx[:, None], x_idx[None, :]]
