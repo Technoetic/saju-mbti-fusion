@@ -395,7 +395,7 @@ def generate_palm_reading(
                 from engine.safety.incident.llm_fallback_router import (
                     deterministic_stub_response,
                 )
-                text = deterministic_stub_response("ko")
+                text = deterministic_stub_response("ko", persona="palm")
                 safety_fallback_used = True
         except Exception:
             safety_verdict = None

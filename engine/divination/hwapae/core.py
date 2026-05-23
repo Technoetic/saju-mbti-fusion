@@ -385,7 +385,7 @@ def generate_hwapae_reading(
                 from engine.safety.incident.llm_fallback_router import (
                     deterministic_stub_response,
                 )
-                final_text = deterministic_stub_response("ko")
+                final_text = deterministic_stub_response("ko", persona="hwapae")
                 safety_fallback_used = True
         except Exception:
             safety_verdict = None

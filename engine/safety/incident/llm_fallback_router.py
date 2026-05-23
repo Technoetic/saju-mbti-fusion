@@ -181,6 +181,31 @@ _STUB_RESPONSE_KO = (
     "잠시 뒤 다시 부탁하시게나. 이 늙은이가 곧 본 자리로 돌아옴이로세."
 )
 
+# ADR-170 — 페르소나별 stub (face·palm·name·dream·hwapae)
+# 각 페르소나의 self-reference + 사극 톤 어휘 보존.
+_STUB_PERSONA_KO: dict[str, str] = {
+    "face": (
+        "허허, 그대, 자네의 상을 살피려 하였으나 이 늙은이의 결이 흐려 짚지 못하였네. "
+        "잠시 뒤 다시 부탁하시게나. 이 운학 도사가 곧 본 자리로 돌아옴이로세."
+    ),
+    "palm": (
+        "허허, 그대 자네의 손금을 짚어보려 하였으나 이 늙은이의 결이 흐려 잡지 못하였네. "
+        "잠시 뒤 다시 들러주시게나. 이 옥선 할미가 곧 본 자리로 돌아옴이로다."
+    ),
+    "name": (
+        "이 묵향 선생이 자네의 이름을 풀어보려 하였으나 결이 흐려 짚지 못하였습니다. "
+        "잠시 뒤 다시 부탁하시지요. 곧 본 자리로 돌아오겠소이다."
+    ),
+    "dream": (
+        "그대의 꿈을 짚어보려 하였으나 결이 흐려 풀이가 어렵습니다. "
+        "잠시 뒤 다시 들려주시지요. 곧 차분히 자네의 꿈을 살피겠습니다."
+    ),
+    "hwapae": (
+        "허허, 화선이 자네의 화패를 살피려 하였으나 결이 흐려 잡지 못하였네. "
+        "잠시 뒤 다시 들러주시게나. 곧 본 자리로 돌아옴이로다."
+    ),
+}
+
 _STUB_RESPONSE_EN = (
     "We could not complete your reading right now. Please try again shortly."
 )
@@ -201,8 +226,17 @@ _STUB_BY_LANG = {
 }
 
 
-def deterministic_stub_response(lang: str = "ko") -> str:
-    """모든 LLM 실패 시의 최소 안전 응답. 4언어 지원."""
+def deterministic_stub_response(lang: str = "ko", persona: str | None = None) -> str:
+    """모든 LLM 실패 시의 최소 안전 응답.
+
+    Args:
+        lang: 4언어 지원 (ko/en/ja/zh) — 기본 ko.
+        persona: ADR-170 — 페르소나별 어휘 분기 ('face'/'palm'/'name'/
+            'dream'/'hwapae'). lang='ko'일 때만 적용. None이거나 알 수
+            없는 페르소나면 기존 _STUB_RESPONSE_KO 사용 (역호환).
+    """
+    if lang == "ko" and persona:
+        return _STUB_PERSONA_KO.get(persona, _STUB_RESPONSE_KO)
     return _STUB_BY_LANG.get(lang, _STUB_RESPONSE_EN)
 
 

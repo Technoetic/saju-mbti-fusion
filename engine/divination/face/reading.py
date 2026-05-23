@@ -1156,7 +1156,7 @@ def generate_face_reading(
                 from engine.safety.incident.llm_fallback_router import (
                     deterministic_stub_response,
                 )
-                reading_text = deterministic_stub_response("ko")
+                reading_text = deterministic_stub_response("ko", persona="face")
                 safety_fallback_used = True
         except Exception:
             safety_verdict = None
