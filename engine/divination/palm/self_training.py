@@ -116,12 +116,12 @@ def run_self_training(
         SelfTrainingResult — iterations·loss·pseudo-label 수.
     """
     try:
+        import time as _time
         import torch
         import torch.nn as nn
         from torch.utils.data import Dataset, DataLoader
         from engine.divination.palm.unet_model import UNet
         from engine.divination.palm.unet_line_extractor import _resize_nearest
-        from engine.divination.palm.train_unet import load_images_from_dir
     except ImportError as e:
         return SelfTrainingResult(
             iterations_completed=0, final_loss=float("inf"),
@@ -129,8 +129,15 @@ def run_self_training(
             output_path="", notes=f"PyTorch 필요: {e}",
         )
 
-    images = load_images_from_dir(data_dir)
-    if not images:
+    # ADR-237 — 스트리밍: 이미지 경로만 메모리
+    from pathlib import Path as _Path
+    image_paths = []
+    if os.path.isdir(data_dir):
+        p = _Path(data_dir)
+        for ext in ("*.png", "*.jpg", "*.jpeg", "*.JPG"):
+            image_paths.extend(sorted(p.glob(ext)))
+
+    if not image_paths:
         return SelfTrainingResult(
             iterations_completed=0, final_loss=float("inf"),
             n_pseudo_labels=0, confidence_threshold=PSEUDO_LABEL_CONFIDENCE,
@@ -148,76 +155,116 @@ def run_self_training(
             if isinstance(state, dict) and "state_dict" in state:
                 state = state["state_dict"]
             model.load_state_dict(state, strict=False)
-            print(f"[self-training] 초기 가중치 로드: {initial_weights_path}")
+            print(f"[self-training] 초기 가중치 로드: {initial_weights_path}", flush=True)
         except Exception as e:
-            print(f"[self-training] 초기 가중치 로드 실패 (random init): {e}")
+            print(f"[self-training] 초기 가중치 로드 실패 (random init): {e}", flush=True)
 
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
     criterion = nn.BCEWithLogitsLoss()
 
-    # 이미지 리사이즈
     def _resize_to(img: np.ndarray, h: int, w: int) -> np.ndarray:
         if img.ndim == 2:
             return _resize_nearest(img[..., None], h, w)[..., 0]
         return _resize_nearest(img, h, w)
 
-    images_resized = [_resize_to(img, img_size, img_size) for img in images]
+    # Gabor 약지도 (pseudo-label 부족 시 폴백)
+    from engine.divination.palm.line_extraction import (
+        gabor_kernel, to_grayscale, _convolve,
+    )
+    thetas = np.linspace(0, np.pi, 4, endpoint=False)
+    gabor_kernels = [gabor_kernel(theta=float(t)) for t in thetas]
+
+    def _make_weak_label(img_resized: np.ndarray) -> np.ndarray:
+        try:
+            gray = to_grayscale(img_resized)
+            response = np.zeros_like(gray, dtype=np.float64)
+            for k in gabor_kernels:
+                r = _convolve(gray, k)
+                response = np.maximum(response, np.abs(r))
+            threshold = float(np.percentile(response, 90.0))
+            return (response > threshold).astype(np.float32)
+        except Exception:
+            return np.zeros(img_resized.shape[:2], dtype=np.float32)
+
+    def _load_resized(idx: int) -> np.ndarray:
+        try:
+            from torchvision.io import read_image
+            tensor = read_image(str(image_paths[idx]))
+            arr = tensor.permute(1, 2, 0).numpy()
+            if arr.shape[-1] >= 3:
+                arr = arr[..., :3].astype(np.uint8)
+            else:
+                arr = np.stack([arr[..., 0]] * 3, axis=-1).astype(np.uint8)
+            return _resize_to(arr, img_size, img_size)
+        except Exception:
+            return np.zeros((img_size, img_size, 3), dtype=np.uint8)
 
     final_loss = float("inf")
     last_n_pseudo = 0
 
     for iteration in range(n_iterations):
-        # 1. Pseudo-label 생성
+        iter_start = _time.time()
+        # 1. Pseudo-label 통계 (디스크 스트리밍 — 모든 이미지 메모리 적재 X)
         model.eval()
-        pseudo_labels = []
         total_pseudo_pixels = 0
-        for img in images_resized:
-            mask, _conf = generate_pseudo_label(model, img, PSEUDO_LABEL_CONFIDENCE)
-            pseudo_labels.append(mask)
+        sample_size = min(100, len(image_paths))  # 100장 샘플만 평균 산출
+        for sample_idx in range(sample_size):
+            img_resized = _load_resized(sample_idx)
+            mask, _ = generate_pseudo_label(model, img_resized, PSEUDO_LABEL_CONFIDENCE)
             total_pseudo_pixels += int(mask.sum())
-
         last_n_pseudo = total_pseudo_pixels
-        print(f"[iter {iteration + 1}/{n_iterations}] pseudo-label 픽셀: {total_pseudo_pixels}")
+        # 전체 추정
+        estimated_total = int(total_pseudo_pixels * len(image_paths) / max(sample_size, 1))
+        print(f"[iter {iteration + 1}/{n_iterations}] pseudo-label 추정: {estimated_total} 픽셀 (샘플 {sample_size})",
+              flush=True)
+        use_pseudo = total_pseudo_pixels >= MIN_PSEUDO_PIXELS
 
-        if total_pseudo_pixels < MIN_PSEUDO_PIXELS:
-            print(f"[iter {iteration + 1}] pseudo-label 부족 — Gabor 폴백")
-            from engine.divination.palm.train_unet import generate_weak_labels
-            pseudo_labels = generate_weak_labels(images_resized)
+        # 2. 스트리밍 Dataset (pseudo or Gabor 약지도 + 옵션 augmentation)
+        class _StreamingDS(Dataset):
+            def __init__(self):
+                self.n_variants_per_img = 3 if use_augmentation else 1
 
-        # 2. Augmentation (ADR-227)
-        if use_augmentation:
-            try:
-                from engine.divination.palm.augmentation import augment_batch
-                augmented = []
-                for img, mask in zip(images_resized, pseudo_labels):
-                    variants = augment_batch(img, mask, n_variants=3, seed=42 + iteration)
-                    augmented.extend(variants)
-                train_images = [v[0] for v in augmented]
-                train_labels = [v[1] for v in augmented]
-            except Exception:
-                train_images = images_resized
-                train_labels = pseudo_labels
-        else:
-            train_images = images_resized
-            train_labels = pseudo_labels
-
-        # 3. Fine-tune
-        class _DS(Dataset):
             def __len__(self_inner):
-                return len(train_images)
+                return len(image_paths) * self_inner.n_variants_per_img
 
             def __getitem__(self_inner, idx):
-                img = train_images[idx].astype(np.float32) / 255.0
-                lbl = train_labels[idx].astype(np.float32)
-                img_t = torch.from_numpy(img.transpose(2, 0, 1))
+                base_idx = idx % len(image_paths)
+                variant_idx = idx // len(image_paths)
+                img_resized = _load_resized(base_idx)
+                # 라벨: U-Net pseudo or Gabor fallback
+                if use_pseudo:
+                    with torch.no_grad():
+                        mask_t, _ = generate_pseudo_label(model, img_resized, PSEUDO_LABEL_CONFIDENCE)
+                    lbl = mask_t
+                else:
+                    lbl = _make_weak_label(img_resized)
+                # Augmentation (variant_idx 1, 2)
+                if variant_idx > 0 and use_augmentation:
+                    try:
+                        from engine.divination.palm.augmentation import augment_batch
+                        variants = augment_batch(img_resized, lbl, n_variants=2,
+                                                 seed=42 + iteration + variant_idx)
+                        if variant_idx < len(variants):
+                            img_resized, lbl = variants[variant_idx]
+                    except Exception:
+                        pass
+                img_norm = img_resized.astype(np.float32) / 255.0
+                img_t = torch.from_numpy(img_norm.transpose(2, 0, 1))
                 lbl_t = torch.from_numpy(lbl).unsqueeze(0)
                 return img_t, lbl_t
 
-        loader = DataLoader(_DS(), batch_size=batch_size, shuffle=True)
+        loader = DataLoader(_StreamingDS(), batch_size=batch_size, shuffle=True,
+                            num_workers=0)
+        total_batches = len(loader)
+        print(f"[iter {iteration + 1}] 학습 시작 — {total_batches} batch/epoch × {epochs_per_iter} epoch", flush=True)
+
         model.train()
         iter_loss = 0.0
         n_batches = 0
         for epoch in range(epochs_per_iter):
+            epoch_start = _time.time()
+            epoch_loss = 0.0
+            epoch_n = 0
             for img_batch, lbl_batch in loader:
                 img_batch = img_batch.to(device)
                 lbl_batch = lbl_batch.to(device)
@@ -228,9 +275,17 @@ def run_self_training(
                 optimizer.step()
                 iter_loss += loss.item()
                 n_batches += 1
+                epoch_loss += loss.item()
+                epoch_n += 1
+                if epoch_n % 50 == 0:
+                    print(f"[iter {iteration + 1} epoch {epoch + 1}] batch {epoch_n}/{total_batches} avg_loss={epoch_loss/epoch_n:.4f}",
+                          flush=True)
+            print(f"[iter {iteration + 1} epoch {epoch + 1} 완료] loss={epoch_loss/max(epoch_n,1):.4f} | {(_time.time()-epoch_start)/60:.1f}min",
+                  flush=True)
         avg_loss = iter_loss / max(n_batches, 1)
         final_loss = avg_loss
-        print(f"[iter {iteration + 1}] avg_loss={avg_loss:.4f}")
+        print(f"[iter {iteration + 1} 종료] avg_loss={avg_loss:.4f} | total={(_time.time()-iter_start)/60:.1f}min",
+              flush=True)
 
     # 최종 저장
     output_dir = os.path.dirname(output_path)
