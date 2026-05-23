@@ -41,6 +41,11 @@ KPI_CACHE_HIT_RATE = "cache_hit_rate"
 KPI_DAILY_COST = "daily_cost_usd"
 KPI_MONTHLY_COST_PERCENT = "monthly_cost_percent"
 
+# ADR-172 — 안전망 운영 관측 KPI 신설
+KPI_SAFETY_GATE_FALLBACK_RATE = "safety_gate_fallback_rate"  # WARN/CRITICAL stub 폴백 비율
+KPI_SAFETY_GATE_RETRY_RATE = "safety_gate_retry_rate"        # ADR-169 MINOR 재호출 비율
+KPI_SAFETY_GATE_FATE_RATE = "safety_gate_fate_assertion_rate"  # ADR-171 단정 검출 비율
+
 
 # §14.11 KPI 상태
 STATUS_GOOD = "good"
@@ -138,6 +143,19 @@ _THRESHOLDS: dict[str, KPIThreshold] = {
     KPI_MONTHLY_COST_PERCENT: KPIThreshold(
         warn_at=80.0, bad_at=95.0, higher_is_better=False,
         unit="%", label="월 비용 한도 대비",
+    ),
+    # ADR-172 — 안전망 운영 관측 KPI
+    KPI_SAFETY_GATE_FALLBACK_RATE: KPIThreshold(
+        warn_at=0.05, bad_at=0.15, higher_is_better=False,
+        unit="rate", label="WARN/CRITICAL stub 폴백 비율 (ADR-167)",
+    ),
+    KPI_SAFETY_GATE_RETRY_RATE: KPIThreshold(
+        warn_at=0.10, bad_at=0.25, higher_is_better=False,
+        unit="rate", label="MINOR 재호출 비율 (ADR-169)",
+    ),
+    KPI_SAFETY_GATE_FATE_RATE: KPIThreshold(
+        warn_at=0.02, bad_at=0.08, higher_is_better=False,
+        unit="rate", label="운명·길흉 단정 검출 비율 (ADR-171)",
     ),
 }
 
