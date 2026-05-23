@@ -70,7 +70,10 @@ class KPIThreshold:
 
 @dataclass(frozen=True)
 class KPIMetric:
-    """단일 KPI 측정값 + 상태."""
+    """단일 KPI 측정값 + 상태.
+
+    ADR-173: dimension 옵션 인자로 도메인별 분리 측정 지원.
+    """
     kpi_id: str
     label: str
     value: float
@@ -80,6 +83,7 @@ class KPIMetric:
     warn_at: float
     bad_at: float
     higher_is_better: bool
+    dimension: str | None = None  # ADR-173 — 'face'|'palm'|'name'|'dream'|'hwapae'|None
 
 
 @dataclass(frozen=True)
@@ -201,13 +205,24 @@ def classify_trend(
 
 # ─────────────────────────── KPI 빌더 ───────────────────────────
 
+_VALID_DIMENSIONS: frozenset[str] = frozenset({"face", "palm", "name", "dream", "hwapae"})
+
+
 def build_kpi(
     kpi_id: str,
     value: float,
     *,
     previous_value: float | None = None,
+    dimension: str | None = None,
 ) -> KPIMetric:
-    """단일 KPI metric 생성."""
+    """단일 KPI metric 생성.
+
+    ADR-173: dimension 인자로 도메인별 분리 측정 지원.
+
+    Args:
+        dimension: 'face'|'palm'|'name'|'dream'|'hwapae'|None.
+            None이면 시스템 전체. 알 수 없는 도메인은 None으로 정규화.
+    """
     threshold = _THRESHOLDS.get(kpi_id)
     if threshold is None:
         raise ValueError(f"unknown kpi_id: {kpi_id}")
@@ -219,9 +234,15 @@ def build_kpi(
             current=value, previous=previous_value,
             higher_is_better=threshold.higher_is_better,
         )
+    # dimension 정규화: 알려진 값만 유지
+    dim_norm = dimension if dimension in _VALID_DIMENSIONS else None
+    # 라벨에 도메인 표시 (있을 때만)
+    label = threshold.label
+    if dim_norm:
+        label = f"[{dim_norm}] {label}"
     return KPIMetric(
         kpi_id=kpi_id,
-        label=threshold.label,
+        label=label,
         value=round(value, 4),
         unit=threshold.unit,
         status=status,
@@ -229,6 +250,7 @@ def build_kpi(
         warn_at=threshold.warn_at,
         bad_at=threshold.bad_at,
         higher_is_better=threshold.higher_is_better,
+        dimension=dim_norm,
     )
 
 
@@ -273,33 +295,45 @@ def build_dashboard(
 # ─────────────────────────── 직렬화 ───────────────────────────
 
 def to_grafana_json(payload: DashboardPayload) -> list[dict[str, Any]]:
-    """Grafana simple JSON datasource 호환 페이로드 — datapoints 1건씩."""
+    """Grafana simple JSON datasource 호환 페이로드 — datapoints 1건씩.
+
+    ADR-173: dimension 있으면 target에 도메인 접미사 추가 (kpi_id{dim=face}).
+    """
     out: list[dict[str, Any]] = []
     ts_ms = int(datetime.now(timezone.utc).timestamp() * 1000)
     for m in payload.metrics:
+        target = m.kpi_id
+        if m.dimension:
+            target = f"{m.kpi_id}{{dim={m.dimension}}}"
         out.append({
-            "target": m.kpi_id,
+            "target": target,
             "datapoints": [[m.value, ts_ms]],
         })
     return out
 
 
 def to_datadog_metrics(payload: DashboardPayload) -> list[dict[str, Any]]:
-    """Datadog metrics API v1 호환 페이로드."""
+    """Datadog metrics API v1 호환 페이로드.
+
+    ADR-173: dimension 있으면 'dim:<domain>' 태그 추가.
+    """
     ts = int(datetime.now(timezone.utc).timestamp())
-    return [
-        {
+    out: list[dict[str, Any]] = []
+    for m in payload.metrics:
+        tags = [
+            f"system:{payload.system_id}",
+            f"status:{m.status}",
+            f"unit:{m.unit}",
+        ]
+        if m.dimension:
+            tags.append(f"dim:{m.dimension}")
+        out.append({
             "metric": f"face_reading.{m.kpi_id}",
             "points": [[ts, m.value]],
             "type": "gauge",
-            "tags": [
-                f"system:{payload.system_id}",
-                f"status:{m.status}",
-                f"unit:{m.unit}",
-            ],
-        }
-        for m in payload.metrics
-    ]
+            "tags": tags,
+        })
+    return out
 
 
 def format_dashboard_text(payload: DashboardPayload) -> str:
