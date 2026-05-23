@@ -28,8 +28,12 @@ import math
 
 
 # ───── 한국인 평균 베이스라인 (Biomedical Dermatology 2017, N=543) ─────
-# 출처: https://link.springer.com/article/10.1186/s41702-017-0002-7
-# 8 부위 평균 L*a*b* 추정 (논문 본문 미공개 절편 — 메타 출처 활용).
+# 출처:
+#   - https://link.springer.com/article/10.1186/s41702-017-0002-7 (N=543 화장품)
+#   - https://pmc.ncbi.nlm.nih.gov/articles/PMC9907718/ (N=595, ADR-193 보강)
+# ADR-193: PMC 9907718 한국인 N=595 (평균 24.2세±2.36) skin clustering 자료
+#   추가 검증 — L*a*b* (60.66 dark / 63.87 normal / 66.66 bright) tone 군집
+#   본 베이스라인 L=64.5 (forehead) 등은 normal~bright 군집과 정합.
 # 본 베이스라인은 보수적 디폴트 — 운영 데이터 누적 후 정밀화 가능.
 
 _KOREAN_FACIAL_LAB_BASELINE: dict[str, dict[str, float]] = {
@@ -58,10 +62,19 @@ _FORBIDDEN_MEDICAL_TERMS = (
 
 
 SOURCE_URL = "https://link.springer.com/article/10.1186/s41702-017-0002-7"
+SOURCE_URL_CLUSTERING = "https://pmc.ncbi.nlm.nih.gov/articles/PMC9907718/"
+# ADR-193: 한국인 N=595 skin clustering tone 군집 (24.2세±2.36)
+KOREAN_TONE_CLUSTERS: dict[str, float] = {
+    "dark": 60.66,    # L* mean
+    "normal": 63.87,
+    "bright": 66.66,
+}
 DISCLAIMER = (
     "본 색상 분석은 한국인 화장품 베이스라인(Biomedical Dermatology 2017, "
-    "N=543) 대비 정량 측정 결과이며, 의료 진단·체질 분류·운명 매핑이 아닙니다. "
-    "사진 조명에 따라 변동성이 큽니다."
+    "N=543) + skin clustering(Skin Research and Technology 2022, N=595) 대비 "
+    "정량 측정 결과이며, 의료 진단·체질 분류·운명 매핑이 아닙니다. "
+    "사진 조명에 따라 변동성이 큽니다. 본 베이스라인은 여성 표본 위주로 "
+    "남성 사용자는 변동성이 더 클 수 있습니다(ADR-193 한계)."
 )
 
 
@@ -230,6 +243,23 @@ def sanitize_complexion_text(text: str) -> tuple[bool, list[str]]:
     return (len(matched) == 0, matched)
 
 
+def classify_tone(L_mean: float) -> str:
+    """ADR-193 — 전체 얼굴 평균 L* → 한국인 skin tone 군집 라벨.
+
+    PMC 9907718 N=595 군집:
+      L* < 62.27 (dark/normal 경계) → "어둡다"
+      62.27 ≤ L* < 65.27 (normal/bright 경계) → "보통"
+      L* ≥ 65.27 → "환하다"
+
+    경계값은 각 군집 평균의 중점.
+    """
+    if L_mean < 62.27:
+        return "어둡다"
+    if L_mean < 65.27:
+        return "보통"
+    return "환하다"
+
+
 def report_to_dict(report: ComplexionReport) -> dict[str, Any]:
     """ComplexionReport → JSON 직렬화 dict."""
     return {
@@ -246,7 +276,9 @@ def report_to_dict(report: ComplexionReport) -> dict[str, Any]:
         },
         "overall_L_mean": report.overall_L_mean,
         "overall_uniformity": report.overall_uniformity,
+        "overall_tone": classify_tone(report.overall_L_mean),  # ADR-193
         "disclaimer": report.disclaimer,
         "metrics_used": list(report.metrics_used),
         "source_url": SOURCE_URL,
+        "source_url_clustering": SOURCE_URL_CLUSTERING,  # ADR-193
     }
