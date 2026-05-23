@@ -252,7 +252,64 @@ def test_adr170_persona_unknown_falls_back_to_default_ko():
 
 
 def test_adr170_persona_ignored_for_non_ko_lang():
+    """ADR-170 시점에는 lang != ko일 때 persona 무시 — ADR-176에서 확장됨.
+
+    본 테스트는 ADR-176 후 의미가 바뀌었으나 호환을 위해 보존:
+    'unknown persona'는 여전히 기본 stub 반환 (역호환).
+    """
     from engine.safety.incident.llm_fallback_router import deterministic_stub_response
     en_default = deterministic_stub_response("en")
-    en_persona = deterministic_stub_response("en", persona="face")
-    assert en_default == en_persona
+    en_unknown_persona = deterministic_stub_response("en", persona="unknown")
+    assert en_default == en_unknown_persona
+
+
+# ───── ADR-176 다국어 페르소나 stub 회귀 ─────
+
+def test_adr176_persona_face_en():
+    from engine.safety.incident.llm_fallback_router import deterministic_stub_response
+    s = deterministic_stub_response("en", persona="face")
+    assert "face reading" in s
+    # 기본 영문 stub과는 달라야 함 (페르소나 분기 작동)
+    default_en = deterministic_stub_response("en")
+    assert s != default_en
+
+
+def test_adr176_persona_palm_ja():
+    from engine.safety.incident.llm_fallback_router import deterministic_stub_response
+    s = deterministic_stub_response("ja", persona="palm")
+    assert "手相" in s
+
+
+def test_adr176_persona_name_zh():
+    from engine.safety.incident.llm_fallback_router import deterministic_stub_response
+    s = deterministic_stub_response("zh", persona="name")
+    assert "姓名" in s
+
+
+def test_adr176_persona_dream_en():
+    from engine.safety.incident.llm_fallback_router import deterministic_stub_response
+    s = deterministic_stub_response("en", persona="dream")
+    assert "dream" in s.lower()
+
+
+def test_adr176_persona_hwapae_zh():
+    from engine.safety.incident.llm_fallback_router import deterministic_stub_response
+    s = deterministic_stub_response("zh", persona="hwapae")
+    assert "花" in s
+
+
+def test_adr176_all_5_personas_x_4_langs():
+    """5 페르소나 × 4 언어 = 20 조합 — 모두 비어있지 않음."""
+    from engine.safety.incident.llm_fallback_router import deterministic_stub_response
+    for lang in ("ko", "en", "ja", "zh"):
+        for persona in ("face", "palm", "name", "dream", "hwapae"):
+            s = deterministic_stub_response(lang, persona=persona)
+            assert s, f"empty stub for {lang}/{persona}"
+
+
+def test_adr176_unknown_lang_falls_back_to_english_default():
+    from engine.safety.incident.llm_fallback_router import deterministic_stub_response
+    s = deterministic_stub_response("de", persona="face")
+    # 알 수 없는 lang은 영문 default
+    default_en = deterministic_stub_response("en")
+    assert s == default_en

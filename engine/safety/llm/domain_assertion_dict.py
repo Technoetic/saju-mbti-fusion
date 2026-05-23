@@ -54,12 +54,27 @@ _HWAPAE_FATE_ASSERTIONS = (
 )
 
 
+# ADR-175 — saju 사주 도메인 단정 어휘
+# saju는 결정론 위주이나 saju_mbti·desire_saju·jeongin_saju 등 일부 LLM
+# 호출 경로 보조. 학파 단정·시기 단정·결혼 시기 등 ADR-002·006 위반.
+_SAJU_FATE_ASSERTIONS = (
+    "이 사주는 대운이",  # "대운이 들어오리"·"대운이 트일 것" 등
+    "이 사주는 큰 부를",
+    "이 사주는 단명",
+    "이 사주는 이혼",
+    "이 사주가 출세",
+    "올해 결혼할 사주",
+    "내년에 자녀를 얻을 사주",
+)
+
+
 _DOMAIN_VOCAB = {
     "face": _COMMON_FATE_ASSERTIONS,
     "palm": _COMMON_FATE_ASSERTIONS + _PALM_FATE_ASSERTIONS,
     "name": _COMMON_FATE_ASSERTIONS + _NAME_FATE_ASSERTIONS,
     "dream": _COMMON_FATE_ASSERTIONS + _DREAM_FATE_ASSERTIONS,
     "hwapae": _COMMON_FATE_ASSERTIONS + _HWAPAE_FATE_ASSERTIONS,
+    "saju": _COMMON_FATE_ASSERTIONS + _SAJU_FATE_ASSERTIONS,
 }
 
 
