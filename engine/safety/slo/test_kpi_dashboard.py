@@ -427,6 +427,70 @@ def test_adr174_critic_safety_kpi_supports_dimension():
         assert f"[{d}]" in m.label
 
 
+# ───── ADR-186 build_dashboard dimension 튜플 키 회귀 ─────
+
+def test_adr186_build_dashboard_tuple_key_creates_dimensional_metric():
+    """build_dashboard에 (kpi_id, dim) 튜플 키 전달 → dimension metric 생성."""
+    from engine.safety.slo.kpi_dashboard import (
+        build_dashboard, KPI_SAFETY_GATE_FALLBACK_RATE,
+    )
+    payload = build_dashboard(
+        system_id="test",
+        current_values={
+            (KPI_SAFETY_GATE_FALLBACK_RATE, "face"): 0.03,
+            (KPI_SAFETY_GATE_FALLBACK_RATE, "palm"): 0.10,
+        },
+    )
+    dimensions = {m.dimension for m in payload.metrics}
+    assert "face" in dimensions
+    assert "palm" in dimensions
+
+
+def test_adr186_build_dashboard_string_key_backwards_compat():
+    """문자열 키도 여전히 작동 — dimension=None."""
+    from engine.safety.slo.kpi_dashboard import (
+        build_dashboard, KPI_SAFETY_GATE_FALLBACK_RATE,
+    )
+    payload = build_dashboard(
+        system_id="test",
+        current_values={KPI_SAFETY_GATE_FALLBACK_RATE: 0.03},
+    )
+    assert len(payload.metrics) == 1
+    assert payload.metrics[0].dimension is None
+
+
+def test_adr186_build_dashboard_mixed_keys():
+    """문자열 + 튜플 혼합 — 모두 작동."""
+    from engine.safety.slo.kpi_dashboard import (
+        build_dashboard, KPI_SAFETY_GATE_FALLBACK_RATE,
+        KPI_SAFETY_GATE_RETRY_RATE,
+    )
+    payload = build_dashboard(
+        system_id="test",
+        current_values={
+            KPI_SAFETY_GATE_FALLBACK_RATE: 0.03,
+            (KPI_SAFETY_GATE_RETRY_RATE, "face"): 0.05,
+        },
+    )
+    assert len(payload.metrics) == 2
+    dims = sorted([m.dimension or "" for m in payload.metrics])
+    assert dims == ["", "face"]
+
+
+def test_adr186_previous_values_tuple_key_for_trend():
+    """previous_values도 튜플 키 지원 — 추세 계산."""
+    from engine.safety.slo.kpi_dashboard import (
+        build_dashboard, KPI_SAFETY_GATE_FALLBACK_RATE,
+    )
+    payload = build_dashboard(
+        system_id="test",
+        current_values={(KPI_SAFETY_GATE_FALLBACK_RATE, "face"): 0.10},
+        previous_values={(KPI_SAFETY_GATE_FALLBACK_RATE, "face"): 0.03},
+    )
+    # 폴백 비율 증가 → up trend (lower-is-better인데 값 증가)
+    assert payload.metrics[0].trend == "up"
+
+
 def test_adr173_no_dimension_no_dim_tag_or_target_suffix():
     """dimension 미설정 metric은 dim 태그·접미사 없음 (역호환)."""
     from engine.safety.slo.kpi_dashboard import (
