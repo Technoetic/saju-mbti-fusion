@@ -1,0 +1,109 @@
+name: iOS Safari · WebKit Compatibility (ADR-197)
+
+# ADR-197 — GitHub Actions 무료 macOS runner + Playwright WebKit
+# BrowserStack/SauceLabs 외부 비용 없이 iOS Safari·WebKit 호환성 검증.
+# front/ 변경 시 트리거 (ADR-057 paths-filter 패턴 정합).
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'front/**'
+      - 'engine/divination/face/**'
+      - 'engine/divination/palm/**'
+      - '.github/workflows/ios-safari-webkit.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'front/**'
+  workflow_dispatch:
+
+jobs:
+  webkit-tests:
+    name: Playwright WebKit (Mobile Safari emulation)
+    runs-on: macos-latest  # 무료 macOS runner — Apple WebKit 직접 빌드
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup Python (정적 서버 + 회귀)
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Playwright + WebKit
+        run: |
+          npm init -y
+          npm install --save-dev @playwright/test
+          npx playwright install --with-deps webkit
+
+      - name: Start static server (background)
+        run: |
+          cd front
+          python -m http.server 8080 &
+          sleep 3
+        shell: bash
+
+      - name: Run WebKit smoke tests
+        run: |
+          cat > smoke-webkit.spec.js <<'EOF'
+          // ADR-197 — Mobile Safari emulation smoke
+          const { test, expect, devices } = require('@playwright/test');
+
+          test.use({ ...devices['iPhone 14'] });
+
+          test('face-complexion.js loads in WebKit', async ({ page }) => {
+            await page.goto('http://localhost:8080/');
+            const faceComplexionAvailable = await page.evaluate(() => {
+              const script = document.createElement('script');
+              script.src = 'js/readers/face-complexion.js';
+              return new Promise((resolve) => {
+                script.onload = () => resolve(typeof window.FaceComplexion === 'object');
+                script.onerror = () => resolve(false);
+                document.head.appendChild(script);
+              });
+            });
+            expect(faceComplexionAvailable).toBeTruthy();
+          });
+
+          test('device-compat.js detects iOS Safari', async ({ page }) => {
+            await page.goto('http://localhost:8080/');
+            const compat = await page.evaluate(async () => {
+              const script = document.createElement('script');
+              script.src = 'js/readers/device-compat.js';
+              await new Promise(r => { script.onload = r; document.head.appendChild(script); });
+              const result = await window.DeviceCompat.checkCompatibility();
+              return result;
+            });
+            // Mobile Safari emulation → is_ios=true 또는 is_safari=true 기대
+            expect(compat.ios.is_safari || compat.ios.is_ios).toBeTruthy();
+          });
+
+          test('WebGL2 fallback works in WebKit', async ({ page }) => {
+            await page.goto('http://localhost:8080/');
+            const gpu = await page.evaluate(async () => {
+              const script = document.createElement('script');
+              script.src = 'js/readers/device-compat.js';
+              await new Promise(r => { script.onload = r; document.head.appendChild(script); });
+              return await window.DeviceCompat.detectGpuBackend();
+            });
+            // WebKit은 WebGL2 작동 보장 (iOS 16+)
+            expect(gpu.webgl2_available || gpu.webgpu_available).toBeTruthy();
+          });
+          EOF
+          npx playwright test smoke-webkit.spec.js --project=webkit
+
+      - name: Upload test report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
