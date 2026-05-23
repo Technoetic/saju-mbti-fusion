@@ -356,6 +356,7 @@ def generate_hwapae_reading(
                 question=question,
                 age=None, gender=None, metrics=None, lang="ko",
                 palace_scores=None,
+                domain="hwapae",
             )
             # ADR-169 — MINOR 재호출 1회
             if should_retry_minor(gate_result):
@@ -368,7 +369,7 @@ def generate_hwapae_reading(
                         retry_result = run_safety_gates(
                             retry_text, question=question,
                             age=None, gender=None, metrics=None, lang="ko",
-                            palace_scores=None,
+                            palace_scores=None, domain="hwapae",
                         )
                         verdict_rank = {"clean": 0, "minor": 1, "warn": 2, "critical": 3}
                         if (verdict_rank.get(retry_result.verdict, 99)

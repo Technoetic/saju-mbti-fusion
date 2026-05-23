@@ -1126,6 +1126,7 @@ def generate_face_reading(
                 metrics=metrics,
                 lang="ko",
                 palace_scores=flat_scores,
+                domain="face",
             )
             # ADR-169 — MINOR(truncated/empty) 시 Stage 2만 1회 재호출
             if should_retry_minor(gate_result):
@@ -1139,7 +1140,7 @@ def generate_face_reading(
                             retry_text,
                             question=question, age=age, gender=gender,
                             metrics=metrics, lang="ko",
-                            palace_scores=flat_scores,
+                            palace_scores=flat_scores, domain="face",
                         )
                         verdict_rank = {"clean": 0, "minor": 1, "warn": 2, "critical": 3}
                         if (verdict_rank.get(retry_result.verdict, 99)

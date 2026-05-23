@@ -56,6 +56,7 @@ def run_safety_gates(
     region: str | None = None,
     lang: str = "ko",
     palace_scores: dict[str, float] | None = None,
+    domain: str | None = None,
 ) -> SafetyGateResult:
     """모든 후처리 게이트를 순서대로 실행.
 
@@ -66,6 +67,8 @@ def run_safety_gates(
         lang: 'ko'면 한글 비율 검사 활성화 (token_guard용)
         palace_scores: ADR-004 Phase 3 — 결정론 12궁 점수.
             전달되면 LLM 단정 어휘 ↔ 점수 충돌 검출(palace_score_mismatch).
+        domain: ADR-171 — 'face'|'palm'|'name'|'dream'|'hwapae'.
+            전달되면 도메인별 운명·길흉 단정 어휘 사전 검사 추가.
     """
     if not response_text or not isinstance(response_text, str):
         return SafetyGateResult(
@@ -150,6 +153,23 @@ def run_safety_gates(
     if align_r.issues:
         failures.append("alignment_failed")
         has_warn = True
+
+    # 6) ADR-171 — 도메인별 운명·길흉 단정 어휘 사전
+    if domain:
+        from engine.safety.llm.domain_assertion_dict import (
+            detect_fate_assertions, FATE_ASSERTION,
+        )
+        fate_r = detect_fate_assertions(response_text, domain=domain)
+        details["fate_assertion"] = {
+            "detected": fate_r.detected,
+            "matched_terms": list(fate_r.matched_terms),
+            "domain": fate_r.domain,
+        }
+        if fate_r.detected:
+            failures.append(FATE_ASSERTION)
+            has_warn = True
+    else:
+        details["fate_assertion"] = {"detected": False, "matched_terms": [], "domain": None}
 
     # 종합 verdict — critical > warn > minor > clean
     if has_critical:
