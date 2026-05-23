@@ -154,17 +154,29 @@
       }
       const ageRaw = ($('palmAge').value || '').trim();
       const age = ageRaw ? parseInt(ageRaw, 10) : null;
-      const payload = {
-        image_base64: this.capturedDataUrl,
-        age: Number.isFinite(age) ? age : null,
-        gender: ($('palmGender').value || '').trim() || null,
-        hand: ($('palmHand').value || '').trim() || null,
-        question: ($('palmQuestion').value || '').trim() || null,
-      };
       this.showStep('loading');
       const loadingMsgEl = document.querySelector('#palm-step-loading .palm-loading-msg');
       const originalLoadingMsg = loadingMsgEl ? loadingMsgEl.textContent : null;
       try {
+        // ADR-160 Phase 1.5 — MediaPipe Hand Landmarker 메트릭 산출 (실패 시 LLM Vision 단독 폴백)
+        let metrics = null;
+        if (window.PalmMetrics && window.PalmMetrics.computeMetrics) {
+          if (loadingMsgEl) loadingMsgEl.textContent = '허허, 그대의 손금을 살피는 중이외다…';
+          const img = $('palmPreviewImg');
+          try {
+            metrics = await window.PalmMetrics.computeMetrics(img);
+          } catch (e) {
+            console.warn('[palm-reader] 메트릭 산출 건너뜀:', e);
+          }
+        }
+        const payload = {
+          image_base64: this.capturedDataUrl,
+          age: Number.isFinite(age) ? age : null,
+          gender: ($('palmGender').value || '').trim() || null,
+          hand: ($('palmHand').value || '').trim() || null,
+          question: ($('palmQuestion').value || '').trim() || null,
+          metrics,
+        };
         const resp = await this.post(payload, {
           retries: 1,
           backoffMs: 3000,
