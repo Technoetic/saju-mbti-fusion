@@ -273,3 +273,52 @@ def test_engine_safety_exports_kpi_dashboard():
     assert hasattr(safety, "KPIMetric")
     assert hasattr(safety, "DashboardPayload")
     assert hasattr(safety, "KPI_P95_LATENCY")
+
+
+# ───── ADR-172 안전망 운영 관측 KPI 회귀 ─────
+
+def test_adr172_safety_gate_fallback_rate_kpi():
+    from engine.safety.slo.kpi_dashboard import (
+        build_kpi, KPI_SAFETY_GATE_FALLBACK_RATE,
+    )
+    m = build_kpi(KPI_SAFETY_GATE_FALLBACK_RATE, 0.03)
+    assert m.status == "good"
+    m = build_kpi(KPI_SAFETY_GATE_FALLBACK_RATE, 0.08)
+    assert m.status == "warn"
+    m = build_kpi(KPI_SAFETY_GATE_FALLBACK_RATE, 0.20)
+    assert m.status == "bad"
+
+
+def test_adr172_safety_gate_retry_rate_kpi():
+    from engine.safety.slo.kpi_dashboard import (
+        build_kpi, KPI_SAFETY_GATE_RETRY_RATE,
+    )
+    m = build_kpi(KPI_SAFETY_GATE_RETRY_RATE, 0.05)
+    assert m.status == "good"
+    m = build_kpi(KPI_SAFETY_GATE_RETRY_RATE, 0.15)
+    assert m.status == "warn"
+    m = build_kpi(KPI_SAFETY_GATE_RETRY_RATE, 0.30)
+    assert m.status == "bad"
+
+
+def test_adr172_safety_gate_fate_rate_kpi():
+    from engine.safety.slo.kpi_dashboard import (
+        build_kpi, KPI_SAFETY_GATE_FATE_RATE,
+    )
+    m = build_kpi(KPI_SAFETY_GATE_FATE_RATE, 0.01)
+    assert m.status == "good"
+    m = build_kpi(KPI_SAFETY_GATE_FATE_RATE, 0.05)
+    assert m.status == "warn"
+    m = build_kpi(KPI_SAFETY_GATE_FATE_RATE, 0.10)
+    assert m.status == "bad"
+
+
+def test_adr172_higher_is_better_false_for_all():
+    """3 신규 KPI 모두 lower-is-better."""
+    from engine.safety.slo.kpi_dashboard import (
+        _THRESHOLDS, KPI_SAFETY_GATE_FALLBACK_RATE,
+        KPI_SAFETY_GATE_RETRY_RATE, KPI_SAFETY_GATE_FATE_RATE,
+    )
+    for k in (KPI_SAFETY_GATE_FALLBACK_RATE, KPI_SAFETY_GATE_RETRY_RATE,
+              KPI_SAFETY_GATE_FATE_RATE):
+        assert _THRESHOLDS[k].higher_is_better is False
