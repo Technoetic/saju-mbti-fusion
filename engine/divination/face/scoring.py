@@ -178,6 +178,25 @@ SOURCE_URL_MOUTH = (
     "https://koreascience.kr/article/JAKO200810103458095.pdf"  # ADR-034
 )
 
+# ADR-196 — Miss Korea 3D photogrammetry 정량 임계값 학술 근거
+# PMC 5359635 (Korean Journal of Orthodontics 2017, DOI 10.4041/kjod.2017.47.2.87)
+# N=52 (MK 21.8세) + N=41 (GP 20.2세) 한국 여성. 의료 인과 부재 (aesthetics).
+# 실측 수치 mm:
+#   - 얼굴 너비 95.7mm / 코 너비 36.3mm → alar_ratio ≈ 0.379 (미인 표준)
+#   - 입 너비 45.5mm
+#   - 전체 얼굴 높이 186.0mm (긴 얼굴 — 미인 표본)
+SOURCE_URL_3D_PHOTOGRAMMETRY = (
+    "https://pmc.ncbi.nlm.nih.gov/articles/PMC5359635/"  # PMC open access
+)
+KOREAN_MK_REFERENCE_MM: dict[str, float] = {
+    "face_width_mm": 95.7,
+    "face_height_mm": 186.0,
+    "nasal_width_mm": 36.3,
+    "mouth_width_mm": 45.5,
+    "alar_ratio_mk": 0.379,    # Miss Korea 표본 alar/face
+    # 일반 모집단(GP)은 alar 더 좁고 얼굴 너비 더 큼 (정확 GP 수치 미보고)
+}
+
 
 def _score_jaebaek(metrics: dict[str, Any]) -> PalaceScore:
     """재백궁(코 전체) — alar_ratio 0.28~0.36 + 중정 비율 1:1:1 균형.
