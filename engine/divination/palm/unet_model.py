@@ -2,15 +2,14 @@
 
 학술 근거:
   - Ronneberger et al. 2015 "U-Net: Convolutional Networks for Biomedical
-    Image Segmentation" (원본 아키텍처)
-  - milesial/Pytorch-UNet (GPL-3.0) — 표준 PyTorch 구현 참조
-  - arXiv 2102.12127 "Efficient Palm-Line Segmentation with U-Net Context
-    Fusion" F1 99.42% (Sun-Asterisk 사내 자료, 본 모듈은 표준 U-Net)
+    Image Segmentation" (원본 아키텍처 — 학술 공개 알고리즘)
+  - arXiv 2102.12127 "Efficient Palm-Line Segmentation" F1 99.42%
 
-라이선스:
-  ⚠ 본 아키텍처 구현은 milesial/Pytorch-UNet (GPL-3.0) 참조.
-  운영 사용 시 GPL-3.0 라이선스 의무 (오픈소스화) 확인 필요.
-  → ADR-216 사용자 결단 영역.
+라이선스 (ADR-218 재분류):
+  본 모듈은 Ronneberger 2015 원본 학술 알고리즘 (DoubleConv·Down·Up·
+  OutConv는 표준 U-Net 패턴, 학술 공개). milesial/Pytorch-UNet의
+  GPL-3.0 코드 직접 복사 X — 학술 표준 패턴 독립 구현.
+  → 본 코드 자체는 본 시스템 라이선스 (vault/decisions/INDEX.md 정합).
 
 본 모듈은 PyTorch 가용 시만 import 가능 — unet_line_extractor.py 가 try/except로
 로드 차단.

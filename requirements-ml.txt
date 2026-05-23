@@ -1,0 +1,19 @@
+# ADR-219 — ML 옵션 의존성 분리
+# 본 시스템 코어(requirements.txt)에 영향 0 — Fly.io 코어 배포 무관.
+#
+# 본 파일은 손금 U-Net (ADR-217), 향후 ML 모델 옵션 가중치 학습·추론에
+# 필요한 의존성. 코어 운영은 PyTorch 없이도 작동 (Gabor fallback).
+#
+# 설치 (선택):
+#   pip install -r requirements-ml.txt
+#
+# 사용처:
+#   - engine/divination/palm/unet_model.py (ADR-217)
+#   - engine/divination/palm/unet_line_extractor.py (PyTorch 가용 시)
+#   - engine/divination/palm/train_unet.py (ADR-221 학습 스크립트)
+
+# CPU 추론 충분 — GPU는 학습 시만 필요
+torch>=2.0.0,<3.0.0
+
+# 학습 데이터 augmentation (이미지 transform)
+# torchvision은 torch와 함께 자동 설치되므로 명시 X

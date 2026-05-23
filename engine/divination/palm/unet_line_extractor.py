@@ -35,6 +35,13 @@ import numpy as np
 # 환경변수로 모델 경로 지정 (사용자 결단 시 설정)
 _MODEL_PATH_ENV = "PALM_UNET_MODEL_PATH"
 
+# ADR-222 — 기본 가중치 경로 자동 탐색
+# 환경변수 미설정 시 repo 내 data/palm/unet_weights.pt 자동 시도.
+_DEFAULT_WEIGHTS_PATHS = (
+    "data/palm/unet_weights.pt",
+    "data/palm/unet_weights.pth",
+)
+
 
 # PyTorch 옵션 import
 try:
@@ -78,7 +85,15 @@ def check_unet_availability() -> UNetAvailability:
             fallback_reason="no_pytorch",
         )
 
+    # 1. 환경변수 우선
     weights_path = os.environ.get(_MODEL_PATH_ENV)
+    # 2. ADR-222 — 환경변수 부재 시 기본 경로 자동 탐색
+    if not weights_path:
+        for default_path in _DEFAULT_WEIGHTS_PATHS:
+            if os.path.exists(default_path):
+                weights_path = default_path
+                break
+
     if not weights_path:
         return UNetAvailability(
             pytorch_available=True,
