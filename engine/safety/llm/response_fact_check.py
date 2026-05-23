@@ -133,13 +133,26 @@ class FactCheckResult:
 
 # ─────────────────────────── 헬퍼 ───────────────────────────
 
+_SENTENCE_BOUNDARIES = (".", "!", "?", "\n", "。", "!", "?")
+
+
 def _is_negated(text: str, term: str) -> bool:
-    """term 주변 ±25자에 부정 마커가 있는지."""
+    """ADR-187 — 문장 경계 기반 부정 컨텍스트 검출 (이전 ±25자 → 문장 단위)."""
     idx = text.find(term)
     if idx < 0:
         return False
-    start = max(0, idx - 25)
-    end = min(len(text), idx + len(term) + 25)
+    # 좌측 — 직전 문장 종결 부호까지 (최대 60자 폴백)
+    start = idx
+    while start > 0 and text[start - 1] not in _SENTENCE_BOUNDARIES:
+        start -= 1
+        if idx - start > 60:
+            break
+    # 우측 — 다음 문장 종결 부호까지
+    end = idx + len(term)
+    while end < len(text) and text[end] not in _SENTENCE_BOUNDARIES:
+        end += 1
+        if end - (idx + len(term)) > 60:
+            break
     window = text[start:end]
     return any(neg in window for neg in _NEGATION_MARKERS)
 
