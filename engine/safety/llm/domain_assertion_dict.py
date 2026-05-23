@@ -21,6 +21,10 @@ _COMMON_FATE_ASSERTIONS = (
     "혼인이 이루어지리", "배필을 만나리", "자손이 번창하리",
     "병이 낫으리", "건강이 회복되리",
     "재앙이 닥치리", "큰 화가 있을 것",
+    # ADR-188 보수적 확장 — 명백 위반 패턴만
+    "반드시 부자가", "틀림없이 성공",
+    "운명이 정해진", "피할 수 없는 운명",
+    "이번 생은 다 ",
 )
 
 
@@ -85,13 +89,37 @@ class FateAssertionResult:
     domain: str | None = None
 
 
+_SENTENCE_BOUNDARIES = (".", "!", "?", "\n", "。", "!", "?")
+
+
+def _sentence_window(text: str, idx: int, term_len: int) -> str:
+    """ADR-187 — 부정 컨텍스트 윈도우를 문장 경계까지 확장.
+
+    이전: ±25자 고정 → 긴 문장에서 부정 마커 누락.
+    이제: 좌측은 직전 문장 종결 부호까지, 우측은 다음 문장 종결 부호까지.
+    문장 경계 미발견 시 ±60자로 폴백 (긴 문장 안전 마진).
+    """
+    # 좌측 — 직전 문장 종결 부호 위치
+    start = idx
+    while start > 0 and text[start - 1] not in _SENTENCE_BOUNDARIES:
+        start -= 1
+        if idx - start > 60:  # 안전 마진
+            break
+    # 우측 — 다음 문장 종결 부호 위치 (term_len 만큼 건너뛴 후)
+    end = idx + term_len
+    while end < len(text) and text[end] not in _SENTENCE_BOUNDARIES:
+        end += 1
+        if end - (idx + term_len) > 60:
+            break
+    return text[start:end]
+
+
 def _is_negated(text: str, term: str) -> bool:
+    """ADR-187 — 문장 경계 기반 부정 컨텍스트 검출."""
     idx = text.find(term)
     if idx < 0:
         return False
-    start = max(0, idx - 25)
-    end = min(len(text), idx + len(term) + 25)
-    window = text[start:end]
+    window = _sentence_window(text, idx, len(term))
     return any(neg in window for neg in _NEGATION_MARKERS)
 
 
