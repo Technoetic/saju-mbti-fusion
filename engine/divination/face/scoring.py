@@ -178,6 +178,48 @@ SOURCE_URL_MOUTH = (
     "https://koreascience.kr/article/JAKO200810103458095.pdf"  # ADR-034
 )
 
+# ADR-202 — 12궁 부위별 학술 출처 풀 영속
+# 각 부위 임계값의 학술 근거를 코드 레벨 명시. 풀텍스트 정량 수치 확보된
+# 자료만 영속. 추가 부위는 운영 데이터 또는 학술 자료 누적 후 보강.
+KOREAN_ANTHROPOMETRY_SOURCES: dict[str, dict[str, str]] = {
+    "face_overall": {
+        "url": "https://www.nature.com/articles/s41598-019-51121-z",
+        "label": "Nature Scientific Reports 2019, N=7,569 Korean (KMDC + Ansan-Ansung), 15 facial metrics",
+    },
+    "eye": {
+        "url": "https://link.springer.com/article/10.1007/s00266-012-9937-7",
+        "label": "Aesthetic Plastic Surgery 2012, 한국인 palpebral fissure 너비 24.81mm (평균) / 26.78mm (미인), 높이 7.8~12.5mm",
+    },
+    "eye_slant": {
+        "url": "https://www.researchgate.net/publication/6512497",
+        "label": "한국인 N=594 palpebral fissure asymmetry 30%, 남 7.9°±2.4 / 여 8.8°±2.3",
+    },
+    "eyebrow_female": {
+        "url": "https://www.researchgate.net/publication/372033635",
+        "label": "Korean women N=300 (20~30s) 눈썹 너비 49.7±3.6mm, 두께 8.1±1.4mm, 아치 1.78±0.9mm",
+    },
+    "eyebrow_male": {
+        "url": "https://www.researchgate.net/figure/Eyebrow-measurements_fig5_256480662",
+        "label": "Korean men N=300 (20~30s) 눈썹 너비 55mm, 두께 8.3mm, 아치 4mm",
+    },
+    "nose": {
+        "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5359635/",
+        "label": "Korean J. Orthodontics 2017 PMC 5359635 (ADR-196), 코 너비 36.3mm / 얼굴 95.7mm",
+    },
+    "mouth": {
+        "url": "https://koreascience.kr/article/JAKO200810103458095.pdf",
+        "label": "KoreaScience JAKO200810103458095 (ADR-034), 한국인 입꼬리 분류 임계값",
+    },
+    "facial_color": {
+        "url": "https://link.springer.com/article/10.1186/s41702-017-0002-7",
+        "label": "Biomedical Dermatology 2017 (ADR-178), N=543 한국 여성 8 ROI L*a*b* 베이스라인",
+    },
+    "skin_clustering": {
+        "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9907718/",
+        "label": "Skin Research and Technology 2022 (ADR-193), N=595 skin tone clustering (dark/normal/bright)",
+    },
+}
+
 # ADR-196 — Miss Korea 3D photogrammetry 정량 임계값 학술 근거
 # PMC 5359635 (Korean Journal of Orthodontics 2017, DOI 10.4041/kjod.2017.47.2.87)
 # N=52 (MK 21.8세) + N=41 (GP 20.2세) 한국 여성. 의료 인과 부재 (aesthetics).

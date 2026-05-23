@@ -145,3 +145,47 @@ def test_uniformity_increases_with_variation():
     r1 = compute_facial_color(uniform)
     r2 = compute_facial_color(varied)
     assert r2.overall_uniformity > r1.overall_uniformity
+
+
+# ───── ADR-201 gender 분기 베이스라인 회귀 ─────
+
+def test_adr201_male_baseline_darker_than_female():
+    """남성 베이스라인 L*은 여성보다 낮음 (피부 더 어두움)."""
+    from engine.divination.face.complexion import _select_baseline
+    male_baseline = _select_baseline("male")
+    female_baseline = _select_baseline("female")
+    for roi in male_baseline:
+        assert male_baseline[roi]["L"] < female_baseline[roi]["L"]
+
+
+def test_adr201_male_z_score_differs():
+    """동일 RGB라도 gender 분기 시 z-score 다름."""
+    from engine.divination.face.complexion import compute_facial_color
+    rgb_input = {"forehead": (180, 150, 130)}
+    r_male = compute_facial_color(rgb_input, gender="male")
+    r_female = compute_facial_color(rgb_input, gender="female")
+    assert r_male.rois["forehead"].L_zscore != r_female.rois["forehead"].L_zscore
+
+
+def test_adr201_korean_gender_terms_accepted():
+    """한국어 gender 어휘 '남'/'여' 인식."""
+    from engine.divination.face.complexion import _select_baseline
+    m1 = _select_baseline("M")
+    m2 = _select_baseline("남")
+    assert m1 == m2
+
+
+def test_adr201_none_gender_falls_back_to_female():
+    """gender=None 이면 여성 베이스라인 (역호환)."""
+    from engine.divination.face.complexion import (
+        _select_baseline, _KOREAN_FACIAL_LAB_BASELINE_FEMALE,
+    )
+    assert _select_baseline(None) is _KOREAN_FACIAL_LAB_BASELINE_FEMALE
+
+
+def test_adr201_unknown_gender_safe_fallback():
+    """알 수 없는 gender → 여성 (안전 우선)."""
+    from engine.divination.face.complexion import (
+        _select_baseline, _KOREAN_FACIAL_LAB_BASELINE_FEMALE,
+    )
+    assert _select_baseline("other") is _KOREAN_FACIAL_LAB_BASELINE_FEMALE
