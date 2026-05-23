@@ -245,3 +245,43 @@ def format_yongshin_for_user(result: YongshinResult) -> str:
         f"{result.reason}\n\n"
         f"※ {DISCLAIMER_KO}"
     )
+
+
+# ─────────────────────────── ADR-157 — 사주오행 계량화 KCI 추가 인용 ───────────────────────────
+
+# /squeeze-report 월하몽_도메인지식_URL_검증목록.md 차분.
+# 본 모듈 ADR-015 이재승 (2019) ART002532570 외 추가 계량화 학술 출처 영속.
+
+
+@dataclass(frozen=True)
+class SajuQuantificationCitation:
+    """ADR-157 — 사주오행 계량화 KCI 학술 인용."""
+    author_ko: str
+    title_ko: str
+    journal: str
+    publication_year: int
+    kci_indexed: bool
+    identifier: str
+    topic_focus: str
+
+
+QUANTIFICATION_KCI_CITATIONS: tuple[SajuQuantificationCitation, ...] = (
+    SajuQuantificationCitation(
+        author_ko="사주오행 계량화 연구",
+        title_ko="사주오행(四柱五行)의 계량화(計量化)와 적용에 대한 고찰",
+        journal="KCI 등재 학술 (일간 역량 20, 나머지 7간지 합 100 기준)",
+        publication_year=0,  # 발행년 불명 — KCI 식별번호로 추적
+        kci_indexed=True,
+        identifier="ART002423988",
+        topic_focus=(
+            "사주명조 오행 계량화 방법론 — '일간 역량 20점 + 나머지 7간지 합 100점' "
+            "계량 표준 학술 정합. 본 시스템 derive_yongshin() score 산출 (0~120) "
+            "계량 척도 학술 출처."
+        ),
+    ),
+)
+
+
+def get_quantification_kci_citations() -> tuple[SajuQuantificationCitation, ...]:
+    """ADR-157 — 사주오행 계량화 KCI 학술 인용 풀 조회."""
+    return QUANTIFICATION_KCI_CITATIONS

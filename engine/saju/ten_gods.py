@@ -292,6 +292,59 @@ def cluster_mbti_hints(clusters: dict) -> list[dict]:
     return hints
 
 
+# ─────────────────────────── ADR-157 — 십성·격국 KCI 학술 인용 ───────────────────────────
+
+# /squeeze-report 월하몽_도메인지식_URL_검증목록.md 차분.
+# 본 모듈 십성 매핑의 추가 학술 출처 영속.
+
+from dataclasses import dataclass as _dataclass
+
+
+@_dataclass(frozen=True)
+class SipsungKciCitation:
+    """ADR-157 — 십성·격국 KCI 학술 인용."""
+    author_ko: str
+    title_ko: str
+    journal: str
+    publication_year: int
+    kci_indexed: bool
+    identifier: str
+    topic_focus: str
+
+
+SIPSUNG_KCI_CITATIONS: tuple[SipsungKciCitation, ...] = (
+    SipsungKciCitation(
+        author_ko="십성 계량화 연구",
+        title_ko="사주 십성(十星)의 계량화(計量化)와 활용에 대한 고찰",
+        journal="KCI 등재 학술",
+        publication_year=0,
+        kci_indexed=True,
+        identifier="ART002438633",
+        topic_focus=(
+            "십성 (비견·겁재·식신·상관 등 10종) 계량화 방법론 학술 분석. "
+            "본 시스템 ten_gods.py 십성 매핑 + 강도 활용의 학술 출처."
+        ),
+    ),
+    SipsungKciCitation(
+        author_ko="명리학 적성론 연구",
+        title_ko="명리학의 적성론 — 왕(旺)한 십성과 격국 비교 연구",
+        journal="KCI 등재 학술",
+        publication_year=0,
+        kci_indexed=True,
+        identifier="ART002596247",
+        topic_focus=(
+            "왕한 십성 (해당 일주에서 강한 십성)과 격국 (월령·전체 분포 기반) "
+            "비교 학술 분석. 본 시스템 sipsung_clusters + 격국 추론 학술 출처."
+        ),
+    ),
+)
+
+
+def get_sipsung_kci_citations() -> tuple[SipsungKciCitation, ...]:
+    """ADR-157 — 십성·격국 KCI 학술 인용 풀 조회."""
+    return SIPSUNG_KCI_CITATIONS
+
+
 __all__ = [
     "ten_god",
     "compute_ten_gods",
@@ -299,4 +352,6 @@ __all__ = [
     "cluster_mbti_hints",
     "tengod_function_hints",
     "wuxing_ei_signal",
+    # ADR-157 십성·격국 KCI 학술 인용
+    "SipsungKciCitation", "SIPSUNG_KCI_CITATIONS", "get_sipsung_kci_citations",
 ]
