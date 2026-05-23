@@ -13,18 +13,18 @@ if str(_ROOT) not in sys.path:
     sys.path.insert(0, str(_ROOT))
 
 
-def test_check_availability_no_pytorch_or_no_weights():
-    """PyTorch 부재 또는 가중치 부재 → fallback_reason 명시."""
+def test_check_availability_no_pytorch_or_no_weights(tmp_path, monkeypatch):
+    """PyTorch 부재 또는 가중치 부재 → fallback_reason 명시.
+
+    ADR-223 이후 기본 경로(data/palm/unet_weights.pt)에 가중치 존재 가능 —
+    본 테스트는 임시 cwd로 격리해 가중치 부재 환경 강제.
+    """
     from engine.divination.palm.unet_line_extractor import check_unet_availability
-    # 환경변수 미설정 가정
-    prev = os.environ.pop("PALM_UNET_MODEL_PATH", None)
-    try:
-        r = check_unet_availability()
-        assert r.model_loadable is False
-        assert r.fallback_reason in ("no_pytorch", "no_weights")
-    finally:
-        if prev:
-            os.environ["PALM_UNET_MODEL_PATH"] = prev
+    monkeypatch.chdir(tmp_path)  # 가중치 기본 경로 부재 환경
+    monkeypatch.delenv("PALM_UNET_MODEL_PATH", raising=False)
+    r = check_unet_availability()
+    assert r.model_loadable is False
+    assert r.fallback_reason in ("no_pytorch", "no_weights")
 
 
 def test_check_availability_nonexistent_weights_path():
@@ -44,15 +44,20 @@ def test_check_availability_nonexistent_weights_path():
             os.environ.pop("PALM_UNET_MODEL_PATH", None)
 
 
-def test_extract_palm_lines_falls_back_to_gabor():
-    """현재 U-Net 미가용 → Gabor fallback 작동."""
+def test_extract_palm_lines_falls_back_to_gabor(tmp_path, monkeypatch):
+    """가중치 부재 시 Gabor fallback 작동.
+
+    ADR-223 이후 기본 경로에 가중치 존재 가능 — 임시 cwd로 격리.
+    """
     from engine.divination.palm.unet_line_extractor import (
         extract_palm_lines_best_available,
     )
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.delenv("PALM_UNET_MODEL_PATH", raising=False)
     img = np.full((90, 90, 3), 200, dtype=np.uint8)
     img[20, :, :] = 50
     r = extract_palm_lines_best_available(img)
-    # 모델 가중치 없으므로 used_unet=False, Gabor 결과
+    # 가중치 격리 환경 → Gabor fallback
     assert r.used_unet is False
     assert "upper_density" in r.raw_metrics
     assert r.fallback_reason in ("no_pytorch", "no_weights")

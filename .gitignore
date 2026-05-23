@@ -77,3 +77,11 @@ data/app.db-shm
 # 본 패턴은 vault/ 전체 자동 무시 — git history는 commit eb14e80 직전까지 영구 보존.
 vault/
 vault/.trash/
+
+# ADR-223 — ML 가중치 파일 (52MB Repo bloat 회피, train_unet.py로 재생성 가능)
+data/palm/unet_weights.pt
+data/palm/unet_weights.pth
+data/palm/training/
+
+# 합성 학습 데이터 생성 스크립트만 영속 (재현성)
+!engine/divination/palm/train_unet.py
