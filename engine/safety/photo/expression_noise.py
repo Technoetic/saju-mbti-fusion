@@ -46,11 +46,21 @@ _MOUTH_KEYS = (
     "mouthPucker", "mouthFunnel",
     "mouthShrugUpper", "mouthShrugLower",
     "mouthRollUpper", "mouthRollLower",
+    # ADR-212 보강 — 입꼬리 좌우 비대칭 + 다물기 강도
+    "mouthDimpleLeft", "mouthDimpleRight",
+    "mouthStretchLeft", "mouthStretchRight",
+    "mouthPressLeft", "mouthPressRight",
+    "mouthClose",
 )
 _EYE_KEYS = (
     "eyeBlinkLeft", "eyeBlinkRight",
     "eyeWideLeft", "eyeWideRight",
     "eyeSquintLeft", "eyeSquintRight",
+    # ADR-212 보강 — 시선 이탈
+    "eyeLookInLeft", "eyeLookInRight",
+    "eyeLookOutLeft", "eyeLookOutRight",
+    "eyeLookUpLeft", "eyeLookUpRight",
+    "eyeLookDownLeft", "eyeLookDownRight",
 )
 _BROW_KEYS = (
     "browInnerUp", "browOuterUpLeft", "browOuterUpRight",
@@ -60,6 +70,11 @@ _JAW_CHEEK_KEYS = (
     "jawOpen", "jawForward", "jawLeft", "jawRight",
     "cheekPuff", "cheekSquintLeft", "cheekSquintRight",
 )
+# ADR-212 신규 5번째 카테고리 — 미세 표정 (코·콧방울·턱주름)
+_NOSE_CHIN_KEYS = (
+    "noseSneerLeft", "noseSneerRight",
+)
+EXPR_NOISE_NOSE_CHIN = "expression_nose_chin"
 
 
 @dataclass(frozen=True)
@@ -105,14 +120,16 @@ def detect_expression_noise(
     eye_max = _max_in(blendshapes, _EYE_KEYS)
     brow_max = _max_in(blendshapes, _BROW_KEYS)
     jaw_cheek_max = _max_in(blendshapes, _JAW_CHEEK_KEYS)
+    nose_chin_max = _max_in(blendshapes, _NOSE_CHIN_KEYS)  # ADR-212
 
     detail = {
         "mouth_max": round(mouth_max, 3),
         "eye_max": round(eye_max, 3),
         "brow_max": round(brow_max, 3),
         "jaw_cheek_max": round(jaw_cheek_max, 3),
+        "nose_chin_max": round(nose_chin_max, 3),  # ADR-212
     }
-    overall_max = max(mouth_max, eye_max, brow_max, jaw_cheek_max)
+    overall_max = max(mouth_max, eye_max, brow_max, jaw_cheek_max, nose_chin_max)
 
     # 차단 카테고리 판정 — 여러 부위가 동시 BLOCK 초과면 MULTIPLE
     blocked_categories = []
@@ -124,6 +141,8 @@ def detect_expression_noise(
         blocked_categories.append(EXPR_NOISE_BROW)
     if jaw_cheek_max > BLOCK_THRESHOLD:
         blocked_categories.append(EXPR_NOISE_JAW_CHEEK)
+    if nose_chin_max > BLOCK_THRESHOLD:  # ADR-212
+        blocked_categories.append(EXPR_NOISE_NOSE_CHIN)
 
     if len(blocked_categories) >= 2:
         return ExpressionNoiseResult(
@@ -140,9 +159,10 @@ def detect_expression_noise(
         cat = blocked_categories[0]
         labels = {
             EXPR_NOISE_MOUTH: "입(웃음·다물기)",
-            EXPR_NOISE_EYE: "눈(감음·크게 뜸)",
+            EXPR_NOISE_EYE: "눈(감음·크게 뜸·시선 이탈)",
             EXPR_NOISE_BROW: "눈썹(올림·내림)",
             EXPR_NOISE_JAW_CHEEK: "턱·뺨(벌림·부풀림)",
+            EXPR_NOISE_NOSE_CHIN: "코·턱주름(콧방울 찡그림)",  # ADR-212
         }
         return ExpressionNoiseResult(
             blocked=True, warned=True,
@@ -157,7 +177,8 @@ def detect_expression_noise(
 
     # 경고 카테고리 — 차단까지는 아니나 사용자에게 알림
     if (mouth_max > WARN_THRESHOLD or eye_max > WARN_THRESHOLD
-            or brow_max > WARN_THRESHOLD or jaw_cheek_max > WARN_THRESHOLD):
+            or brow_max > WARN_THRESHOLD or jaw_cheek_max > WARN_THRESHOLD
+            or nose_chin_max > WARN_THRESHOLD):  # ADR-212
         return ExpressionNoiseResult(
             blocked=False, warned=True,
             category=EXPR_NOISE_NONE,
