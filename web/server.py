@@ -2603,6 +2603,88 @@ class PersonalityAPIServer:
             except Exception:
                 pass
 
+        # ─── ADR-158 야선 아씨 4 컨텐츠 (char_key='ya') ───
+        # 속궁합·욕망·운우지정·정인 사주 결정론 + sanitize 4중 안전망.
+        # ADR-006 자문 거절 정신: 결혼·이혼·외도·배우자 외모 단정 차단.
+        if char_key == "ya" and content_key in ("sok-gunghap", "desire-saju", "unu-jijeong", "jeongin-saju"):
+            try:
+                from datetime import datetime as _dt_ya
+                from engine.saju.pillars import compute_pillars as _compute_pillars_ya
+                birth_str_ya = (fields.get("birth") or "").strip()
+                partner_birth_str_ya = (fields.get("partnerBirth") or "").strip()
+
+                def _ya_day_pillar(s: str) -> tuple[str, str, str, tuple[str, ...]]:
+                    """birth_str → (day_gan, day_ji, day_pillar_2자, 4지지 튜플)."""
+                    d = _dt_ya.strptime(s, "%Y-%m-%d").date()
+                    p = _compute_pillars_ya(d.year, d.month, d.day, 12)
+                    dg, dj = p["day_pillar"]["gan_han"], p["day_pillar"]["ji_han"]
+                    branches = (
+                        p["year_pillar"]["ji_han"],
+                        p["month_pillar"]["ji_han"],
+                        dj,
+                        p["hour_pillar"]["ji_han"],
+                    )
+                    return dg, dj, dg + dj, branches
+
+                if content_key == "sok-gunghap" and birth_str_ya and partner_birth_str_ya:
+                    from engine.divination.sok_gunghap import (
+                        compute_sok_gunghap, format_sok_gunghap_for_prompt,
+                    )
+                    _, _, self_dp, self_brs = _ya_day_pillar(birth_str_ya)
+                    _, _, prt_dp, prt_brs = _ya_day_pillar(partner_birth_str_ya)
+                    r_sg = compute_sok_gunghap(self_dp, prt_dp, self_brs, prt_brs)
+                    if r_sg:
+                        deterministic_blocks.append(format_sok_gunghap_for_prompt(r_sg))
+
+                elif content_key == "desire-saju" and birth_str_ya:
+                    from engine.divination.desire_saju import (
+                        compute_desire_saju, format_desire_saju_for_prompt,
+                    )
+                    from engine.saju.ten_gods import compute_ten_gods as _ten_gods_ya
+                    dg_y, _, _, brs_y = _ya_day_pillar(birth_str_ya)
+                    # 4 천간 추출 (일간 제외 3건의 십성 계산)
+                    d2 = _dt_ya.strptime(birth_str_ya, "%Y-%m-%d").date()
+                    p_y = _compute_pillars_ya(d2.year, d2.month, d2.day, 12)
+                    other_gans = [
+                        p_y["year_pillar"]["gan_han"],
+                        p_y["month_pillar"]["gan_han"],
+                        p_y["hour_pillar"]["gan_han"],
+                    ]
+                    tgs = tuple(_ten_gods_ya(dg_y, og) for og in other_gans)
+                    r_ds = compute_desire_saju(dg_y, tgs, brs_y)
+                    if r_ds:
+                        deterministic_blocks.append(format_desire_saju_for_prompt(r_ds))
+
+                elif content_key == "unu-jijeong" and birth_str_ya and partner_birth_str_ya:
+                    from engine.divination.unu_jijeong import (
+                        compute_unu_jijeong, format_unu_jijeong_for_prompt,
+                    )
+                    _, self_dj, _, _ = _ya_day_pillar(birth_str_ya)
+                    _, prt_dj, _, _ = _ya_day_pillar(partner_birth_str_ya)
+                    r_uj = compute_unu_jijeong(self_dj, prt_dj)
+                    if r_uj:
+                        deterministic_blocks.append(format_unu_jijeong_for_prompt(r_uj))
+
+                elif content_key == "jeongin-saju" and birth_str_ya:
+                    from engine.divination.jeongin_saju import (
+                        compute_jeongin_saju, format_jeongin_saju_for_prompt,
+                    )
+                    from engine.saju.ten_gods import compute_ten_gods as _ten_gods_ya2
+                    dg_y, dj_y, _, _ = _ya_day_pillar(birth_str_ya)
+                    d3 = _dt_ya.strptime(birth_str_ya, "%Y-%m-%d").date()
+                    p_y3 = _compute_pillars_ya(d3.year, d3.month, d3.day, 12)
+                    all_other_gans = [
+                        p_y3["year_pillar"]["gan_han"],
+                        p_y3["month_pillar"]["gan_han"],
+                        p_y3["hour_pillar"]["gan_han"],
+                    ]
+                    tgs_all = tuple(_ten_gods_ya2(dg_y, og) for og in all_other_gans)
+                    r_ji = compute_jeongin_saju(dg_y, dj_y, tgs_all)
+                    if r_ji:
+                        deterministic_blocks.append(format_jeongin_saju_for_prompt(r_ji))
+            except Exception:
+                pass
+
         # ─── ADR-122·123·124 조상 메시지 (palm/ancestor content_key + birth) ───
         # 천살 방위 (ADR-122) + 어휘 풀·흐름 톤 (ADR-123) + 4 권역 위령 의례 (ADR-124).
         # 한국 무속 정통 학파 (이능화 1927·한국학중앙연구원·국립민속박물관) 정합.
@@ -3012,6 +3094,24 @@ class PersonalityAPIServer:
                 try:
                     from engine.divination.tojeong import sanitize_tojeong_verse
                     text = sanitize_tojeong_verse(text)
+                except Exception:
+                    pass
+            # ADR-158 sanitize 7중 안전망 — 야선 아씨 4 컨텐츠 (속궁합·욕망·운우지정·정인).
+            # 결혼·이혼·외도·이별·시기·배우자 외모 단정 차단.
+            if char_key == "ya":
+                try:
+                    if content_key == "sok-gunghap":
+                        from engine.divination.sok_gunghap import sanitize_sok_gunghap_text
+                        text = sanitize_sok_gunghap_text(text)
+                    elif content_key == "desire-saju":
+                        from engine.divination.desire_saju import sanitize_desire_saju_text
+                        text = sanitize_desire_saju_text(text)
+                    elif content_key == "unu-jijeong":
+                        from engine.divination.unu_jijeong import sanitize_unu_jijeong_text
+                        text = sanitize_unu_jijeong_text(text)
+                    elif content_key == "jeongin-saju":
+                        from engine.divination.jeongin_saju import sanitize_jeongin_saju_text
+                        text = sanitize_jeongin_saju_text(text)
                 except Exception:
                     pass
             # ADR-006/094 공통 단정 어휘 사후 필터링 (모든 캐릭터).
