@@ -399,6 +399,38 @@ def generate_palm_reading(
         from engine.safety.slo.prompt_cache_telemetry import extract_usage, summarize
         prompt_cache_usage = summarize(extract_usage(usage_sink[0]))
 
+    # ADR-233 — TTA 손금 선 분석 envelope 노출 (옵션, U-Net 가용 시만 의미)
+    line_analysis: dict | None = None
+    try:
+        from engine.divination.palm.tta_inference import run_tta_inference
+        from engine.divination.palm.unet_line_extractor import check_unet_availability
+        avail = check_unet_availability()
+        if avail.model_loadable:
+            # 이미지 디코드
+            import base64 as _b64
+            try:
+                raw_b64 = image_b64.split(",", 1)[-1] if "," in image_b64 else image_b64
+                img_bytes = _b64.b64decode(raw_b64)
+                from io import BytesIO
+                try:
+                    from PIL import Image  # type: ignore[import-not-found]
+                    import numpy as _np
+                    pil_img = Image.open(BytesIO(img_bytes)).convert("RGB")
+                    img_array = _np.asarray(pil_img)
+                    tta_result = run_tta_inference(img_array)
+                    line_analysis = {
+                        "n_augmentations": tta_result.n_augmentations,
+                        "confidence_avg": tta_result.confidence_avg,
+                        "raw_metrics": tta_result.raw_metrics,
+                        "method": "U-Net TTA (ADR-231)",
+                    }
+                except ImportError:
+                    line_analysis = None
+            except Exception:
+                line_analysis = None
+    except Exception:
+        line_analysis = None
+
     out = {
         "text": full_text,
         "cached": False,
@@ -409,6 +441,7 @@ def generate_palm_reading(
         "safety_gate_failures": safety_failures,
         "safety_gate_fallback_used": safety_fallback_used,
         "safety_gate_retry_used": safety_retry_used,  # ADR-169
+        "line_analysis": line_analysis,  # ADR-233 — U-Net TTA 결과
     }
     _save_cache(key, out)
     return out

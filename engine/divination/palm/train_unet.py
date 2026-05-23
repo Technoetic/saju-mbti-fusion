@@ -114,27 +114,32 @@ def train_unet(
     batch_size: int = 4,
     learning_rate: float = 1e-4,
     img_size: int = 256,
+    model_type: str = "unet",  # ADR-233: "unet" | "cfm"
 ) -> dict:
-    """ADR-221 — U-Net fine-tune.
-
-    Gabor 출력을 약지도로 self-training. Roboflow 46건 또는 자체 사진.
+    """ADR-221 + ADR-233 — U-Net / UNetCFM fine-tune.
 
     Args:
         data_dir: 학습 이미지 디렉토리.
         output_path: 가중치 저장 경로.
-        epochs: 에폭 수 (기본 20).
-        batch_size: 배치 크기 (기본 4 — CPU 가능).
+        epochs: 에폭 수.
+        batch_size: 배치 크기.
         learning_rate: 학습률.
-        img_size: 입력 크기 (256x256 정사각).
+        img_size: 입력 크기.
+        model_type: "unet" (ADR-217 표준) 또는 "cfm" (ADR-230 Context Fusion).
 
     Returns:
-        {"epochs_trained": int, "final_loss": float, "output_path": str}
+        {"epochs_trained": int, "final_loss": float, "output_path": str, "model_type": str}
     """
     torch = _ensure_torch()
     import torch.nn as nn
     from torch.utils.data import Dataset, DataLoader
-    from engine.divination.palm.unet_model import UNet
     from engine.divination.palm.unet_line_extractor import _resize_nearest
+
+    # ADR-233 — 모델 선택
+    if model_type == "cfm":
+        from engine.divination.palm.unet_cfm import UNetCFM as _ModelClass
+    else:
+        from engine.divination.palm.unet_model import UNet as _ModelClass
 
     # 1. 데이터 로드
     images = load_images_from_dir(data_dir)
@@ -170,9 +175,9 @@ def train_unet(
     dataset = PalmDataset()
     loader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
 
-    # 5. 모델·optimizer·loss
+    # 5. 모델·optimizer·loss (ADR-233 — model_type 선택)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model = UNet(n_channels=3, n_classes=1).to(device)
+    model = _ModelClass(n_channels=3, n_classes=1).to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
     criterion = nn.BCEWithLogitsLoss()
 
@@ -208,11 +213,12 @@ def train_unet(
         "final_loss": final_loss,
         "output_path": output_path,
         "n_images": len(images),
+        "model_type": model_type,
     }
 
 
 def main():
-    parser = argparse.ArgumentParser(description="손금 U-Net fine-tune (ADR-221)")
+    parser = argparse.ArgumentParser(description="손금 U-Net fine-tune (ADR-221+233)")
     parser.add_argument("--data-dir", required=True, help="학습 이미지 디렉토리")
     parser.add_argument("--output", default="data/palm/unet_weights.pt",
                         help="가중치 저장 경로 (기본 data/palm/unet_weights.pt)")
@@ -220,6 +226,8 @@ def main():
     parser.add_argument("--batch-size", type=int, default=4)
     parser.add_argument("--lr", type=float, default=1e-4)
     parser.add_argument("--img-size", type=int, default=256)
+    parser.add_argument("--model", choices=["unet", "cfm"], default="unet",
+                        help="ADR-233: unet (표준) 또는 cfm (Context Fusion)")
     args = parser.parse_args()
 
     result = train_unet(
@@ -229,6 +237,7 @@ def main():
         batch_size=args.batch_size,
         learning_rate=args.lr,
         img_size=args.img_size,
+        model_type=args.model,
     )
     print(result)
 
