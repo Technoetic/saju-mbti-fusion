@@ -339,26 +339,46 @@ def generate_hwapae_reading(
         )
 
     # ADR-167 — hwapae 안전망 본문 활성화 (ADR-163·164·165·166 패턴 확산).
-    # hwapae는 화패 카드 분, critic loop 종료 후 final_text. age/gender 인자
-    # 부재 → fact_check는 region/face_count/gaze 차원 작동 안 함. question
-    # alignment + persona + pii + token_guard 위주.
+    # ADR-169 — MINOR 재호출 정책 추가.
     safety_verdict: str | None = None
     safety_failures: list[str] = []
     safety_fallback_used = False
+    safety_retry_used = False
     if final_text and not final_text.startswith("(풀이 생성 실패"):
         try:
             from engine.safety.llm.output_safety_gate import (
-                run_safety_gates, VERDICT_WARN, VERDICT_CRITICAL,
+                run_safety_gates, should_retry_minor,
+                VERDICT_WARN, VERDICT_CRITICAL,
             )
+            from engine.llm_sync import call_llm_sync as _retry_llm
             gate_result = run_safety_gates(
                 final_text,
                 question=question,
-                age=None,
-                gender=None,
-                metrics=None,
-                lang="ko",
+                age=None, gender=None, metrics=None, lang="ko",
                 palace_scores=None,
             )
+            # ADR-169 — MINOR 재호출 1회
+            if should_retry_minor(gate_result):
+                try:
+                    retry_text = _retry_llm(
+                        user_text=_build_user_prompt(question, drawn_cards, category, menu_label),
+                        system_prompt=_HWAPAE_SYSTEM,
+                    )
+                    if retry_text:
+                        retry_result = run_safety_gates(
+                            retry_text, question=question,
+                            age=None, gender=None, metrics=None, lang="ko",
+                            palace_scores=None,
+                        )
+                        verdict_rank = {"clean": 0, "minor": 1, "warn": 2, "critical": 3}
+                        if (verdict_rank.get(retry_result.verdict, 99)
+                                < verdict_rank.get(gate_result.verdict, 99)):
+                            final_text = retry_text
+                            gate_result = retry_result
+                            safety_retry_used = True
+                except Exception:
+                    pass
+
             safety_verdict = gate_result.verdict
             safety_failures = list(gate_result.failures)
             if gate_result.verdict in (VERDICT_WARN, VERDICT_CRITICAL):
@@ -383,6 +403,7 @@ def generate_hwapae_reading(
         "safety_gate_verdict": safety_verdict,
         "safety_gate_failures": safety_failures,
         "safety_gate_fallback_used": safety_fallback_used,
+        "safety_gate_retry_used": safety_retry_used,  # ADR-169
         "_saved_at": time.time(),
     }
     try:

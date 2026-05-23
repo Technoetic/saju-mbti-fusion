@@ -182,6 +182,22 @@ def should_fallback(result: SafetyGateResult) -> bool:
     return result.verdict != VERDICT_CLEAN
 
 
+def should_retry_minor(result: SafetyGateResult) -> bool:
+    """ADR-169 — MINOR verdict + 재호출 가능 issue인지.
+
+    재호출 후 더 나은 응답 가능한 경우(token_limit·empty_response)에만 True.
+    WARN/CRITICAL은 재호출보다 stub 폴백이 안전(별도 should_fallback 사용).
+
+    Returns:
+        True — 재호출 가치 있음 (호출자가 1회 재시도 권장)
+        False — 재호출 무가치 (원본 유지 또는 stub 폴백)
+    """
+    if result.verdict != VERDICT_MINOR:
+        return False
+    # MINOR fallback_trigger가 token_limit·empty_response면 재호출 가치
+    return result.fallback_trigger in ("token_limit", "empty_response")
+
+
 def to_trace_event(result: SafetyGateResult) -> dict[str, Any]:
     """§7.3.4 tracing extra 호환 페이로드."""
     return {

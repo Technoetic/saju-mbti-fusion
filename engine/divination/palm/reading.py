@@ -346,16 +346,16 @@ def generate_palm_reading(
     text = _call_vision(_PALM_SYSTEM, user_text, image_b64, usage_sink=usage_sink)
 
     # ADR-164 — palm 안전망 본문 활성화 (face ADR-163 패턴 확산).
-    # palm은 결정론 점수가 reading 본문에 산출되지 않음 (score_palm은 별도 API).
-    # 따라서 palace_scores=None — fact_check 5 차원(age·gender·face_count·region·gaze)
-    # + alignment + persona + pii + token_guard 만 작동.
+    # ADR-169 — MINOR(too_short/truncated) 시 1회 재호출 정책 추가.
     safety_verdict: str | None = None
     safety_failures: list[str] = []
     safety_fallback_used = False
+    safety_retry_used = False
     if text:
         try:
             from engine.safety.llm.output_safety_gate import (
-                run_safety_gates, VERDICT_WARN, VERDICT_CRITICAL,
+                run_safety_gates, should_retry_minor,
+                VERDICT_WARN, VERDICT_CRITICAL,
             )
             gate_result = run_safety_gates(
                 text,
@@ -366,6 +366,29 @@ def generate_palm_reading(
                 lang="ko",
                 palace_scores=None,
             )
+            # ADR-169 — MINOR 재호출 1회 시도
+            if should_retry_minor(gate_result):
+                try:
+                    retry_text = _call_vision(
+                        _PALM_SYSTEM, user_text, image_b64,
+                        usage_sink=usage_sink,
+                    )
+                    if retry_text:
+                        retry_result = run_safety_gates(
+                            retry_text,
+                            question=question, age=age, gender=gender,
+                            metrics=None, lang="ko", palace_scores=None,
+                        )
+                        # 재호출이 더 나으면 채택 (verdict 등급 하향 시)
+                        verdict_rank = {"clean": 0, "minor": 1, "warn": 2, "critical": 3}
+                        if (verdict_rank.get(retry_result.verdict, 99)
+                                < verdict_rank.get(gate_result.verdict, 99)):
+                            text = retry_text
+                            gate_result = retry_result
+                            safety_retry_used = True
+                except Exception:
+                    pass
+
             safety_verdict = gate_result.verdict
             safety_failures = list(gate_result.failures)
             if gate_result.verdict in (VERDICT_WARN, VERDICT_CRITICAL):
@@ -395,6 +418,7 @@ def generate_palm_reading(
         "safety_gate_verdict": safety_verdict,
         "safety_gate_failures": safety_failures,
         "safety_gate_fallback_used": safety_fallback_used,
+        "safety_gate_retry_used": safety_retry_used,  # ADR-169
     }
     _save_cache(key, out)
     return out
