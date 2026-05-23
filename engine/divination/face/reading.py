@@ -1097,18 +1097,17 @@ def generate_face_reading(
     )
 
     # ADR-163 — Stage 2 응답 자동 모순 검출 + 폴백 (ADR-004 Phase 3 활성화).
-    # palace_scores와 LLM 단정 어휘가 충돌하면(FACT_PALACE_SCORE) deterministic
-    # stub으로 폴백 — ADR-161 안전망을 face/reading.py 본문에 실제 연결.
+    # ADR-169 — MINOR 재호출 정책 추가 (Stage 2만 재호출).
     safety_verdict: str | None = None
     safety_failures: list[str] = []
     safety_fallback_used = False
+    safety_retry_used = False
     if reading_text:
         try:
             from engine.safety.llm.output_safety_gate import (
-                run_safety_gates, VERDICT_WARN, VERDICT_CRITICAL,
+                run_safety_gates, should_retry_minor,
+                VERDICT_WARN, VERDICT_CRITICAL,
             )
-            # palace_scores 구조 ({"palaces": {<key>: {"score": float, ...}}})
-            # → fact_check가 기대하는 {<key>: float} 평탄화.
             flat_scores: dict[str, float] | None = None
             if isinstance(palace_scores, dict):
                 palaces_map = palace_scores.get("palaces")
@@ -1128,6 +1127,29 @@ def generate_face_reading(
                 lang="ko",
                 palace_scores=flat_scores,
             )
+            # ADR-169 — MINOR(truncated/empty) 시 Stage 2만 1회 재호출
+            if should_retry_minor(gate_result):
+                try:
+                    retry_text = _call_stage2_persona(
+                        anatomical_description, deterministic_scores,
+                        age, gender, question,
+                    )
+                    if retry_text:
+                        retry_result = run_safety_gates(
+                            retry_text,
+                            question=question, age=age, gender=gender,
+                            metrics=metrics, lang="ko",
+                            palace_scores=flat_scores,
+                        )
+                        verdict_rank = {"clean": 0, "minor": 1, "warn": 2, "critical": 3}
+                        if (verdict_rank.get(retry_result.verdict, 99)
+                                < verdict_rank.get(gate_result.verdict, 99)):
+                            reading_text = retry_text
+                            gate_result = retry_result
+                            safety_retry_used = True
+                except Exception:
+                    pass
+
             safety_verdict = gate_result.verdict
             safety_failures = list(gate_result.failures)
             if gate_result.verdict in (VERDICT_WARN, VERDICT_CRITICAL):
@@ -1137,7 +1159,6 @@ def generate_face_reading(
                 reading_text = deterministic_stub_response("ko")
                 safety_fallback_used = True
         except Exception:
-            # 안전망 자체 실패 시 원본 응답 유지 (회귀 보호)
             safety_verdict = None
             safety_failures = []
 
@@ -1163,6 +1184,7 @@ def generate_face_reading(
         "safety_gate_verdict": safety_verdict,  # ADR-163 — 자동 모순 검출 verdict
         "safety_gate_failures": safety_failures,
         "safety_gate_fallback_used": safety_fallback_used,
+        "safety_gate_retry_used": safety_retry_used,  # ADR-169
     }
     _save_cache(key, out)
     return out

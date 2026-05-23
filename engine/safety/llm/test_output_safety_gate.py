@@ -217,3 +217,69 @@ def test_engine_safety_exports_output_safety_gate():
     assert hasattr(safety, "VERDICT_MINOR")
     assert hasattr(safety, "VERDICT_WARN")
     assert hasattr(safety, "VERDICT_CRITICAL")
+
+
+# ───── ADR-169 should_retry_minor 회귀 ─────
+
+def _make_result(verdict, fallback_trigger="", failures=None):
+    from engine.safety.llm.output_safety_gate import SafetyGateResult
+    return SafetyGateResult(
+        verdict=verdict,
+        failures=failures or [],
+        details={},
+        fallback_trigger=fallback_trigger,
+    )
+
+
+def test_should_retry_minor_token_limit_true():
+    """MINOR + token_limit → 재호출 가치 있음."""
+    from engine.safety.llm.output_safety_gate import (
+        should_retry_minor, VERDICT_MINOR,
+    )
+    r = _make_result(VERDICT_MINOR, fallback_trigger="token_limit")
+    assert should_retry_minor(r) is True
+
+
+def test_should_retry_minor_empty_response_true():
+    """MINOR + empty_response → 재호출 가치 있음."""
+    from engine.safety.llm.output_safety_gate import (
+        should_retry_minor, VERDICT_MINOR,
+    )
+    r = _make_result(VERDICT_MINOR, fallback_trigger="empty_response")
+    assert should_retry_minor(r) is True
+
+
+def test_should_retry_minor_clean_false():
+    """CLEAN은 재호출 불필요."""
+    from engine.safety.llm.output_safety_gate import (
+        should_retry_minor, VERDICT_CLEAN,
+    )
+    r = _make_result(VERDICT_CLEAN, fallback_trigger="")
+    assert should_retry_minor(r) is False
+
+
+def test_should_retry_minor_warn_false():
+    """WARN은 재호출보다 stub 폴백."""
+    from engine.safety.llm.output_safety_gate import (
+        should_retry_minor, VERDICT_WARN,
+    )
+    r = _make_result(VERDICT_WARN, fallback_trigger="persona_failed")
+    assert should_retry_minor(r) is False
+
+
+def test_should_retry_minor_critical_false():
+    """CRITICAL(PII 누출 등)은 재호출 절대 금지."""
+    from engine.safety.llm.output_safety_gate import (
+        should_retry_minor, VERDICT_CRITICAL,
+    )
+    r = _make_result(VERDICT_CRITICAL, fallback_trigger="persona_failed")
+    assert should_retry_minor(r) is False
+
+
+def test_should_retry_minor_unknown_trigger_false():
+    """MINOR이라도 알 수 없는 fallback_trigger → 재호출 X."""
+    from engine.safety.llm.output_safety_gate import (
+        should_retry_minor, VERDICT_MINOR,
+    )
+    r = _make_result(VERDICT_MINOR, fallback_trigger="some_other_trigger")
+    assert should_retry_minor(r) is False

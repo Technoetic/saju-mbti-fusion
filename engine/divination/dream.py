@@ -620,16 +620,18 @@ def interpret_dream(
         )
 
     # ADR-166 — dream 안전망 본문 활성화 (ADR-163·164·165 패턴 확산).
-    # dream은 멀티에이전트 14+6 critic loop 종료 후 final_text 단일 응답.
-    # PersonalContext.gender는 'M'/'F' 형식 → fact_check가 인식하는 'male'/'female'로 정규화.
+    # ADR-169 — MINOR 재호출 정책 추가.
     safety_verdict: str | None = None
     safety_failures: list[str] = []
     safety_fallback_used = False
+    safety_retry_used = False
     if final_text and not final_text.startswith("(풀이 생성 실패"):
         try:
             from engine.safety.llm.output_safety_gate import (
-                run_safety_gates, VERDICT_WARN, VERDICT_CRITICAL,
+                run_safety_gates, should_retry_minor,
+                VERDICT_WARN, VERDICT_CRITICAL,
             )
+            from engine.llm_sync import call_llm_sync as _retry_llm
             gender_norm: str | None = None
             ctx_gender = getattr(ctx, "gender", None)
             if ctx_gender == "M":
@@ -645,6 +647,29 @@ def interpret_dream(
                 lang="ko",
                 palace_scores=None,
             )
+            # ADR-169 — MINOR 재호출 1회 (critic loop와 독립)
+            if should_retry_minor(gate_result):
+                try:
+                    retry_text = _retry_llm(
+                        user_text=_build_user_prompt(dream_text, ctx, analysis),
+                        system_prompt=DREAM_SYSTEM,
+                    )
+                    if retry_text:
+                        retry_result = run_safety_gates(
+                            retry_text, question=dream_text,
+                            age=getattr(ctx, "age", None),
+                            gender=gender_norm, metrics=None, lang="ko",
+                            palace_scores=None,
+                        )
+                        verdict_rank = {"clean": 0, "minor": 1, "warn": 2, "critical": 3}
+                        if (verdict_rank.get(retry_result.verdict, 99)
+                                < verdict_rank.get(gate_result.verdict, 99)):
+                            final_text = retry_text
+                            gate_result = retry_result
+                            safety_retry_used = True
+                except Exception:
+                    pass
+
             safety_verdict = gate_result.verdict
             safety_failures = list(gate_result.failures)
             if gate_result.verdict in (VERDICT_WARN, VERDICT_CRITICAL):
@@ -670,6 +695,7 @@ def interpret_dream(
         "safety_gate_verdict": safety_verdict,
         "safety_gate_failures": safety_failures,
         "safety_gate_fallback_used": safety_fallback_used,
+        "safety_gate_retry_used": safety_retry_used,  # ADR-169
         "_saved_at": time.time(),
     }
     try:

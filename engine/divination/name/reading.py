@@ -276,25 +276,45 @@ def generate_name_reading(
     text = _call_llm(_NAME_SYSTEM, user_text, usage_sink=usage_sink)
 
     # ADR-165 — name 안전망 본문 활성화 (ADR-163·164 패턴 확산).
-    # name은 텍스트 입력 단독 — Vision X. fact_check는 gender만 의미 있음
-    # (age·metrics·region 없음) + alignment + persona + pii + token_guard 작동.
+    # ADR-169 — MINOR 재호출 정책 추가.
     safety_verdict: str | None = None
     safety_failures: list[str] = []
     safety_fallback_used = False
+    safety_retry_used = False
     if text:
         try:
             from engine.safety.llm.output_safety_gate import (
-                run_safety_gates, VERDICT_WARN, VERDICT_CRITICAL,
+                run_safety_gates, should_retry_minor,
+                VERDICT_WARN, VERDICT_CRITICAL,
             )
             gate_result = run_safety_gates(
                 text,
-                question=None,  # name은 화두 인자 부재
+                question=None,
                 age=None,
                 gender=gender,
                 metrics=None,
                 lang="ko",
                 palace_scores=None,
             )
+            # ADR-169 — MINOR 재호출 1회
+            if should_retry_minor(gate_result):
+                try:
+                    retry_text = _call_llm(_NAME_SYSTEM, user_text, usage_sink=usage_sink)
+                    if retry_text:
+                        retry_result = run_safety_gates(
+                            retry_text, question=None, age=None,
+                            gender=gender, metrics=None, lang="ko",
+                            palace_scores=None,
+                        )
+                        verdict_rank = {"clean": 0, "minor": 1, "warn": 2, "critical": 3}
+                        if (verdict_rank.get(retry_result.verdict, 99)
+                                < verdict_rank.get(gate_result.verdict, 99)):
+                            text = retry_text
+                            gate_result = retry_result
+                            safety_retry_used = True
+                except Exception:
+                    pass
+
             safety_verdict = gate_result.verdict
             safety_failures = list(gate_result.failures)
             if gate_result.verdict in (VERDICT_WARN, VERDICT_CRITICAL):
@@ -324,6 +344,7 @@ def generate_name_reading(
         "safety_gate_verdict": safety_verdict,
         "safety_gate_failures": safety_failures,
         "safety_gate_fallback_used": safety_fallback_used,
+        "safety_gate_retry_used": safety_retry_used,  # ADR-169
     }
     _save_cache(key, out)
     return out

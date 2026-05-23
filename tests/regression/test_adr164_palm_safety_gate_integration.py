@@ -98,6 +98,104 @@ def test_adr164_palm_envelope_exposes_safety_gate_fields():
     assert isinstance(out["safety_gate_fallback_used"], bool)
 
 
+def test_adr169_palm_minor_triggers_retry_and_envelope_field():
+    """ADR-169 — MINOR(truncated, 종결 부호 없음) 시 1회 재호출 + retry 채택."""
+    from engine.divination.palm import reading as palm_reading
+
+    # 1회차: truncated (긴데 종결 부호 없음) — MINOR
+    truncated_text = (
+        "허허, 그대 청년의 손금이 두텁고 결이 환하니 좋은 결이로다. "
+        "이 늙은이 자네의 손을 짚어보매 흐름이 단정하고 결이 맑으니 "
+        "차근차근 가꾸어 가는 자세가 좋은 결을 이루리라 하리니 자네의 "
+        "손금이 단정하고 결이 맑아"  # 종결 부호 없음 → TRUNCATED
+    )
+    # 2회차: CLEAN
+    full_text = (
+        "허허, 그대 청년의 손금이 두텁고 결이 환하니 좋은 결이로다. "
+        "이 늙은이 자네의 손을 짚어보매 흐름이 단정하고 결이 맑으니 "
+        "차근차근 가꾸어 가는 자세가 좋은 결을 이루리라. 이만 자네의 "
+        "손을 마치노라."
+    )
+    call_log = {"count": 0}
+
+    def _mock_vision(*a, **kw):
+        call_log["count"] += 1
+        return truncated_text if call_log["count"] == 1 else full_text
+
+    with patch.object(palm_reading, "_call_vision", side_effect=_mock_vision), \
+         patch.object(palm_reading, "_load_cache", return_value=None), \
+         patch.object(palm_reading, "_save_cache"):
+        out = palm_reading.generate_palm_reading(
+            image_b64=_DUMMY_IMAGE_B64,
+            age=30,
+            gender="male",
+        )
+
+    assert call_log["count"] == 2  # 재호출 발생
+    assert out["safety_gate_retry_used"] is True
+    # 재호출 응답이 채택됨 — 폴백 아님
+    assert out["safety_gate_fallback_used"] is False
+    assert "이만 자네의" in out["text"]
+
+
+def test_adr169_palm_minor_retry_worse_keeps_original():
+    """ADR-169 — 재호출이 더 나쁘면 원본 유지 (verdict 등급 하향 X)."""
+    from engine.divination.palm import reading as palm_reading
+
+    truncated_text = (
+        "허허, 그대 청년의 손금이 두텁고 결이 환하니 좋은 결이로다. "
+        "이 늙은이 자네의 손을 짚어보매 흐름이 단정하고 결이 맑으니 "
+        "차근차근 가꾸어 가는 자세가 좋은 결을 이루리라 하리니 자네의 "
+        "손금이 단정하고 결이 맑아"
+    )
+    call_log = {"count": 0}
+
+    def _mock_vision(*a, **kw):
+        call_log["count"] += 1
+        # 재호출도 truncated → 등급 동일 → 원본 유지
+        return truncated_text
+
+    with patch.object(palm_reading, "_call_vision", side_effect=_mock_vision), \
+         patch.object(palm_reading, "_load_cache", return_value=None), \
+         patch.object(palm_reading, "_save_cache"):
+        out = palm_reading.generate_palm_reading(
+            image_b64=_DUMMY_IMAGE_B64,
+            age=30,
+        )
+
+    assert call_log["count"] == 2  # 재호출 시도
+    # 등급 동일이라 채택 X
+    assert out["safety_gate_retry_used"] is False
+
+
+def test_adr169_palm_clean_no_retry():
+    """ADR-169 — CLEAN 응답은 재호출 발생 X."""
+    from engine.divination.palm import reading as palm_reading
+
+    full_text = (
+        "허허, 그대 청년의 손금이 두텁고 결이 환하니 좋은 결이로다. "
+        "이 늙은이 자네의 손을 짚어보매 흐름이 단정하고 결이 맑으니 "
+        "차근차근 가꾸어 가는 자세가 좋은 결을 이루리라. 이만 자네의 "
+        "손을 마치노라."
+    )
+    call_log = {"count": 0}
+
+    def _mock_vision(*a, **kw):
+        call_log["count"] += 1
+        return full_text
+
+    with patch.object(palm_reading, "_call_vision", side_effect=_mock_vision), \
+         patch.object(palm_reading, "_load_cache", return_value=None), \
+         patch.object(palm_reading, "_save_cache"):
+        out = palm_reading.generate_palm_reading(
+            image_b64=_DUMMY_IMAGE_B64,
+            age=30,
+        )
+
+    assert call_log["count"] == 1  # 재호출 안 함
+    assert out["safety_gate_retry_used"] is False
+
+
 def test_adr164_palm_safety_gate_exception_preserves_original():
     """안전망 예외 시 원본 응답 유지."""
     from engine.divination.palm import reading as palm_reading
