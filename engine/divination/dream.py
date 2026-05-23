@@ -619,6 +619,44 @@ def interpret_dream(
             + (critique.get("verdict") or "")
         )
 
+    # ADR-166 — dream 안전망 본문 활성화 (ADR-163·164·165 패턴 확산).
+    # dream은 멀티에이전트 14+6 critic loop 종료 후 final_text 단일 응답.
+    # PersonalContext.gender는 'M'/'F' 형식 → fact_check가 인식하는 'male'/'female'로 정규화.
+    safety_verdict: str | None = None
+    safety_failures: list[str] = []
+    safety_fallback_used = False
+    if final_text and not final_text.startswith("(풀이 생성 실패"):
+        try:
+            from engine.safety.llm.output_safety_gate import (
+                run_safety_gates, VERDICT_WARN, VERDICT_CRITICAL,
+            )
+            gender_norm: str | None = None
+            ctx_gender = getattr(ctx, "gender", None)
+            if ctx_gender == "M":
+                gender_norm = "male"
+            elif ctx_gender == "F":
+                gender_norm = "female"
+            gate_result = run_safety_gates(
+                final_text,
+                question=dream_text,
+                age=getattr(ctx, "age", None),
+                gender=gender_norm,
+                metrics=None,
+                lang="ko",
+                palace_scores=None,
+            )
+            safety_verdict = gate_result.verdict
+            safety_failures = list(gate_result.failures)
+            if gate_result.verdict in (VERDICT_WARN, VERDICT_CRITICAL):
+                from engine.safety.incident.llm_fallback_router import (
+                    deterministic_stub_response,
+                )
+                final_text = deterministic_stub_response("ko")
+                safety_fallback_used = True
+        except Exception:
+            safety_verdict = None
+            safety_failures = []
+
     result = {
         "text": final_text,
         "analysis": analysis,
@@ -629,6 +667,9 @@ def interpret_dream(
         "cached": False,
         "crisis_alert": None,
         "legal_notice": build_legal_footer(),
+        "safety_gate_verdict": safety_verdict,
+        "safety_gate_failures": safety_failures,
+        "safety_gate_fallback_used": safety_fallback_used,
         "_saved_at": time.time(),
     }
     try:
