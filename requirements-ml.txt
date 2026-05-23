@@ -15,5 +15,6 @@
 # CPU 추론 충분 — GPU는 학습 시만 필요
 torch>=2.0.0,<3.0.0
 
-# 학습 데이터 augmentation (이미지 transform)
-# torchvision은 torch와 함께 자동 설치되므로 명시 X
+# ADR-244 — torchvision 필수 (train_unet.py StreamingPalmDataset의 read_image 사용).
+# torch는 단독 설치 시 torchvision 미포함 — 명시 의무.
+torchvision>=0.15.0,<1.0.0

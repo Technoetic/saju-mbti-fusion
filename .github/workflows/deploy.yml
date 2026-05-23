@@ -53,6 +53,8 @@ jobs:
               - 'Dockerfile'
               - 'fly.toml'
               - 'requirements.txt'
+              - 'requirements-ml.txt'
+              - '.github/workflows/deploy.yml'
 
   test:
     name: Lint & Import Check
