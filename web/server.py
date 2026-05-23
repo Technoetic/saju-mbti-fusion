@@ -1172,6 +1172,7 @@ class PersonalityAPIServer:
         self.app.post("/api/hwapae/reading")(self.post_hwapae_reading)
         self.app.post("/api/face/reading")(self.post_face_reading)
         self.app.post("/api/palm/reading")(self.post_palm_reading)
+        self.app.get("/api/palm/diagnostics")(self.get_palm_diagnostics)
         self.app.post("/api/star/reading")(self.post_star_reading)
         self.app.post("/api/content/reading")(self.post_content_reading)
         self.app.post("/api/name/reading")(self.post_name_reading)
@@ -2148,6 +2149,54 @@ class PersonalityAPIServer:
             raise HTTPException(400, str(ve))
         except Exception as e:
             raise HTTPException(500, str(e))
+
+    async def get_palm_diagnostics(self) -> dict[str, Any]:
+        """ADR-242 — 손금 U-Net/CFM 가중치 활성화 진단 (라이브 검증용).
+
+        반환: PyTorch 가용·가중치 경로·파일 크기·모델 유형(CFM/UNet)·상태.
+        Vision LLM 호출 없이 가벼움.
+        """
+        try:
+            import os as _os
+            from engine.divination.palm.unet_line_extractor import check_unet_availability
+            avail = check_unet_availability()
+            weights_size = None
+            model_type = "unknown"
+            state_keys_sample: list[str] = []
+            if avail.model_weights_path and _os.path.exists(avail.model_weights_path):
+                weights_size = _os.path.getsize(avail.model_weights_path)
+                if avail.pytorch_available:
+                    try:
+                        import torch as _torch
+                        state = _torch.load(
+                            avail.model_weights_path,
+                            map_location="cpu",
+                            weights_only=True,
+                        )
+                        if isinstance(state, dict) and "state_dict" in state:
+                            state = state["state_dict"]
+                        if isinstance(state, dict):
+                            keys = list(state.keys())
+                            state_keys_sample = keys[:6]
+                            is_cfm = any(
+                                "cfm" in k or "branch" in k
+                                or ("attention" in k and "psi" in k)
+                                for k in keys
+                            )
+                            model_type = "cfm" if is_cfm else "unet"
+                    except Exception as e:
+                        model_type = f"load_error: {type(e).__name__}"
+            return {
+                "pytorch_available": avail.pytorch_available,
+                "model_weights_path": avail.model_weights_path,
+                "model_loadable": avail.model_loadable,
+                "fallback_reason": avail.fallback_reason,
+                "weights_size_bytes": weights_size,
+                "model_type": model_type,
+                "state_keys_sample": state_keys_sample,
+            }
+        except Exception as e:
+            return {"error": str(e), "type": type(e).__name__}
 
     async def post_palm_reading(
         self, req: PalmReadingRequest
