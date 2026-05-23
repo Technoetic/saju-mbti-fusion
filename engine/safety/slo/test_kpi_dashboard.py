@@ -322,3 +322,95 @@ def test_adr172_higher_is_better_false_for_all():
     for k in (KPI_SAFETY_GATE_FALLBACK_RATE, KPI_SAFETY_GATE_RETRY_RATE,
               KPI_SAFETY_GATE_FATE_RATE):
         assert _THRESHOLDS[k].higher_is_better is False
+
+
+# ───── ADR-173 도메인 dimension 회귀 ─────
+
+def test_adr173_build_kpi_with_dimension_face():
+    from engine.safety.slo.kpi_dashboard import (
+        build_kpi, KPI_SAFETY_GATE_FALLBACK_RATE,
+    )
+    m = build_kpi(KPI_SAFETY_GATE_FALLBACK_RATE, 0.03, dimension="face")
+    assert m.dimension == "face"
+    assert "[face]" in m.label
+    assert m.status == "good"
+
+
+def test_adr173_build_kpi_dimension_none_no_label_prefix():
+    from engine.safety.slo.kpi_dashboard import (
+        build_kpi, KPI_SAFETY_GATE_FALLBACK_RATE,
+    )
+    m = build_kpi(KPI_SAFETY_GATE_FALLBACK_RATE, 0.03)
+    assert m.dimension is None
+    assert "[face]" not in m.label
+    assert "[" not in m.label.split("(")[0]  # 도메인 prefix 없음
+
+
+def test_adr173_build_kpi_unknown_dimension_normalized_to_none():
+    """알 수 없는 dimension은 None으로 정규화."""
+    from engine.safety.slo.kpi_dashboard import (
+        build_kpi, KPI_SAFETY_GATE_FALLBACK_RATE,
+    )
+    m = build_kpi(KPI_SAFETY_GATE_FALLBACK_RATE, 0.03, dimension="invalid")
+    assert m.dimension is None
+
+
+def test_adr173_all_5_domains_valid():
+    from engine.safety.slo.kpi_dashboard import (
+        build_kpi, KPI_SAFETY_GATE_FALLBACK_RATE,
+    )
+    for d in ("face", "palm", "name", "dream", "hwapae"):
+        m = build_kpi(KPI_SAFETY_GATE_FALLBACK_RATE, 0.03, dimension=d)
+        assert m.dimension == d
+
+
+def test_adr173_grafana_target_includes_dimension():
+    from engine.safety.slo.kpi_dashboard import (
+        build_dashboard, to_grafana_json, KPI_SAFETY_GATE_FALLBACK_RATE,
+        build_kpi, DashboardPayload,
+    )
+    # build_dashboard는 dimension 미지원이므로 직접 KPIMetric 구성
+    metric = build_kpi(KPI_SAFETY_GATE_FALLBACK_RATE, 0.03, dimension="palm")
+    payload = DashboardPayload(
+        generated_at_iso="2026-05-23T00:00:00+00:00",
+        system_id="test",
+        metrics=(metric,),
+        overall_status="good",
+    )
+    out = to_grafana_json(payload)
+    assert any("dim=palm" in item["target"] for item in out)
+
+
+def test_adr173_datadog_tags_include_dimension():
+    from engine.safety.slo.kpi_dashboard import (
+        to_datadog_metrics, KPI_SAFETY_GATE_FALLBACK_RATE,
+        build_kpi, DashboardPayload,
+    )
+    metric = build_kpi(KPI_SAFETY_GATE_FALLBACK_RATE, 0.03, dimension="dream")
+    payload = DashboardPayload(
+        generated_at_iso="2026-05-23T00:00:00+00:00",
+        system_id="test",
+        metrics=(metric,),
+        overall_status="good",
+    )
+    out = to_datadog_metrics(payload)
+    assert any("dim:dream" in tag for item in out for tag in item["tags"])
+
+
+def test_adr173_no_dimension_no_dim_tag_or_target_suffix():
+    """dimension 미설정 metric은 dim 태그·접미사 없음 (역호환)."""
+    from engine.safety.slo.kpi_dashboard import (
+        to_grafana_json, to_datadog_metrics,
+        KPI_SAFETY_GATE_FALLBACK_RATE, build_kpi, DashboardPayload,
+    )
+    metric = build_kpi(KPI_SAFETY_GATE_FALLBACK_RATE, 0.03)
+    payload = DashboardPayload(
+        generated_at_iso="2026-05-23T00:00:00+00:00",
+        system_id="test",
+        metrics=(metric,),
+        overall_status="good",
+    )
+    g = to_grafana_json(payload)
+    d = to_datadog_metrics(payload)
+    assert not any("dim=" in item["target"] for item in g)
+    assert not any("dim:" in tag for item in d for tag in item["tags"])
