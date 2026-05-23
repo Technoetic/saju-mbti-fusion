@@ -736,6 +736,7 @@ def _build_deterministic_scores_summary(
     palace_scores: dict[str, Any] | None,
     face_shape: dict[str, Any] | None,
     facial_features: dict[str, Any] | None = None,
+    complexion: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Stage 2용 결정론 점수 요약 — 한국어 라벨만, 영문 key 미노출.
 
@@ -744,6 +745,9 @@ def _build_deterministic_scores_summary(
 
     ADR-034 (Phase 1): facial_features dict 추가 — facial_feature_classifier
     결과(앙월구·복주구·일자구 등) 한국어 라벨만 포함.
+
+    ADR-183: complexion dict 추가 — ADR-178 ComplexionReport 산출 결과를
+    한국어 라벨만 노출. 의료 인과 어휘 금지 (sanitize는 호출자 책임).
     """
     out: dict[str, Any] = {}
     if face_shape and face_shape.get("shape_type"):
@@ -794,6 +798,28 @@ def _build_deterministic_scores_summary(
                 "shen": round(float(shen or 0), 2),
                 "qi": round(float(qi or 0), 2),
             }
+    # ADR-183 — ADR-178 complexion 결과 노출 (한국어 라벨만)
+    if complexion and isinstance(complexion, dict):
+        rois = complexion.get("rois") or {}
+        if rois:
+            roi_labels: dict[str, str] = {}
+            ROI_KO = {
+                "forehead": "이마", "nose_tip": "코끝", "nose_bridge": "콧대",
+                "chin": "턱", "cheekbone": "광대", "cheek": "뺨",
+                "jaw": "턱선", "neck": "목",
+            }
+            for k, v in rois.items():
+                if isinstance(v, dict):
+                    ko = ROI_KO.get(k, k)
+                    label = v.get("label_short", "")
+                    if label:
+                        roi_labels[ko] = label
+            if roi_labels:
+                out["complexion"] = {
+                    "ROI_라벨": roi_labels,
+                    "전체_균일도": round(float(complexion.get("overall_uniformity", 0)), 2),
+                    "출처": "Biomedical Dermatology 2017 N=543 화장품 베이스라인 (의료 진단 X)",
+                }
     return out
 
 
@@ -1088,9 +1114,22 @@ def generate_face_reading(
         except Exception:
             facial_features_dict = None
 
+    # ADR-183 — ADR-178 ComplexionReport 산출 (metrics에 roi_rgb 있을 때만)
+    complexion_dict: dict[str, Any] | None = None
+    if metrics and isinstance(metrics.get("roi_rgb"), dict):
+        try:
+            from engine.divination.face.complexion import (
+                compute_facial_color, report_to_dict,
+            )
+            comp_report = compute_facial_color(metrics["roi_rgb"])
+            complexion_dict = report_to_dict(comp_report)
+        except Exception:
+            complexion_dict = None
+
     # Stage 2 — 해부학 JSON + 결정론 점수 요약 두 가지 입력
     deterministic_scores = _build_deterministic_scores_summary(
         palace_scores, face_shape_dict, facial_features_dict,
+        complexion=complexion_dict,
     )
     reading_text = _call_stage2_persona(
         anatomical_description, deterministic_scores, age, gender, question,
@@ -1180,6 +1219,7 @@ def generate_face_reading(
         "palace_scores": palace_scores,
         "face_shape": face_shape_dict,
         "facial_features": facial_features_dict,  # ADR-034 Phase 1 — 부위 결정론 분류
+        "complexion": complexion_dict,  # ADR-183 — ADR-178 ComplexionReport
         "anatomical_description": anatomical_description,  # Phase 19 — Opus 순수 해부학 JSON
         "deterministic_scores_summary": deterministic_scores,  # Phase 19 — Stage 2 결정론 입력
         "safety_gate_verdict": safety_verdict,  # ADR-163 — 자동 모순 검출 verdict

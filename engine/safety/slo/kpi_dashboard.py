@@ -266,22 +266,33 @@ def build_kpi(
 def build_dashboard(
     *,
     system_id: str = "face_reading",
-    current_values: dict[str, float],
-    previous_values: dict[str, float] | None = None,
+    current_values: dict[Any, float] | None = None,
+    previous_values: dict[Any, float] | None = None,
 ) -> DashboardPayload:
     """현재값 dict + (선택) 이전값 dict → DashboardPayload.
 
     Args:
-        current_values: {kpi_id: value} — 비어있는 키는 제외
-        previous_values: 이전 윈도우 값 (추세 계산용, 없으면 flat)
+        current_values: {kpi_id: value} 또는 {(kpi_id, dimension): value}.
+            - 단순 키(str): 시스템 전체 KPI
+            - 튜플 키(kpi_id, dim): ADR-186 도메인별 KPI
+            비어있는 키는 제외.
+        previous_values: 이전 윈도우 값 (같은 키 형식, 추세 계산용).
+
+    ADR-186: current_values 키가 (kpi_id, dim) 튜플이면 dimension 분리 측정.
     """
+    current_values = current_values or {}
     previous_values = previous_values or {}
     metrics: list[KPIMetric] = []
-    for kpi_id, value in current_values.items():
+    for key, value in current_values.items():
+        # ADR-186 — 튜플 키 (kpi_id, dim) 지원
+        if isinstance(key, tuple) and len(key) == 2:
+            kpi_id, dim = key
+        else:
+            kpi_id, dim = key, None
         if kpi_id not in _THRESHOLDS:
-            continue  # 알 수 없는 KPI는 스킵
-        prev = previous_values.get(kpi_id)
-        metrics.append(build_kpi(kpi_id, value, previous_value=prev))
+            continue
+        prev = previous_values.get(key)
+        metrics.append(build_kpi(kpi_id, value, previous_value=prev, dimension=dim))
 
     # 전체 상태 — 가장 나쁜 KPI 기준
     if any(m.status == STATUS_BAD for m in metrics):
