@@ -110,12 +110,17 @@ jobs:
     needs: [changes, test]
     runs-on: ubuntu-latest
     timeout-minutes: 60  # ADR-243: CFM 빌드 + 학습 ~30-45분
+    # ADR-247 — workflow_dispatch 도 deploy 트리거 허용 (수동 재배포 필요 시).
+    # paths-filter 미트리거 상황(.gitignore 변경·빈 commit·tests/ 만 변경)을
+    # 수동 우회.
     if: |
       always() &&
       (needs.test.result == 'success' || needs.test.result == 'skipped') &&
-      github.event_name == 'push' &&
       github.ref == 'refs/heads/main' &&
-      needs.changes.outputs.deploy == 'true'
+      (
+        (github.event_name == 'push' && needs.changes.outputs.deploy == 'true') ||
+        github.event_name == 'workflow_dispatch'
+      )
     steps:
       - uses: actions/checkout@v4
 
