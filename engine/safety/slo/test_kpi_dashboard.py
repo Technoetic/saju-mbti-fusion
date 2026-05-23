@@ -397,6 +397,36 @@ def test_adr173_datadog_tags_include_dimension():
     assert any("dim:dream" in tag for item in out for tag in item["tags"])
 
 
+def test_adr174_critic_safety_disagreement_kpi_thresholds():
+    from engine.safety.slo.kpi_dashboard import (
+        build_kpi, KPI_CRITIC_SAFETY_DISAGREEMENT,
+    )
+    m = build_kpi(KPI_CRITIC_SAFETY_DISAGREEMENT, 0.01)
+    assert m.status == "good"
+    m = build_kpi(KPI_CRITIC_SAFETY_DISAGREEMENT, 0.05)
+    assert m.status == "warn"
+    m = build_kpi(KPI_CRITIC_SAFETY_DISAGREEMENT, 0.15)
+    assert m.status == "bad"
+
+
+def test_adr174_critic_safety_kpi_lower_is_better():
+    from engine.safety.slo.kpi_dashboard import (
+        _THRESHOLDS, KPI_CRITIC_SAFETY_DISAGREEMENT,
+    )
+    assert _THRESHOLDS[KPI_CRITIC_SAFETY_DISAGREEMENT].higher_is_better is False
+
+
+def test_adr174_critic_safety_kpi_supports_dimension():
+    """dream·hwapae 도메인 dimension 지원 (critic loop 도메인만)."""
+    from engine.safety.slo.kpi_dashboard import (
+        build_kpi, KPI_CRITIC_SAFETY_DISAGREEMENT,
+    )
+    for d in ("dream", "hwapae"):
+        m = build_kpi(KPI_CRITIC_SAFETY_DISAGREEMENT, 0.02, dimension=d)
+        assert m.dimension == d
+        assert f"[{d}]" in m.label
+
+
 def test_adr173_no_dimension_no_dim_tag_or_target_suffix():
     """dimension 미설정 metric은 dim 태그·접미사 없음 (역호환)."""
     from engine.safety.slo.kpi_dashboard import (

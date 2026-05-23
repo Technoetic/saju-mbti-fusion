@@ -45,6 +45,7 @@ KPI_MONTHLY_COST_PERCENT = "monthly_cost_percent"
 KPI_SAFETY_GATE_FALLBACK_RATE = "safety_gate_fallback_rate"  # WARN/CRITICAL stub 폴백 비율
 KPI_SAFETY_GATE_RETRY_RATE = "safety_gate_retry_rate"        # ADR-169 MINOR 재호출 비율
 KPI_SAFETY_GATE_FATE_RATE = "safety_gate_fate_assertion_rate"  # ADR-171 단정 검출 비율
+KPI_CRITIC_SAFETY_DISAGREEMENT = "critic_safety_disagreement_rate"  # ADR-174 critic↔safety 불일치 비율
 
 
 # §14.11 KPI 상태
@@ -160,6 +161,12 @@ _THRESHOLDS: dict[str, KPIThreshold] = {
     KPI_SAFETY_GATE_FATE_RATE: KPIThreshold(
         warn_at=0.02, bad_at=0.08, higher_is_better=False,
         unit="rate", label="운명·길흉 단정 검출 비율 (ADR-171)",
+    ),
+    # ADR-174 — critic loop 통과했으나 안전망 폴백된 비율
+    # 높을수록 critic 사전 검증 효과 ↓ — critic 룰셋 강화 신호
+    KPI_CRITIC_SAFETY_DISAGREEMENT: KPIThreshold(
+        warn_at=0.03, bad_at=0.10, higher_is_better=False,
+        unit="rate", label="critic 통과 + 안전망 폴백 불일치 비율 (ADR-174)",
     ),
 }
 
