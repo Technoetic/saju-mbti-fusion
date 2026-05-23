@@ -114,6 +114,43 @@ def test_unknown_domain_falls_back_to_common():
     assert r.detected is True
 
 
+# ───── ADR-175 saju 도메인 회귀 ─────
+
+def test_adr175_saju_specific_assertion_detected():
+    from engine.safety.llm.domain_assertion_dict import detect_fate_assertions
+    r = detect_fate_assertions(
+        "이 사주는 대운이 들어오리라.", domain="saju",
+    )
+    assert r.detected is True
+
+
+def test_adr175_saju_marriage_timing_assertion_detected():
+    from engine.safety.llm.domain_assertion_dict import detect_fate_assertions
+    r = detect_fate_assertions(
+        "올해 결혼할 사주가 또렷합니다.", domain="saju",
+    )
+    assert r.detected is True
+
+
+def test_adr175_saju_clean_passes():
+    from engine.safety.llm.domain_assertion_dict import detect_fate_assertions
+    r = detect_fate_assertions(
+        "사주를 풀어보매 흐름이 단정하고 결이 맑으니 차근차근 가꾸어 가는 자세가 좋으리라.",
+        domain="saju",
+    )
+    assert r.detected is False
+
+
+def test_adr175_saju_specific_not_in_face():
+    """saju 전용 어휘는 face 도메인에서 검출 X."""
+    from engine.safety.llm.domain_assertion_dict import detect_fate_assertions
+    r = detect_fate_assertions(
+        "이 사주는 대운이 들어오리라.", domain="face",
+    )
+    saju_specific_matched = [t for t in r.matched_terms if "사주" in t]
+    assert saju_specific_matched == []
+
+
 def test_safety_gate_includes_fate_assertion_domain_kwarg():
     """run_safety_gates(domain=...)가 fate_assertion 게이트 활성화."""
     from engine.safety.llm.output_safety_gate import run_safety_gates

@@ -206,6 +206,54 @@ _STUB_PERSONA_KO: dict[str, str] = {
     ),
 }
 
+# ADR-176 — 다국어 페르소나 stub (en/ja/zh)
+# 페르소나 톤은 한국어 사극이 원본 — 다국어는 차분한 존중 어조로 의역.
+_STUB_PERSONA_EN: dict[str, str] = {
+    "face": (
+        "We could not complete your face reading right now. "
+        "Please try again shortly."
+    ),
+    "palm": (
+        "We could not complete your palm reading right now. "
+        "Please try again shortly."
+    ),
+    "name": (
+        "We could not complete your name reading right now. "
+        "Please try again shortly."
+    ),
+    "dream": (
+        "We could not interpret your dream right now. "
+        "Please try again shortly."
+    ),
+    "hwapae": (
+        "We could not complete your Hwapae card reading right now. "
+        "Please try again shortly."
+    ),
+}
+
+_STUB_PERSONA_JA: dict[str, str] = {
+    "face": "ただいま観相の鑑定がうまくいきませんでした。しばらく経ってから再度お試しください。",
+    "palm": "ただいま手相の鑑定がうまくいきませんでした。しばらく経ってから再度お試しください。",
+    "name": "ただいま姓名判断がうまくいきませんでした。しばらく経ってから再度お試しください。",
+    "dream": "ただいま夢の解釈がうまくいきませんでした。しばらく経ってから再度お試しください。",
+    "hwapae": "ただいま花札の鑑定がうまくいきませんでした。しばらく経ってから再度お試しください。",
+}
+
+_STUB_PERSONA_ZH: dict[str, str] = {
+    "face": "本次面相解读暂时无法完成,请稍后再试。",
+    "palm": "本次手相解读暂时无法完成,请稍后再试。",
+    "name": "本次姓名解读暂时无法完成,请稍后再试。",
+    "dream": "本次梦境解析暂时无法完成,请稍后再试。",
+    "hwapae": "本次花牌解读暂时无法完成,请稍后再试。",
+}
+
+_STUB_PERSONA_BY_LANG: dict[str, dict[str, str]] = {
+    "ko": _STUB_PERSONA_KO,
+    "en": _STUB_PERSONA_EN,
+    "ja": _STUB_PERSONA_JA,
+    "zh": _STUB_PERSONA_ZH,
+}
+
 _STUB_RESPONSE_EN = (
     "We could not complete your reading right now. Please try again shortly."
 )
@@ -231,12 +279,14 @@ def deterministic_stub_response(lang: str = "ko", persona: str | None = None) ->
 
     Args:
         lang: 4언어 지원 (ko/en/ja/zh) — 기본 ko.
-        persona: ADR-170 — 페르소나별 어휘 분기 ('face'/'palm'/'name'/
-            'dream'/'hwapae'). lang='ko'일 때만 적용. None이거나 알 수
-            없는 페르소나면 기존 _STUB_RESPONSE_KO 사용 (역호환).
+        persona: ADR-170·176 — 페르소나별 어휘 분기 ('face'/'palm'/'name'/
+            'dream'/'hwapae'). 4언어 모두 적용 (ADR-176으로 ko 외 확장).
+            None이거나 알 수 없는 페르소나면 lang 기본 stub 사용 (역호환).
     """
-    if lang == "ko" and persona:
-        return _STUB_PERSONA_KO.get(persona, _STUB_RESPONSE_KO)
+    if persona:
+        persona_map = _STUB_PERSONA_BY_LANG.get(lang)
+        if persona_map and persona in persona_map:
+            return persona_map[persona]
     return _STUB_BY_LANG.get(lang, _STUB_RESPONSE_EN)
 
 
