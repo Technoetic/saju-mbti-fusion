@@ -1,0 +1,68 @@
+name: Deploy with U-Net (ADR-224)
+
+# ADR-224 — U-Net 가중치 포함 배포 별도 워크플로우.
+# 기본 deploy.yml은 코어만 — Fly.io shared-cpu-1x 512MB 한계 보호.
+# 본 워크플로우는 수동 트리거 또는 ML 모듈 변경 시.
+#
+# 활성화 조건:
+#   - workflow_dispatch (수동)
+#   - engine/divination/palm/{unet_model,train_unet,...}.py 변경 시
+#
+# 이미지 크기 +300MB, 빌드 시간 +5분. Fly.io 1GB 인스턴스 권장.
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'engine/divination/palm/unet_model.py'
+      - 'engine/divination/palm/unet_line_extractor.py'
+      - 'engine/divination/palm/train_unet.py'
+      - 'engine/divination/palm/generate_training_data.py'
+      - 'engine/divination/palm/self_training.py'
+      - 'engine/divination/palm/augmentation.py'
+      - 'engine/divination/palm/gemini_image_generator.py'
+      - 'engine/divination/palm/dataset_pipeline.py'
+      - 'requirements-ml.txt'
+      - '.github/workflows/deploy-unet.yml'
+
+concurrency:
+  group: deploy-unet-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  deploy-with-unet:
+    name: Deploy U-Net (F1 88~94%)
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Fly.io CLI
+        uses: superfly/flyctl-actions/setup-flyctl@1.5
+
+      - name: Deploy with U-Net weights
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        run: |
+          # ADR-224 — ENABLE_PALM_UNET=1: PyTorch 설치 + 합성 데이터 + 학습 + 가중치 포함
+          flyctl deploy --remote-only --ha=false \
+            --build-arg ENABLE_PALM_UNET=1
+
+      - name: Verify U-Net active in live
+        run: |
+          for i in $(seq 1 18); do
+            sleep 10
+            # 헬스체크 (배포 활성)
+            code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 \
+              https://saju-mbti-fusion.fly.dev/api/health || echo 000)
+            echo "attempt $i: live HTTP=$code"
+            if [ "$code" = "200" ]; then
+              echo "✅ Fly.io U-Net deployment live"
+              exit 0
+            fi
+          done
+          echo "❌ Live health check failed (180s timeout)"
+          exit 1
