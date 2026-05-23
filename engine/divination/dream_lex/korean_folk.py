@@ -66,6 +66,31 @@ DREAM_KCI_CITATIONS: tuple[DreamKciCitation, ...] = (
             "본 시스템 dream.py 다학파 융합 학술 출처."
         ),
     ),
+    # ADR-157 — /squeeze-report 월하몽_도메인지식_URL_검증목록.md v7 차분 (2026-05-23).
+    DreamKciCitation(
+        author_ko="꿈 분석심리학 연구",
+        title_ko="정신분석학과 분석심리학의 소통을 통한 자기실현에 이르는 꿈 분석",
+        journal="KCI 등재 학술 (무의식 상징 통합)",
+        publication_year=0,
+        kci_indexed=True,
+        identifier="ART002716260",
+        topic_focus=(
+            "프로이트 정신분석 × 융 분석심리학 통합 꿈 분석 학술. "
+            "본 시스템 dream.py 학파 다양성 (서양 심리 + 한국 민속) 학술 출처."
+        ),
+    ),
+    DreamKciCitation(
+        author_ko="꿈 정신분석 비교 연구",
+        title_ko="꿈의 기원과 의미에 대한 정신분석적 해석 — 프로이드와 현대 정신분석 관점 비교",
+        journal="KCI 등재 학술",
+        publication_year=0,
+        kci_indexed=True,
+        identifier="ART001206120",
+        topic_focus=(
+            "프로이트 꿈 해석 vs 현대 정신분석 관점 학술 비교. "
+            "본 시스템 dream_lex/ 다학파 융합 (프로이트·융·한국 민속 등) 학술 출처."
+        ),
+    ),
 )
 
 

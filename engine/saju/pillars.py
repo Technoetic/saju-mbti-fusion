@@ -227,6 +227,48 @@ def compute_pillars(
     }
 
 
+# ─────────────────────────── ADR-157 — 야자시 학파 KCI 학술 인용 ───────────────────────────
+
+# /squeeze-report 월하몽_도메인지식_URL_검증목록.md (2026-05-23) 차분.
+# ADR-105 야자시 분기 옵션의 학술 출처 영속화.
+
+from dataclasses import dataclass as _dataclass
+
+
+@_dataclass(frozen=True)
+class YajaTimeKciCitation:
+    """ADR-157 — 야자시(夜子時) 학파 KCI 학술 인용."""
+    author_ko: str
+    title_ko: str
+    journal: str
+    publication_year: int
+    kci_indexed: bool
+    identifier: str
+    topic_focus: str
+
+
+YAJASI_KCI_CITATIONS: tuple[YajaTimeKciCitation, ...] = (
+    YajaTimeKciCitation(
+        author_ko="명리학 시간 논점 학술",
+        title_ko="명리학에서 시간(時間)에 관한 논점 고찰 — 자시(子時)를 중심으로",
+        journal="KCI 등재 학술 (야자시설·정자시설 양론 분석)",
+        publication_year=0,  # 발행년 불명 — KCI 식별번호로 추적
+        kci_indexed=True,
+        identifier="ART001867073",
+        topic_focus=(
+            "정자시설(正子時說, 00:00~02:00 기준) vs 야자시설(夜子時說, 23:00~01:00 기준) "
+            "명리학계 핵심 논쟁 학술 분석. 본 시스템 pillars.py schema='yajasi_separate' "
+            "옵션 분기의 학술 출처 (ADR-105 정합)."
+        ),
+    ),
+)
+
+
+def get_yajasi_kci_citations() -> tuple[YajaTimeKciCitation, ...]:
+    """ADR-157 — 야자시 학파 KCI 학술 인용 풀 조회."""
+    return YAJASI_KCI_CITATIONS
+
+
 __all__ = [
     "CHEONGAN_HAN",
     "CHEONGAN_KO",
@@ -237,4 +279,6 @@ __all__ = [
     "day_pillar",
     "hour_pillar",
     "compute_pillars",
+    # ADR-157 야자시 학파 KCI 학술 인용
+    "YajaTimeKciCitation", "YAJASI_KCI_CITATIONS", "get_yajasi_kci_citations",
 ]
