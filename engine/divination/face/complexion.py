@@ -34,9 +34,10 @@ import math
 # ADR-193: PMC 9907718 한국인 N=595 (평균 24.2세±2.36) skin clustering 자료
 #   추가 검증 — L*a*b* (60.66 dark / 63.87 normal / 66.66 bright) tone 군집
 #   본 베이스라인 L=64.5 (forehead) 등은 normal~bright 군집과 정합.
-# 본 베이스라인은 보수적 디폴트 — 운영 데이터 누적 후 정밀화 가능.
+# 본 베이스라인은 여성 표본 위주(N=543 화장품) — ADR-201 gender 분기 추가.
 
-_KOREAN_FACIAL_LAB_BASELINE: dict[str, dict[str, float]] = {
+# 여성 기본 베이스라인 (ADR-178 원본)
+_KOREAN_FACIAL_LAB_BASELINE_FEMALE: dict[str, dict[str, float]] = {
     "forehead": {"L": 64.5, "a": 12.5, "b": 16.2},
     "nose_tip": {"L": 60.2, "a": 14.8, "b": 17.5},
     "chin": {"L": 62.8, "a": 12.0, "b": 16.0},
@@ -47,7 +48,40 @@ _KOREAN_FACIAL_LAB_BASELINE: dict[str, dict[str, float]] = {
     "nose_bridge": {"L": 61.5, "a": 13.8, "b": 17.0},
 }
 
+# ADR-201 — 남성 베이스라인 보수적 추정
+# 학술 출처: SCIRP 2018 N=34 한국 남성 (L*a*b* 직접 부재이나 skin parameter 보강)
+# 일반적으로 남성 피부는 여성 대비:
+#   - L* 약 -2~-3 (멜라닌 ↑, 약간 어두움)
+#   - a* 약 +0.5 (홍조 ↑, 면도·각질 영향)
+#   - b* 약 +1 (피지 ↑)
+# 보수적 적용 — 운영 데이터 누적 후 정밀화.
+_KOREAN_FACIAL_LAB_BASELINE_MALE: dict[str, dict[str, float]] = {
+    roi: {"L": vals["L"] - 2.5, "a": vals["a"] + 0.5, "b": vals["b"] + 1.0}
+    for roi, vals in _KOREAN_FACIAL_LAB_BASELINE_FEMALE.items()
+}
+
+# 기본 베이스라인 — gender 미지정 시 여성 사용 (역호환)
+_KOREAN_FACIAL_LAB_BASELINE: dict[str, dict[str, float]] = _KOREAN_FACIAL_LAB_BASELINE_FEMALE
+
 _BASELINE_STD: dict[str, float] = {"L": 3.5, "a": 2.0, "b": 2.5}
+
+
+def _select_baseline(gender: str | None) -> dict[str, dict[str, float]]:
+    """ADR-201 — gender 분기 베이스라인 선택.
+
+    Args:
+        gender: 'male' | 'female' | 'M' | 'F' | '남' | '여' | None.
+            None/알 수 없으면 여성 베이스라인 (보수적 디폴트).
+
+    Returns:
+        baseline dict.
+    """
+    if not gender:
+        return _KOREAN_FACIAL_LAB_BASELINE_FEMALE
+    g = gender.lower().strip()
+    if g in ("male", "m", "남"):
+        return _KOREAN_FACIAL_LAB_BASELINE_MALE
+    return _KOREAN_FACIAL_LAB_BASELINE_FEMALE
 
 
 # ADR-006 sanitize - 의료 인과 어휘 차단
@@ -151,6 +185,7 @@ def rgb_to_lab(r: float, g: float, b: float) -> tuple[float, float, float]:
 
 def compute_facial_color(
     roi_rgb: dict[str, tuple[float, float, float]],
+    gender: str | None = None,
 ) -> ComplexionReport:
     """8 ROI 평균 RGB → L*a*b* 분석 + 한국인 베이스라인 z-score.
 
@@ -158,23 +193,26 @@ def compute_facial_color(
         roi_rgb: {roi_key: (r, g, b)} - 사용자 사진 ROI 평균 RGB.
             roi_key는 _KOREAN_FACIAL_LAB_BASELINE 키 (forehead/nose_tip/
             chin/cheekbone/cheek/jaw/neck/nose_bridge).
+        gender: ADR-201 — 'male'/'female'/'M'/'F'/'남'/'여'/None.
+            None이면 여성 베이스라인 (역호환).
 
     Returns:
         ComplexionReport with per-ROI z-scores + overall uniformity.
     """
+    baseline_dict = _select_baseline(gender)
     rois: dict[str, FacialColorResult] = {}
     L_values: list[float] = []
     metrics_used: list[str] = []
 
     for roi_key, rgb in roi_rgb.items():
-        if roi_key not in _KOREAN_FACIAL_LAB_BASELINE:
+        if roi_key not in baseline_dict:
             continue
         if not isinstance(rgb, (tuple, list)) or len(rgb) < 3:
             continue
         r, g, b = float(rgb[0]), float(rgb[1]), float(rgb[2])
         L, a_val, b_val = rgb_to_lab(r, g, b)
 
-        baseline = _KOREAN_FACIAL_LAB_BASELINE[roi_key]
+        baseline = baseline_dict[roi_key]
         L_z = (L - baseline["L"]) / _BASELINE_STD["L"]
         a_z = (a_val - baseline["a"]) / _BASELINE_STD["a"]
         b_z = (b_val - baseline["b"]) / _BASELINE_STD["b"]
