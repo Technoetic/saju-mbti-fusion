@@ -9,6 +9,8 @@ LLM이 입력 메트릭·보조정보(나이·성별·face_count 등)와 모순�
   · face_count_mismatch — face_count=1인데 "두 사람의 상" 언급
   · region_mismatch    — region=KR인데 "유럽인의" 언급
   · gaze_mismatch      — gaze_locked=False인데 "맑게 정면을 보시는"
+  · palace_score_mismatch — LLM 단정 어휘("재물복 풍성")가 결정론 점수와 충돌
+                            (ADR-010 사실성 분리 — Phase 3 본문화)
 
 본 모듈은 응답을 수정하지 않는다 — 검증만. 호출자는 위반 시 llm_fallback_router
 폴백 트리거(persona_failed)로 매핑.
@@ -31,6 +33,7 @@ FACT_GENDER = "gender_mismatch"
 FACT_FACE_COUNT = "face_count_mismatch"
 FACT_REGION = "region_mismatch"
 FACT_GAZE = "gaze_mismatch"
+FACT_PALACE_SCORE = "palace_score_mismatch"  # ADR-004 Phase 3 — 결정론 점수 vs LLM 단정
 
 
 # ─────────────────────────── 어휘 사전 ───────────────────────────
@@ -68,6 +71,54 @@ _NEGATION_MARKERS = (
     "아니라", "아니로", "아닌", "않으",
     "처럼 보이지", "같지 않",
 )
+
+
+# ───── ADR-004 Phase 3 — 12궁 단정 어휘 ↔ palace_score 매핑 ─────
+#
+# 각 궁(palace key)별로, LLM이 사용했을 때 "그 궁이 강함을 단정"하는
+# 단정형 어휘 묶음. 결정론 점수가 약함(< _PALACE_STRONG_THRESHOLD)인데
+# 단정 어휘가 등장하면 사실성 분리(ADR-010) 위반 → 폴백.
+#
+# 부정 어휘(약함 단정)도 마찬가지 — 점수가 강한데 "재물이 빈약" 같이 적으면 위반.
+#
+# 어휘는 본 시스템 시스템 프롬프트 통설 어휘 + knowledge.py 학파 출처와 정합.
+# "운명·길흉" 매핑이 아니라 "결정론 점수 ↔ LLM 어휘" 정합 검증임.
+
+_PALACE_STRONG_THRESHOLD = 0.30  # 이 미만이면 "약/옅"
+_PALACE_WEAK_THRESHOLD = 0.75    # 이 초과면 "강/환"
+
+_PALACE_STRONG_ASSERTIONS: dict[str, tuple[str, ...]] = {
+    "jaebaek": ("재물복이 풍성", "재물복이 두텁", "재백궁이 환하",
+                "재물이 넉넉", "재백궁이 두드러", "재백궁이 빛나"),
+    "gwanrok": ("관록궁이 환하", "관운이 두텁", "벼슬길이 트이",
+                "관록궁이 빛나", "벼슬이 높"),
+    "myeong": ("명궁이 환하", "명궁이 빛나", "명궁이 두드러"),
+    "cheocheop": ("처첩궁이 환하", "처첩궁이 두텁", "혼인 자리가 두텁"),
+    "janyeo": ("자녀궁이 환하", "자손이 넉넉", "자녀 자리가 두드러"),
+    "jilek": ("질액궁이 환하", "건강이 두텁", "산근이 빛나"),
+    "hyeongje": ("형제궁이 환하", "형제 자리가 두텁"),
+    "jeontaek": ("전택궁이 환하", "전택 자리가 두텁"),
+    "nobok": ("노복궁이 환하", "노복 자리가 두텁"),
+    "cheoni": ("천이궁이 환하", "이동 자리가 두텁"),
+    "bokdeok": ("복덕궁이 환하", "복덕 자리가 두텁"),
+    "bumo": ("부모궁이 환하", "부모 자리가 두텁"),
+}
+
+_PALACE_WEAK_ASSERTIONS: dict[str, tuple[str, ...]] = {
+    "jaebaek": ("재물이 빈약", "재백궁이 흐리", "재물복이 옅",
+                "재백궁이 약하"),
+    "gwanrok": ("관록궁이 흐리", "관운이 약하", "벼슬이 트이지 않"),
+    "myeong": ("명궁이 흐리", "명궁이 옅"),
+    "cheocheop": ("처첩궁이 흐리", "혼인 자리가 옅"),
+    "janyeo": ("자녀궁이 흐리", "자녀 자리가 옅"),
+    "jilek": ("질액궁이 흐리", "산근이 흐리"),
+    "hyeongje": ("형제궁이 흐리",),
+    "jeontaek": ("전택궁이 흐리",),
+    "nobok": ("노복궁이 흐리",),
+    "cheoni": ("천이궁이 흐리",),
+    "bokdeok": ("복덕궁이 흐리",),
+    "bumo": ("부모궁이 흐리",),
+}
 
 
 @dataclass(frozen=True)
@@ -188,6 +239,45 @@ def check_gaze_consistency(text: str, gaze_locked: bool | None) -> tuple[bool, l
     return (not matched), matched
 
 
+def check_palace_score_consistency(
+    text: str,
+    palace_scores: dict[str, float] | None,
+) -> tuple[bool, list[str]]:
+    """ADR-004 Phase 3 — LLM 단정 어휘 vs 결정론 점수 정합.
+
+    palace_scores 예: {"jaebaek": 0.18, "gwanrok": 0.82, ...}
+      → "재백궁이 환하" 어휘가 본문에 있는데 점수 0.18이면 위반 (단정 환각)
+      → "재물이 빈약" 어휘가 본문에 있는데 점수 0.82이면 위반 (단정 환각)
+
+    palace_scores가 None이면 검증 면제(역호환). 부정 컨텍스트("재백궁이
+    환한 것은 아니로")는 위반 아님.
+
+    Args:
+        text: LLM 응답 본문.
+        palace_scores: scoring.PalaceScore.score 모음 — {궁key: float}.
+
+    Returns:
+        (ok, matched_terms) — ok=False면 단정 환각 검출.
+    """
+    if not text or not palace_scores:
+        return True, []
+    matched: list[str] = []
+    for palace_key, score in palace_scores.items():
+        if not isinstance(score, (int, float)):
+            continue
+        # 약한 점수 + 강한 단정 어휘 → 위반
+        if score < _PALACE_STRONG_THRESHOLD:
+            for term in _PALACE_STRONG_ASSERTIONS.get(palace_key, ()):
+                if term in text and not _is_negated(text, term):
+                    matched.append(f"{palace_key}:strong:{term}")
+        # 강한 점수 + 약한 단정 어휘 → 위반
+        elif score > _PALACE_WEAK_THRESHOLD:
+            for term in _PALACE_WEAK_ASSERTIONS.get(palace_key, ()):
+                if term in text and not _is_negated(text, term):
+                    matched.append(f"{palace_key}:weak:{term}")
+    return (not matched), matched
+
+
 # ─────────────────────────── 통합 진입점 ───────────────────────────
 
 def check_response(
@@ -197,6 +287,7 @@ def check_response(
     gender: str | None = None,
     metrics: dict[str, Any] | None = None,
     region: str | None = None,
+    palace_scores: dict[str, float] | None = None,
 ) -> FactCheckResult:
     """모든 차원 일괄 검증.
 
@@ -204,6 +295,9 @@ def check_response(
         text: LLM 응답 본문 (legal footer 등 첨부 전이면 더 정확).
         age/gender/region: 입력 보조정보.
         metrics: face_count, gaze_locked 등.
+        palace_scores: ADR-004 Phase 3 — 결정론 12궁 점수 dict.
+            전달되면 LLM 단정 어휘가 점수와 충돌하는지 검증.
+            None이면 검증 면제(역호환).
     """
     if not text:
         return FactCheckResult()
@@ -235,6 +329,11 @@ def check_response(
     ok, matched = check_gaze_consistency(text, metrics.get("gaze_locked"))
     if not ok:
         all_violations.append(FACT_GAZE)
+        all_matched.extend(matched)
+
+    ok, matched = check_palace_score_consistency(text, palace_scores)
+    if not ok:
+        all_violations.append(FACT_PALACE_SCORE)
         all_matched.extend(matched)
 
     return FactCheckResult(
