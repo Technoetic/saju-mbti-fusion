@@ -98,6 +98,7 @@ def run_self_training(
     learning_rate: float = 5e-5,  # 더 작게 (fine-tune)
     img_size: int = 256,
     use_augmentation: bool = True,
+    model_type: str = "auto",  # ADR-239: "auto" | "unet" | "cfm"
 ) -> SelfTrainingResult:
     """Self-training 반복 학습 실행.
 
@@ -111,6 +112,8 @@ def run_self_training(
         learning_rate: 학습률 (fine-tune이라 작게).
         img_size: 입력 크기.
         use_augmentation: ADR-227 augmentation 활성화.
+        model_type: ADR-239 — "auto" (가중치 state_dict 키 패턴으로 자동 식별,
+            CFM 보존), "unet" (강제 표준), "cfm" (강제 CFM).
 
     Returns:
         SelfTrainingResult — iterations·loss·pseudo-label 수.
@@ -122,6 +125,11 @@ def run_self_training(
         from torch.utils.data import Dataset, DataLoader
         from engine.divination.palm.unet_model import UNet
         from engine.divination.palm.unet_line_extractor import _resize_nearest
+        try:
+            from engine.divination.palm.unet_cfm import UNetCFM
+            _has_cfm = True
+        except ImportError:
+            _has_cfm = False
     except ImportError as e:
         return SelfTrainingResult(
             iterations_completed=0, final_loss=float("inf"),
@@ -145,19 +153,41 @@ def run_self_training(
         )
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model = UNet(n_channels=3, n_classes=1).to(device)
 
-    # 초기 가중치 로드 (ADR-223)
+    # ADR-239 — 가중치 키 패턴으로 모델 자동 식별 (CFM 보존)
+    state = None
     if os.path.exists(initial_weights_path):
         try:
             state = torch.load(initial_weights_path, map_location=device,
                                weights_only=True)
             if isinstance(state, dict) and "state_dict" in state:
                 state = state["state_dict"]
+        except Exception as e:
+            print(f"[self-training] 가중치 로드 실패: {e}", flush=True)
+            state = None
+
+    # 모델 클래스 결정
+    if model_type == "cfm" or (
+        model_type == "auto" and state is not None and _has_cfm and
+        any("cfm" in k or "branch" in k or
+            ("attention" in k and "psi" in k) for k in state.keys())
+    ):
+        if _has_cfm:
+            model = UNetCFM(n_channels=3, n_classes=1).to(device)
+            print(f"[self-training] 모델: UNetCFM (ADR-230 attention + context fusion)", flush=True)
+        else:
+            model = UNet(n_channels=3, n_classes=1).to(device)
+    else:
+        model = UNet(n_channels=3, n_classes=1).to(device)
+        print(f"[self-training] 모델: UNet 표준", flush=True)
+
+    # 가중치 적용
+    if state is not None:
+        try:
             model.load_state_dict(state, strict=False)
             print(f"[self-training] 초기 가중치 로드: {initial_weights_path}", flush=True)
         except Exception as e:
-            print(f"[self-training] 초기 가중치 로드 실패 (random init): {e}", flush=True)
+            print(f"[self-training] 가중치 적용 실패 (random init): {e}", flush=True)
 
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
     criterion = nn.BCEWithLogitsLoss()
