@@ -344,6 +344,40 @@ def generate_palm_reading(
     user_text = _build_user_text(age, gender, hand, question)
     usage_sink: list[Any] = []
     text = _call_vision(_PALM_SYSTEM, user_text, image_b64, usage_sink=usage_sink)
+
+    # ADR-164 — palm 안전망 본문 활성화 (face ADR-163 패턴 확산).
+    # palm은 결정론 점수가 reading 본문에 산출되지 않음 (score_palm은 별도 API).
+    # 따라서 palace_scores=None — fact_check 5 차원(age·gender·face_count·region·gaze)
+    # + alignment + persona + pii + token_guard 만 작동.
+    safety_verdict: str | None = None
+    safety_failures: list[str] = []
+    safety_fallback_used = False
+    if text:
+        try:
+            from engine.safety.llm.output_safety_gate import (
+                run_safety_gates, VERDICT_WARN, VERDICT_CRITICAL,
+            )
+            gate_result = run_safety_gates(
+                text,
+                question=question,
+                age=age,
+                gender=gender,
+                metrics=None,
+                lang="ko",
+                palace_scores=None,
+            )
+            safety_verdict = gate_result.verdict
+            safety_failures = list(gate_result.failures)
+            if gate_result.verdict in (VERDICT_WARN, VERDICT_CRITICAL):
+                from engine.safety.incident.llm_fallback_router import (
+                    deterministic_stub_response,
+                )
+                text = deterministic_stub_response("ko")
+                safety_fallback_used = True
+        except Exception:
+            safety_verdict = None
+            safety_failures = []
+
     legal = build_legal_footer(is_crisis=False)
     full_text = (text or "").strip() + legal
 
@@ -358,6 +392,9 @@ def generate_palm_reading(
         "prompt_cache_usage": prompt_cache_usage,
         "crisis_alert": None,
         "legal_notice": legal,
+        "safety_gate_verdict": safety_verdict,
+        "safety_gate_failures": safety_failures,
+        "safety_gate_fallback_used": safety_fallback_used,
     }
     _save_cache(key, out)
     return out
