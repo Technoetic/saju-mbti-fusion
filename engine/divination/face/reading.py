@@ -1095,6 +1095,52 @@ def generate_face_reading(
     reading_text = _call_stage2_persona(
         anatomical_description, deterministic_scores, age, gender, question,
     )
+
+    # ADR-163 — Stage 2 응답 자동 모순 검출 + 폴백 (ADR-004 Phase 3 활성화).
+    # palace_scores와 LLM 단정 어휘가 충돌하면(FACT_PALACE_SCORE) deterministic
+    # stub으로 폴백 — ADR-161 안전망을 face/reading.py 본문에 실제 연결.
+    safety_verdict: str | None = None
+    safety_failures: list[str] = []
+    safety_fallback_used = False
+    if reading_text:
+        try:
+            from engine.safety.llm.output_safety_gate import (
+                run_safety_gates, VERDICT_WARN, VERDICT_CRITICAL,
+            )
+            # palace_scores 구조 ({"palaces": {<key>: {"score": float, ...}}})
+            # → fact_check가 기대하는 {<key>: float} 평탄화.
+            flat_scores: dict[str, float] | None = None
+            if isinstance(palace_scores, dict):
+                palaces_map = palace_scores.get("palaces")
+                if isinstance(palaces_map, dict):
+                    flat_scores = {}
+                    for k, v in palaces_map.items():
+                        if isinstance(v, dict):
+                            score_val = v.get("score")
+                            if isinstance(score_val, (int, float)):
+                                flat_scores[k] = float(score_val)
+            gate_result = run_safety_gates(
+                reading_text,
+                question=question,
+                age=age,
+                gender=gender,
+                metrics=metrics,
+                lang="ko",
+                palace_scores=flat_scores,
+            )
+            safety_verdict = gate_result.verdict
+            safety_failures = list(gate_result.failures)
+            if gate_result.verdict in (VERDICT_WARN, VERDICT_CRITICAL):
+                from engine.safety.incident.llm_fallback_router import (
+                    deterministic_stub_response,
+                )
+                reading_text = deterministic_stub_response("ko")
+                safety_fallback_used = True
+        except Exception:
+            # 안전망 자체 실패 시 원본 응답 유지 (회귀 보호)
+            safety_verdict = None
+            safety_failures = []
+
     legal = build_legal_footer(is_crisis=False)
     full_text = (reading_text or "").strip() + legal
 
@@ -1114,6 +1160,9 @@ def generate_face_reading(
         "facial_features": facial_features_dict,  # ADR-034 Phase 1 — 부위 결정론 분류
         "anatomical_description": anatomical_description,  # Phase 19 — Opus 순수 해부학 JSON
         "deterministic_scores_summary": deterministic_scores,  # Phase 19 — Stage 2 결정론 입력
+        "safety_gate_verdict": safety_verdict,  # ADR-163 — 자동 모순 검출 verdict
+        "safety_gate_failures": safety_failures,
+        "safety_gate_fallback_used": safety_fallback_used,
     }
     _save_cache(key, out)
     return out
