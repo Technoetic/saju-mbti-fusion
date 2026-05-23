@@ -52,11 +52,19 @@ COPY de440s.bsp ./de440s.bsp
 #   fly deploy --build-arg ENABLE_PALM_UNET=1
 # 효과: 외부 호스팅(S3·Hugging Face) 결단 우회 — 이미지 자체에 가중치 포함.
 ARG ENABLE_PALM_UNET=0
+ARG ENABLE_REAL_PALM_DATA=0
 COPY requirements-ml.txt ./requirements-ml.txt
 RUN if [ "$ENABLE_PALM_UNET" = "1" ]; then \
         pip install --user --no-warn-script-location -r requirements-ml.txt && \
-        python -m engine.divination.palm.generate_training_data \
-            --output-dir data/palm/training/ --n-images 500 --img-size 256 && \
+        if [ "$ENABLE_REAL_PALM_DATA" = "1" ]; then \
+            pip install --user --quiet gdown && \
+            python -m engine.divination.palm.download_11k_hands \
+                --output-dir data/palm/11k_dataset/ && \
+            cp data/palm/11k_dataset/palmar_only/*.jpg data/palm/training/ 2>/dev/null || true ; \
+        else \
+            python -m engine.divination.palm.generate_training_data \
+                --output-dir data/palm/training/ --n-images 500 --img-size 256 ; \
+        fi && \
         python -m engine.divination.palm.train_unet \
             --data-dir data/palm/training/ \
             --output data/palm/unet_weights.pt \
@@ -68,7 +76,7 @@ RUN if [ "$ENABLE_PALM_UNET" = "1" ]; then \
                 output_path='data/palm/unet_weights.pt', \
                 n_iterations=3, epochs_per_iter=5, batch_size=8, img_size=256, \
                 use_augmentation=True))" && \
-        rm -rf data/palm/training/ ; \
+        rm -rf data/palm/training/ data/palm/11k_dataset/ ; \
     fi
 
 # 빌드 컨텍스트에 __pycache__ 잔존 시 정리 (런타임 무용)
