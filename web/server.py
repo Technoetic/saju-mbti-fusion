@@ -2212,18 +2212,40 @@ class PersonalityAPIServer:
                 keypoints = req.metrics.get("keypoints")
                 if isinstance(keypoints, dict) and any(k.startswith("kp") for k in keypoints):
                     try:
-                        from engine.divination.palm.scoring import score_palm
+                        # ADR-250 — score_palm_with_cfm: keypoint + CFM 마스크 결합.
+                        # image 디코드 성공 시 CFM 가중 결합, 실패 시 keypoint-only fallback.
+                        from engine.divination.palm.scoring import score_palm_with_cfm
                         hand_side = req.hand or req.metrics.get("hand_side_mp") or "unknown"
-                        palm_report = await asyncio.to_thread(score_palm, keypoints, hand_side)
+
+                        # base64 → numpy (PIL 사용, 가벼움)
+                        img_array = None
+                        if req.image_base64:
+                            try:
+                                from PIL import Image
+                                from io import BytesIO
+                                import base64 as _b64
+                                import numpy as _np
+                                img_bytes = _b64.b64decode(req.image_base64)
+                                pil_img = Image.open(BytesIO(img_bytes)).convert("RGB")
+                                img_array = _np.asarray(pil_img)
+                            except Exception:
+                                img_array = None
+
+                        palm_report = await asyncio.to_thread(
+                            score_palm_with_cfm, keypoints, img_array, hand_side,
+                        )
                         # 결정론 점수 메타를 system prompt 주입용 블록으로 압축.
                         lines_summary = " · ".join(
                             f"{ls.name}({ls.label_ko or ls.label}/{ls.score:.2f})"
                             for ls in palm_report.lines.values()
                         )
+                        cfm_used = palm_report.metadata.get("cfm_used", False)
+                        adr_tag = "ADR-250 CFM 융합" if cfm_used else "ADR-160 keypoint only"
                         palm_deterministic_block = (
-                            "[손금 결정론 — ADR-160 MediaPipe Hand 21 keypoint]\n"
+                            f"[손금 결정론 — {adr_tag}]\n"
                             f"  · 손 측: {palm_report.hand_side}\n"
                             f"  · 4 손금선 + 금성대 점수: {lines_summary}\n"
+                            f"  · CFM 마스크 결합: {'YES (UNetCFM, F1 0.86 baseline)' if cfm_used else 'NO (image 부재 또는 모델 미가용)'}\n"
                             f"[안전 장치 — ADR-006/113] 결정론 점수만 인용. "
                             f"수명·재물·운명 단정 금지. 형태 분류 메타로만 풀이.\n"
                             f"{palm_report.disclaimer_ko}"

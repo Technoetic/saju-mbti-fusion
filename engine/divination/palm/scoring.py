@@ -275,6 +275,115 @@ def score_palm(
     )
 
 
+def score_palm_with_cfm(
+    keypoints: dict,
+    image: "np.ndarray | None" = None,
+    hand_side: str = "unknown",
+) -> PalmScoringReport:
+    """ADR-250 — keypoint 점수 + CFM 마스크 밀도 결합.
+
+    score_palm(keypoint only)의 한계: CFM 가중치가 정확해도 점수에 반영 X.
+    본 함수는 image 입력 시 CFM 마스크의 영역별 밀도를 keypoint score와
+    가중 결합 — 모델 정확도 향상이 사용자에게 보이도록.
+
+    결합 규칙 (선별 검증된 매핑):
+      · lifeline       ↔ lower_left_density  (엄지 아래 곡선)
+      · headline       ↔ middle_density       (손바닥 중간 수평)
+      · heartline      ↔ upper_density        (상부 수평)
+      · fateline       ↔ middle_density       (중심 수직, headline과 영역 공유)
+      · girdle_of_venus↔ upper_density        (상부, heartline 위)
+
+    가중치: keypoint 0.6 + CFM 0.4 (keypoint 기하학적 객관성 우위 유지,
+    CFM은 보조 검증). image 부재 시 keypoint only로 fallback.
+
+    Args:
+        keypoints: MediaPipe Hand 21 keypoint dict.
+        image: 손바닥 RGB (H, W, 3). None 시 keypoint-only 작동.
+        hand_side: "left" | "right" | "unknown"
+
+    Returns:
+        PalmScoringReport — lines + rationale + metadata.cfm_used.
+    """
+    # 1. keypoint baseline 점수 (기존 로직 재사용)
+    base_report = score_palm(keypoints, hand_side)
+    if image is None:
+        return base_report
+
+    # 2. CFM 마스크 밀도 추출
+    try:
+        from engine.divination.palm.unet_line_extractor import (
+            extract_palm_lines_best_available,
+        )
+        cfm_result = extract_palm_lines_best_available(image)
+    except Exception:
+        return base_report
+
+    if not cfm_result.used_unet:
+        # U-Net 부재 — keypoint only
+        return base_report
+
+    metrics = cfm_result.raw_metrics or {}
+    # 영역 → 손금 매핑
+    line_to_density = {
+        "lifeline":        float(metrics.get("lower_left_density", 0.0)),
+        "headline":        float(metrics.get("middle_density", 0.0)),
+        "heartline":       float(metrics.get("upper_density", 0.0)),
+        "fateline":        float(metrics.get("middle_density", 0.0)),
+        "girdle_of_venus": float(metrics.get("upper_density", 0.0)),
+    }
+
+    # 3. 가중 결합 (keypoint 0.6 + CFM 0.4)
+    # CFM 밀도는 0~1 범위지만 보통 0.05~0.30 — 0~0.30 → 0~1 정규화.
+    KP_W = 0.6
+    CFM_W = 0.4
+    DENSITY_NORM = 0.30  # density 0.30 = score 1.0
+
+    new_lines: dict[str, LineScore] = {}
+    for key, ls in base_report.lines.items():
+        cfm_density = line_to_density.get(key, 0.0)
+        cfm_score = min(cfm_density / DENSITY_NORM, 1.0)
+        combined = ls.score * KP_W + cfm_score * CFM_W
+        combined = max(0.0, min(1.0, combined))
+        # label 재산정 — combined 기준 threshold 동일 (low<0.33<mid<0.67<high)
+        if combined < 0.33:
+            new_label = "low"
+        elif combined < 0.67:
+            new_label = "medium"
+        else:
+            new_label = "high"
+        # 한국어 label_ko 는 기존 매핑 유지 (low/mid/high → 동일 label_ko)
+        # 단, label 가 바뀐 경우 baseline에서 그 label의 label_ko 가 필요.
+        # 단순화: ls.label_ko 가 ls.label 기반이었으니 새 label에 맞춰 빈 문자열.
+        new_lines[key] = LineScore(
+            key=ls.key,
+            name=ls.name,
+            score=round(combined, 4),
+            label=new_label,  # type: ignore[arg-type]
+            label_ko=ls.label_ko if new_label == ls.label else f"({new_label})",
+            evidence=ls.evidence,
+            academic_source=ls.academic_source,
+        )
+
+    new_rationale = _build_rationale(new_lines, hand_side)
+    return PalmScoringReport(
+        hand_side=hand_side,
+        lines=new_lines,
+        disclaimer_ko=base_report.disclaimer_ko,
+        rationale=new_rationale,
+        metadata={
+            "adr": "ADR-250",
+            "school_source": "MediaPipe Hand + Size Korea + KCI + CFM (arXiv 2102.12127)",
+            "cfm_used": True,
+            "cfm_weights": {
+                "keypoint": KP_W,
+                "cfm_mask": CFM_W,
+                "density_norm": DENSITY_NORM,
+            },
+            "cfm_raw_metrics": metrics,
+        },
+    )
+
+
 def _build_rationale(lines: dict[str, LineScore], hand_side: str) -> str:
     """학파 명시 + ADR-010 면책 포함 사용자 출력 (보고서 §5.2 패턴)."""
     if not lines:
