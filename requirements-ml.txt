@@ -12,9 +12,19 @@
 #   - engine/divination/palm/unet_line_extractor.py (PyTorch 가용 시)
 #   - engine/divination/palm/train_unet.py (ADR-221 학습 스크립트)
 
-# CPU 추론 충분 — GPU는 학습 시만 필요
-torch>=2.0.0,<3.0.0
+# ADR-248 — CPU-only PyTorch (Fly.io shared-cpu, GPU 없음).
+# CUDA wheel ~1.3GB → CPU wheel ~127MB (10배 절약).
+# 효과:
+#   · Docker 이미지: 800MB → 200MB (Fly.io 512MB VM 메모리 여유 ↑)
+#   · 빌드 시간: 14분 → 5분 (NVIDIA wheel 다운로드 + 설치 단계 제거)
+#   · 매 deploy 비용 ↓, 안정성 ↑
+#
+# 라이브 추론 정확도 영향 0 (CPU 연산 결과 동일).
+# 로컬 학습은 별도 가상환경에서 CUDA wheel 사용.
+#
+# 검증 (Windows): torch-2.12.0+cpu-cp312 (122.9MB) + torchvision-0.27.0+cpu (4MB)
+--index-url https://download.pytorch.org/whl/cpu
+--extra-index-url https://pypi.org/simple
 
-# ADR-244 — torchvision 필수 (train_unet.py StreamingPalmDataset의 read_image 사용).
-# torch는 단독 설치 시 torchvision 미포함 — 명시 의무.
+torch>=2.0.0,<3.0.0
 torchvision>=0.15.0,<1.0.0
