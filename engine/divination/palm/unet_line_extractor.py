@@ -284,3 +284,127 @@ def _resize_nearest(img: np.ndarray, target_h: int, target_w: int) -> np.ndarray
     y_idx = (np.arange(target_h) * h / target_h).astype(int)
     x_idx = (np.arange(target_w) * w / target_w).astype(int)
     return img[y_idx[:, None], x_idx[None, :]]
+
+
+def _hand_bbox_from_keypoints(
+    keypoints: dict,
+    img_h: int,
+    img_w: int,
+    padding_ratio: float = 0.1,
+) -> tuple[int, int, int, int] | None:
+    """ADR-251 — MediaPipe 21 keypoint에서 손 bounding box 추출.
+
+    MediaPipe keypoint: 정규화 좌표 (0~1) [x, y, z].
+    keypoint 부재 / 비정상 시 None 반환.
+
+    Args:
+        keypoints: {"kp0": [x, y, z], ..., "kp20": [...]} dict.
+        img_h, img_w: 원본 이미지 해상도.
+        padding_ratio: bbox 확장 비율 (기본 10%).
+
+    Returns:
+        (y0, y1, x0, x1) 픽셀 좌표 또는 None.
+    """
+    try:
+        xs, ys = [], []
+        for k, v in keypoints.items():
+            if not k.startswith("kp"):
+                continue
+            if not isinstance(v, (list, tuple)) or len(v) < 2:
+                continue
+            x, y = float(v[0]), float(v[1])
+            # 정규화 좌표면 [0,1], 픽셀 좌표면 [0, img_w] 추정
+            if 0.0 <= x <= 1.0 and 0.0 <= y <= 1.0:
+                xs.append(x * img_w)
+                ys.append(y * img_h)
+            else:
+                xs.append(x)
+                ys.append(y)
+        if len(xs) < 5:  # 최소 5점 (정상은 21)
+            return None
+        x0, x1 = min(xs), max(xs)
+        y0, y1 = min(ys), max(ys)
+        # padding
+        bw, bh = x1 - x0, y1 - y0
+        if bw <= 0 or bh <= 0:
+            return None
+        pad_x = bw * padding_ratio
+        pad_y = bh * padding_ratio
+        x0 = max(0, int(x0 - pad_x))
+        x1 = min(img_w, int(x1 + pad_x))
+        y0 = max(0, int(y0 - pad_y))
+        y1 = min(img_h, int(y1 + pad_y))
+        # 최소 영역 보장 (이미지의 5% 이상)
+        if (x1 - x0) < img_w * 0.05 or (y1 - y0) < img_h * 0.05:
+            return None
+        return (y0, y1, x0, x1)
+    except Exception:
+        return None
+
+
+def extract_palm_lines_hand_conditioned(
+    img: np.ndarray,
+    keypoints: dict | None = None,
+) -> UNetExtractionResult:
+    """ADR-251 — MediaPipe 손 영역 conditioned CFM 추론.
+
+    keypoint로 손 bbox 추출 → 손 영역만 crop → CFM 추론 → 마스크 복원.
+    배경 노이즈 제거 + 손 영역 집중 학습으로 F1 +1~2%p 기대.
+
+    Args:
+        img: 원본 RGB (H, W, 3).
+        keypoints: MediaPipe 21 keypoint dict. None / 부족 시 전체 이미지 사용.
+
+    Returns:
+        UNetExtractionResult — extract_palm_lines_best_available 와 동일 형식.
+        metadata: raw_metrics["hand_conditioned"] = True/False.
+    """
+    if keypoints is None or not isinstance(keypoints, dict):
+        return extract_palm_lines_best_available(img)
+
+    h, w = img.shape[:2]
+    bbox = _hand_bbox_from_keypoints(keypoints, h, w)
+    if bbox is None:
+        # keypoint 비정상 → 전체 이미지로 fallback
+        result = extract_palm_lines_best_available(img)
+        if result.raw_metrics:
+            result.raw_metrics["hand_conditioned"] = False
+        return result
+
+    y0, y1, x0, x1 = bbox
+    # crop
+    hand_crop = img[y0:y1, x0:x1]
+    if hand_crop.size == 0:
+        return extract_palm_lines_best_available(img)
+
+    # crop된 영역으로 추론
+    cropped_result = extract_palm_lines_best_available(hand_crop)
+    # raw_metrics 에 hand_conditioned 표기
+    metrics = dict(cropped_result.raw_metrics) if cropped_result.raw_metrics else {}
+    metrics["hand_conditioned"] = True
+    metrics["hand_bbox"] = {"y0": y0, "y1": y1, "x0": x0, "x1": x1}
+    metrics["hand_bbox_ratio"] = round((y1 - y0) * (x1 - x0) / (h * w), 4)
+
+    # mask 가 있으면 원본 좌표계로 복원
+    restored_mask = None
+    if cropped_result.mask is not None:
+        restored_mask = np.zeros((h, w), dtype=cropped_result.mask.dtype)
+        crop_h, crop_w = cropped_result.mask.shape
+        # crop_h/w 와 bbox 크기 일치 시 단순 paste, 아니면 리사이즈
+        if (crop_h, crop_w) == (y1 - y0, x1 - x0):
+            restored_mask[y0:y1, x0:x1] = cropped_result.mask
+        else:
+            # CFM 출력은 256x256 — bbox 크기로 nearest 리사이즈
+            resized = _resize_nearest(
+                cropped_result.mask[..., None].astype(np.float32),
+                y1 - y0, x1 - x0,
+            )[..., 0]
+            restored_mask[y0:y1, x0:x1] = (resized > 0.5).astype(cropped_result.mask.dtype)
+
+    return UNetExtractionResult(
+        used_unet=cropped_result.used_unet,
+        mask=restored_mask,
+        raw_metrics=metrics,
+        fallback_reason=cropped_result.fallback_reason,
+        source_url=cropped_result.source_url,
+    )
