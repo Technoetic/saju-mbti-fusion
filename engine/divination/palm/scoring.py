@@ -310,6 +310,9 @@ def score_palm_with_cfm(
         return base_report
 
     # 2. CFM 마스크 밀도 추출
+    # ADR-251 검증 결과: 11k Hands eval (손 영역 100%) 에서는 hand-conditioned가
+    # 오히려 F1 감소 (-60%). 실 사용자 사진 (배경 多) 에서만 효과 기대.
+    # 기본은 전체 이미지, hand-conditioned 는 opt-in (extract_palm_lines_hand_conditioned 직접 호출).
     try:
         from engine.divination.palm.unet_line_extractor import (
             extract_palm_lines_best_available,
