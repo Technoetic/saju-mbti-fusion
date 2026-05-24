@@ -2165,7 +2165,22 @@ class PersonalityAPIServer:
             state_keys_sample: list[str] = []
             if avail.model_weights_path and _os.path.exists(avail.model_weights_path):
                 weights_size = _os.path.getsize(avail.model_weights_path)
-                if avail.pytorch_available:
+                # ADR-253 — .onnx 경로면 ONNX 메타 추출, 아니면 .pt state_dict
+                if avail.model_weights_path.endswith(".onnx"):
+                    try:
+                        import onnx as _onnx
+                        m = _onnx.load(avail.model_weights_path)
+                        names = [init.name for init in m.graph.initializer]
+                        state_keys_sample = names[:6]
+                        is_cfm = any(
+                            "cfm" in k or "branch" in k
+                            or ("attention" in k and "psi" in k)
+                            for k in names
+                        )
+                        model_type = "cfm-onnx" if is_cfm else "unet-onnx"
+                    except Exception as e:
+                        model_type = f"onnx_meta_error: {type(e).__name__}"
+                elif avail.pytorch_available:
                     try:
                         import torch as _torch
                         state = _torch.load(
