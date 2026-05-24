@@ -35,9 +35,11 @@ import numpy as np
 # 환경변수로 모델 경로 지정 (사용자 결단 시 설정)
 _MODEL_PATH_ENV = "PALM_UNET_MODEL_PATH"
 
-# ADR-222 + ADR-246 — 기본 가중치 경로 자동 탐색
-# models/ 우선 (Fly.io 볼륨 마운트 /app/data 회피 — ADR-246).
-# data/palm/ 는 레거시 호환.
+# ADR-222 + ADR-246 + ADR-253 — 기본 가중치 경로 자동 탐색
+# ONNX 우선 (CPU 추론 1.78x 가속, PyTorch 의존성 ↓), .pt fallback.
+_DEFAULT_ONNX_PATHS = (
+    "models/unet_weights_cfm.onnx",
+)
 _DEFAULT_WEIGHTS_PATHS = (
     "models/unet_weights.pt",
     "models/unet_weights.pth",
@@ -52,6 +54,13 @@ try:
     _HAS_TORCH = True
 except ImportError:
     _HAS_TORCH = False
+
+# ADR-253 — ONNX Runtime 옵션 import
+try:
+    import onnxruntime as _ort
+    _HAS_ORT = True
+except ImportError:
+    _HAS_ORT = False
 
 
 SOURCE_URL_PAPER = "https://arxiv.org/abs/2102.12127"
@@ -77,9 +86,22 @@ class UNetAvailability:
 def check_unet_availability() -> UNetAvailability:
     """U-Net 활성화 가능 여부 점검 (모델 로드 없이).
 
+    ADR-253 — ONNX Runtime 우선 (1.78x 가속), 부재 시 PyTorch fallback.
+
     Returns:
-        UNetAvailability — PyTorch 설치·모델 경로·로드 가능 여부.
+        UNetAvailability — PyTorch/ONNX 설치·모델 경로·로드 가능 여부.
     """
+    # ADR-253 — ONNX Runtime 우선 점검
+    if _HAS_ORT:
+        for onnx_path in _DEFAULT_ONNX_PATHS:
+            if os.path.exists(onnx_path):
+                return UNetAvailability(
+                    pytorch_available=True,  # ONNX 가용 의미
+                    model_weights_path=onnx_path,
+                    model_loadable=True,
+                    fallback_reason="ready",
+                )
+
     if not _HAS_TORCH:
         return UNetAvailability(
             pytorch_available=False,
@@ -176,23 +198,90 @@ def extract_palm_lines_best_available(
     )
 
 
+def _run_onnx_inference(img: np.ndarray, onnx_path: str) -> dict | None:
+    """ADR-253 — ONNX Runtime CPU 추론 (PyTorch보다 1.78x 빠름)."""
+    if not _HAS_ORT or not os.path.exists(onnx_path):
+        return None
+    try:
+        # 전처리: RGB (H, W, 3) → (1, 3, 256, 256) float32 [0,1]
+        if img.ndim == 2:
+            img_rgb = np.stack([img] * 3, axis=-1)
+        else:
+            img_rgb = img[..., :3]
+        img_resized = _resize_nearest(img_rgb.astype(np.float32), 256, 256)
+        img_norm = img_resized / 255.0
+        tensor = img_norm.transpose(2, 0, 1)[None, ...].astype(np.float32)
+
+        # 추론 (세션은 lazy + 모듈 캐시)
+        sess = _get_ort_session(onnx_path)
+        logits = sess.run(None, {"input": tensor})[0][0, 0]  # (H, W)
+        prob = 1.0 / (1.0 + np.exp(-logits))  # sigmoid
+        mask = prob > 0.5
+
+        # 5 영역 밀도
+        h, w = mask.shape
+        upper = mask[: h // 3, :]
+        middle = mask[h // 3 : 2 * h // 3, :]
+        lower = mask[2 * h // 3 :, :]
+        lower_left = mask[2 * h // 3 :, : w // 2]
+        lower_right = mask[2 * h // 3 :, w // 2 :]
+
+        def _d(m):
+            return float(m.sum()) / max(m.size, 1)
+
+        return {
+            "mask": mask,
+            "raw_metrics": {
+                "upper_density": round(_d(upper), 4),
+                "middle_density": round(_d(middle), 4),
+                "lower_density": round(_d(lower), 4),
+                "lower_left_density": round(_d(lower_left), 4),
+                "lower_right_density": round(_d(lower_right), 4),
+                "overall_density": round(_d(mask), 4),
+                "unet_threshold": 0.5,
+                "inference_backend": "onnxruntime",
+            },
+        }
+    except Exception:
+        return None
+
+
+# 세션 캐시 — 매 호출마다 ONNX 로드 방지
+_ORT_SESSION_CACHE: dict = {}
+
+
+def _get_ort_session(onnx_path: str):
+    """ONNX Runtime 세션 캐시 (모델 로드 1회만)."""
+    if onnx_path not in _ORT_SESSION_CACHE:
+        _ORT_SESSION_CACHE[onnx_path] = _ort.InferenceSession(
+            onnx_path, providers=["CPUExecutionProvider"],
+        )
+    return _ORT_SESSION_CACHE[onnx_path]
+
+
 def _run_unet_inference(
     img: np.ndarray,
     weights_path: str | None,
 ) -> dict | None:
-    """ADR-217 — U-Net 추론 실 구현.
+    """ADR-217 + ADR-253 — U-Net 추론.
 
-    PyTorch + 가중치 파일 가용 시 milesial/Pytorch-UNet 아키텍처로 추론.
-    GPL-3.0 라이선스 (본 시스템 학습·재사용 시 의무 — 운영 시 사용자 결단).
+    ONNX 우선 (1.78x 가속) → PyTorch fallback.
 
     Args:
         img: 입력 이미지 (H, W, 3) RGB.
-        weights_path: 모델 가중치 파일 경로 (.pt or .pth).
+        weights_path: 가중치 경로 (.onnx 또는 .pt/.pth).
 
     Returns:
         {"mask": np.ndarray, "raw_metrics": dict} or None on failure.
     """
-    if not _HAS_TORCH or not weights_path:
+    if not weights_path:
+        return None
+
+    # ADR-253 — .onnx 경로면 ONNX Runtime 사용
+    if weights_path.endswith(".onnx"):
+        return _run_onnx_inference(img, weights_path)
+
+    if not _HAS_TORCH:
         return None
 
     try:

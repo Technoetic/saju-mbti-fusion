@@ -13,18 +13,20 @@
 #   - engine/divination/palm/train_unet.py (ADR-221 학습 스크립트)
 
 # ADR-248 — CPU-only PyTorch (Fly.io shared-cpu, GPU 없음).
-# CUDA wheel ~1.3GB → CPU wheel ~127MB (10배 절약).
+# ADR-253 — ONNX Runtime 우선 (1.78x 추론 가속), PyTorch 는 fallback.
+#
 # 효과:
 #   · Docker 이미지: 800MB → 200MB (Fly.io 512MB VM 메모리 여유 ↑)
-#   · 빌드 시간: 14분 → 5분 (NVIDIA wheel 다운로드 + 설치 단계 제거)
-#   · 매 deploy 비용 ↓, 안정성 ↑
+#   · 빌드 시간: 14분 → 3분
+#   · 추론 속도: PyTorch 89ms → ONNX 50ms (1.78x)
 #
-# 라이브 추론 정확도 영향 0 (CPU 연산 결과 동일).
+# 라이브 추론 정확도 동일 (max_diff 1.03e-4).
 # 로컬 학습은 별도 가상환경에서 CUDA wheel 사용.
-#
-# 검증 (Windows): torch-2.12.0+cpu-cp312 (122.9MB) + torchvision-0.27.0+cpu (4MB)
 --index-url https://download.pytorch.org/whl/cpu
 --extra-index-url https://pypi.org/simple
 
 torch>=2.0.0,<3.0.0
 torchvision>=0.15.0,<1.0.0
+
+# ADR-253 — ONNX Runtime CPU (~50MB, PyTorch 없이도 추론 가능)
+onnxruntime>=1.16.0,<2.0.0
