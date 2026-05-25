@@ -1053,6 +1053,16 @@ class PersonalityAPIServer:
                         pass
             asyncio.create_task(_loop())
 
+        # ADR-256 — ONNX 세션 사전 빌드 (첫 사용자 502 회피)
+        @self.app.on_event("startup")
+        async def _warmup_palm_unet():
+            try:
+                from engine.divination.palm.unet_line_extractor import warmup_unet_session
+                ok = await asyncio.to_thread(warmup_unet_session)
+                print(f"[ADR-256 warmup] palm UNet session ready={ok}")
+            except Exception as e:
+                print(f"[ADR-256 warmup] skipped: {e}")
+
         # 24시간마다 DB 백업
         @self.app.on_event("startup")
         async def _periodic_backup():
@@ -2268,14 +2278,36 @@ class PersonalityAPIServer:
                     except Exception:
                         pass
 
-            result = await asyncio.to_thread(
-                generate_palm_reading,
-                req.image_base64,
-                req.age,
-                req.gender,
-                req.hand,
-                req.question,
-            )
+            # ADR-256 — LLM 실패 시 결정론 점수 + 친절 안내 반환 (502 회피).
+            try:
+                result = await asyncio.to_thread(
+                    generate_palm_reading,
+                    req.image_base64,
+                    req.age,
+                    req.gender,
+                    req.hand,
+                    req.question,
+                )
+            except Exception as llm_err:
+                # Vision LLM 실패 → 결정론 점수 + 옥선 할미 어조 안내
+                fallback_text = (
+                    "허허, 오늘은 이 할미의 눈이 조금 흐려져 손금이 자세히 안 보이는구만. "
+                    "잠시 후 다시 손을 펼쳐 보여주시게.\n\n"
+                )
+                if palm_deterministic_block:
+                    fallback_text += (
+                        "다만 결정론 분석은 잠시 살펴봤네:\n"
+                        + palm_deterministic_block.split("\n", 1)[1].split("[안전")[0]
+                    )
+                fallback_text += (
+                    "\n\n※ 본 결과는 참고용이며, 의료·법률·금융 의사결정의 단독 근거가 될 수 없습니다."
+                )
+                result = {
+                    "text": fallback_text,
+                    "cached": False,
+                    "llm_fallback": True,
+                    "llm_error": type(llm_err).__name__,
+                }
             # 결정론 블록을 result에 노출 (LLM 호출자 inject 가능).
             if palm_deterministic_block and isinstance(result, dict):
                 result["deterministic_block"] = palm_deterministic_block
@@ -2288,7 +2320,13 @@ class PersonalityAPIServer:
         except ValueError as ve:
             raise HTTPException(400, str(ve))
         except Exception as e:
-            raise HTTPException(500, str(e))
+            # ADR-256 최후 fallback — 그래도 502 안 내고 친절 메시지
+            return {
+                "text": "허허, 잠시 후 다시 시도해주시게. 이 할미의 눈이 흐려져 있어. "
+                        "※ 참고용이며 의료·법률·금융 의사결정의 단독 근거가 될 수 없습니다.",
+                "cached": False,
+                "fatal_error": type(e).__name__,
+            }
 
     async def post_star_reading(
         self, req: StarReadingRequest
