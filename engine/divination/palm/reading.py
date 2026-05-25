@@ -408,7 +408,20 @@ def generate_palm_reading(
 
             safety_verdict = gate_result.verdict
             safety_failures = list(gate_result.failures)
-            if gate_result.verdict in (VERDICT_WARN, VERDICT_CRITICAL):
+            # ADR-258 — 선택적 stub 대체.
+            # · CRITICAL (pii_leak·medical_legal 등): stub (의료·법률 단정 차단)
+            # · WARN + fact_check/alignment/consistency 실패: stub (사실 불일치)
+            # · WARN + persona_failed/token_guard만: 텍스트 유지 (페르소나/길이는
+            #   사용자가 stub 받는 것보다 LLM 풀이가 낫음)
+            _critical_failure_types = {
+                "pii_leak", "fact_mismatch", "alignment_failed",
+                "consistency_failed", "medical_legal",
+            }
+            should_stub = (
+                gate_result.verdict == VERDICT_CRITICAL
+                or any(f in _critical_failure_types for f in gate_result.failures)
+            )
+            if should_stub:
                 from engine.safety.incident.llm_fallback_router import (
                     deterministic_stub_response,
                 )
