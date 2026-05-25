@@ -90,7 +90,10 @@ def overlay_palm_analysis(
     draw = ImageDraw.Draw(overlay)
 
     # ADR-263 — keypoints 가 있으면 손 bbox 계산 (영역 박스 + 마스크를 손 안에만 표시)
+    # ADR-266 — keypoint 별 위치 (kp0=손목, kp5/9/13/17=손가락 mcp) 활용해
+    # 영역 박스를 keypoint 기반 직접 계산 (손 회전 자동 대응).
     hand_bbox = None  # (x0, y0, x1, y1) 픽셀
+    kp_px = {}  # 픽셀 좌표
     if keypoints:
         xs, ys = [], []
         for k, v in keypoints.items():
@@ -100,11 +103,12 @@ def overlay_palm_analysis(
                 continue
             x, y = float(v[0]), float(v[1])
             if 0.0 <= x <= 1.0 and 0.0 <= y <= 1.0:
-                xs.append(x * w)
-                ys.append(y * h)
+                px, py = x * w, y * h
             else:
-                xs.append(x)
-                ys.append(y)
+                px, py = x, y
+            xs.append(px)
+            ys.append(py)
+            kp_px[k] = (px, py)
         if len(xs) >= 5:
             x0, x1 = min(xs), max(xs)
             y0, y1 = min(ys), max(ys)
@@ -170,61 +174,97 @@ def overlay_palm_analysis(
         except Exception:
             pass
 
-    # 2. 영역 박스 + 점수 라벨 (ADR-263 — hand_bbox 기준 변환)
-    if show_regions:
-        # 영역 박스의 기준 좌표 (손 bbox 안에 그리거나, 부재 시 전체 이미지)
-        if hand_bbox:
-            rx0, ry0, rx1, ry1 = hand_bbox
-            rw, rh = rx1 - rx0, ry1 - ry0
-        else:
-            rx0, ry0 = 0, 0
-            rw, rh = w, h
-        for key, (x0n, y0n, x1n, y1n, label, color) in LINE_REGIONS.items():
-            x0 = int(rx0 + x0n * rw)
-            y0 = int(ry0 + y0n * rh)
-            x1 = int(rx0 + x1n * rw)
-            y1 = int(ry0 + y1n * rh)
-            # 박스 (점선 효과 — 짧은 선 여러 개)
-            for offset in range(0, max(x1 - x0, y1 - y0), 14):
-                # 상단
-                if offset + 7 <= x1 - x0:
-                    draw.line([(x0 + offset, y0), (x0 + offset + 7, y0)], fill=color + (180,), width=2)
-                # 하단
-                if offset + 7 <= x1 - x0:
-                    draw.line([(x0 + offset, y1), (x0 + offset + 7, y1)], fill=color + (180,), width=2)
-                # 좌측
-                if offset + 7 <= y1 - y0:
-                    draw.line([(x0, y0 + offset), (x0, y0 + offset + 7)], fill=color + (180,), width=2)
-                # 우측
-                if offset + 7 <= y1 - y0:
-                    draw.line([(x1, y0 + offset), (x1, y0 + offset + 7)], fill=color + (180,), width=2)
-            # 라벨 + 점수
-            score = (line_scores or {}).get(key)
-            label_text = f"{label}"
-            if score is not None:
-                label_text += f" {float(score):.2f}"
-            # 라벨 배경 박스
-            if font_label is not None:
-                try:
-                    bbox = draw.textbbox((0, 0), label_text, font=font_label)
-                    tw, th = bbox[2] - bbox[0], bbox[3] - bbox[1]
-                except Exception:
-                    tw, th = len(label_text) * 8, 16
+    # 2. 영역 박스 + 점수 라벨 (ADR-266 — keypoint 기반 회전 좌표계)
+    # 좌표계: u = 손목→중지 방향 (정 손바닥), v = u 90° 회전 (좌우)
+    # 손바닥 원점: kp0(손목)와 kp9(중지 mcp) 중점.
+    # 손바닥 길이: |kp9 - kp0|, 폭: 손바닥 너비 추정.
+    if show_regions and kp_px and "kp0" in kp_px and "kp9" in kp_px:
+        import math as _math
+        wx, wy = kp_px["kp0"]  # 손목
+        mx, my = kp_px["kp9"]  # 중지 mcp
+        # u 방향 (손목 → 중지)
+        ux, uy = mx - wx, my - wy
+        u_len = _math.hypot(ux, uy)
+        if u_len > 5:  # 최소 5px
+            ux, uy = ux / u_len, uy / u_len
+            # v 방향 (u 90° 시계방향 — 손바닥 좌→우)
+            vx, vy = -uy, ux
+            # 손바닥 폭: kp5(검지 mcp) - kp17(새끼 mcp) 거리
+            if "kp5" in kp_px and "kp17" in kp_px:
+                x5, y5 = kp_px["kp5"]
+                x17, y17 = kp_px["kp17"]
+                palm_width = _math.hypot(x5 - x17, y5 - y17) * 1.2
             else:
-                tw, th = len(label_text) * 7, 14
-            # 라벨 위치: 영역 안쪽 좌상단 (절대 화면 밖으로 안 나가게)
-            label_x = max(8, x0 + 6)
-            label_y = max(8, y0 + 6)
-            # 라벨이 다른 영역과 겹치지 않게 영역별 약간 오프셋
-            label_y += {"lifeline": 4, "headline": 28, "heartline": 4,
-                       "fateline": 52, "girdle_of_venus": 4}.get(key, 0)
-            if label_y + th > h - 4:
-                label_y = h - th - 4
-            draw.rectangle(
-                [(label_x - 3, label_y - 3), (label_x + tw + 5, label_y + th + 5)],
-                fill=(0, 0, 0, 200),
-            )
-            draw.text((label_x, label_y), label_text, fill=color + (255,), font=font_label)
+                palm_width = u_len * 0.7
+            palm_length = u_len * 1.2  # 손목~손가락 끝까지
+
+            # 손바닥 중심 = kp9
+            cx, cy = mx, my
+
+            def hand_to_pixel(s, t):
+                """손바닥 좌표 (s=u축, t=v축, 0~1 정규화) → 픽셀.
+                s=0 손목, s=1 손가락 끝. t=0 좌측, t=1 우측 (kp17→kp5)."""
+                # u축 변환: s=0(손목 kp0) → s=1(손가락 끝 = kp9 + u_len * 0.5)
+                # 즉 origin = kp0, length = palm_length
+                u_off = (s - (u_len / palm_length)) * palm_length  # kp9 기준 offset
+                v_off = (t - 0.5) * palm_width
+                px = cx + ux * u_off + vx * v_off
+                py = cy + uy * u_off + vy * v_off
+                return px, py
+
+            for key, (x0n, y0n, x1n, y1n, label, color) in LINE_REGIONS.items():
+                # LINE_REGIONS는 (x0n=좌, y0n=상, x1n=우, y1n=하).
+                # 표준 손바닥: x=좌우=v, y=상하=u(상=손가락, 하=손목).
+                # → s=1-y (y=0 손가락 → s=1, y=1 손목 → s=0), t=x
+                # 네 모서리 polygon
+                p1 = hand_to_pixel(1 - y0n, x0n)  # 좌상 (상=손가락 쪽)
+                p2 = hand_to_pixel(1 - y0n, x1n)  # 우상
+                p3 = hand_to_pixel(1 - y1n, x1n)  # 우하 (하=손목 쪽)
+                p4 = hand_to_pixel(1 - y1n, x0n)  # 좌하
+                # 점선 polygon
+                def dotted_line(pa, pb):
+                    dx, dy = pb[0] - pa[0], pb[1] - pa[1]
+                    seg_len = _math.hypot(dx, dy)
+                    if seg_len < 2:
+                        return
+                    n = max(1, int(seg_len // 14))
+                    for i in range(n):
+                        t0 = i / n
+                        t1 = min(1.0, (i + 0.5) / n)
+                        sa = (pa[0] + dx * t0, pa[1] + dy * t0)
+                        sb = (pa[0] + dx * t1, pa[1] + dy * t1)
+                        draw.line([sa, sb], fill=color + (180,), width=2)
+                dotted_line(p1, p2)
+                dotted_line(p2, p3)
+                dotted_line(p3, p4)
+                dotted_line(p4, p1)
+                # 라벨 = 박스 중심
+                cx_l = sum(p[0] for p in [p1, p2, p3, p4]) / 4
+                cy_l = sum(p[1] for p in [p1, p2, p3, p4]) / 4
+                # 라벨 + 점수
+                score = (line_scores or {}).get(key)
+                label_text = f"{label}"
+                if score is not None:
+                    label_text += f" {float(score):.2f}"
+                # 라벨 크기 측정
+                if font_label is not None:
+                    try:
+                        bbox = draw.textbbox((0, 0), label_text, font=font_label)
+                        tw, th = bbox[2] - bbox[0], bbox[3] - bbox[1]
+                    except Exception:
+                        tw, th = len(label_text) * 8, 16
+                else:
+                    tw, th = len(label_text) * 7, 14
+                # 라벨 위치: 박스 중심에 중앙 정렬
+                label_x = int(cx_l - tw / 2)
+                label_y = int(cy_l - th / 2)
+                label_x = max(4, min(w - tw - 4, label_x))
+                label_y = max(4, min(h - th - 4, label_y))
+                draw.rectangle(
+                    [(label_x - 3, label_y - 3), (label_x + tw + 5, label_y + th + 5)],
+                    fill=(0, 0, 0, 200),
+                )
+                draw.text((label_x, label_y), label_text, fill=color + (255,), font=font_label)
 
     # 3. MediaPipe 21 keypoint
     n_kp = 0
