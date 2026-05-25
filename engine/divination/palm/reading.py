@@ -333,6 +333,27 @@ def generate_palm_reading(
     usage_sink: list[Any] = []
     text = _call_vision(_PALM_SYSTEM, user_text, image_b64, usage_sink=usage_sink)
 
+    # ADR-260 — LLM 자체 거절 응답 자동 재시도 (최대 2회).
+    # 사례: "손금이 잘 안 잡히네, 한번 더 담아 보시게나" 같은 짧은 거절성 본문.
+    # 본문 < 600자 + 거절 키워드 포함 시 LLM이 분석 회피한 것 → 재호출.
+    _refusal_keywords = (
+        "잘 안 잡히", "잘 안 보이", "한 번 더 담", "한번 더 담",
+        "밝은 데서", "다시 담아", "다시 보여",
+    )
+    for retry_attempt in range(2):
+        if not text:
+            break
+        body_only = text.split("— — —")[0] if "— — —" in text else text
+        body_only = body_only.split("[안내]")[0] if "[안내]" in body_only else body_only
+        is_short = len(body_only.strip()) < 600
+        has_refusal = any(kw in body_only for kw in _refusal_keywords)
+        if not (is_short and has_refusal):
+            break
+        # 재시도
+        retry_text = _call_vision(_PALM_SYSTEM, user_text, image_b64, usage_sink=usage_sink)
+        if retry_text and len(retry_text.strip()) > len(text.strip()):
+            text = retry_text
+
     # ADR-164 — palm 안전망 본문 활성화 (face ADR-163 패턴 확산).
     # ADR-169 — MINOR(too_short/truncated) 시 1회 재호출 정책 추가.
     # ADR-257 — 페르소나 평가 전 forbidden 어휘 사전 정제 (persona_failed 회피).
