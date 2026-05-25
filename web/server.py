@@ -2247,7 +2247,11 @@ class PersonalityAPIServer:
                     from io import BytesIO as _BIO
                     import base64 as _b64_mod
                     import numpy as _np_mod
-                    img_bytes = _b64_mod.b64decode(req.image_base64)
+                    # ADR-261 fix — data URL prefix ("data:image/jpeg;base64,") 제거
+                    _img_str = req.image_base64
+                    if "," in _img_str and _img_str.startswith("data:"):
+                        _img_str = _img_str.split(",", 1)[1]
+                    img_bytes = _b64_mod.b64decode(_img_str)
                     pil_img = _PILImg.open(_BIO(img_bytes)).convert("RGB")
                     img_array_solo = _np_mod.asarray(pil_img)
 
@@ -2293,7 +2297,11 @@ class PersonalityAPIServer:
                                 from io import BytesIO
                                 import base64 as _b64
                                 import numpy as _np
-                                img_bytes = _b64.b64decode(req.image_base64)
+                                # ADR-261 fix — data URL prefix 제거
+                                _b64_str = req.image_base64
+                                if "," in _b64_str and _b64_str.startswith("data:"):
+                                    _b64_str = _b64_str.split(",", 1)[1]
+                                img_bytes = _b64.b64decode(_b64_str)
                                 pil_img = Image.open(BytesIO(img_bytes)).convert("RGB")
                                 img_array = _np.asarray(pil_img)
                             except Exception:
