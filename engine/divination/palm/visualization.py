@@ -120,17 +120,28 @@ def overlay_palm_analysis(
                     min(h, int(y1 + pad_y)),
                 )
 
-    # 폰트 (기본 PIL, 한글 표시는 운영체제 의존)
-    try:
-        font_small = ImageFont.truetype("malgun.ttf", max(12, w // 80))
-        font_label = ImageFont.truetype("malgun.ttf", max(16, w // 50))
-    except Exception:
+    # ADR-264 — 폰트 다단계 fallback (Windows / Linux 라이브 / 기본)
+    _font_candidates = [
+        "malgun.ttf",  # Windows
+        "/usr/share/fonts/truetype/nanum/NanumGothic.ttf",  # Linux Debian fonts-nanum
+        "/usr/share/fonts/truetype/nanum/NanumGothicBold.ttf",
+        "NanumGothic.ttf",
+    ]
+    font_small = None
+    font_label = None
+    for fp in _font_candidates:
+        try:
+            font_small = ImageFont.truetype(fp, max(12, w // 80))
+            font_label = ImageFont.truetype(fp, max(16, w // 50))
+            break
+        except Exception:
+            continue
+    if font_small is None:
         try:
             font_small = ImageFont.load_default()
             font_label = ImageFont.load_default()
         except Exception:
-            font_small = None
-            font_label = None
+            pass
 
     # 1. CFM 마스크 오버레이
     n_mask_pixels = 0
