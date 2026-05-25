@@ -259,6 +259,31 @@ def _get_ort_session(onnx_path: str):
     return _ORT_SESSION_CACHE[onnx_path]
 
 
+def warmup_unet_session() -> bool:
+    """ADR-256 — 컨테이너 시작 시 ONNX 세션 사전 빌드.
+
+    효과:
+      - 첫 사용자 요청이 ONNX 빌드 시간 (~10초) 안 기다림
+      - Fly.io 60초 게이트웨이 timeout 회피 (Vision LLM + ONNX 합쳐도 안전)
+
+    Returns:
+        True 시 warmup 성공, False 시 fallback (정상 작동, 첫 호출만 느림).
+    """
+    avail = check_unet_availability()
+    if not avail.model_loadable or not avail.model_weights_path:
+        return False
+    try:
+        if avail.model_weights_path.endswith(".onnx") and _HAS_ORT:
+            # ONNX 세션 빌드 + dummy 추론으로 graph 컴파일
+            sess = _get_ort_session(avail.model_weights_path)
+            dummy = np.zeros((1, 3, 256, 256), dtype=np.float32)
+            sess.run(None, {"input": dummy})
+            return True
+    except Exception:
+        return False
+    return False
+
+
 def _run_unet_inference(
     img: np.ndarray,
     weights_path: str | None,
