@@ -28,9 +28,11 @@ primary_region = "nrt"
 
 [[vm]]
   size = "shared-cpu-1x"
-  memory = "512mb"
+  memory = "1gb"
   cpu_kind = "shared"
   cpus = 1
+  # ADR-256 — 502 Bad Gateway 원인 메모리 부족 (PyTorch + ONNX warmup + Vision LLM 동시).
+  # 합의 사항 8: 1GB 업그레이드 허용 (+$1.81/월).
 
 [[mounts]]
   source = "saju_data"
