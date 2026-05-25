@@ -33,10 +33,10 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 # ADR-264 — 한글 폰트 설치 (시각화 오버레이 라벨 깨짐 해결).
 # NanumGothic: ADR-259 palm visualization 손금 영역 라벨용.
+# fc-cache 불필요 (PIL ImageFont는 절대 경로 직접 로드 — fontconfig 미사용).
 RUN apt-get update && apt-get install -y --no-install-recommends \
     fonts-nanum \
-    && rm -rf /var/lib/apt/lists/* \
-    && fc-cache -fv
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
