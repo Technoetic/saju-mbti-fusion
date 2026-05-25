@@ -167,7 +167,7 @@
           <div class="face-result-text">${escaped}</div>
           ${crisisBlock}
           <div class="face-result-meta">
-            ${cached ? '캐시 결과 · ' : ''}Gemini 비전 멀티모달
+            ${cached ? '캐시 결과 · ' : ''}UNetCFM 60ep + Claude Opus 4.7 멀티모달
           </div>
         </div>
       `;

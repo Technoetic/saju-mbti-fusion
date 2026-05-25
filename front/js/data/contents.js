@@ -715,7 +715,7 @@ window.WHM_CONTENTS = {
   },
   {
   key: 'classic', name: '정통 손금 풀이', glyph: '掌 紋',
-  desc: '양손·4대 손금 종합 — Gemini 비전 멀티모달 분석.',
+  desc: '양손·4대 손금 종합 — UNetCFM 손금 검출 + Claude Opus 4.7 멀티모달 + 시각화 오버레이.',
   tier: 'free', est: '30~60초',
   quote: '"아이고, 그대 손 한번 펴 보시게."',
   tab: 'palm', // 기존 옥선 화면으로 위임
