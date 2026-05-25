@@ -2233,6 +2233,7 @@ class PersonalityAPIServer:
             # ADR-160 — MediaPipe Hand 21 keypoint 입력 시 결정론 점수 산출.
             # 산출 실패·keypoint 부재 시 LLM Vision 단독 유지 (무회귀).
             palm_deterministic_block = None
+            palm_visualization = None  # ADR-259 시각화 오버레이
             if req.metrics and isinstance(req.metrics, dict):
                 keypoints = req.metrics.get("keypoints")
                 if isinstance(keypoints, dict) and any(k.startswith("kp") for k in keypoints):
@@ -2275,6 +2276,41 @@ class PersonalityAPIServer:
                             f"수명·재물·운명 단정 금지. 형태 분류 메타로만 풀이.\n"
                             f"{palm_report.disclaimer_ko}"
                         )
+
+                        # ADR-259 — 손금 시각화 오버레이 생성 (img_array + cfm 가용 시).
+                        if cfm_used and img_array is not None:
+                            try:
+                                from engine.divination.palm.visualization import (
+                                    overlay_palm_analysis,
+                                )
+                                from engine.divination.palm.unet_line_extractor import (
+                                    extract_palm_lines_best_available,
+                                )
+                                # CFM 재추론 (마스크 시각화에 필요 — palm_report에는 마스크 X)
+                                cfm_viz_result = await asyncio.to_thread(
+                                    extract_palm_lines_best_available, img_array,
+                                )
+                                line_scores_dict = {
+                                    k: float(ls.score)
+                                    for k, ls in palm_report.lines.items()
+                                }
+                                viz = await asyncio.to_thread(
+                                    overlay_palm_analysis,
+                                    img_array, keypoints,
+                                    cfm_viz_result.mask if cfm_viz_result else None,
+                                    line_scores_dict,
+                                    palm_report.metadata.get("cfm_raw_metrics"),
+                                )
+                                palm_visualization = {
+                                    "image_base64": viz.image_base64,
+                                    "width": viz.width,
+                                    "height": viz.height,
+                                    "n_keypoints": viz.n_keypoints,
+                                    "has_cfm_mask": viz.has_cfm_mask,
+                                    "metadata": viz.metadata,
+                                }
+                            except Exception:
+                                palm_visualization = None
                     except Exception:
                         pass
 
@@ -2311,6 +2347,9 @@ class PersonalityAPIServer:
             # 결정론 블록을 result에 노출 (LLM 호출자 inject 가능).
             if palm_deterministic_block and isinstance(result, dict):
                 result["deterministic_block"] = palm_deterministic_block
+            # ADR-259 — 시각화 오버레이 추가
+            if palm_visualization and isinstance(result, dict):
+                result["visualization"] = palm_visualization
             # ADR-006/094/113 단정 어휘 + ADR-115 다국어 hallucination 사후 필터링
             if isinstance(result, dict) and "text" in result:
                 result["text"] = _sanitize_common_assertion_words(result["text"])
