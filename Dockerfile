@@ -31,6 +31,13 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PATH=/root/.local/bin:$PATH
 
+# ADR-264 — 한글 폰트 설치 (시각화 오버레이 라벨 깨짐 해결).
+# NanumGothic: ADR-259 palm visualization 손금 영역 라벨용.
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    fonts-nanum \
+    && rm -rf /var/lib/apt/lists/* \
+    && fc-cache -fv
+
 WORKDIR /app
 
 # builder의 user-level site-packages 복사 (gcc·apt cache 제외)
