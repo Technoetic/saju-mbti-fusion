@@ -2234,6 +2234,48 @@ class PersonalityAPIServer:
             # 산출 실패·keypoint 부재 시 LLM Vision 단독 유지 (무회귀).
             palm_deterministic_block = None
             palm_visualization = None  # ADR-259 시각화 오버레이
+
+            # ADR-261 — keypoints 부재 시도 CFM 마스크 단독 시각화 (마스크 + 영역 박스만).
+            # MediaPipe 추출 실패한 사용자도 모델 검출 결과 시각 확인 가능.
+            if (palm_visualization is None
+                    and req.image_base64
+                    and not (req.metrics and isinstance(req.metrics, dict)
+                             and isinstance(req.metrics.get("keypoints"), dict)
+                             and any(k.startswith("kp") for k in req.metrics.get("keypoints", {})))):
+                try:
+                    from PIL import Image as _PILImg
+                    from io import BytesIO as _BIO
+                    import base64 as _b64_mod
+                    import numpy as _np_mod
+                    img_bytes = _b64_mod.b64decode(req.image_base64)
+                    pil_img = _PILImg.open(_BIO(img_bytes)).convert("RGB")
+                    img_array_solo = _np_mod.asarray(pil_img)
+
+                    from engine.divination.palm.unet_line_extractor import (
+                        extract_palm_lines_best_available,
+                    )
+                    from engine.divination.palm.visualization import overlay_palm_analysis
+                    cfm_r = await asyncio.to_thread(
+                        extract_palm_lines_best_available, img_array_solo,
+                    )
+                    if cfm_r and cfm_r.used_unet and cfm_r.mask is not None:
+                        viz_solo = await asyncio.to_thread(
+                            overlay_palm_analysis,
+                            img_array_solo, None, cfm_r.mask, None, cfm_r.raw_metrics,
+                            0.4, False, True, True,  # show_keypoints=False
+                        )
+                        palm_visualization = {
+                            "image_base64": viz_solo.image_base64,
+                            "width": viz_solo.width,
+                            "height": viz_solo.height,
+                            "n_keypoints": 0,
+                            "has_cfm_mask": viz_solo.has_cfm_mask,
+                            "metadata": viz_solo.metadata,
+                            "keypoint_mode": "absent",
+                        }
+                except Exception:
+                    pass
+
             if req.metrics and isinstance(req.metrics, dict):
                 keypoints = req.metrics.get("keypoints")
                 if isinstance(keypoints, dict) and any(k.startswith("kp") for k in keypoints):

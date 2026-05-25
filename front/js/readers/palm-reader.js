@@ -144,6 +144,14 @@
         const hasMask = !!viz.has_cfm_mask;
         const density = viz.metadata && viz.metadata.cfm_overall_density;
         const densityPct = density != null ? (density * 100).toFixed(1) + '%' : '—';
+        // ADR-261 — keypoint 부재 시 라벨 분기
+        const isKpAbsent = viz.keypoint_mode === 'absent' || kpN === 0;
+        const legendText = isKpAbsent
+          ? '🟡 CFM 손금 마스크 · ⬜ 4선+금성대 영역'
+          : '🔴 MediaPipe 21 keypoint · 🟡 CFM 손금 마스크 · ⬜ 4선+금성대 영역';
+        const kpMeta = isKpAbsent
+          ? 'keypoint 추출 보류 (사진 명확도)'
+          : `keypoint: ${kpN}개`;
         vizBlock = `
           <div class="palm-viz-block" style="margin:18px 0;padding:14px;background:rgba(40,30,20,0.55);border:1px solid rgba(176,140,79,0.35);border-radius:3px">
             <div style="font-family:'Nanum Myeongjo',serif;color:#e0c9a0;font-size:13px;letter-spacing:1px;margin-bottom:10px">
@@ -152,10 +160,10 @@
             <img src="${viz.image_base64}" alt="손금 분석 시각화"
                  style="width:100%;max-width:600px;border-radius:3px;display:block;margin:0 auto" />
             <div style="margin-top:10px;font-size:12px;color:#b8a47e;text-align:center;letter-spacing:1px">
-              🔴 MediaPipe 21 keypoint · 🟡 CFM 손금 마스크 · ⬜ 4선+금성대 영역
+              ${legendText}
             </div>
             <div style="margin-top:6px;font-size:11px;color:#8a7d61;text-align:center">
-              CFM 손금 밀도: ${densityPct} · keypoint: ${kpN}개 ${hasMask ? '· CFM 마스크 활성' : ''}
+              CFM 손금 밀도: ${densityPct} · ${kpMeta} ${hasMask ? '· CFM 마스크 활성' : ''}
             </div>
           </div>
         `;
