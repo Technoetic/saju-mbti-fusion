@@ -110,9 +110,10 @@ def overlay_palm_analysis(
             y0, y1 = min(ys), max(ys)
             bw, bh = x1 - x0, y1 - y0
             if bw > 0 and bh > 0:
-                # padding 15% (손가락 끝/손목 여유)
-                pad_x = bw * 0.15
-                pad_y = bh * 0.15
+                # ADR-265 — padding 15% → 5% (셀카에서 배경 노이즈 침입 방지).
+                # 손가락 끝/손목 약간 여유 확보, 그러나 인접 배경은 제외.
+                pad_x = bw * 0.05
+                pad_y = bh * 0.05
                 hand_bbox = (
                     max(0, int(x0 - pad_x)),
                     max(0, int(y0 - pad_y)),
