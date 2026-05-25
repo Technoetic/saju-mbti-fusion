@@ -89,6 +89,37 @@ def overlay_palm_analysis(
     overlay = PILImage.new("RGBA", (w, h), (0, 0, 0, 0))
     draw = ImageDraw.Draw(overlay)
 
+    # ADR-263 — keypoints 가 있으면 손 bbox 계산 (영역 박스 + 마스크를 손 안에만 표시)
+    hand_bbox = None  # (x0, y0, x1, y1) 픽셀
+    if keypoints:
+        xs, ys = [], []
+        for k, v in keypoints.items():
+            if not k.startswith("kp"):
+                continue
+            if not isinstance(v, (list, tuple)) or len(v) < 2:
+                continue
+            x, y = float(v[0]), float(v[1])
+            if 0.0 <= x <= 1.0 and 0.0 <= y <= 1.0:
+                xs.append(x * w)
+                ys.append(y * h)
+            else:
+                xs.append(x)
+                ys.append(y)
+        if len(xs) >= 5:
+            x0, x1 = min(xs), max(xs)
+            y0, y1 = min(ys), max(ys)
+            bw, bh = x1 - x0, y1 - y0
+            if bw > 0 and bh > 0:
+                # padding 15% (손가락 끝/손목 여유)
+                pad_x = bw * 0.15
+                pad_y = bh * 0.15
+                hand_bbox = (
+                    max(0, int(x0 - pad_x)),
+                    max(0, int(y0 - pad_y)),
+                    min(w, int(x1 + pad_x)),
+                    min(h, int(y1 + pad_y)),
+                )
+
     # 폰트 (기본 PIL, 한글 표시는 운영체제 의존)
     try:
         font_small = ImageFont.truetype("malgun.ttf", max(12, w // 80))
@@ -111,6 +142,12 @@ def overlay_palm_analysis(
                 m_pil = PILImage.fromarray((mask_arr * 255).astype(np.uint8))
                 m_pil = m_pil.resize((w, h), PILImage.NEAREST)
                 mask_arr = np.array(m_pil) > 127
+            # ADR-263 — 손 bbox 있으면 그 밖은 마스크 false (배경 검출 노이즈 제거)
+            if hand_bbox:
+                hx0, hy0, hx1, hy1 = hand_bbox
+                clipped = np.zeros_like(mask_arr, dtype=bool)
+                clipped[hy0:hy1, hx0:hx1] = mask_arr[hy0:hy1, hx0:hx1]
+                mask_arr = clipped
             # 노란 반투명 색 오버레이
             mask_rgba = np.zeros((h, w, 4), dtype=np.uint8)
             mask_rgba[mask_arr] = [*MASK_OVERLAY_COLOR, int(255 * overlay_alpha)]
@@ -121,11 +158,20 @@ def overlay_palm_analysis(
         except Exception:
             pass
 
-    # 2. 영역 박스 + 점수 라벨
+    # 2. 영역 박스 + 점수 라벨 (ADR-263 — hand_bbox 기준 변환)
     if show_regions:
+        # 영역 박스의 기준 좌표 (손 bbox 안에 그리거나, 부재 시 전체 이미지)
+        if hand_bbox:
+            rx0, ry0, rx1, ry1 = hand_bbox
+            rw, rh = rx1 - rx0, ry1 - ry0
+        else:
+            rx0, ry0 = 0, 0
+            rw, rh = w, h
         for key, (x0n, y0n, x1n, y1n, label, color) in LINE_REGIONS.items():
-            x0, y0 = int(x0n * w), int(y0n * h)
-            x1, y1 = int(x1n * w), int(y1n * h)
+            x0 = int(rx0 + x0n * rw)
+            y0 = int(ry0 + y0n * rh)
+            x1 = int(rx0 + x1n * rw)
+            y1 = int(ry0 + y1n * rh)
             # 박스 (점선 효과 — 짧은 선 여러 개)
             for offset in range(0, max(x1 - x0, y1 - y0), 14):
                 # 상단
