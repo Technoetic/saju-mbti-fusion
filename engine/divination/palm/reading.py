@@ -335,11 +335,26 @@ def generate_palm_reading(
 
     # ADR-164 — palm 안전망 본문 활성화 (face ADR-163 패턴 확산).
     # ADR-169 — MINOR(too_short/truncated) 시 1회 재호출 정책 추가.
+    # ADR-257 — 페르소나 평가 전 forbidden 어휘 사전 정제 (persona_failed 회피).
+    # 단순 1회 등장의 "당신/분명/AI/모델" 같은 단어가 페르소나 fail 유발 사례 빈발.
     safety_verdict: str | None = None
     safety_failures: list[str] = []
     safety_fallback_used = False
     safety_retry_used = False
     if text:
+        # ADR-257 — persona forbidden 어휘 자연어 치환
+        _persona_forbidden_repl = (
+            ("당신", "그대"),
+            ("분명히", "대개"),
+            ("분명한 ", "또렷한 "),
+            ("분명하게", "또렷하게"),
+            ("AI", "이 늙은이"),
+            ("모델", "이 늙은이"),
+            ("시스템", "이 자리"),
+        )
+        for pat, repl in _persona_forbidden_repl:
+            text = text.replace(pat, repl)
+
         try:
             from engine.safety.llm.output_safety_gate import (
                 run_safety_gates, should_retry_minor,
