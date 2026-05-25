@@ -127,6 +127,7 @@
       const text = (data && data.text) ? data.text : '(풀이를 받지 못했네.)';
       const cached = data && data.cached;
       const crisis = data && data.crisis_alert;
+      const viz = data && data.visualization;
       const board = $(this.boardId);
       const escaped = window.HtmlUtils.escapeHtml(text);
       let crisisBlock = '';
@@ -136,9 +137,33 @@
           자살예방상담전화 <b>1393</b> · 정신건강위기상담 <b>1577-0199</b>
         </div>`;
       }
+      // ADR-259 — 손금 시각화 오버레이 (CFM 마스크 + 21 keypoint + 영역 박스)
+      let vizBlock = '';
+      if (viz && viz.image_base64) {
+        const kpN = Number(viz.n_keypoints || 0);
+        const hasMask = !!viz.has_cfm_mask;
+        const density = viz.metadata && viz.metadata.cfm_overall_density;
+        const densityPct = density != null ? (density * 100).toFixed(1) + '%' : '—';
+        vizBlock = `
+          <div class="palm-viz-block" style="margin:18px 0;padding:14px;background:rgba(40,30,20,0.55);border:1px solid rgba(176,140,79,0.35);border-radius:3px">
+            <div style="font-family:'Nanum Myeongjo',serif;color:#e0c9a0;font-size:13px;letter-spacing:1px;margin-bottom:10px">
+              그대의 손에 새겨진 결을 살펴보았네 ─ AI가 본 손금
+            </div>
+            <img src="${viz.image_base64}" alt="손금 분석 시각화"
+                 style="width:100%;max-width:600px;border-radius:3px;display:block;margin:0 auto" />
+            <div style="margin-top:10px;font-size:12px;color:#b8a47e;text-align:center;letter-spacing:1px">
+              🔴 MediaPipe 21 keypoint · 🟡 CFM 손금 마스크 · ⬜ 4선+금성대 영역
+            </div>
+            <div style="margin-top:6px;font-size:11px;color:#8a7d61;text-align:center">
+              CFM 손금 밀도: ${densityPct} · keypoint: ${kpN}개 ${hasMask ? '· CFM 마스크 활성' : ''}
+            </div>
+          </div>
+        `;
+      }
       board.innerHTML = `
         <div class="face-result-card">
           <h2 class="face-result-title story-title">옥 선  할 미 의  손 금  풀 이</h2>
+          ${vizBlock}
           <div class="face-result-text">${escaped}</div>
           ${crisisBlock}
           <div class="face-result-meta">
