@@ -155,13 +155,20 @@ _STAGE1_OBJECTIVE_SYSTEM = (
     '  "eyebrow": {"thickness": "string (짙은/옅은)", "length": "string", '
     '"shape": "string (곧은/휜)"},\n'
     '  "eye": {"size": "string", "shape": "string", '
-    '"gaze_intensity": "string (또렷한/차분한)", "clarity": "string (맑은/탁한)"},\n'
+    '"gaze_intensity": "string (또렷한/차분한)", "clarity": "string (맑은/탁한)", '
+    '"eyelid": "string (쌍꺼풀/외꺼풀/속쌍꺼풀/판단 불가)"},\n'
     '  "nose": {"bridge": "string (곧은/휜/높은/낮은)", '
     '"nostril_wing": "string (콧방울 형태)", "tip": "string (코끝 형태)"},\n'
+    '  "philtrum": {"length": "string (긴/짧은/보통)", '
+    '"depth": "string (또렷한/평평한 인중 골)"},\n'
     '  "mouth": {"thickness": "string", "corner": "string (입꼬리 올라간/내려간)"},\n'
+    '  "nasolabial_fold": "string (법령선 — 콧방울에서 입가로 내려가는 주름; 옅은/뚜렷한/긴/짧은/없음)",\n'
     '  "chin": {"shape": "string (각진/둥근/뾰족한)", "fullness": "string"},\n'
     '  "cheek_zygomatic": {"prominence": "string (광대뼈 솟음 정도)", '
     '"fullness": "string (뺨 살)"},\n'
+    '  "ear": {"visibility": "string (정면 보임/측면만 살짝/안 보임)", '
+    '"shape": "string (둥근/각진/길쭉한; 안 보이면 미상)", '
+    '"earlobe": "string (도톰한/얇은/붙은형/떨어진형; 안 보이면 미상)"},\n'
     '  "complexion": {"tone": "string (밝은/어두운)", '
     '"color_cast": "string (붉은기/창백한/노란기/맑은)"},\n'
     '  "distinctive_feature": "string (가장 또렷한 시각 특징 1개, 해부학 부위만 언급)",\n'
@@ -963,7 +970,10 @@ def _render_persona_template(
     eb = anat.get("eyebrow") or {}
     ey = anat.get("eye") or {}
     nose = anat.get("nose") or {}
+    philtrum = anat.get("philtrum") or {}
     mouth = anat.get("mouth") or {}
+    nasolabial = anat.get("nasolabial_fold") or ""
+    ear = anat.get("ear") or {}
     chin = anat.get("chin") or {}
     cheek = anat.get("cheek_zygomatic") or {}
     comp = anat.get("complexion") or {}
@@ -1001,6 +1011,20 @@ def _render_persona_template(
         f"턱은 {chin.get('shape', '')} {chin.get('fullness', '')}하고, "
         f"광대뼈는 {cheek.get('prominence', '')} 뺨은 {cheek.get('fullness', '')}이로다.{palace_phrase}"
     )
+    # ADR-276 — 추가 부위 (인중·법령·귀; 묘사 누락 시 자연스럽게 생략)
+    extra: list[str] = []
+    pl = (philtrum.get("length") or "").strip()
+    pd = (philtrum.get("depth") or "").strip()
+    if pl or pd:
+        extra.append(f"인중은 {pl} {pd}한 결이로구먼.")
+    if isinstance(nasolabial, str) and nasolabial.strip():
+        extra.append(f"법령선은 {nasolabial.strip()}이로세.")
+    es = (ear.get("shape") or "").strip()
+    el = (ear.get("earlobe") or "").strip()
+    if es or el:
+        extra.append(f"귀는 {es} 모양에 귓불이 {el}이로구먼.")
+    if extra:
+        parts.append(" ".join(extra))
     parts.append(f"그대만의 한 가지는 {distinct}이로구먼.")
     parts.append(f"이 늙은이의 한 마디 — {quality}. 이 풀이는 시각 형상 묘사일 뿐이로다.")
     return " ".join(parts)
@@ -1141,9 +1165,12 @@ def generate_face_reading(
             "face_outline": {"shape": "", "width_height_balance": "", "left_right_symmetry": ""},
             "forehead": {"width": "", "shape": "", "wrinkles": ""},
             "eyebrow": {"thickness": "", "length": "", "shape": ""},
-            "eye": {"size": "", "shape": "", "gaze_intensity": "", "clarity": ""},
+            "eye": {"size": "", "shape": "", "gaze_intensity": "", "clarity": "", "eyelid": ""},
             "nose": {"bridge": "", "nostril_wing": "", "tip": ""},
+            "philtrum": {"length": "", "depth": ""},
             "mouth": {"thickness": "", "corner": ""},
+            "nasolabial_fold": "",
+            "ear": {"visibility": "", "shape": "", "earlobe": ""},
             "chin": {"shape": "", "fullness": ""},
             "cheek_zygomatic": {"prominence": "", "fullness": ""},
             "complexion": {"tone": "", "color_cast": ""},
