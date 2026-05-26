@@ -136,8 +136,8 @@ def overlay_palm_analysis(
     font_label = None
     for fp in _font_candidates:
         try:
-            font_small = ImageFont.truetype(fp, max(12, w // 80))
-            font_label = ImageFont.truetype(fp, max(16, w // 50))
+            font_small = ImageFont.truetype(fp, max(14, w // 60))
+            font_label = ImageFont.truetype(fp, max(22, w // 35))
             break
         except Exception:
             continue
@@ -261,14 +261,14 @@ def overlay_palm_analysis(
                 result.append(points[-1])
                 return result
 
-            def draw_curve(pts_hand, color, width=4):
+            def draw_curve(pts_hand, color, width=8):
                 """손바닥 좌표 (s, t) 리스트 → 픽셀 곡선."""
                 if len(pts_hand) < 2:
                     return
                 pix = [hand_to_pixel(s, t) for s, t in pts_hand]
                 smooth = smooth_curve(pix)
                 for i in range(len(smooth) - 1):
-                    draw.line([smooth[i], smooth[i+1]], fill=color + (220,), width=width)
+                    draw.line([smooth[i], smooth[i+1]], fill=color + (255,), width=width)
 
             def label_at(pos_hand, text, color, offset_px=(0, -18)):
                 """손바닥 좌표 → 라벨 그리기."""
@@ -318,7 +318,7 @@ def overlay_palm_analysis(
                     lerp(kp1, kp0, 0.6),  # 손목 쪽
                     lerp(kp1, kp0, 0.9),
                 ]
-                draw_curve(life_pts, LINE_COLORS["lifeline"], width=4)
+                draw_curve(life_pts, LINE_COLORS["lifeline"], width=8)
                 label_at_pix = lerp(kp1, kp0, 0.5)
                 if font_label is not None:
                     text = LINE_LABELS["lifeline"]
@@ -347,7 +347,7 @@ def overlay_palm_analysis(
                 # 두뇌선은 손바닥 중간 위치 → 모든 점을 손목쪽으로 약간 시프트
                 center_palm = ((kp5[0]+kp17[0]+kp0[0])/3, (kp5[1]+kp17[1]+kp0[1])/3)
                 head_pts = [lerp(p, center_palm, 0.15) for p in head_pts]
-                draw_curve(head_pts, LINE_COLORS["headline"], width=4)
+                draw_curve(head_pts, LINE_COLORS["headline"], width=8)
                 label_at_pix = head_pts[2]
                 if font_label is not None:
                     text = LINE_LABELS["headline"]
@@ -377,7 +377,7 @@ def overlay_palm_analysis(
                     wrist_dir = (kp0[0]-finger_avg[0], kp0[1]-finger_avg[1])
                     # 손목 쪽으로 약간 시프트
                     heart_pts = [(p[0] + wrist_dir[0]*0.12, p[1] + wrist_dir[1]*0.12) for p in heart_pts]
-                draw_curve(heart_pts, LINE_COLORS["heartline"], width=4)
+                draw_curve(heart_pts, LINE_COLORS["heartline"], width=8)
                 label_at_pix = heart_pts[1]
                 if font_label is not None:
                     text = LINE_LABELS["heartline"]
@@ -402,7 +402,7 @@ def overlay_palm_analysis(
                     lerp(kp0, kp9, 0.75),
                     kp9,
                 ]
-                draw_curve(fate_pts, LINE_COLORS["fateline"], width=4)
+                draw_curve(fate_pts, LINE_COLORS["fateline"], width=8)
 
                 # 나이 마커 — 운명선 위 9 지점 (손가락쪽=10대, 손목쪽=90대)
                 age_marker_color = (40, 40, 40)
@@ -448,7 +448,7 @@ def overlay_palm_analysis(
                 # 새끼 mcp에서 손바닥 안쪽 방향으로 짧은 선
                 mar_start = lerp(kp17, kp13 if kp13 else kp9, 0.05)
                 mar_end = lerp(kp17, kp13 if kp13 else kp9, 0.30)
-                draw_curve([mar_start, mar_end], LINE_COLORS["marriage"], width=3)
+                draw_curve([mar_start, mar_end], LINE_COLORS["marriage"], width=5)
                 if font_label is not None:
                     text = LINE_LABELS["marriage"]
                     try:
