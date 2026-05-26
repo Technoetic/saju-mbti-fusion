@@ -282,6 +282,37 @@ def overlay_face_analysis(
             draw_palace((cx_l, cy), "노복(좌)", PALACE_COLORS["노복궁"])
             draw_palace((cx_r, cy), "노복(우)", PALACE_COLORS["노복궁"])
 
+        # ADR-273 입 부위 추가 — 출납관/인중/법령/승장
+        mouth_l_kp = get_kp("mouth_l")
+        mouth_r_kp = get_kp("mouth_r")
+        lip_upper = get_kp("lip_upper")
+        lip_lower = get_kp("lip_lower")
+        nose_tip_kp = get_kp("nose_tip")
+        # 출납관 — 입 중앙 (윗입술과 아랫입술 중간)
+        if lip_upper and lip_lower:
+            cx = (lip_upper[0] + lip_lower[0]) / 2
+            cy = (lip_upper[1] + lip_lower[1]) / 2
+            draw_palace((cx, cy), "출납관", (255, 100, 100))
+        # 인중 — 코끝과 윗입술 중간
+        if nose_tip_kp and lip_upper:
+            cx = (nose_tip_kp[0] + lip_upper[0]) / 2
+            cy = (nose_tip_kp[1] + lip_upper[1]) / 2
+            draw_palace((cx, cy), "인중", (220, 140, 100))
+        # 법령(좌·우) — 콧방울 옆 ~ 입꼬리 옆
+        if alar_l and mouth_l_kp:
+            cx = (alar_l[0] + mouth_l_kp[0]) / 2 - 8
+            cy = (alar_l[1] + mouth_l_kp[1]) / 2
+            draw_palace((cx, cy), "법령(좌)", (180, 60, 140))
+        if alar_r and mouth_r_kp:
+            cx = (alar_r[0] + mouth_r_kp[0]) / 2 + 8
+            cy = (alar_r[1] + mouth_r_kp[1]) / 2
+            draw_palace((cx, cy), "법령(우)", (180, 60, 140))
+        # 승장 — 아랫입술과 턱 사이
+        if lip_lower and chin:
+            cx = (lip_lower[0] + chin[0]) / 2
+            cy = (lip_lower[1] * 2 + chin[1]) / 3
+            draw_palace((cx, cy), "승장", (140, 100, 200))
+
     # 5악 라벨 (선택)
     if show_five_peaks and kp_px:
         peak_color = (200, 200, 200)
