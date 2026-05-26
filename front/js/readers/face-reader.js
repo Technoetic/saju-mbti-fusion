@@ -141,9 +141,30 @@
       const vizBlock = (window.FaceVisualizations && window.FaceVisualizations.renderVisualizations)
         ? window.FaceVisualizations.renderVisualizations(data) : '';
 
+      // ADR-273 — 12궁 + 5악 오버레이 이미지 (서버 visualization)
+      let overlayBlock = '';
+      const viz = data && data.visualization;
+      if (viz && viz.image_base64) {
+        const nP = Number(viz.n_palaces_drawn || 0);
+        overlayBlock = `
+          <div class="face-viz-block" style="margin:18px 0;padding:14px;background:rgba(40,30,20,0.55);border:1px solid rgba(176,140,79,0.35);border-radius:3px">
+            <div style="font-family:'Nanum Myeongjo',serif;color:#e0c9a0;font-size:13px;letter-spacing:1px;margin-bottom:10px">
+              운학 도사가 짚어본 그대의 상 ─ 十二宮 + 五嶽
+            </div>
+            <img src="${viz.image_base64}" alt="관상 12궁 5악 시각화"
+                 style="width:100%;max-width:600px;border-radius:3px;display:block;margin:0 auto" />
+            <div style="margin-top:6px;font-size:11px;color:#8a7d61;text-align:center">
+              명궁·재백·관록·복덕·처첩·남녀·형제·전택·노복·천이·부모·질액 (12궁) + 南北中東西 5악
+              · 12궁 ${nP}곳 짚음
+            </div>
+          </div>
+        `;
+      }
+
       board.innerHTML = `
         <div class="face-result-card">
           <h2 class="story-title">운 학 도 사 의 얼 굴 풀 이</h2>
+          ${overlayBlock}
           ${vizBlock}
           <div class="face-result-text">${escaped}</div>
           ${crisisBlock}
