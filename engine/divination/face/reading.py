@@ -737,6 +737,7 @@ def _build_deterministic_scores_summary(
     face_shape: dict[str, Any] | None,
     facial_features: dict[str, Any] | None = None,
     complexion: dict[str, Any] | None = None,
+    expression: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Stage 2용 결정론 점수 요약 — 한국어 라벨만, 영문 key 미노출.
 
@@ -820,6 +821,14 @@ def _build_deterministic_scores_summary(
                     "전체_균일도": round(float(complexion.get("overall_uniformity", 0)), 2),
                     "출처": "Biomedical Dermatology 2017 N=543 화장품 베이스라인 (의료 진단 X)",
                 }
+    # ADR-275 — MediaPipe Blendshapes 52종 표정 요약 (감정 단정 X)
+    if expression and isinstance(expression, dict):
+        notes = expression.get("notes") or []
+        if notes:
+            out["expression"] = {
+                "관찰": notes,
+                "출처": expression.get("출처", "MediaPipe Face Blendshapes v2"),
+            }
     return out
 
 
@@ -1173,10 +1182,20 @@ def generate_face_reading(
         except Exception:
             complexion_dict = None
 
+    # ADR-275 — MediaPipe Face Blendshapes 52종 → 표정 요약 (감정 단정 X)
+    expression_dict: dict[str, Any] | None = None
+    if metrics and isinstance(metrics.get("blendshapes_raw"), dict):
+        try:
+            from engine.divination.face.expression import summarize_expression
+            expression_dict = summarize_expression(metrics["blendshapes_raw"])
+        except Exception:
+            expression_dict = None
+
     # Stage 2 — 해부학 JSON + 결정론 점수 요약 두 가지 입력
     deterministic_scores = _build_deterministic_scores_summary(
         palace_scores, face_shape_dict, facial_features_dict,
         complexion=complexion_dict,
+        expression=expression_dict,
     )
     # ADR-274 — 학파 키 추출 (metrics["physiognomy_school"])
     _school_key: str | None = None

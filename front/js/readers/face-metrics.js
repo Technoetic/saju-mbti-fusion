@@ -158,7 +158,7 @@
   }
 
   function _extractBlendshapes(blendshapes) {
-    // MediaPipe 52 blendshapes → 본 시스템 사용 키만 추출
+    // MediaPipe 52 blendshapes → 본 시스템 사용 키만 추출 (기존 호환)
     if (!blendshapes || !blendshapes.categories) return {};
     const map = {};
     for (const cat of blendshapes.categories) {
@@ -175,6 +175,19 @@
       mouth_smile_right: map.mouthSmileRight,
       jaw_open: map.jawOpen,
     };
+  }
+
+  function _extractBlendshapesRaw(blendshapes) {
+    // ADR-275 — 52종 모두 raw (categoryName: score) 전송
+    if (!blendshapes || !blendshapes.categories) return {};
+    const out = {};
+    for (const cat of blendshapes.categories) {
+      // score 가 매우 작은 noise(0.001 미만)는 cutoff 로 용량 절감
+      if (typeof cat.score === 'number' && cat.score >= 0.001) {
+        out[cat.categoryName] = Number(cat.score.toFixed(4));
+      }
+    }
+    return out;
   }
 
   function _classifyFaceShape(lm) {
@@ -226,6 +239,7 @@
         head_tilt_deg: _computeHeadTilt(lm),
         mouth_corner_lift: _computeMouthCornerLift(lm),
         blendshapes: _extractBlendshapes(blendshapes),
+        blendshapes_raw: _extractBlendshapesRaw(blendshapes),  // ADR-275 — 52종 raw
         face_shape: _classifyFaceShape(lm),
         face_keypoints: keypoints_viz,  // ADR-273 시각화용
       };
