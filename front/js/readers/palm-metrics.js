@@ -23,6 +23,10 @@
         baseOptions: { modelAssetPath: MODEL_URL, delegate: 'GPU' },
         runningMode: 'IMAGE',
         numHands: 1,
+        // ADR-271 — 검출 임계 낮춤 (어두운 사진/얼굴 가림 등에도 검출)
+        minHandDetectionConfidence: 0.3,
+        minHandPresenceConfidence: 0.3,
+        minTrackingConfidence: 0.3,
       });
     })().catch(err => { _landmarkerPromise = null; throw err; });
     return _landmarkerPromise;
