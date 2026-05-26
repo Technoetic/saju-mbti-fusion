@@ -2263,10 +2263,13 @@ class PersonalityAPIServer:
                         extract_palm_lines_best_available, img_array_solo,
                     )
                     if cfm_r and cfm_r.used_unet and cfm_r.mask is not None:
+                        # ADR-271 — keypoint 부재 시 곱선/라벨 미표시.
+                        # 표준 비율로 그린 곱선이 손 위치와 무관해 잘못된 시각화 차단.
+                        # CFM 마스크만 보여줘 모델 검출 결과만 표시.
                         viz_solo = await asyncio.to_thread(
                             overlay_palm_analysis,
                             img_array_solo, None, cfm_r.mask, None, cfm_r.raw_metrics,
-                            0.4, False, True, True,  # show_keypoints=False
+                            0.4, False, True, False,  # show_keypoints=False, show_mask=True, show_regions=False
                         )
                         palm_visualization = {
                             "image_base64": viz_solo.image_base64,
