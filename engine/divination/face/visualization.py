@@ -282,6 +282,29 @@ def overlay_face_analysis(
             draw_palace((cx_l, cy), "노복(좌)", PALACE_COLORS["노복궁"])
             draw_palace((cx_r, cy), "노복(우)", PALACE_COLORS["노복궁"])
 
+        # ADR-273 볼/광대 부위 — 권골(좌/우) + 시골(좌/우)
+        # 권골 = 광대뼈 정점 (눈꼬리와 광대 사이 위)
+        # 시골 = 볼살 (광대 아래 ~ 입꼬리 옆)
+        if face_l and eye_lo:
+            cx = (face_l[0] * 2 + eye_lo[0]) / 3
+            cy = eye_lo[1] + 15
+            draw_palace((cx, cy), "권골(좌)", (200, 80, 100))
+        if face_r and eye_ro:
+            cx = (face_r[0] * 2 + eye_ro[0]) / 3
+            cy = eye_ro[1] + 15
+            draw_palace((cx, cy), "권골(우)", (200, 80, 100))
+        # 시골 (볼살) — 광대 아래, 입꼬리 옆
+        mouth_l_for_si = get_kp("mouth_l")
+        mouth_r_for_si = get_kp("mouth_r")
+        if face_l and mouth_l_for_si:
+            cx = (face_l[0] + mouth_l_for_si[0]) / 2
+            cy = (face_l[1] + mouth_l_for_si[1]) / 2 + 10
+            draw_palace((cx, cy), "시골(좌)", (240, 120, 100))
+        if face_r and mouth_r_for_si:
+            cx = (face_r[0] + mouth_r_for_si[0]) / 2
+            cy = (face_r[1] + mouth_r_for_si[1]) / 2 + 10
+            draw_palace((cx, cy), "시골(우)", (240, 120, 100))
+
         # ADR-273 입 부위 추가 — 출납관/인중/법령/승장
         mouth_l_kp = get_kp("mouth_l")
         mouth_r_kp = get_kp("mouth_r")
