@@ -180,6 +180,9 @@
       const age = ageRaw ? parseInt(ageRaw, 10) : null;
       const gender = ($('faceGender').value || '').trim() || null;
       const question = ($('faceQuestion').value || '').trim() || null;
+      // ADR-274 — 학파 선택 (없으면 종합)
+      const schoolEl = $('faceSchool');
+      const school = schoolEl ? ((schoolEl.value || '').trim() || null) : null;
 
       this.showStep('loading');
       const loadingMsgEl = document.querySelector('#face-step-loading .face-loading-msg');
@@ -205,6 +208,7 @@
           gender,
           question,
           metrics,
+          school,
         }, {
           retries: 1,
           backoffMs: 3000,

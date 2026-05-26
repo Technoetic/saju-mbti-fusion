@@ -513,6 +513,13 @@ class FaceReadingRequest(BaseModel):
     # 클라이언트(MediaPipe Face Landmarker)에서 산출한 정량 메트릭. 없어도 정상 동작.
     # face_scoring으로 12궁 정량 점수 산출에 사용.
     metrics: dict[str, Any] | None = None
+    # ADR-274 — 학파 선택 (옵션 D)
+    # "mayi": 麻衣相法 (송대 진박, 중국 정통)
+    # "yujang": 柳莊相法 (명대, 실용 중시)
+    # "korean": 한국 전통 관상 (조선·근대)
+    # "samudrika": 인도 Samudrika Shastra
+    # None: 통합 (현 default)
+    school: str | None = None
 
 
 class PalmReadingRequest(BaseModel):
@@ -2134,13 +2141,17 @@ class PersonalityAPIServer:
         try:
             from engine.divination.face.reading import generate_face_reading
 
+            # ADR-274 — 학파 선택 메타를 metrics에 주입 (face/reading.py 시스템 프롬프트 분기)
+            _metrics_with_school = dict(req.metrics or {}) if req.metrics else {}
+            if req.school:
+                _metrics_with_school["physiognomy_school"] = req.school
             result = await asyncio.to_thread(
                 generate_face_reading,
                 req.image_base64,
                 req.age,
                 req.gender,
                 req.question,
-                req.metrics,
+                _metrics_with_school if _metrics_with_school else None,
             )
 
             # ADR-273 — 관상 12궁 + 5악 시각화 오버레이

@@ -829,6 +829,7 @@ def _call_stage2_persona(
     age: int | None,
     gender: str | None,
     question: str | None,
+    school: str | None = None,
 ) -> str:
     """Stage 2 — Gemini 2.5 Flash Lite 사극 어조 변환. 사진 미열람.
 
@@ -864,6 +865,10 @@ def _call_stage2_persona(
     )
     user_text = "\n".join(user_lines)
 
+    # ADR-274 — 학파 prefix (학파 명칭은 결정론 점수에서만 유래해야 하므로
+    # 시스템 프롬프트 차원에서 관점만 안내, 단정 어휘는 금지)
+    _school_prefix = _SCHOOL_PREFIX.get(school or "", "") if school else ""
+
     # Bizrouter — Gemini 2.5 Flash Lite 우선
     if _bizrouter_enabled():
         model = (
@@ -878,6 +883,8 @@ def _call_stage2_persona(
                 system_content = _STAGE2_PERSONA_SYSTEM + "\n\n" + render_for_system_prompt()
             except Exception:
                 system_content = _STAGE2_PERSONA_SYSTEM
+            if _school_prefix:
+                system_content = _school_prefix + system_content
             resp = client.chat.completions.create(
                 model=model,
                 max_tokens=_MAX_TOKENS,
@@ -902,6 +909,8 @@ def _call_stage2_persona(
             system_text = _STAGE2_PERSONA_SYSTEM + "\n\n" + render_for_system_prompt()
         except Exception:
             system_text = _STAGE2_PERSONA_SYSTEM
+        if _school_prefix:
+            system_text = _school_prefix + system_text
         msg = client.messages.create(
             model="claude-opus-4-7",
             max_tokens=_MAX_TOKENS,
@@ -986,6 +995,32 @@ def _render_persona_template(
     parts.append(f"그대만의 한 가지는 {distinct}이로구먼.")
     parts.append(f"이 늙은이의 한 마디 — {quality}. 이 풀이는 시각 형상 묘사일 뿐이로다.")
     return " ".join(parts)
+
+
+# ADR-274 — 학파별 분기 시스템 프롬프트 prefix
+_SCHOOL_PREFIX = {
+    "mayi": (
+        "[학파 안내 — 麻衣相法 (송대 진박)]\n"
+        "본 풀이는 송대 마의도사 진박의 麻衣相法 관점을 우선 참조합니다. "
+        "이마(상정)·코(중정)·턱(하정) 삼정 균형, 5악, 12궁의 정통 해석. "
+        "그러나 학파 통설 운명 매핑 단정은 금지 (ADR-006).\n\n"
+    ),
+    "yujang": (
+        "[학파 안내 — 柳莊相法 (명대)]\n"
+        "본 풀이는 명대 유장 학파의 실용 중시 관점을 우선 참조합니다. "
+        "실생활 적용 가능한 부위별 형태 분석. 학파 단정 어휘 X (ADR-006).\n\n"
+    ),
+    "korean": (
+        "[학파 안내 — 한국 전통 관상 (조선·근대)]\n"
+        "본 풀이는 한국 조선·근대 관상학 (예: 마의상법 한역본, 유장상법 토착화) "
+        "관점을 우선 참조합니다. 한국인 얼굴 비율 평균 기준. 단정 X (ADR-006).\n\n"
+    ),
+    "samudrika": (
+        "[학파 안내 — Samudrika Shastra (인도 전통)]\n"
+        "본 풀이는 인도 Samudrika Shastra 관점을 일부 참조합니다. "
+        "Marma 점·5요소 (지/수/화/풍/공) 균형. 단정 X (ADR-006).\n\n"
+    ),
+}
 
 
 def generate_face_reading(
@@ -1143,8 +1178,15 @@ def generate_face_reading(
         palace_scores, face_shape_dict, facial_features_dict,
         complexion=complexion_dict,
     )
+    # ADR-274 — 학파 키 추출 (metrics["physiognomy_school"])
+    _school_key: str | None = None
+    if isinstance(metrics, dict):
+        _v = metrics.get("physiognomy_school")
+        if isinstance(_v, str) and _v.strip():
+            _school_key = _v.strip()
     reading_text = _call_stage2_persona(
         anatomical_description, deterministic_scores, age, gender, question,
+        school=_school_key,
     )
 
     # ADR-163 — Stage 2 응답 자동 모순 검출 + 폴백 (ADR-004 Phase 3 활성화).
