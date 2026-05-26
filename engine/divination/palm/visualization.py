@@ -325,146 +325,154 @@ def overlay_palm_analysis(
                 """p와 q 사이 r비율 점."""
                 return (p[0] + (q[0] - p[0]) * r, p[1] + (q[1] - p[1]) * r)
 
-            # ━━ 생명선 — 검지-엄지 사이 시작 → 엄지 둘레 곡선 → 손목 ━━
-            if kp5 and kp1 and kp2 and kp0:
+            # ADR-272 — 사용자 그림 스타일에 맞춘 곡선.
+            # 손바닥 좌표계 (u=손목→중지, v=좌우) 픽셀 함수 정의
+            import math as _math2
+            ux2, uy2 = ux, uy   # 손목→중지 (정규화)
+            vx2, vy2 = vx, vy   # 90° v축
+
+            def palm_pt(u_ratio, v_ratio):
+                """손바닥 좌표 (u=0 손목, u=1 중지 mcp) (v=-0.5 좌, +0.5 우) → 픽셀.
+                kp0=손목 origin, palm_length=u_len, palm_width=palm_width."""
+                base_x = wx + ux2 * u_ratio * u_len + vx2 * v_ratio * palm_width
+                base_y = wy + uy2 * u_ratio * u_len + vy2 * v_ratio * palm_width
+                return (base_x, base_y)
+
+            # ━━ 생명선 (주황) — 검지-엄지 사이 → 엄지 둘레 → 손목 (긴 U자 호)
+            if kp5 and kp1 and kp0:
                 life_pts = [
-                    lerp(kp5, kp1, 0.3),  # 검지-엄지 사이 시작
-                    lerp(kp1, kp2, 0.5),  # 엄지 윗부분
-                    kp1,                   # 엄지 cmc (가장 바깥)
-                    lerp(kp1, kp0, 0.6),  # 손목 쪽
-                    lerp(kp1, kp0, 0.9),
+                    palm_pt(0.95, -0.4),  # 검지-엄지 사이 시작 (손가락 가까이)
+                    palm_pt(0.80, -0.55),
+                    palm_pt(0.55, -0.55),  # 엄지 바깥 호
+                    palm_pt(0.30, -0.45),
+                    palm_pt(0.10, -0.25),  # 손목 부근 종료
                 ]
-                draw_curve(life_pts, LINE_COLORS["lifeline"], width=10)
-                label_at_pix = lerp(kp1, kp0, 0.5)
-                if font_label is not None:
-                    text = LINE_LABELS["lifeline"]
-                    try:
-                        bb = draw.textbbox((0,0), text, font=font_label)
-                        tw, th = bb[2]-bb[0], bb[3]-bb[1]
-                    except: tw, th = 50, 18
-                    # 엄지 바깥쪽으로 오프셋
-                    lx = int(label_at_pix[0] - tw - 10)
-                    ly = int(label_at_pix[1] - th/2)
-                    lx = max(4, min(w-tw-4, lx))
-                    ly = max(4, min(h-th-4, ly))
-                    draw.rectangle([(lx-3, ly-3),(lx+tw+5, ly+th+5)], fill=(0,0,0,200))
-                    draw.text((lx, ly), text, fill=LINE_COLORS["lifeline"]+(255,), font=font_label)
+                draw_curve(life_pts, LINE_COLORS["lifeline"], width=12)
 
-            # ━━ 두뇌선 — 검지-엄지 사이 → 손바닥 중앙 가로 → 새끼 쪽 ━━
-            if kp5 and kp9 and kp13 and kp17 and kp1:
-                # 손바닥 중앙 가로선: 검지 아래(kp5와 kp1 중간) → 새끼 아래
+            # ━━ 두뇌선 (파랑/이미지는 두뇌선 없음, 생략 또는 옅게) — 손바닥 중앙 가로
+            # 사용자 그림에는 두뇌선 없음 → 본 구현은 표시
+            if kp5 and kp17:
                 head_pts = [
-                    lerp(kp5, kp1, 0.4),
-                    lerp(kp5, kp9, 0.6),
-                    lerp(kp9, kp13, 0.6),
-                    lerp(kp13, kp17, 0.6),
-                    lerp(kp17, kp0, 0.4),
+                    palm_pt(0.75, -0.35),  # 검지-엄지 사이
+                    palm_pt(0.60, -0.10),
+                    palm_pt(0.50,  0.20),
+                    palm_pt(0.45,  0.45),  # 새끼 쪽
                 ]
-                # 두뇌선은 손바닥 중간 위치 → 모든 점을 손목쪽으로 약간 시프트
-                center_palm = ((kp5[0]+kp17[0]+kp0[0])/3, (kp5[1]+kp17[1]+kp0[1])/3)
-                head_pts = [lerp(p, center_palm, 0.15) for p in head_pts]
-                draw_curve(head_pts, LINE_COLORS["headline"], width=10)
-                label_at_pix = head_pts[2]
-                if font_label is not None:
-                    text = LINE_LABELS["headline"]
-                    try:
-                        bb = draw.textbbox((0,0), text, font=font_label)
-                        tw, th = bb[2]-bb[0], bb[3]-bb[1]
-                    except: tw, th = 50, 18
-                    lx = int(label_at_pix[0] - tw/2)
-                    ly = int(label_at_pix[1] + 15)
-                    lx = max(4, min(w-tw-4, lx))
-                    ly = max(4, min(h-th-4, ly))
-                    draw.rectangle([(lx-3, ly-3),(lx+tw+5, ly+th+5)], fill=(0,0,0,200))
-                    draw.text((lx, ly), text, fill=LINE_COLORS["headline"]+(255,), font=font_label)
+                # 두뇌선은 사용자 그림에 없음 — 옅게만 표시
+                # draw_curve(head_pts, LINE_COLORS["headline"], width=8)
+                pass
 
-            # ━━ 감정선 — 새끼 아래 → 검지/중지 사이 (두뇌선 위) ━━
-            if kp5 and kp9 and kp13 and kp17:
+            # ━━ 감정선 (빨강) — 새끼 아래 → 검지 사이 (긴 호, 위쪽)
+            if kp5 and kp17:
                 heart_pts = [
-                    lerp(kp17, kp_px.get("kp18", kp17), 0.3),  # 새끼 mcp 부근
-                    lerp(kp17, kp13, 0.5),
-                    lerp(kp13, kp9, 0.5),
-                    lerp(kp9, kp5, 0.5),
+                    palm_pt(0.70, 0.50),   # 새끼 아래
+                    palm_pt(0.80, 0.30),
+                    palm_pt(0.90, 0.05),
+                    palm_pt(0.95, -0.15),  # 검지/중지 사이
                 ]
-                # 손가락 mcp 라인보다 약간 손목 쪽 (감정선은 두뇌선 위)
-                # 손목 방향 = kp0 방향
-                if kp0:
-                    finger_avg = ((kp5[0]+kp9[0]+kp13[0]+kp17[0])/4, (kp5[1]+kp9[1]+kp13[1]+kp17[1])/4)
-                    wrist_dir = (kp0[0]-finger_avg[0], kp0[1]-finger_avg[1])
-                    # 손목 쪽으로 약간 시프트
-                    heart_pts = [(p[0] + wrist_dir[0]*0.12, p[1] + wrist_dir[1]*0.12) for p in heart_pts]
-                draw_curve(heart_pts, LINE_COLORS["heartline"], width=10)
-                label_at_pix = heart_pts[1]
+                draw_curve(heart_pts, LINE_COLORS["heartline"], width=12)
+                # 라벨 — 감정선 위쪽
+                px, py = palm_pt(0.92, 0.15)
                 if font_label is not None:
                     text = LINE_LABELS["heartline"]
                     try:
                         bb = draw.textbbox((0,0), text, font=font_label)
                         tw, th = bb[2]-bb[0], bb[3]-bb[1]
                     except: tw, th = 50, 18
-                    lx = int(label_at_pix[0] - tw/2)
-                    ly = int(label_at_pix[1] - th - 20)
+                    lx = int(px + vx2*30 - tw/2)
+                    ly = int(py + vy2*30 - th/2)
                     lx = max(4, min(w-tw-4, lx))
                     ly = max(4, min(h-th-4, ly))
-                    draw.rectangle([(lx-3, ly-3),(lx+tw+5, ly+th+5)], fill=(0,0,0,200))
+                    draw.rectangle([(lx-3, ly-3),(lx+tw+5, ly+th+5)], fill=(255,255,255,220))
                     draw.text((lx, ly), text, fill=LINE_COLORS["heartline"]+(255,), font=font_label)
 
-            # ━━ 운명선 — 손목 중앙 → 중지 mcp + 나이 마커 ━━
-            fate_pts = []
+            # ━━ 결혼선 (짙은 빨강) — 새끼 옆 짧은 가로선 (감정선 위)
+            if kp17:
+                mar_pts = [
+                    palm_pt(0.85, 0.55),
+                    palm_pt(0.85, 0.40),
+                ]
+                draw_curve(mar_pts, LINE_COLORS["marriage"], width=10)
+                # 라벨 — 결혼선 위
+                px, py = palm_pt(0.85, 0.55)
+                if font_label is not None:
+                    text = LINE_LABELS["marriage"]
+                    try:
+                        bb = draw.textbbox((0,0), text, font=font_label)
+                        tw, th = bb[2]-bb[0], bb[3]-bb[1]
+                    except: tw, th = 50, 18
+                    lx = int(px + vx2*20 - tw/2)
+                    ly = int(py + vy2*20 - th/2)
+                    lx = max(4, min(w-tw-4, lx))
+                    ly = max(4, min(h-th-4, ly))
+                    draw.rectangle([(lx-3, ly-3),(lx+tw+5, ly+th+5)], fill=(255,255,255,220))
+                    draw.text((lx, ly), text, fill=LINE_COLORS["marriage"]+(255,), font=font_label)
+
+            # ━━ 운명선 (파랑) — 손목 중앙 → 중지 mcp (긴 세로 호) + 나이 마커
             if kp0 and kp9:
                 fate_pts = [
-                    kp0,
-                    lerp(kp0, kp9, 0.25),
-                    lerp(kp0, kp9, 0.50),
-                    lerp(kp0, kp9, 0.75),
-                    kp9,
+                    palm_pt(0.05, 0.10),   # 손목 약간 위
+                    palm_pt(0.30, 0.05),
+                    palm_pt(0.55, 0.00),
+                    palm_pt(0.80, -0.05),
+                    palm_pt(0.98, -0.10),  # 중지 mcp 부근
                 ]
-                draw_curve(fate_pts, LINE_COLORS["fateline"], width=10)
-
-                # 나이 마커 — 운명선 위 9 지점 (손가락쪽=10대, 손목쪽=90대)
-                age_marker_color = (40, 40, 40)
-                ages = ["10대", "20대", "30대", "40대", "50대", "60대", "70대", "80대", "90대"]
-                for idx, age in enumerate(ages):
-                    # r=0 (kp9 중지 손가락쪽 = 10대) ~ r=1 (kp0 손목 = 90대)
-                    r_age = idx / (len(ages) - 1)
-                    px, py = lerp(kp9, kp0, r_age)
-                    draw.ellipse([(px-3, py-3), (px+3, py+3)],
-                                 fill=LINE_COLORS["fateline"] + (255,))
-                    if font_small is not None:
-                        try:
-                            bb = draw.textbbox((0,0), age, font=font_small)
-                            atw, ath = bb[2]-bb[0], bb[3]-bb[1]
-                        except: atw, ath = 24, 12
-                        # 운명선 옆 (수직 방향) 으로 오프셋 — v 축 사용 (10px)
-                        lx = int(px + vx * 16 - atw/2)
-                        ly = int(py + vy * 16 - ath/2)
-                        lx = max(2, min(w-atw-2, lx))
-                        ly = max(2, min(h-ath-2, ly))
-                        draw.rectangle([(lx-1, ly-1),(lx+atw+2, ly+ath+2)],
-                                       fill=(255,255,255,200))
-                        draw.text((lx, ly), age, fill=age_marker_color, font=font_small)
-
-                # 운명선 라벨 (kp9 위쪽)
-                label_at_pix = lerp(kp9, kp0, 0.3)
+                draw_curve(fate_pts, LINE_COLORS["fateline"], width=12)
+                # 라벨 — 운명선 옆
+                px, py = palm_pt(0.50, 0.00)
                 if font_label is not None:
                     text = LINE_LABELS["fateline"]
                     try:
                         bb = draw.textbbox((0,0), text, font=font_label)
                         tw, th = bb[2]-bb[0], bb[3]-bb[1]
                     except: tw, th = 50, 18
-                    lx = int(label_at_pix[0] - vx*40 - tw/2)
-                    ly = int(label_at_pix[1] - vy*40 - th/2)
+                    lx = int(px - vx2*40 - tw/2)
+                    ly = int(py - vy2*40 - th/2)
                     lx = max(4, min(w-tw-4, lx))
                     ly = max(4, min(h-th-4, ly))
-                    draw.rectangle([(lx-3, ly-3),(lx+tw+5, ly+th+5)], fill=(0,0,0,200))
+                    draw.rectangle([(lx-3, ly-3),(lx+tw+5, ly+th+5)], fill=(255,255,255,220))
                     draw.text((lx, ly), text, fill=LINE_COLORS["fateline"]+(255,), font=font_label)
 
-            # ━━ 결혼선 — 새끼 mcp 옆 짧은 가로선 ━━
-            if kp17 and kp_px.get("kp18"):
-                kp18 = kp_px["kp18"]
-                # 새끼 mcp에서 손바닥 안쪽 방향으로 짧은 선
-                mar_start = lerp(kp17, kp13 if kp13 else kp9, 0.05)
-                mar_end = lerp(kp17, kp13 if kp13 else kp9, 0.30)
-                draw_curve([mar_start, mar_end], LINE_COLORS["marriage"], width=7)
+                # 나이 마커 — 운명선 옆 (9 지점)
+                age_marker_color = (40, 40, 40)
+                ages = ["10대", "20대", "30대", "40대", "50대", "60대", "70대", "80대", "90대"]
+                for idx, age in enumerate(ages):
+                    # 운명선 손가락쪽이 10대 (u=0.95), 손목쪽이 90대 (u=0.05)
+                    u_ratio = 0.95 - idx * (0.90 / (len(ages) - 1))
+                    px, py = palm_pt(u_ratio, -0.05)
+                    if font_small is not None:
+                        try:
+                            bb = draw.textbbox((0,0), age, font=font_small)
+                            atw, ath = bb[2]-bb[0], bb[3]-bb[1]
+                        except: atw, ath = 24, 12
+                        # 운명선 옆 (v 방향 +) — 손가락 쪽이 아닌 v 측
+                        lx = int(px + vx2 * 28 - atw/2)
+                        ly = int(py + vy2 * 28 - ath/2)
+                        lx = max(2, min(w-atw-2, lx))
+                        ly = max(2, min(h-ath-2, ly))
+                        draw.rectangle([(lx-1, ly-1),(lx+atw+2, ly+ath+2)],
+                                       fill=(255,255,255,200))
+                        draw.text((lx, ly), age, fill=age_marker_color, font=font_small)
+
+            # 생명선 라벨 (마지막에 — 다른 라벨과 겹침 방지)
+            if kp5 and kp1:
+                px, py = palm_pt(0.20, -0.55)
+                if font_label is not None:
+                    text = LINE_LABELS["lifeline"]
+                    try:
+                        bb = draw.textbbox((0,0), text, font=font_label)
+                        tw, th = bb[2]-bb[0], bb[3]-bb[1]
+                    except: tw, th = 50, 18
+                    lx = int(px + vx2*(-30) - tw/2)
+                    ly = int(py + vy2*(-30) - th/2)
+                    lx = max(4, min(w-tw-4, lx))
+                    ly = max(4, min(h-th-4, ly))
+                    draw.rectangle([(lx-3, ly-3),(lx+tw+5, ly+th+5)], fill=(255,255,255,220))
+                    draw.text((lx, ly), text, fill=LINE_COLORS["lifeline"]+(255,), font=font_label)
+
+            # 결혼선 끝 (필요 없음 — 위에서 그려짐, ADR-272 dead code skip)
+            if False and kp17 and kp_px.get("kp18"):
+                pass
                 if font_label is not None:
                     text = LINE_LABELS["marriage"]
                     try:
