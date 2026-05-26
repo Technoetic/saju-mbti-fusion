@@ -205,6 +205,17 @@
       const lm = result.faceLandmarks[0];
       const blendshapes = (result.faceBlendshapes && result.faceBlendshapes[0]) || null;
 
+      // ADR-273 — visualization 용 핵심 keypoint 추출 (전체 478 대신 12궁 매핑에 필요한 ~30개)
+      const KP_FOR_VIZ = [10, 152, 55, 285, 1, 6, 33, 263, 133, 362,
+                          234, 454, 49, 279, 61, 291, 13, 14, 145, 374,
+                          168, 105, 334, 70, 300, 9, 175, 199, 17, 200];
+      const keypoints_viz = {};
+      for (const i of KP_FOR_VIZ) {
+        if (lm[i]) {
+          keypoints_viz[`kp${i}`] = [lm[i].x, lm[i].y, lm[i].z || 0];
+        }
+      }
+
       return {
         three_thirds: _computeThreeThirds(lm),
         eye_distance_ratio: _computeEyeDistanceRatio(lm),
@@ -216,6 +227,7 @@
         mouth_corner_lift: _computeMouthCornerLift(lm),
         blendshapes: _extractBlendshapes(blendshapes),
         face_shape: _classifyFaceShape(lm),
+        face_keypoints: keypoints_viz,  // ADR-273 시각화용
       };
     } catch (err) {
       console.warn('[face-metrics] 메트릭 산출 실패 — 결정론 점수는 0.5 폴백:', err);

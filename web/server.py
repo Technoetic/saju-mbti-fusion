@@ -2142,6 +2142,39 @@ class PersonalityAPIServer:
                 req.question,
                 req.metrics,
             )
+
+            # ADR-273 — 관상 12궁 + 5악 시각화 오버레이
+            try:
+                face_keypoints = None
+                if req.metrics and isinstance(req.metrics, dict):
+                    face_keypoints = req.metrics.get("face_keypoints")
+                if face_keypoints and req.image_base64:
+                    from engine.divination.face.visualization import overlay_face_analysis
+                    from PIL import Image as _PILImg
+                    from io import BytesIO as _BIO
+                    import base64 as _b64m
+                    import numpy as _npm
+                    _s = req.image_base64
+                    if "," in _s and _s.startswith("data:"):
+                        _s = _s.split(",", 1)[1]
+                    img_bytes = _b64m.b64decode(_s)
+                    pil_img = _PILImg.open(_BIO(img_bytes)).convert("RGB")
+                    img_arr = _npm.asarray(pil_img)
+                    fviz = await asyncio.to_thread(
+                        overlay_face_analysis,
+                        img_arr, face_keypoints, None, True, True, False,
+                    )
+                    if isinstance(result, dict):
+                        result["visualization"] = {
+                            "image_base64": fviz.image_base64,
+                            "width": fviz.width,
+                            "height": fviz.height,
+                            "n_palaces_drawn": fviz.n_palaces_drawn,
+                            "metadata": fviz.metadata,
+                        }
+            except Exception:
+                pass
+
             # ADR-006/094 단정 어휘 + ADR-115 다국어 hallucination 사후 필터링
             # (face Vision API 직접 호출 경로 — content/reading 분기 우회)
             if isinstance(result, dict) and "text" in result:
