@@ -128,7 +128,7 @@
   position: absolute; inset: 0;
   background:
   radial-gradient(ellipse at 50% 0%, rgba(184,35,43,0.25), transparent 60%),
-  rgba(10, 6, 6, 0.88);
+  rgba(251, 246, 236, 0.88);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   }
@@ -137,13 +137,13 @@
   max-width: 420px;
   width: calc(100% - 40px);
   padding: 36px 32px 28px;
-  background: linear-gradient(180deg, rgba(40,12,16,0.96), rgba(20,6,8,0.98));
+  background: linear-gradient(180deg, rgba(40,12,16,0.96), rgba(251, 246, 236, 0.98));
   border: 1px solid var(--cs-gold);
   border-radius: 4px;
   text-align: center;
   font-family: 'Nanum Myeongjo', serif;
   box-shadow:
-  0 12px 48px rgba(0,0,0,0.65),
+  0 12px 48px rgba(180, 120, 100, 0.22),
   0 0 36px rgba(184,35,43,0.30),
   inset 0 0 0 1px rgba(240,193,75,0.10);
   }
@@ -197,7 +197,7 @@
   color: var(--cs-ivory);
   border: 1px solid var(--cs-gold-bri);
   font-weight: 700;
-  text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+  text-shadow: 0 1px 4px rgba(180, 120, 100, 0.22);
   box-shadow: 0 0 16px rgba(184,35,43,0.45);
   }
   .cauth-btn-primary:hover {
@@ -258,7 +258,7 @@
   repeating-linear-gradient(180deg,
   rgba(40,8,12,0.95) 0px, rgba(40,8,12,0.95) 24px,
   rgba(60,14,20,0.95) 24px, rgba(60,14,20,0.95) 48px),
-  linear-gradient(180deg, rgba(60,14,20,0.95), rgba(20,4,6,0.98));
+  linear-gradient(180deg, rgba(60,14,20,0.95), rgba(251, 246, 236, 0.98));
   box-shadow: inset 0 0 60px rgba(230,58,58,0.30);
   animation: ctransCurtainOpen 2.5s ease-in-out 0.6s forwards;
   }
@@ -368,9 +368,9 @@
   width: 50%;
   background:
   repeating-linear-gradient(180deg,
-  rgba(30,18,48,0.92) 0px, rgba(30,18,48,0.92) 24px,
+  rgba(251, 246, 236, 0.92) 0px, rgba(251, 246, 236, 0.92) 24px,
   rgba(50,32,80,0.92) 24px, rgba(50,32,80,0.92) 48px),
-  linear-gradient(180deg, rgba(50,32,80,0.92), rgba(20,12,32,0.96));
+  linear-gradient(180deg, rgba(50,32,80,0.92), rgba(251, 246, 236, 0.96));
   box-shadow: inset 0 0 60px rgba(244,211,94,0.20);
   }
   .cxtrans-curtain-left { left: 0; transform: translateX(-100%); animation: cxtransCurtainCloseL 1.6s ease-in-out 0.6s forwards; }
@@ -410,7 +410,7 @@
   text-shadow:
   0 0 14px rgba(244,211,94,0.65),
   0 0 28px rgba(212,175,55,0.45),
-  0 2px 6px rgba(0,0,0,0.7);
+  0 2px 6px rgba(180, 120, 100, 0.22);
   opacity: 0;
   animation: cxtransFarewell 2.2s ease-in-out 1.3s forwards;
   z-index: 5;
@@ -594,7 +594,7 @@
   letter-spacing: 6px;
   color: var(--cs-ivory-soft);
   margin: 0;
-  text-shadow: 0 1px 4px rgba(0,0,0,0.65);
+  text-shadow: 0 1px 4px rgba(180, 120, 100, 0.22);
   }
 
   /* 취선루 카드 — 본관 카드와 톤만 다름 */
@@ -603,7 +603,7 @@
   background: linear-gradient(180deg, rgba(40,12,16,0.85), rgba(15,5,7,0.95));
   border: 1px solid var(--cs-gold);
   box-shadow:
-  0 8px 32px rgba(0,0,0,0.60),
+  0 8px 32px rgba(180, 120, 100, 0.22),
   inset 0 0 0 1px rgba(240,193,75,0.12),
   0 0 30px rgba(184,35,43,0.22);
   }
@@ -617,7 +617,7 @@
   radial-gradient(ellipse at 30% 20%, rgba(230,58,58,0.18), transparent 60%),
   radial-gradient(ellipse at 80% 80%, rgba(74,24,50,0.30), transparent 60%);
   }
-  .chwiseon-card .char-card-name { color: var(--cs-gold-bri); text-shadow: 0 2px 6px rgba(0,0,0,0.85), 0 0 16px rgba(230,58,58,0.35); }
+  .chwiseon-card .char-card-name { color: var(--cs-gold-bri); text-shadow: 0 2px 6px rgba(180, 120, 100, 0.22), 0 0 16px rgba(230,58,58,0.35); }
   .chwiseon-card .char-card-sub { color: var(--cs-ivory); }
   .chwiseon-card .char-card-quote { color: #f3e5c8; }
   .chwiseon-card .char-card-enter {
@@ -649,7 +649,7 @@
   border-color: var(--cs-gold);
   }
   .chwiseon-menu .menu-card:hover {
-  background: linear-gradient(180deg, rgba(60,18,22,0.95), rgba(30,8,12,0.98));
+  background: linear-gradient(180deg, rgba(60,18,22,0.95), rgba(251, 246, 236, 0.98));
   border-color: var(--cs-gold-bri);
   box-shadow: 0 6px 20px rgba(184,35,43,0.40);
   }
@@ -664,7 +664,7 @@
   .chwiseon-content .content-glyph { color: var(--cs-gold-bri); text-shadow: 0 0 16px rgba(230,58,58,0.45); }
   .chwiseon-content .content-title { color: var(--cs-ivory); }
   .chwiseon-content .content-master-quote { color: var(--cs-ivory-soft); }
-  .chwiseon-content .content-section { background: rgba(30,8,12,0.65); border-color: rgba(240,193,75,0.22); }
+  .chwiseon-content .content-section { background: rgba(251, 246, 236, 0.65); border-color: rgba(240,193,75,0.22); }
   .chwiseon-content .content-section-title { color: var(--cs-gold-bri); border-bottom-color: rgba(240,193,75,0.24); }
   .chwiseon-content .content-section p { color: var(--cs-ivory); }
   .chwiseon-content .content-back { color: var(--cs-gold-bri); border-color: var(--cs-gold); }
@@ -677,7 +677,7 @@
   .chwiseon-content .content-form input,
   .chwiseon-content .content-form select,
   .chwiseon-content .content-form textarea {
-  background: rgba(0,0,0,0.5);
+  background: rgba(180, 120, 100, 0.22);
   border-color: rgba(240,193,75,0.30);
   color: var(--cs-ivory);
   }
@@ -688,7 +688,7 @@
   }
   .chwiseon-content .content-recommend-title { color: var(--cs-gold-bri); }
   .chwiseon-content .content-recommend-card { background: rgba(15,5,7,0.65); border-color: var(--cs-gold); }
-  .chwiseon-content .content-recommend-card:hover { background: rgba(30,8,12,0.85); border-color: var(--cs-gold-bri); }
+  .chwiseon-content .content-recommend-card:hover { background: rgba(251, 246, 236, 0.85); border-color: var(--cs-gold-bri); }
   .chwiseon-content .content-recommend-glyph { color: var(--cs-gold-bri); }
   .chwiseon-content .content-recommend-name { color: var(--cs-ivory); }
 

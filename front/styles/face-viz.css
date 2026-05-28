@@ -37,7 +37,7 @@
   .face-viz-grid.full { grid-template-columns: 1fr; }
   .face-viz-panel {
   border: 1px solid var(--gold-dp);
-  background: rgba(0,0,0,0.30);
+  background: rgba(180, 120, 100, 0.22);
   border-radius: 3px;
   padding: 14px 16px;
   }
@@ -83,7 +83,7 @@
   .face-bar-label { color: var(--text-main); letter-spacing: 1px; }
   .face-bar-track {
   height: 12px;
-  background: rgba(0,0,0,0.4);
+  background: rgba(180, 120, 100, 0.22);
   border: 1px solid var(--gold-dp);
   border-radius: 2px;
   overflow: hidden;
@@ -114,7 +114,7 @@
   .face-samjeong-donut::after {
   content: "";
   position: absolute; inset: 22%;
-  background: rgba(10,15,30,0.92);
+  background: rgba(251, 246, 236, 0.92);
   border-radius: 50%;
   border: 1px solid var(--gold-dp);
   }
@@ -161,7 +161,7 @@
   }
   .face-shenqi-track {
   height: 14px;
-  background: rgba(0,0,0,0.4);
+  background: rgba(180, 120, 100, 0.22);
   border: 1px solid var(--gold-dp);
   border-radius: 7px;
   overflow: hidden;
