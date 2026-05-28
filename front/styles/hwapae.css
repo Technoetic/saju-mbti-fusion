@@ -19,7 +19,7 @@
   background:
   linear-gradient(135deg, rgba(212,175,55,0.07), transparent 60%),
   linear-gradient(180deg, var(--hanji-lt), var(--hanji-md));
-  box-shadow: 0 8px 24px rgba(0,0,0,0.5), inset 0 0 30px rgba(0,0,0,0.2);
+  box-shadow: 0 8px 24px rgba(180, 120, 100, 0.22), inset 0 0 30px rgba(180, 120, 100, 0.20);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -33,7 +33,7 @@
   }
   .hwapae-card.flipped {
   transform: rotateY(0);
-  box-shadow: 0 10px 32px rgba(212,175,55,0.25), 0 0 28px rgba(244,211,94,0.18), inset 0 0 30px rgba(0,0,0,0.2);
+  box-shadow: 0 10px 32px rgba(212,175,55,0.25), 0 0 28px rgba(244,211,94,0.18), inset 0 0 30px rgba(180, 120, 100, 0.20);
   }
   .hwapae-card .pos {
   color: var(--gold);
@@ -43,7 +43,7 @@
   padding: 3px 10px;
   border: 1px solid var(--gold-dp);
   border-radius: 2px;
-  background: rgba(0,0,0,0.3);
+  background: rgba(180, 120, 100, 0.22);
   }
   .hwapae-card .symbol {
   font-size: 56px;
@@ -151,7 +151,7 @@
   margin: 6px 0 4px;
   }
   .hw-cat-btn {
-  background: rgba(0,0,0,0.25);
+  background: rgba(180, 120, 100, 0.22);
   border: 1px solid var(--hanji-edge);
   color: var(--text-soft);
   padding: 12px 6px;
@@ -198,7 +198,7 @@
   text-align: center;
   margin: 20px 0;
   padding: 16px;
-  background: rgba(0,0,0,0.2);
+  background: rgba(180, 120, 100, 0.20);
   border: 1px solid var(--hanji-edge);
   border-radius: 4px;
   }
@@ -229,7 +229,7 @@
   aspect-ratio: 3 / 4.6;
   border: 2px dashed var(--gold-dp);
   border-radius: 6px;
-  background: rgba(0,0,0,0.2);
+  background: rgba(180, 120, 100, 0.20);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -250,7 +250,7 @@
   background:
   linear-gradient(135deg, rgba(212,175,55,0.07), transparent 60%),
   linear-gradient(180deg, var(--hanji-lt), var(--hanji-md));
-  box-shadow: 0 6px 20px rgba(212,175,55,0.25), inset 0 0 30px rgba(0,0,0,0.2);
+  box-shadow: 0 6px 20px rgba(212,175,55,0.25), inset 0 0 30px rgba(180, 120, 100, 0.20);
   animation: cardFlip 0.7s cubic-bezier(.34, 1.56, .64, 1);
   }
   .hw-slot .pos-tag {
@@ -261,7 +261,7 @@
   padding: 2px 8px;
   border: 1px solid var(--gold-dp);
   border-radius: 2px;
-  background: rgba(0,0,0,0.35);
+  background: rgba(180, 120, 100, 0.22);
   margin-bottom: 6px;
   }
   .hw-slot .symbol {
@@ -297,7 +297,7 @@
   margin: 8px 0 4px;
   }
   .hw-menu-btn {
-  background: rgba(0,0,0,0.25);
+  background: rgba(180, 120, 100, 0.22);
   border: 1px solid var(--hanji-edge);
   color: var(--text-soft);
   padding: 16px 10px 14px;
@@ -414,7 +414,7 @@
   background:
   repeating-linear-gradient(45deg, rgba(212,175,55,0.08) 0 3px, transparent 3px 11px),
   linear-gradient(180deg, var(--hanji-md), var(--hanji-dk));
-  box-shadow: 0 6px 14px rgba(0,0,0,0.5);
+  box-shadow: 0 6px 14px rgba(180, 120, 100, 0.22);
   transition: transform 0.18s cubic-bezier(.3, 1.2, .5, 1);
   display: flex;
   align-items: center;
@@ -449,7 +449,7 @@
   margin: 30px auto;
   max-width: 980px;
   padding: 14px 6px 30px;
-  background: rgba(0,0,0,0.18);
+  background: rgba(180, 120, 100, 0.18);
   border: 1px solid var(--hanji-edge);
   border-radius: 4px;
   overflow-x: auto;
@@ -476,7 +476,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+  box-shadow: 0 4px 10px rgba(180, 120, 100, 0.22);
   position: relative;
   flex-shrink: 0;
   opacity: 0;

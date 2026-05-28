@@ -27,7 +27,7 @@
 }
 
 .codex-card {
-  background: linear-gradient(180deg, rgba(28, 34, 58, 0.96), rgba(16, 20, 38, 0.98));
+  background: linear-gradient(180deg, rgba(251, 246, 236, 0.96), rgba(251, 246, 236, 0.98));
   border: 1px solid rgba(244, 211, 94, 0.4);
   border-radius: 10px;
   padding: 14px 12px 12px;
@@ -36,7 +36,7 @@
   cursor: pointer;
   transition: all 0.25s ease;
   box-shadow:
-    0 3px 12px rgba(0, 0, 0, 0.5),
+    0 3px 12px rgba(180, 120, 100, 0.22),
     inset 0 1px 0 rgba(255, 255, 255, 0.04);
   text-align: left;
 }
@@ -44,7 +44,7 @@
   transform: translateY(-2px);
   border-color: rgba(244, 211, 94, 0.7);
   box-shadow:
-    0 6px 18px rgba(0, 0, 0, 0.55),
+    0 6px 18px rgba(180, 120, 100, 0.22),
     0 0 18px rgba(244, 211, 94, 0.15);
 }
 
@@ -83,7 +83,7 @@
 
 /* 취선루 캐릭터 — 붉은 톤 */
 .codex-card-dark {
-  background: linear-gradient(180deg, rgba(48, 22, 24, 0.97), rgba(28, 12, 14, 0.99));
+  background: linear-gradient(180deg, rgba(48, 22, 24, 0.97), rgba(251, 246, 236, 0.99));
   border-color: rgba(220, 100, 100, 0.55);
 }
 .codex-card-dark .codex-card-name { color: #ffb8a8; }
@@ -91,12 +91,12 @@
 .codex-card-dark .codex-card-glyph { color: rgba(220, 100, 100, 0.18); }
 .codex-card-dark:hover {
   border-color: rgba(220, 100, 100, 0.85);
-  box-shadow: 0 6px 18px rgba(0,0,0,0.55), 0 0 18px rgba(220, 100, 100, 0.18);
+  box-shadow: 0 6px 18px rgba(180, 120, 100, 0.22), 0 0 18px rgba(220, 100, 100, 0.18);
 }
 
 /* 놀이 등장인물 — 살짝 보라 톤 */
 .codex-card-play {
-  background: linear-gradient(180deg, rgba(34, 28, 56, 0.96), rgba(18, 14, 34, 0.99));
+  background: linear-gradient(180deg, rgba(34, 28, 56, 0.96), rgba(251, 246, 236, 0.99));
   border-color: rgba(169, 134, 212, 0.5);
 }
 .codex-card-play .codex-card-name { color: #e0d4ff; }
@@ -105,7 +105,7 @@
 
 /* 잠긴 (미공개) 카드 */
 .codex-card-locked {
-  background: rgba(20, 24, 38, 0.7);
+  background: rgba(251, 246, 236, 0.7);
   border: 1px dashed rgba(212, 175, 55, 0.25);
   cursor: default;
   opacity: 0.6;
