@@ -570,31 +570,7 @@
   </div>
   </article>
 
-  <!-- 화선 낭자 -->
-  <article class="char-card" data-go="hwapae" data-character="hwapae">
-  <img class="char-card-poster" src="./media/characters/hwaseon_nangja.jpg" alt="화선 낭자" loading="eager">
-  <video class="char-card-video" muted loop playsinline preload="auto" poster="./media/characters/hwaseon_nangja.jpg">
-  <source src="./media/characters/hwaseon_nangja.mp4" type="video/mp4">
-  </video>
-  <div class="char-card-veil"></div>
-  <div class="char-card-body">
-  <h2 class="char-card-name">화선 낭자</h2>
-  <p class="char-card-sub">꽃패를 펼치는 낭자 · 꽃패(타로) 풀이</p>
-  <p class="char-card-quote">"마음의 길을 카드가 비춰드릴게요."</p>
-  <button class="char-card-enter" type="button">꽃패 풀이 들어가기</button>
-  </div>
-  </article>
-
-  <!-- 성하 공자 -->
-  <article class="char-card star-card" data-go="star" data-character="star">
-  <div class="char-card-veil"></div>
-  <div class="char-card-body">
-  <h2 class="char-card-name">성하 공자</h2>
-  <p class="char-card-sub">별의 강(銀河)의 귀공자 · 별빛(점성) 풀이</p>
-  <p class="char-card-quote">"하늘의 별이 그대 운명의 지도이옵니다."</p>
-  <button class="char-card-enter" type="button">별빛 풀이 들어가기</button>
-  </div>
-  </article>
+  <!-- MVP 축소: 화선 낭자·성하 공자 카드 숨김 (고도화 후 복원 예정) -->
 
   <!-- 운학 도사 -->
   <article class="char-card" data-go="face" data-character="face">
@@ -611,35 +587,7 @@
   </div>
   </article>
 
-  <!-- 옥선 할미 -->
-  <article class="char-card" data-go="palm" data-character="palm">
-  <img class="char-card-poster" src="./media/characters/okseon_halmi.jpg" alt="옥선 할미" loading="eager">
-  <video class="char-card-video" muted loop playsinline preload="auto" poster="./media/characters/okseon_halmi.jpg">
-  <source src="./media/characters/okseon_halmi.mp4" type="video/mp4">
-  </video>
-  <div class="char-card-veil"></div>
-  <div class="char-card-body">
-  <h2 class="char-card-name">옥선 할미</h2>
-  <p class="char-card-sub">길고 깊은 손금을 풀어주는 할미 · 손금 풀이</p>
-  <p class="char-card-quote">"아이고, 그대 손 한번 펴 보시게."</p>
-  <button class="char-card-enter" type="button">손금 풀이 들어가기</button>
-  </div>
-  </article>
-
-  <!-- 묵향 선생 -->
-  <article class="char-card" data-go="name" data-character="name">
-  <img class="char-card-poster" src="./media/characters/mukhyang_seonsaeng.jpg" alt="묵향 선생" loading="eager">
-  <video class="char-card-video" muted loop playsinline preload="auto" poster="./media/characters/mukhyang_seonsaeng.jpg">
-  <source src="./media/characters/mukhyang_seonsaeng.mp4" type="video/mp4">
-  </video>
-  <div class="char-card-veil"></div>
-  <div class="char-card-body">
-  <h2 class="char-card-name">묵향 선생</h2>
-  <p class="char-card-sub">붓끝의 깊이를 헤아리는 선생 · 이름(작명) 풀이</p>
-  <p class="char-card-quote">"그대의 이름이 어떻게 흐르는지 살펴드리리다."</p>
-  <button class="char-card-enter" type="button">이름 풀이 들어가기</button>
-  </div>
-  </article>
+  <!-- MVP 축소: 옥선 할미·묵향 선생 카드 숨김 (고도화 후 복원 예정) -->
   </div>
 
   <!-- 하단 컨트롤 — 화살표 + 점 인디케이터 통합 (카드 그림을 가리지 않음) -->
@@ -664,11 +612,8 @@
 <div class="tab-bar">
   <button class="tab-btn active" data-tab="saju">만월 아씨의 사주 풀이</button>
   <button class="tab-btn" data-tab="dream">몽이 도령의 꿈 풀이</button>
-  <button class="tab-btn" data-tab="hwapae">화선 낭자의 꽃패 풀이</button>
-  <button class="tab-btn" data-tab="star">성하 공자의 별빛 풀이</button>
   <button class="tab-btn" data-tab="face">운학 도사의 얼굴 풀이</button>
-  <button class="tab-btn" data-tab="palm">옥선 할미의 손금 풀이</button>
-  <button class="tab-btn" data-tab="name">묵향 선생의 이름 풀이</button>
+  <!-- MVP 축소: hwapae·star·palm·name 탭 숨김 -->
 </div>
 
 <div id="tab-saju" class="tab-content active">
@@ -2136,33 +2081,7 @@
     </span>
     <span class="bt-label">일지</span>
   </button>
-  <button type="button" class="bottom-tab" role="tab" data-tab="play" aria-selected="false">
-    <span class="bt-icon" aria-hidden="true">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.5" fill="currentColor"/><path d="M12 3v4M12 17v4M3 12h4M17 12h4"/></svg>
-    </span>
-    <span class="bt-label">놀이</span>
-  </button>
-  <button type="button" class="bottom-tab" role="tab" data-tab="codex" aria-selected="false">
-    <span class="bt-icon" aria-hidden="true">
-      <!-- 도감: 책 + 별 아이콘 -->
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 5a2 2 0 012-2h11v17H6a2 2 0 00-2 2V5z"/><path d="M4 5v15a2 2 0 002 2h11"/><path d="M9 9l1.2 2.4L13 12l-2 1.5.5 2.5L9 14.8 6.5 16l.5-2.5L5 12l2.8-.6L9 9z" fill="currentColor" stroke="none"/></svg>
-    </span>
-    <span class="bt-label">도감</span>
-  </button>
-  <button type="button" class="bottom-tab bottom-tab-chwiseon" role="tab" data-tab="chwiseon" aria-selected="false">
-    <!-- 평소(취선루로 진입) -->
-    <span class="bt-icon bt-icon-default" aria-hidden="true">
-      <!-- 취선루: 문 + 등불 -->
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M7 21V8a5 5 0 0110 0v13"/><path d="M5 21h14"/><circle cx="14" cy="13" r="0.8" fill="currentColor"/><path d="M12 4V2"/></svg>
-    </span>
-    <!-- 취선루 안일 때(월하몽으로 복귀) -->
-    <span class="bt-icon bt-icon-alt" aria-hidden="true">
-      <!-- 월하몽: 달 + 별 -->
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M20 14.5A8 8 0 119.5 4a6.5 6.5 0 0010.5 10.5z"/><circle cx="6" cy="9" r="0.7" fill="currentColor"/><circle cx="18" cy="6" r="0.7" fill="currentColor"/></svg>
-    </span>
-    <span class="bt-label bt-label-default">취선루</span>
-    <span class="bt-label bt-label-alt">월하몽</span>
-  </button>
+  <!-- MVP 축소: 놀이·도감·취선루 탭 숨김 (구현 완료 후 하나씩 추가 예정) -->
   <button type="button" class="bottom-tab" role="tab" data-tab="profile" aria-selected="false">
     <span class="bt-icon" aria-hidden="true">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="8" r="4"/><path d="M4 20c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>
