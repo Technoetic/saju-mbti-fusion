@@ -1,18 +1,22 @@
-// 하단 탭 바 — 6개 탭 전환 (홈/일지/놀이/도감/취선루/프로필)
+// 하단 탭 바 — MVP 축소: 홈/일지/프로필 3개 (놀이·도감·취선루 일시 잠금)
 //
 // body.tab-{key} 클래스로 탭별 화면 토글:
 //   tab-home     → 카드 갤러리 (app-container)
 //   tab-journal  → 일지 화면 (tabView)
-//   tab-play     → 놀이 화면 (tabView)
-//   tab-codex    → 도감 화면 (tabView)
-//   tab-chwiseon → 취선루 (#chwiseonMain, body.chwiseon-on)
-//                  → 이미 취선루 안일 때 다시 클릭하면 홈으로 복귀 (월하몽 변신 모드)
 //   tab-profile  → 프로필 화면 (tabView)
+// (잠긴 탭: play / codex / chwiseon — 고도화 후 복원 예정)
 
 const TAB_CLASSES = ['tab-home', 'tab-journal', 'tab-play', 'tab-codex', 'tab-chwiseon', 'tab-profile'];
+const LOCKED_TABS = new Set(['play', 'codex', 'chwiseon']);
 
 function activateTab(key) {
   const body = document.body;
+
+  // MVP 축소 — 잠긴 탭 클릭/외부 호출 모두 무시
+  if (LOCKED_TABS.has(key)) {
+    console.log('[tabs] locked tab ignored:', key);
+    return;
+  }
 
   // 취선루 탭은 토글 동작: 이미 취선루 안이면 홈으로 복귀 (월하몽 변신 모드)
   if (key === 'chwiseon' && body.classList.contains('chwiseon-on')) {
@@ -43,7 +47,7 @@ function activateTab(key) {
   const tabView = document.getElementById('tabView');
   const isHome = (key === 'home');
   const isChwiseon = (key === 'chwiseon');
-  const isTabViewKey = (key === 'journal' || key === 'play' || key === 'codex' || key === 'profile');
+  const isTabViewKey = (key === 'journal' || key === 'profile');  // MVP: play·codex 잠금
 
   // body.chwiseon-on 클래스 토글 (기존 취선루 진입/탈출 시스템 활용)
   document.body.classList.toggle('chwiseon-on', isChwiseon);
