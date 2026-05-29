@@ -48,11 +48,11 @@ input, select, textarea {
   transition: all 0.2s;
 }
 input:hover, select:hover, textarea:hover {
-  border-color: var(--pink-dp);
+  border-color: var(--pink-soft);
 }
 input:focus, select:focus, textarea:focus {
   outline: none;
-  border-color: var(--pink-dp);
+  border-color: var(--pink-soft);
   background: var(--milk);
   box-shadow: 0 0 0 3px var(--pink-bri);
 }

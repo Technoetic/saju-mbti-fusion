@@ -16,9 +16,10 @@
   --beige-dk:        #c9b89a;
   --milk:            #fbf6ec;   /* 카드 안쪽 */
 
-  --pink:            #f7c5cf;   /* 메인 강조 — 볼터치 분홍 */
+  --pink:            #f7c5cf;   /* 메인 강조 — 볼터치 분홍 (배경/버튼 면) */
   --pink-bri:        #ffd6dd;
-  --pink-dp:         #e89aa8;
+  --pink-dp:         #b03d56;   /* 진한 와인 로즈 — 텍스트 가독성 강화 (이전 #e89aa8) */
+  --pink-soft:       #e89aa8;   /* 옛 pink-dp 톤 — 보더·아이콘 용 */
   --pink-blush:      rgba(244,168,181,0.55);  /* 볼터치 오버레이 */
 
   --lavender:        #d6c8ec;   /* 보조 강조 — 라벤더 */

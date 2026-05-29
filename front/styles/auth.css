@@ -168,7 +168,7 @@
 .auth-row input:focus,
 .auth-row select:focus {
   outline: none;
-  border-color: var(--pink-dp);
+  border-color: var(--pink-soft);
   background: var(--milk);
   box-shadow: 0 0 0 3px var(--pink-bri);
 }
