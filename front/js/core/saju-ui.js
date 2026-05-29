@@ -411,9 +411,15 @@ function updateHanjaSelectors() {
   return `<option value="${h}"${sel}>${h} ${meaning}${strokePart}${unusable}</option>`;
   })
   ].join('');
-  html += `<span class="hanja-cell">
+  const isBulyongSelected = prevSel && 불용한자.has(prevSel);
+  const cellClass = isBulyongSelected ? 'hanja-cell hanja-cell-bulyong' : 'hanja-cell';
+  const warnTag = isBulyongSelected
+    ? `<div class="hanja-bulyong-warn">⚠ 불용한자 — 의미가 어둡거나 흉운으로 분류되어 작명에서 잘 쓰지 않습니다</div>`
+    : '';
+  html += `<span class="${cellClass}" data-cell-idx="${i}">
   <div class="hanja-han"><b>${ch}</b><small>${isSurname ? '성' : '이름'}</small></div>
   <select class="hanja-select" data-char="${ch}" data-idx="${i}">${opts}</select>
+  ${warnTag}
   </span>`;
   }
   if (hasUnknown) {
@@ -421,6 +427,29 @@ function updateHanjaSelectors() {
   }
   html += '<div class="hint" style="margin-top:4px;color:var(--text-dim)">※ [불용] 표시는 의미가 어둡거나 흉운으로 분류되어 작명에서 잘 쓰지 않는 한자 (참고용).</div>';
   container.innerHTML = html;
+
+  // 셀렉터 변경 시 불용한자 경고 토글
+  container.querySelectorAll('.hanja-select').forEach(sel => {
+    sel.addEventListener('change', (e) => {
+      const cell = e.target.closest('.hanja-cell');
+      if (!cell) return;
+      const h = e.target.value;
+      const isBad = h && 불용한자.has(h);
+      cell.classList.toggle('hanja-cell-bulyong', !!isBad);
+      let warn = cell.querySelector('.hanja-bulyong-warn');
+      if (isBad) {
+        if (!warn) {
+          warn = document.createElement('div');
+          warn.className = 'hanja-bulyong-warn';
+          warn.textContent = '⚠ 불용한자 — 의미가 어둡거나 흉운으로 분류되어 작명에서 잘 쓰지 않습니다';
+          cell.appendChild(warn);
+        }
+      } else if (warn) {
+        warn.remove();
+      }
+    });
+  });
+
   updateStrokeTotal();
 }
 
@@ -615,10 +644,38 @@ document.querySelectorAll('.mode-btn').forEach(btn => {
  * 반환값: 성공 시 true, 실패 시 false (에러는 result 영역에 표시)
  */
 function performCalculation() {
+  let yIn = parseInt(document.getElementById('year').value, 10);
+  let mIn = parseInt(document.getElementById('month').value, 10);
+  let dIn = parseInt(document.getElementById('day').value, 10);
+
+  // 음력/양력 토글 — 음력 선택 시 lunar-javascript로 양력으로 변환
+  const calEl = document.getElementById('calendarType');
+  const calMode = calEl ? calEl.value : 'solar';  // solar / lunar / lunar_leap
+
+  if (calMode !== 'solar') {
+    try {
+      const isLeap = (calMode === 'lunar_leap');
+      // lunar-javascript: Lunar.fromYmd(year, month, day, isLeap?)
+      // 윤달이면 month를 음수로 표기 (lunar-javascript 관행)
+      const lunarMonth = isLeap ? -mIn : mIn;
+      if (window.Lunar && typeof window.Lunar.fromYmd === 'function') {
+        const lunar = window.Lunar.fromYmd(yIn, lunarMonth, dIn);
+        const solar = lunar.getSolar();
+        yIn = solar.getYear();
+        mIn = solar.getMonth();
+        dIn = solar.getDay();
+      } else {
+        console.warn('[lunar] lunar-javascript 미로드 — 양력으로 그대로 처리');
+      }
+    } catch (e) {
+      console.warn('[lunar] 변환 실패, 양력 그대로 처리:', e);
+    }
+  }
+
   const input = {
-  year:  parseInt(document.getElementById('year').value, 10),
-  month:  parseInt(document.getElementById('month').value, 10),
-  day:  parseInt(document.getElementById('day').value, 10),
+  year:  yIn,
+  month:  mIn,
+  day:  dIn,
   hour:  parseInt(document.getElementById('hour').value, 10),
   minute:  parseInt(document.getElementById('minute').value, 10),
   timezoneOffset: parseFloat(document.getElementById('timezone').value),
