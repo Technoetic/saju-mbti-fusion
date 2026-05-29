@@ -47,10 +47,10 @@
   --ink-faint:       rgba(61,47,42,0.18);
 
   /* 텍스트 — 다크 톤 위 본문은 진한 갈색 */
-  --text-main:       #3d2f2a;
-  --text-soft:       #6b554a;
-  --text-dim:        #9a8478;
-  --text-mute:       #c8b5a6;
+  --text-main:       #2a1f1c;   /* 본문 본격 — ink보다 더 진하게 */
+  --text-soft:       #4a3a32;   /* 부제·라벨·설명 — 가독성 강화 (이전 #6b554a) */
+  --text-dim:        #7a6358;   /* 보조 힌트 — (이전 #9a8478) */
+  --text-mute:       #a89682;   /* (이전 #c8b5a6) */
   --text-on-dark:    #fbf6ec;
 
   /* 그림자 — 옅은 핑크/베이지 톤 */
