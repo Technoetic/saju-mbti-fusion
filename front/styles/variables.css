@@ -78,11 +78,11 @@
   --hanji-lt:        #ede2cd;
   --hanji-edge:      #c9b89a;
 
-  --gold:            #e89aa8;    /* 옛 금 → 핑크 강조 */
-  --gold-bri:        #f7c5cf;
-  --gold-dp:         #c87a8a;
+  --gold:            #7a2438;    /* 호환 토큰 — 콘텐츠 폼 글자 대량 사용. 가독성 위해 어두운 버건디 */
+  --gold-bri:        #b03d56;    /* 호환 토큰 — 강조용. 진한 와인 로즈 */
+  --gold-dp:         #c87a8a;    /* 보더용 — 그대로 */
 
-  --red-dan:         #e89aa8;
+  --red-dan:         #7a2438;
   --jade:            #7fb8a0;
 
   --star-y:          #ffd97a;
