@@ -124,6 +124,29 @@ input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; marg
 }
 .hanja-cell select { display: block; margin: 4px 0 0; width: 100%; font-size: 13px; }
 
+/* 불용한자 선택 시 — 빨간 톤 강조 */
+.hanja-cell.hanja-cell-bulyong {
+  border-color: #d75c5c;
+  background: rgba(247, 197, 207, 0.20);
+  box-shadow: 0 3px 0 #d75c5c;
+}
+.hanja-cell.hanja-cell-bulyong .hanja-han b {
+  color: #d75c5c;
+}
+.hanja-bulyong-warn {
+  margin-top: 8px;
+  padding: 7px 9px;
+  background: rgba(247, 197, 207, 0.55);
+  border: 1.5px solid #d75c5c;
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  line-height: 1.5;
+  color: #a83838;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  text-align: left;
+}
+
 /* ───── 획수 합계 ───── */
 .stroke-total {
   background: var(--cream);
