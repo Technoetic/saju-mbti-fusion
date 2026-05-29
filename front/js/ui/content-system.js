@@ -162,19 +162,44 @@
   return `<option value="${h}"${selected}>${h} ${meaning} (${stroke}획)${isBad ? ' · [불용]' : ''}</option>`;
   })
   ).join('');
-  html += `<span class="content-hanja-cell">
+  const isBulyongInit = prevSel && bad && typeof bad.has === 'function' && bad.has(prevSel);
+  const cellCls = isBulyongInit ? 'content-hanja-cell hanja-cell-bulyong' : 'content-hanja-cell';
+  const warnInit = isBulyongInit
+    ? `<div class="hanja-bulyong-warn">⚠ 불용한자 — 의미가 어둡거나 흉운으로 분류되어 작명에서 잘 쓰지 않습니다</div>`
+    : '';
+  html += `<span class="${cellCls}">
   <div class="content-hanja-han"><b>${ch}</b><small>${isSurname ? '성' : '이름'}</small></div>
   <select class="content-hanja-select" data-char="${ch}" data-idx="${i}">${opts}</select>
+  ${warnInit}
   </span>`;
   }
   html += '</div>';
   // 총 획수·불용 표시 영역 (셀렉트 변경 시 갱신)
   html += '<div class="content-hanja-total"></div>';
   slot.innerHTML = html;
-  // 셀렉트 변경 시 총 획수 갱신 (이벤트 위임)
+  // 셀렉트 변경 시 총 획수 갱신 + 셀 강조 토글 (이벤트 위임)
   if (!slot.dataset.totalBound) {
   slot.addEventListener('change', (e) => {
-  if (e.target.classList.contains('content-hanja-select')) updateContentHanjaTotal(slot);
+  if (!e.target.classList.contains('content-hanja-select')) return;
+  // 1) 총 획수 갱신
+  updateContentHanjaTotal(slot);
+  // 2) 셀 강조 + 경고 박스 토글
+  const cell = e.target.closest('.content-hanja-cell');
+  if (!cell) return;
+  const h = e.target.value;
+  const isBad = h && bad && typeof bad.has === 'function' && bad.has(h);
+  cell.classList.toggle('hanja-cell-bulyong', !!isBad);
+  let warn = cell.querySelector('.hanja-bulyong-warn');
+  if (isBad) {
+  if (!warn) {
+  warn = document.createElement('div');
+  warn.className = 'hanja-bulyong-warn';
+  warn.textContent = '⚠ 불용한자 — 의미가 어둡거나 흉운으로 분류되어 작명에서 잘 쓰지 않습니다';
+  cell.appendChild(warn);
+  }
+  } else if (warn) {
+  warn.remove();
+  }
   });
   slot.dataset.totalBound = '1';
   }
@@ -209,10 +234,16 @@
   ${(field.options || []).map(o => `<option value="${escapeHtml(o.value)}">${escapeHtml(o.label)}</option>`).join('')}
   </select></div>`;
   case 'ymd': {
-  // ★ 버그 fix (2026-05-21) — fieldHtml의 select id는 _y/_m/_d였으나
-  //   수집 코드(line 444~449)는 _year/_month/_day로 찾고 있어 항상 null →
-  //   birth가 LLM에 전달되지 않는 결정적 버그. 수집 코드 표준에 맞춰 통일.
-  return `<div class="row"><label for="${id}_year">${field.label}</label>
+  // 음력/양력 토글 + 생년월일 3 select
+  return `<div class="row"><label for="${id}_calendar">달력</label>
+  <select id="${id}_calendar" class="cf-calendar-type">
+    <option value="solar" selected>양력 (陽曆 · 일반)</option>
+    <option value="lunar">음력 (陰曆)</option>
+    <option value="lunar_leap">음력 윤달 (閏月)</option>
+  </select>
+  <span class="hint">— 생년월일을 어떤 달력 기준으로 적으시나요?</span>
+  </div>
+  <div class="row"><label for="${id}_year">${field.label}</label>
   <div class="row-group">
   <select id="${id}_year" data-ymd="year"></select>
   <select id="${id}_month" data-ymd="month"></select>
@@ -441,12 +472,33 @@
   const inputs = {};
   for (const f of fields) {
   if (f.type === 'ymd') {
-  const y = document.getElementById(`cf_${f.key}_year`)?.value
+  let y = document.getElementById(`cf_${f.key}_year`)?.value
         || document.querySelector(`[name="${f.key}_year"]`)?.value;
-  const m = document.getElementById(`cf_${f.key}_month`)?.value
+  let m = document.getElementById(`cf_${f.key}_month`)?.value
         || document.querySelector(`[name="${f.key}_month"]`)?.value;
-  const d = document.getElementById(`cf_${f.key}_day`)?.value
+  let d = document.getElementById(`cf_${f.key}_day`)?.value
         || document.querySelector(`[name="${f.key}_day"]`)?.value;
+  // 음력/양력 토글 — 음력이면 lunar-javascript로 양력 변환
+  const calMode = document.getElementById(`cf_${f.key}_calendar`)?.value || 'solar';
+  if (calMode !== 'solar' && y && m && d) {
+    try {
+      if (window.Lunar && typeof window.Lunar.fromYmd === 'function') {
+        const yi = parseInt(y, 10);
+        const mi = parseInt(m, 10);
+        const di = parseInt(d, 10);
+        const lunarMonth = (calMode === 'lunar_leap') ? -mi : mi;
+        const lunar = window.Lunar.fromYmd(yi, lunarMonth, di);
+        const solar = lunar.getSolar();
+        y = String(solar.getYear());
+        m = String(solar.getMonth());
+        d = String(solar.getDay());
+      } else {
+        console.warn('[lunar] lunar-javascript 미로드');
+      }
+    } catch (e) {
+      console.warn('[lunar] 변환 실패:', e);
+    }
+  }
   inputs[f.key] = (y && m && d) ? `${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}` : '';
   } else {
   // id="cf_${key}" 우선, fallback으로 [name=...]
