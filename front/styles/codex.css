@@ -27,7 +27,7 @@
 }
 
 .codex-card {
-  background: linear-gradient(180deg, rgba(251, 246, 236, 0.96), rgba(251, 246, 236, 0.98));
+  background: linear-gradient(180deg, rgba(29, 35, 66, 0.96), rgba(29, 35, 66, 0.98));
   border: 1px solid rgba(244, 211, 94, 0.4);
   border-radius: 10px;
   padding: 14px 12px 12px;
@@ -83,7 +83,7 @@
 
 /* 취선루 캐릭터 — 붉은 톤 */
 .codex-card-dark {
-  background: linear-gradient(180deg, rgba(48, 22, 24, 0.97), rgba(251, 246, 236, 0.99));
+  background: linear-gradient(180deg, rgba(48, 22, 24, 0.97), rgba(29, 35, 66, 0.99));
   border-color: rgba(220, 100, 100, 0.55);
 }
 .codex-card-dark .codex-card-name { color: #ffb8a8; }
@@ -96,7 +96,7 @@
 
 /* 놀이 등장인물 — 살짝 보라 톤 */
 .codex-card-play {
-  background: linear-gradient(180deg, rgba(34, 28, 56, 0.96), rgba(251, 246, 236, 0.99));
+  background: linear-gradient(180deg, rgba(34, 28, 56, 0.96), rgba(29, 35, 66, 0.99));
   border-color: rgba(169, 134, 212, 0.5);
 }
 .codex-card-play .codex-card-name { color: #e0d4ff; }
@@ -105,7 +105,7 @@
 
 /* 잠긴 (미공개) 카드 */
 .codex-card-locked {
-  background: rgba(251, 246, 236, 0.7);
+  background: rgba(29, 35, 66, 0.7);
   border: 1px dashed rgba(212, 175, 55, 0.25);
   cursor: default;
   opacity: 0.6;

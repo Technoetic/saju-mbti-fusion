@@ -11,7 +11,7 @@
 }
 
 .play-card {
-  background: linear-gradient(180deg, rgba(251, 246, 236, 0.96), rgba(251, 246, 236, 0.98));
+  background: linear-gradient(180deg, rgba(29, 35, 66, 0.96), rgba(29, 35, 66, 0.98));
   border: 1px solid rgba(244, 211, 94, 0.55);
   border-radius: 12px;
   padding: 22px 20px 20px;
@@ -74,7 +74,7 @@
 
 /* 사이코패스 카드 — 붉은 톤 */
 .play-card-dark {
-  background: linear-gradient(180deg, rgba(48, 22, 24, 0.97), rgba(251, 246, 236, 0.99));
+  background: linear-gradient(180deg, rgba(48, 22, 24, 0.97), rgba(29, 35, 66, 0.99));
   border-color: rgba(220, 100, 100, 0.7);
   box-shadow:
     0 4px 18px rgba(180, 120, 100, 0.22),
@@ -132,14 +132,14 @@
 
 /* ── 진행 스테이지 (질문·선택지·결과 공통) ── */
 .play-stage {
-  background: linear-gradient(180deg, rgba(251, 246, 236, 0.6), rgba(251, 246, 236, 0.75));
+  background: linear-gradient(180deg, rgba(29, 35, 66, 0.6), rgba(29, 35, 66, 0.75));
   border: 1px solid rgba(212, 175, 55, 0.22);
   border-radius: 10px;
   padding: 24px 20px;
   color: var(--text-main);
 }
 .play-runner-dark .play-stage {
-  background: linear-gradient(180deg, rgba(36, 16, 18, 0.65), rgba(251, 246, 236, 0.85));
+  background: linear-gradient(180deg, rgba(36, 16, 18, 0.65), rgba(29, 35, 66, 0.85));
   border-color: rgba(184, 60, 60, 0.4);
 }
 
@@ -193,7 +193,7 @@
   gap: 10px;
 }
 .play-choice {
-  background: rgba(251, 246, 236, 0.55);
+  background: rgba(29, 35, 66, 0.55);
   border: 1px solid rgba(212, 175, 55, 0.3);
   color: var(--text-main);
   font-family: 'Nanum Myeongjo', serif;
@@ -208,12 +208,12 @@
 }
 .play-choice:hover {
   border-color: var(--gold-bri);
-  background: rgba(251, 246, 236, 0.7);
+  background: rgba(29, 35, 66, 0.7);
   color: #ffe89a;
 }
 .play-choice:active { transform: scale(0.99); }
 .play-runner-dark .play-choice {
-  background: rgba(251, 246, 236, 0.55);
+  background: rgba(29, 35, 66, 0.55);
   border-color: rgba(184, 60, 60, 0.4);
 }
 .play-runner-dark .play-choice:hover {
@@ -359,7 +359,7 @@
 }
 .psycho-progress-bar {
   height: 6px;
-  background: rgba(251, 246, 236, 0.6);
+  background: rgba(29, 35, 66, 0.6);
   border-radius: 3px;
   overflow: hidden;
 }
@@ -403,7 +403,7 @@
   display: inline-block;
   margin-left: 4px;
   padding: 0 6px;
-  background: rgba(251, 246, 236, 0.45);
+  background: rgba(29, 35, 66, 0.45);
   border-radius: 8px;
   font-size: 0.75rem;
   color: rgba(220, 200, 240, 0.85);
@@ -416,7 +416,7 @@
 .psycho-card-disclaimer {
   margin-top: 14px;
   padding: 10px 12px;
-  background: rgba(251, 246, 236, 0.45);
+  background: rgba(29, 35, 66, 0.45);
   border-left: 3px solid rgba(180, 160, 220, 0.4);
   border-radius: 4px;
   font-size: 0.78rem;
@@ -484,7 +484,7 @@
   transform: translateY(-2px);
 }
 .psycho-mini-card-done {
-  background: rgba(251, 246, 236, 0.45);
+  background: rgba(29, 35, 66, 0.45);
   border-color: rgba(150, 220, 180, 0.4);
   opacity: 0.78;
 }

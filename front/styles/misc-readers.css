@@ -139,7 +139,7 @@
   align-items: center;
   gap: 8px;
   padding: 18px 16px 16px;
-  background: rgba(251, 246, 236, 0.85);
+  background: rgba(29, 35, 66, 0.85);
   border: 1px solid var(--gold-dp);
   border-radius: 3px;
   color: var(--text-main);
@@ -183,7 +183,7 @@
   #tab-star .next-card-title { color: var(--starh-violet-bri); }
   #tab-star .next-card-lead { color: var(--starh-silver); }
   #tab-star .next-btn {
-  background: rgba(251, 246, 236, 0.85);
+  background: rgba(29, 35, 66, 0.85);
   border-color: rgba(169,134,212,0.30);
   color: var(--starh-glow);
   }
@@ -336,7 +336,7 @@
   }
   #nameResultBoard { max-width: 720px; margin: 18px auto 0; }
   body.in-app .name-master-card {
-    background: rgba(251, 246, 236, 0.85);
+    background: rgba(29, 35, 66, 0.85);
     backdrop-filter: blur(8px) brightness(0.92);
     -webkit-backdrop-filter: blur(8px) brightness(0.92);
   }
@@ -347,7 +347,7 @@
 
   .palm-master-card {
     border: 1px solid var(--gold-dp);
-    background: rgba(251, 246, 236, 0.85);
+    background: rgba(29, 35, 66, 0.85);
     border-radius: 3px;
     padding: 22px 24px 20px;
     margin: 18px auto 26px;
@@ -399,7 +399,7 @@
 
   /* in-app translucent (영상 뒤 비침) — face-master-card와 동일 처리 */
   body.in-app .palm-master-card {
-    background: rgba(251, 246, 236, 0.85);
+    background: rgba(29, 35, 66, 0.85);
     backdrop-filter: blur(8px) brightness(0.92);
     -webkit-backdrop-filter: blur(8px) brightness(0.92);
   }
@@ -410,7 +410,7 @@
 
   .face-master-card {
   border: 1px solid var(--gold-dp);
-  background: rgba(251, 246, 236, 0.85);
+  background: rgba(29, 35, 66, 0.85);
   border-radius: 3px;
   padding: 22px 24px 20px;
   margin: 18px auto 26px;
@@ -463,7 +463,7 @@
   font-family: 'Nanum Myeongjo', serif;
   }
   .face-btn {
-  background: rgba(251, 246, 236, 0.85);
+  background: rgba(29, 35, 66, 0.85);
   border: 1px solid var(--gold-dp);
   color: var(--gold);
   padding: 10px 22px;
@@ -488,7 +488,7 @@
   .face-preview-area {
   margin-top: 18px;
   padding: 20px;
-  background: rgba(251, 246, 236, 0.85);
+  background: rgba(29, 35, 66, 0.85);
   border: 1px solid var(--gold-dp);
   border-radius: 3px;
   text-align: center;
@@ -543,7 +543,7 @@
   }
   .face-result-card {
   border: 1px solid var(--gold-dp);
-  background: rgba(251, 246, 236, 0.85);
+  background: rgba(29, 35, 66, 0.85);
   border-radius: 3px;
   padding: 28px 30px;
   box-shadow: 0 4px 18px rgba(180, 120, 100, 0.18);
