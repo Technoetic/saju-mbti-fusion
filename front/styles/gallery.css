@@ -28,16 +28,37 @@
   width: 100%;
   aspect-ratio: 3 / 4;
   position: relative;
-  border: 2px solid var(--ink);
+  border: 1px solid rgba(232, 217, 154, 0.12);
   border-radius: var(--radius-lg);
   overflow: hidden;
-  background: var(--milk);
+  background: var(--bg-deep);
   box-shadow:
-    0 6px 0 var(--ink),
-    var(--shadow-card);
+    0 12px 36px rgba(8, 11, 31, 0.62),
+    0 2px 8px rgba(8, 11, 31, 0.55),
+    inset 0 0 0 1px rgba(232, 217, 154, 0.05);
   cursor: grab;
+  transition:
+    transform 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.55s ease,
+    border-color 0.55s ease,
+    filter 0.55s ease;
+  filter: brightness(0.78) saturate(0.85);
+  transform: scale(0.97);
 }
 .char-card:active { cursor: grabbing; }
+
+/* 활성 카드 — 살짝 부양 + 은금 글로우 테두리 + 채도 완전 복원 */
+.char-card.is-active {
+  filter: brightness(1) saturate(1);
+  transform: scale(1) translateY(-4px);
+  border-color: rgba(232, 217, 154, 0.45);
+  box-shadow:
+    0 18px 48px rgba(8, 11, 31, 0.78),
+    0 4px 14px rgba(8, 11, 31, 0.55),
+    0 0 0 1px rgba(232, 217, 154, 0.22),
+    0 0 32px rgba(201, 184, 122, 0.20),
+    inset 0 0 0 1px rgba(232, 217, 154, 0.18);
+}
 
 .char-card-poster {
   position: absolute;
@@ -61,7 +82,7 @@
 }
 .char-card.is-active .char-card-video { opacity: 0.95; }
 
-/* 카드 하단 다크 코발트 veil — 캐릭터 그림 위 텍스트 가독성 확보 (심야 미스틱 톤) */
+/* 카드 하단 다크 코발트 veil — 아래 38%만 진하게 (캐릭터 얼굴·상반신 보존) */
 .char-card-veil {
   position: absolute;
   inset: 0;
@@ -70,106 +91,120 @@
   background:
     linear-gradient(180deg,
       rgba(12, 16, 40, 0.00) 0%,
-      rgba(12, 16, 40, 0.00) 40%,
-      rgba(12, 16, 40, 0.55) 55%,
-      rgba(12, 16, 40, 0.85) 70%,
-      rgba(8, 11, 31, 0.96) 85%,
+      rgba(12, 16, 40, 0.00) 58%,
+      rgba(12, 16, 40, 0.35) 68%,
+      rgba(8, 11, 31, 0.82) 80%,
+      rgba(8, 11, 31, 0.96) 92%,
       rgba(8, 11, 31, 1.00) 100%);
 }
+/* veil 위로 가는 미세 은금 라인 — 그림/텍스트 경계 */
+.char-card-veil::before {
+  content: '';
+  position: absolute;
+  left: 14%; right: 14%;
+  bottom: 38%;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent,
+    rgba(232, 217, 154, 0.35) 30%,
+    rgba(232, 217, 154, 0.55) 50%,
+    rgba(232, 217, 154, 0.35) 70%,
+    transparent);
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+.char-card.is-active .char-card-veil::before { opacity: 1; }
 
 .char-card-body {
   position: absolute;
-  inset: 0;
+  left: 0; right: 0; bottom: 0;
+  top: 62%;
   z-index: 3;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-end;
-  padding: 30px 22px 26px;
+  padding: 14px 22px 22px;
   text-align: center;
   pointer-events: none;
 }
 
 .char-card-name {
-  font-family: 'Gaegu', 'Gowun Dodum', sans-serif;
-  font-size: 30px;
-  letter-spacing: 4px;
+  font-family: 'Nanum Myeongjo', 'Gaegu', serif;
+  font-size: 26px;
+  letter-spacing: 6px;
   color: var(--gold-bri);
-  margin: 0 0 8px;
+  margin: 0 0 6px;
   font-weight: 700;
-  line-height: 1.25;
+  line-height: 1.2;
+  text-indent: 6px;
   text-shadow:
-    0 2px 8px rgba(0,0,0,0.85),
-    0 0 18px rgba(201,184,122,0.30);
+    0 1px 0 rgba(0,0,0,0.55),
+    0 2px 12px rgba(0,0,0,0.75);
 }
 
 .char-card-sub {
-  font-size: 13.5px;
-  letter-spacing: 1.5px;
-  color: var(--text-main);
-  margin: 0 0 14px;
-  font-family: 'Gowun Dodum', sans-serif;
-  line-height: 1.55;
-  font-weight: 500;
-  text-shadow: 0 1px 4px rgba(0,0,0,0.85);
+  font-size: 12.5px;
+  letter-spacing: 2.5px;
+  color: var(--text-soft);
+  margin: 0 0 10px;
+  font-family: 'Nanum Myeongjo', serif;
+  line-height: 1.5;
+  font-weight: 400;
+  text-shadow: 0 1px 6px rgba(0,0,0,0.78);
+  opacity: 0.92;
 }
 
 .char-card-quote {
-  font-size: 14px;
+  font-size: 13px;
   letter-spacing: 0.3px;
-  color: var(--text-soft);
-  margin: 0 0 22px;
-  font-family: 'Gowun Dodum', sans-serif;
-  line-height: 1.7;
-  max-width: 320px;
-  font-weight: 500;
+  color: var(--text-main);
+  margin: 0 0 14px;
+  font-family: 'Nanum Myeongjo', serif;
+  line-height: 1.65;
+  max-width: 280px;
+  font-weight: 400;
   font-style: italic;
   position: relative;
-  padding: 0 14px;
-  text-shadow: 0 1px 3px rgba(0,0,0,0.80);
+  padding: 0;
+  text-shadow: 0 1px 5px rgba(0,0,0,0.85);
+  opacity: 0.95;
 }
-.char-card-quote::before {
-  content: '“';
-  position: absolute;
-  left: 0; top: -8px;
-  font-size: 22px;
-  color: var(--gold);
-  font-family: serif;
-  line-height: 1;
-}
-.char-card-quote::after {
-  content: '”';
-  position: absolute;
-  right: 0; bottom: -16px;
-  font-size: 22px;
-  color: var(--gold);
-  font-family: serif;
-  line-height: 1;
-}
+.char-card-quote::before,
+.char-card-quote::after { content: none; }
 
 .char-card-enter {
   pointer-events: auto;
-  padding: 13px 30px;
-  background: var(--pink);
-  color: var(--ink);
-  border: 1.5px solid var(--ink);
-  border-radius: var(--radius-pill);
-  font-family: 'Gowun Dodum', sans-serif;
-  font-size: 14px;
-  letter-spacing: 2px;
-  font-weight: 700;
+  padding: 9px 22px;
+  background: rgba(8, 11, 31, 0.55);
+  color: var(--gold-bri);
+  border: 1px solid rgba(232, 217, 154, 0.55);
+  border-radius: 999px;
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 12px;
+  letter-spacing: 4px;
+  font-weight: 400;
   cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 4px 0 var(--ink);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  box-shadow:
+    0 0 0 1px rgba(8, 11, 31, 0.45),
+    0 4px 14px rgba(8, 11, 31, 0.45),
+    inset 0 0 12px rgba(201, 184, 122, 0.10);
+  transition: all 0.25s ease;
 }
 .char-card-enter:hover {
-  background: var(--pink-bri);
+  background: rgba(20, 24, 43, 0.72);
+  color: var(--star-cream);
+  border-color: var(--gold-bri);
+  box-shadow:
+    0 0 0 1px rgba(232, 217, 154, 0.35),
+    0 6px 22px rgba(201, 184, 122, 0.28),
+    inset 0 0 18px rgba(232, 217, 154, 0.16);
   transform: translateY(-2px);
-  box-shadow: 0 6px 0 var(--ink);
 }
 .char-card-enter:active {
-  transform: translateY(2px);
-  box-shadow: 0 2px 0 var(--ink);
+  transform: translateY(0);
 }
 
 /* 성하 공자 / 취선루 / 기타 카드 변형 — 현재 잠금 상태지만 톤만 정비 */
@@ -284,88 +319,59 @@ body.gallery-mode .tab-content { display: none !important; }
 .to-gallery-btn:hover { background: var(--pink-bri); transform: translateY(-1px); }
 .to-gallery-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--ink); }
 
-/* ─── 좌우 스와이프 — 카드 가장자리 은금 글로우 리본 + 핫존 ─── */
-
-/* 카드 가장자리 장식 리본: 위→아래로 떨어지는 은금 그라디언트 + 미세 패턴 */
+/* ─── 좌우 스와이프 — 카드 가장자리 미세 글로우 + 투명 핫존 ─── */
 .gallery-edge {
   position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 28px;
+  top: 18%; bottom: 18%;
+  width: 14px;
   z-index: 5;
   pointer-events: none;
   opacity: 0;
-  transition: opacity 0.4s ease;
+  transition: opacity 0.45s ease;
 }
 body.gallery-mode .gallery-edge { opacity: 1; }
-
 .gallery-edge-left  { left: 0; }
 .gallery-edge-right { right: 0; }
 
-/* 본체 그라디언트 — 안쪽으로 부드럽게 흐려지는 은금 광선 */
+/* 안쪽으로 새어드는 은은한 빛 — 그라디언트만, 라인 X */
 .gallery-edge::before {
   content: '';
   position: absolute;
-  top: 14%;
-  bottom: 14%;
-  width: 100%;
-  background:
-    linear-gradient(180deg,
-      transparent 0%,
-      rgba(232, 217, 154, 0.00) 8%,
-      rgba(232, 217, 154, 0.45) 30%,
-      rgba(201, 184, 122, 0.85) 50%,
-      rgba(232, 217, 154, 0.45) 70%,
-      rgba(232, 217, 154, 0.00) 92%,
-      transparent 100%);
-  filter: blur(0.5px);
-  mask-image: linear-gradient(90deg, transparent, #000 50%, transparent);
-  -webkit-mask-image: linear-gradient(90deg, transparent, #000 50%, transparent);
+  inset: 0;
+  background: linear-gradient(90deg,
+    rgba(232, 217, 154, 0.00),
+    rgba(232, 217, 154, 0.16) 60%,
+    rgba(232, 217, 154, 0.00) 100%);
+  filter: blur(1px);
+  animation: edgeGlowPulse 3.4s ease-in-out infinite;
 }
-.gallery-edge-left::before  { transform: scaleX(-1); }
-
-/* 보조 글로우 — 카드 쪽 안으로 새어드는 빛 */
-.gallery-edge::after {
-  content: '';
-  position: absolute;
-  top: 30%;
-  bottom: 30%;
-  width: 70px;
-  background: radial-gradient(ellipse at center,
-      rgba(232, 217, 154, 0.22) 0%,
-      rgba(201, 184, 122, 0.10) 35%,
-      transparent 70%);
-  filter: blur(8px);
-  animation: edgeGlowPulse 3.2s ease-in-out infinite;
+.gallery-edge-right::before {
+  background: linear-gradient(270deg,
+    rgba(232, 217, 154, 0.00),
+    rgba(232, 217, 154, 0.16) 60%,
+    rgba(232, 217, 154, 0.00) 100%);
+  animation-delay: 1.7s;
 }
-.gallery-edge-left::after  { left: -10px; }
-.gallery-edge-right::after { right: -10px; animation-delay: 1.6s; }
-
 @keyframes edgeGlowPulse {
-  0%, 100% { opacity: 0.55; transform: scaleY(1); }
-  50%      { opacity: 1.00; transform: scaleY(1.08); }
+  0%, 100% { opacity: 0.55; }
+  50%      { opacity: 1.00; }
 }
 
-/* 양 끝 카드일 때 해당 방향 리본 흐려짐 */
+/* 양 끝 카드면 해당 방향 글로우 흐려짐 */
 body.gallery-at-start .gallery-edge-left,
-body.gallery-at-end   .gallery-edge-right {
-  opacity: 0.18;
-}
-body.gallery-at-start .gallery-edge-left::after,
-body.gallery-at-end   .gallery-edge-right::after {
-  animation: none;
-}
+body.gallery-at-end   .gallery-edge-right { opacity: 0.10; }
+body.gallery-at-start .gallery-edge-left::before,
+body.gallery-at-end   .gallery-edge-right::before { animation: none; }
 
-/* 클릭·터치 핫존 — 시각 효과 없이 좌우 28px 폭만 입력 받음 */
+/* 클릭·터치 투명 핫존 */
 .gallery-swipe-hint {
   position: absolute;
-  top: 12%;
-  bottom: 12%;
-  width: 44px;
+  top: 12%; bottom: 12%;
+  width: 18%;
+  max-width: 80px;
   z-index: 30;
   background: transparent;
-  border: 0;
-  padding: 0;
+  border: 0; padding: 0;
   cursor: pointer;
   pointer-events: auto;
   -webkit-tap-highlight-color: transparent;
@@ -378,44 +384,20 @@ body.gallery-at-end   .gallery-edge-right::after {
   border-radius: 6px;
 }
 
-/* 갤러리 모드 외에는 숨김 */
+/* 갤러리 모드 외 숨김 */
 body:not(.gallery-mode) .gallery-swipe-hint,
 body:not(.gallery-mode) .gallery-edge { display: none; }
-
-/* 진입 시 1회 "흐름" 힌트 — 1.6s 동안 양옆이 한 번 부풀어 오르며 시선 유도 */
-body.gallery-mode .gallery-edge {
-  animation: edgeIntro 1.6s ease-out 0.4s 1;
-}
-@keyframes edgeIntro {
-  0%   { opacity: 0; transform: translateX(0); }
-  35%  { opacity: 1; }
-  60%  { transform: translateX(0); }
-  100% { opacity: 1; transform: translateX(0); }
-}
-.gallery-edge-left  { animation-name: edgeIntroLeft  !important; }
-.gallery-edge-right { animation-name: edgeIntroRight !important; }
-@keyframes edgeIntroLeft {
-  0%   { opacity: 0; transform: translateX(-12px); }
-  60%  { opacity: 1; transform: translateX(0); }
-  100% { opacity: 1; transform: translateX(0); }
-}
-@keyframes edgeIntroRight {
-  0%   { opacity: 0; transform: translateX(12px); }
-  60%  { opacity: 1; transform: translateX(0); }
-  100% { opacity: 1; transform: translateX(0); }
-}
 
 /* 모바일 — 카드 비율·폰트 살짝 줄임 */
 @media (max-width: 720px) {
   .card-gallery { max-width: 92vw; padding: 0; margin: 8px auto 20px; }
   .char-card { aspect-ratio: 3 / 4.1; }
-  .char-card-name { font-size: 26px; letter-spacing: 3px; margin-bottom: 6px; }
-  .char-card-sub { font-size: 12.5px; letter-spacing: 1px; margin-bottom: 10px; }
-  .char-card-quote { font-size: 13px; margin-bottom: 18px; max-width: 280px; }
-  .char-card-enter { padding: 11px 24px; font-size: 13px; letter-spacing: 1.5px; }
-  .char-card-body { padding: 26px 20px 22px; }
+  .char-card-name { font-size: 23px; letter-spacing: 5px; }
+  .char-card-sub  { font-size: 11.5px; letter-spacing: 2px; }
+  .char-card-quote { font-size: 12px; max-width: 260px; margin-bottom: 12px; }
+  .char-card-enter { padding: 8px 18px; font-size: 11px; letter-spacing: 3.5px; }
+  .char-card-body { padding: 12px 18px 18px; top: 64%; }
   .gallery-arrow { width: 32px; height: 32px; font-size: 16px; }
-  .gallery-edge { width: 22px; }
-  .gallery-edge::after { width: 50px; }
-  .gallery-swipe-hint { width: 38px; }
+  .gallery-edge { width: 10px; top: 22%; bottom: 22%; }
+  .gallery-swipe-hint { width: 22%; max-width: 64px; }
 }
