@@ -79,16 +79,16 @@
   if (prevArrow) prevArrow.addEventListener('click', prev);
   if (nextArrow) nextArrow.addEventListener('click', next);
 
-  // 좌우 스와이프 인디케이터 — 양 끝일 땐 비활성
+  // 좌우 스와이프 — 양 끝 카드 시 해당 방향 리본 흐려짐 (body 클래스로 처리)
   function syncSwipeHints() {
+    document.body.classList.toggle('gallery-at-start', idx === 0);
+    document.body.classList.toggle('gallery-at-end',   idx === N - 1);
     if (swipePrevHint) {
       swipePrevHint.disabled = idx === 0;
-      swipePrevHint.style.opacity = idx === 0 ? '0.32' : '';
       swipePrevHint.style.pointerEvents = idx === 0 ? 'none' : '';
     }
     if (swipeNextHint) {
       swipeNextHint.disabled = idx === N - 1;
-      swipeNextHint.style.opacity = idx === N - 1 ? '0.32' : '';
       swipeNextHint.style.pointerEvents = idx === N - 1 ? 'none' : '';
     }
   }
