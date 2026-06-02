@@ -61,7 +61,7 @@
 }
 .char-card.is-active .char-card-video { opacity: 0.95; }
 
-/* 카드 하단 부드러운 크림 veil — 텍스트 가독성 (사극 어둠 → 크림 베이지) */
+/* 카드 하단 다크 코발트 veil — 캐릭터 그림 위 텍스트 가독성 확보 (심야 미스틱 톤) */
 .char-card-veil {
   position: absolute;
   inset: 0;
@@ -69,11 +69,12 @@
   pointer-events: none;
   background:
     linear-gradient(180deg,
-      rgba(247, 239, 225, 0.0) 0%,
-      rgba(247, 239, 225, 0.0) 45%,
-      rgba(247, 239, 225, 0.65) 65%,
-      rgba(29, 35, 66, 0.92) 82%,
-      rgba(29, 35, 66, 0.98) 100%);
+      rgba(12, 16, 40, 0.00) 0%,
+      rgba(12, 16, 40, 0.00) 40%,
+      rgba(12, 16, 40, 0.55) 55%,
+      rgba(12, 16, 40, 0.85) 70%,
+      rgba(8, 11, 31, 0.96) 85%,
+      rgba(8, 11, 31, 1.00) 100%);
 }
 
 .char-card-body {
@@ -93,26 +94,30 @@
   font-family: 'Gaegu', 'Gowun Dodum', sans-serif;
   font-size: 30px;
   letter-spacing: 4px;
-  color: var(--ink);
+  color: var(--gold-bri);
   margin: 0 0 8px;
   font-weight: 700;
   line-height: 1.25;
+  text-shadow:
+    0 2px 8px rgba(0,0,0,0.85),
+    0 0 18px rgba(201,184,122,0.30);
 }
 
 .char-card-sub {
-  font-size: 13px;
+  font-size: 13.5px;
   letter-spacing: 1.5px;
-  color: var(--text-soft);
+  color: var(--text-main);
   margin: 0 0 14px;
   font-family: 'Gowun Dodum', sans-serif;
-  line-height: 1.5;
+  line-height: 1.55;
   font-weight: 500;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.85);
 }
 
 .char-card-quote {
   font-size: 14px;
   letter-spacing: 0.3px;
-  color: var(--ink-soft);
+  color: var(--text-soft);
   margin: 0 0 22px;
   font-family: 'Gowun Dodum', sans-serif;
   line-height: 1.7;
@@ -121,13 +126,14 @@
   font-style: italic;
   position: relative;
   padding: 0 14px;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.80);
 }
 .char-card-quote::before {
   content: '“';
   position: absolute;
   left: 0; top: -8px;
   font-size: 22px;
-  color: var(--pink-dp);
+  color: var(--gold);
   font-family: serif;
   line-height: 1;
 }
@@ -136,7 +142,7 @@
   position: absolute;
   right: 0; bottom: -16px;
   font-size: 22px;
-  color: var(--pink-dp);
+  color: var(--gold);
   font-family: serif;
   line-height: 1;
 }
@@ -278,6 +284,78 @@ body.gallery-mode .tab-content { display: none !important; }
 .to-gallery-btn:hover { background: var(--pink-bri); transform: translateY(-1px); }
 .to-gallery-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--ink); }
 
+/* ─── 좌우 스와이프 인디케이터 — 은금 원고리 화살표 + 글로우 펄스 ─── */
+.gallery-swipe-hint {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 30;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(8, 11, 31, 0.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1.5px solid var(--gold);
+  border-radius: 50%;
+  color: var(--gold-bri);
+  cursor: pointer;
+  pointer-events: auto;
+  box-shadow:
+    0 0 0 1px rgba(232, 217, 154, 0.18),
+    0 0 18px rgba(201, 184, 122, 0.32),
+    inset 0 0 12px rgba(201, 184, 122, 0.10);
+  transition: transform 0.22s ease, box-shadow 0.22s ease, background 0.22s ease;
+  animation: swipeHintPulse 2.4s ease-in-out infinite;
+}
+.gallery-swipe-hint-left  { left: 10px; }
+.gallery-swipe-hint-right { right: 10px; }
+.gallery-swipe-hint-right { animation-delay: 1.2s; }
+
+.gallery-swipe-arrow {
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 30px;
+  line-height: 1;
+  font-weight: 400;
+  margin-top: -2px;
+  text-shadow: 0 0 10px rgba(232, 217, 154, 0.55);
+}
+.gallery-swipe-hint-left  .gallery-swipe-arrow { margin-right: 2px; }
+.gallery-swipe-hint-right .gallery-swipe-arrow { margin-left: 2px; }
+
+.gallery-swipe-hint:hover {
+  background: rgba(20, 24, 43, 0.78);
+  border-color: var(--gold-bri);
+  box-shadow:
+    0 0 0 1px rgba(232, 217, 154, 0.32),
+    0 0 26px rgba(232, 217, 154, 0.48),
+    inset 0 0 18px rgba(232, 217, 154, 0.18);
+  transform: translateY(-50%) scale(1.08);
+}
+.gallery-swipe-hint-left:hover  { transform: translateY(-50%) scale(1.08) translateX(-3px); }
+.gallery-swipe-hint-right:hover { transform: translateY(-50%) scale(1.08) translateX(3px); }
+.gallery-swipe-hint:active { transform: translateY(-50%) scale(0.94); }
+
+@keyframes swipeHintPulse {
+  0%, 100% {
+    box-shadow:
+      0 0 0 1px rgba(232, 217, 154, 0.18),
+      0 0 14px rgba(201, 184, 122, 0.28),
+      inset 0 0 10px rgba(201, 184, 122, 0.08);
+  }
+  50% {
+    box-shadow:
+      0 0 0 1px rgba(232, 217, 154, 0.40),
+      0 0 28px rgba(232, 217, 154, 0.55),
+      inset 0 0 16px rgba(232, 217, 154, 0.16);
+  }
+}
+
+/* 갤러리 모드일 때만 표시 */
+body:not(.gallery-mode) .gallery-swipe-hint { display: none; }
+
 /* 모바일 — 카드 비율·폰트 살짝 줄임 */
 @media (max-width: 720px) {
   .card-gallery { max-width: 92vw; padding: 0; margin: 8px auto 20px; }
@@ -288,4 +366,8 @@ body.gallery-mode .tab-content { display: none !important; }
   .char-card-enter { padding: 11px 24px; font-size: 13px; letter-spacing: 1.5px; }
   .char-card-body { padding: 26px 20px 22px; }
   .gallery-arrow { width: 32px; height: 32px; font-size: 16px; }
+  .gallery-swipe-hint { width: 38px; height: 38px; }
+  .gallery-swipe-hint-left  { left: 6px; }
+  .gallery-swipe-hint-right { right: 6px; }
+  .gallery-swipe-arrow { font-size: 26px; }
 }

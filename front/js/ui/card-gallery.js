@@ -11,6 +11,8 @@
   const dots = document.getElementById('galleryDots');
   const prevArrow = document.querySelector('.gallery-arrow-prev');
   const nextArrow = document.querySelector('.gallery-arrow-next');
+  const swipePrevHint = document.getElementById('gallerySwipePrev');
+  const swipeNextHint = document.getElementById('gallerySwipeNext');
   const gallery = document.getElementById('cardGallery');
   const toGalleryBtn = document.getElementById('toGalleryBtn');
   if (!deck || !gallery) return;
@@ -49,6 +51,7 @@
   dotBtns.forEach((b, i) => b.classList.toggle('is-active', i === idx));
   if (prevArrow) prevArrow.disabled = idx === 0;
   if (nextArrow) nextArrow.disabled = idx === N - 1;
+  syncSwipeHints();
   // 활성 카드 영상만 재생.
   // ★ poster 속성 활용 (ADR-103 후속 fix) — 비디오 디코드 전에도 첫 프레임 정지 이미지
   //   가 표시되므로 빈 검은 패널 회피.
@@ -75,6 +78,22 @@
   // 화살표
   if (prevArrow) prevArrow.addEventListener('click', prev);
   if (nextArrow) nextArrow.addEventListener('click', next);
+
+  // 좌우 스와이프 인디케이터 — 양 끝일 땐 비활성
+  function syncSwipeHints() {
+    if (swipePrevHint) {
+      swipePrevHint.disabled = idx === 0;
+      swipePrevHint.style.opacity = idx === 0 ? '0.32' : '';
+      swipePrevHint.style.pointerEvents = idx === 0 ? 'none' : '';
+    }
+    if (swipeNextHint) {
+      swipeNextHint.disabled = idx === N - 1;
+      swipeNextHint.style.opacity = idx === N - 1 ? '0.32' : '';
+      swipeNextHint.style.pointerEvents = idx === N - 1 ? 'none' : '';
+    }
+  }
+  if (swipePrevHint) swipePrevHint.addEventListener('click', prev);
+  if (swipeNextHint) swipeNextHint.addEventListener('click', next);
 
   // 키보드 (갤러리 모드일 때만)
   document.addEventListener('keydown', (e) => {
