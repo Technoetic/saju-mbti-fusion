@@ -111,9 +111,9 @@ def run_safety_gates(
         failures.append("pii_leak")
         has_critical = True
 
-    # 3) persona_self_eval
+    # 3) persona_self_eval — domain별 어휘 사전 분기 (hwapae/dream 등)
     from engine.safety.llm.persona_self_eval import evaluate_persona_tone
-    persona_r = evaluate_persona_tone(response_text)
+    persona_r = evaluate_persona_tone(response_text, domain=domain)
     details["persona"] = {
         "passed": persona_r.passed,
         "score": persona_r.score,

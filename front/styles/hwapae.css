@@ -281,12 +281,12 @@
   font-family: 'Nanum Myeongjo', serif;
   }
   @media (max-width: 600px) {
-  .hw-slots { gap: 6px; }
-  .hw-slot { padding: 6px; }
-  .hw-slot .symbol { font-size: 28px; }
-  .hw-slot .label { font-size: 11px; letter-spacing: 1px; }
-  .hw-slot .pos-tag { font-size: 9px; letter-spacing: 1px; padding: 1px 5px; }
-  .hw-slot .pos-label { font-size: 10px; letter-spacing: 2px; }
+  .hw-slots { gap: 10px; }
+  .hw-slot { padding: 10px 8px; }
+  .hw-slot .symbol { font-size: 42px; }
+  .hw-slot .label { font-size: 13px; letter-spacing: 2px; }
+  .hw-slot .pos-tag { font-size: 10px; letter-spacing: 2px; padding: 2px 7px; }
+  .hw-slot .pos-label { font-size: 11px; letter-spacing: 2px; }
   }
 
   /* ───── 화패 풀이 방식 메뉴 ───── */
@@ -526,9 +526,9 @@
   transform: translateY(0) scale(0.9);
   }
   @media (max-width: 600px) {
-  .hw-deck-card { width: 34px; height: 50px; }
-  .hw-deck-card::after { font-size: 13px; }
-  .hw-deck { gap: 3px; padding: 6px 2px; }
-  .hw-deck-wrap { padding: 10px 4px 20px; }
+  .hw-deck-card { width: 44px; height: 66px; }
+  .hw-deck-card::after { font-size: 16px; }
+  .hw-deck { gap: 5px; padding: 8px 4px; }
+  .hw-deck-wrap { padding: 12px 6px 22px; }
   }
 
