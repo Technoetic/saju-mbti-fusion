@@ -163,9 +163,11 @@
   const charKey = card.dataset.character;
   if (!target) return;
   exitGalleryMode();
-  // 콘텐츠 메뉴가 정의된 도사면 메뉴 그리드로, 아니면 기존 탭(레거시)
+  // hwapae(꽃패 풀이)는 카드 직접 뽑기 UX가 핵심 — 메뉴 그리드 우회하고
+  // 바로 원래 탭(#tab-hwapae)으로 진입시킨다.
+  const SKIP_MENU = new Set(['hwapae']);
   const data = window.WHM_CONTENTS && window.WHM_CONTENTS[charKey];
-  if (data && window.__menuOpen) {
+  if (data && window.__menuOpen && !SKIP_MENU.has(charKey)) {
   window.__menuOpen(charKey);
   } else {
   const tabBtn = document.querySelector(`.tab-btn[data-tab="${target}"]`);
