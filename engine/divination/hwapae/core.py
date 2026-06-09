@@ -382,8 +382,6 @@ def generate_hwapae_reading(
 
             safety_verdict = gate_result.verdict
             safety_failures = list(gate_result.failures)
-            # 임시 디버그 — 어떤 사유로 fail 됐는지 응답에 같이 실어 추적
-            safety_details_debug = dict(getattr(gate_result, "details", {}) or {})
             # critic이 PASS 한 본문은 persona 톤·token 길이 issue만으로 폐기하지 않는다.
             # 단, PII 누출(critical)·의료/법률 단정 등 정말 위험한 사유는 stub 폐기.
             CRITICAL_FAILURES = {"pii_leak", "fact_mismatch"}
@@ -400,12 +398,9 @@ def generate_hwapae_reading(
                 )
                 final_text = deterministic_stub_response("ko", persona="hwapae")
                 safety_fallback_used = True
-        except Exception as _exc:
+        except Exception:
             safety_verdict = None
             safety_failures = []
-            safety_details_debug = {"error": str(_exc)}
-    else:
-        safety_details_debug = {}
 
     result = {
         "text": final_text,
@@ -420,7 +415,6 @@ def generate_hwapae_reading(
         "safety_gate_failures": safety_failures,
         "safety_gate_fallback_used": safety_fallback_used,
         "safety_gate_retry_used": safety_retry_used,  # ADR-169
-        "safety_gate_debug": safety_details_debug,
         "_saved_at": time.time(),
     }
     try:
