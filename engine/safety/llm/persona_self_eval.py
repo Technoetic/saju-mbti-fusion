@@ -21,10 +21,27 @@ from dataclasses import dataclass, field
 
 
 # §5.2.5 — 어휘 사전. test_golden_set.PERSONA_ENCOURAGED와 동일 키.
+# 기본: 운학 도사·옥선 할미 등 사극 노인 페르소나 톤.
 PERSONA_ENCOURAGED = (
     "그대", "자네", "허허", "이 늙은이",
     "시게", "하시게", "구먼", "이로세", "인고", "하이",  # ~ 제거 후 부분 매칭
 )
+
+# ADR-167 후속 — 도메인별 페르소나 어휘 사전.
+# hwapae: 화선 낭자(花仙娘子) — 젊은 여성 사극 점술가. 꽃·마음·결·낭자 어조.
+# dream: 몽이 도령 — 청년 사극 어조.
+PERSONA_ENCOURAGED_BY_DOMAIN: dict[str, tuple[str, ...]] = {
+    "hwapae": (
+        "그대", "낭자", "마음", "결", "흐름", "어울",
+        "느껴집니다", "드립니다", "보입니다", "있습니다",
+        "사옵니다", "지요", "시지요",
+    ),
+    "dream": (
+        "그대", "도령", "꿈", "결", "흐름", "기운",
+        "느껴집니다", "보입니다", "드립니다",
+        "사옵니다", "지요", "시지요",
+    ),
+}
 
 PERSONA_FORBIDDEN = (
     "회원님", "고객님", "당신", "분명",
@@ -63,11 +80,13 @@ def _find_hits(text: str, vocab: tuple[str, ...]) -> tuple[int, list[str]]:
     return len(matched), matched
 
 
-def evaluate_persona_tone(text: str | None) -> PersonaEvalResult:
+def evaluate_persona_tone(text: str | None, *, domain: str | None = None) -> PersonaEvalResult:
     """단일 응답 텍스트의 §5.2.5 페르소나 톤을 결정론 평가.
 
     Args:
         text: LLM 응답 (legal_footer/면책 등 포함 가능).
+        domain: 페르소나 도메인 키 (hwapae/dream 등). 지정 시 도메인 맞춤
+                어휘 사전 사용. 미지정 또는 사전 부재 시 기본 PERSONA_ENCOURAGED.
 
     Returns:
         PersonaEvalResult — 합격 여부 + 매칭 결과 + 가중 점수.
@@ -78,7 +97,8 @@ def evaluate_persona_tone(text: str | None) -> PersonaEvalResult:
             score=0.0, passed=False,
         )
 
-    enc_n, enc_matched = _find_hits(text, PERSONA_ENCOURAGED)
+    encouraged_vocab = PERSONA_ENCOURAGED_BY_DOMAIN.get(domain or "", PERSONA_ENCOURAGED)
+    enc_n, enc_matched = _find_hits(text, encouraged_vocab)
     forb_n, forb_matched = _find_hits(text, PERSONA_FORBIDDEN)
     ml_n, ml_matched = _find_hits(text, MEDICAL_LEGAL_FORBIDDEN)
 
