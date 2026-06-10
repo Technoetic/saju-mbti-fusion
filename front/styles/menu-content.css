@@ -97,6 +97,11 @@
   gap: 10px;
   min-height: 180px;
   }
+  /* menu-card-body — illust 있는 카드는 body가 padding/gap을 받음.
+     illust 없는 카드는 body가 단순 그룹핑 컨테이너로만 동작 (부모 padding 그대로 사용). */
+  .menu-card > .menu-card-body {
+  display: contents;
+  }
   .menu-card:hover {
   border-color: var(--gold);
   background: linear-gradient(180deg, rgba(40,30,15,0.85), rgba(29, 35, 66, 0.90));
@@ -138,6 +143,66 @@
   margin-top: 4px;
   }
   .menu-card-time { font-size: 11px; color: var(--text-mute); }
+
+  /* ── 일러스트 카드 (만월 아씨 사주 메뉴) ── */
+  .menu-card-illust {
+  padding: 0;
+  overflow: hidden;
+  min-height: 320px;
+  display: flex;
+  flex-direction: column;
+  }
+  .menu-card-art {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  background: linear-gradient(180deg, rgba(20,24,43,0.30), rgba(8,11,31,0.50));
+  border-bottom: 1px solid rgba(212,175,55,0.22);
+  }
+  .menu-card-art img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  filter: saturate(0.92) brightness(0.95);
+  transition: transform 0.55s cubic-bezier(.18,.85,.36,1), filter 0.4s ease;
+  }
+  /* 일러스트 아래 자연스러운 다크 페이드 — 텍스트 영역 경계 */
+  .menu-card-art::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; bottom: 0; height: 38%;
+  background: linear-gradient(180deg,
+    rgba(29,35,66,0.00) 0%,
+    rgba(29,35,66,0.55) 60%,
+    rgba(29,35,66,0.88) 100%);
+  pointer-events: none;
+  }
+  .menu-card-illust .menu-card-body {
+  position: relative;
+  padding: 14px 18px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+  }
+  /* 일러스트 카드의 뱃지는 일러스트 위 우상단으로 — 텍스트 영역과 분리 */
+  .menu-card-illust .menu-card-badges {
+  top: 10px; right: 10px;
+  z-index: 2;
+  }
+  /* 일러스트 카드의 glyph는 살짝 작고 위치 조정 */
+  .menu-card-illust .menu-card-glyph { font-size: 22px; letter-spacing: 5px; margin-bottom: 2px; }
+  .menu-card-illust .menu-card-name  { font-size: 15.5px; letter-spacing: 2.5px; }
+  .menu-card-illust .menu-card-desc  { font-size: 12px; line-height: 1.6; }
+
+  .menu-card-illust:hover .menu-card-art img {
+  transform: scale(1.04);
+  filter: saturate(1) brightness(1);
+  }
 
   /* 뱃지 — 무료 / 프리미엄 / 시즌 / 추천 */
   .menu-card-badges {
@@ -531,6 +596,8 @@
   .menu-master-sub { font-size: 12px; letter-spacing: 2px; }
   .menu-grid { grid-template-columns: 1fr; gap: 12px; }
   .menu-card { padding: 18px 16px 14px; min-height: 0; }
+  .menu-card-illust { padding: 0; min-height: 280px; }
+  .menu-card-illust .menu-card-body { padding: 12px 16px 14px; }
   .menu-card-name { font-size: 15px; letter-spacing: 2px; }
   .menu-card-desc { font-size: 12px; }
   .content-view { padding: 0 12px; margin: 8px auto 36px; }

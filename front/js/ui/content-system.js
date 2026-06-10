@@ -59,7 +59,9 @@
   }
 
   menuGrid.innerHTML = data.items.map(item => `
-  <button class="menu-card" type="button" data-content-key="${item.key}">
+  <button class="menu-card${item.illust ? ' menu-card-illust' : ''}" type="button" data-content-key="${item.key}">
+  ${item.illust ? `<div class="menu-card-art"><img src="${item.illust}" alt="" loading="lazy"></div>` : ''}
+  <div class="menu-card-body">
   <div class="menu-card-badges">${badgeHtml(item)}</div>
   <div class="menu-card-glyph">${item.glyph || ''}</div>
   <div class="menu-card-name">${item.name}</div>
@@ -67,6 +69,7 @@
   <div class="menu-card-meta">
   <span class="menu-card-time">⏱ ${item.est || '몇 분'}</span>
   <span>${item.tier === 'premium' ? '💎' : item.tier === 'season' ? '🌸 시즌' : '☆ 무료'}</span>
+  </div>
   </div>
   </button>
   `).join('');
