@@ -14,6 +14,7 @@ window.WHM_CONTENTS = {
   items: [
   {
   key: 'today', name: '오늘의 운세', glyph: '今 日',
+  illust: 'media/manweol_menu/today.png',
   desc: '일진(日辰) 기반으로 오늘 하루의 흐름을 가볍게 짚어드립니다.',
   tier: 'free', badges: ['hot'], est: '5분',
   quote: '"오늘 그대의 하루를 한 번 살펴드리지요."',
@@ -26,6 +27,7 @@ window.WHM_CONTENTS = {
   },
   {
   key: 'classic', name: '정통 사주', glyph: '四 柱',
+  illust: 'media/manweol_menu/classic.png',
   desc: '일주·오행·십신·신살 등 사주의 기본 골격을 정확히 풀어드립니다.',
   tier: 'free', est: '30~60초',
   quote: '"이리 오시지요. 그대의 사주를 풀어드리겠사옵니다."',
@@ -34,6 +36,7 @@ window.WHM_CONTENTS = {
   },
   {
   key: 'year2026', name: '올해의 운세 (2026)', glyph: '丙 午',
+  illust: 'media/manweol_menu/year2026.png',
   desc: '병오년 2026년의 12개월 흐름과 신년 운세를 자세히 풀어드립니다.',
   tier: 'season', badges: ['hot'], est: '5~10분',
   quote: '"한 해의 별자리가 그대 위로 어찌 흐르는지 살펴드리지요."',
@@ -48,6 +51,7 @@ window.WHM_CONTENTS = {
   },
   {
   key: 'wealth', name: '재물 사주', glyph: '財 寶',
+  illust: 'media/manweol_menu/wealth.png',
   desc: '평생 재물운의 흐름·부자가 될 시기·적합한 재테크 방식을 짚어드립니다.',
   tier: 'premium', est: '5~10분',
   quote: '"그대의 재물 별자리가 어찌 짜여 있는지 살펴드리지요."',
@@ -63,6 +67,7 @@ window.WHM_CONTENTS = {
   },
   {
   key: 'love', name: '연애 사주', glyph: '緣 月',
+  illust: 'media/manweol_menu/love.png',
   desc: '연애 스타일·이상형·인연이 오는 시기를 사주 깊이 분석으로 풀어드립니다.',
   tier: 'premium', badges: ['hot'], est: '5~10분',
   quote: '"그대의 별엔 어떤 인연이 비치는지 살펴드리지요."',
@@ -82,6 +87,7 @@ window.WHM_CONTENTS = {
   },
   {
   key: 'marriage', name: '결혼 사주', glyph: '婚 緣',
+  illust: 'media/manweol_menu/marriage.png',
   desc: '결혼할 시기·좋은 배우자상·결혼 후 운세·자녀운을 풀어드립니다.',
   tier: 'premium', est: '5~10분',
   quote: '"그대 평생의 짝을 별이 어찌 비추는지 살펴드리지요."',
@@ -96,6 +102,7 @@ window.WHM_CONTENTS = {
   },
   {
   key: 'career', name: '직업 사주', glyph: '職 業',
+  illust: 'media/manweol_menu/career.png',
   desc: '적성에 맞는 직업·성공할 직장 형태·사업 vs 직장 선택을 짚어드립니다.',
   tier: 'premium', est: '5~10분',
   quote: '"그대의 길은 어디에서 빛나는지 살펴드리지요."',
@@ -111,6 +118,7 @@ window.WHM_CONTENTS = {
   },
   {
   key: 'suneung', name: '수능 운세', glyph: '科 擧',
+  illust: 'media/manweol_menu/suneung.png',
   desc: '입시생 대상 — 수능 당일 운세·합격 가능성·시험운을 짚어드립니다.',
   tier: 'season', badges: ['new'], est: '5분',
   quote: '"그대의 별빛이 시험장에 어찌 비치는지 살펴드리지요."',
@@ -125,6 +133,7 @@ window.WHM_CONTENTS = {
   },
   {
   key: 'moving', name: '이사 사주', glyph: '移 居',
+  illust: 'media/manweol_menu/moving.png',
   desc: '이사 길일·좋은 방위·이사 후 운세를 짚어드립니다.',
   tier: 'premium', est: '5분',
   quote: '"그대 새 거처에 별이 어찌 흐를지 살펴드리지요."',
@@ -146,6 +155,7 @@ window.WHM_CONTENTS = {
   },
   {
   key: 'lifetime', name: '평생 운세 보감', glyph: '一 生',
+  illust: 'media/manweol_menu/lifetime.png',
   desc: '평생 대운 흐름(10년 단위)·인생 그래프·황금기/시련기를 종합 풀이서로 드립니다.',
   tier: 'premium', badges: ['hot'], est: '15~20분',
   quote: '"그대 일생의 별빛이 어찌 흐르는지, 한 번에 풀어드리지요."',
