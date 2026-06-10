@@ -145,19 +145,20 @@
   .menu-card-time { font-size: 11px; color: var(--text-mute); }
 
   /* ── 일러스트 카드 (만월 아씨 사주 메뉴) ── */
+  /* 이미지 원본 1500×1000 (3:2). 일러스트 영역도 3:2로 두어 전체가 보이게.
+     object-fit: contain으로 잘림 없이 자연스럽게 정렬. */
   .menu-card-illust {
   padding: 0;
   overflow: hidden;
-  min-height: 320px;
   display: flex;
   flex-direction: column;
   }
   .menu-card-art {
   position: relative;
   width: 100%;
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 3 / 2;
   overflow: hidden;
-  background: linear-gradient(180deg, rgba(20,24,43,0.30), rgba(8,11,31,0.50));
+  background: linear-gradient(180deg, rgba(20,24,43,0.55), rgba(8,11,31,0.78));
   border-bottom: 1px solid rgba(212,175,55,0.22);
   }
   .menu-card-art img {
@@ -166,8 +167,9 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center;
   display: block;
-  filter: saturate(0.92) brightness(0.95);
+  filter: saturate(0.95) brightness(0.96);
   transition: transform 0.55s cubic-bezier(.18,.85,.36,1), filter 0.4s ease;
   }
   /* 일러스트 아래 자연스러운 다크 페이드 — 텍스트 영역 경계 */
@@ -596,7 +598,7 @@
   .menu-master-sub { font-size: 12px; letter-spacing: 2px; }
   .menu-grid { grid-template-columns: 1fr; gap: 12px; }
   .menu-card { padding: 18px 16px 14px; min-height: 0; }
-  .menu-card-illust { padding: 0; min-height: 280px; }
+  .menu-card-illust { padding: 0; min-height: 0; }
   .menu-card-illust .menu-card-body { padding: 12px 16px 14px; }
   .menu-card-name { font-size: 15px; letter-spacing: 2px; }
   .menu-card-desc { font-size: 12px; }
