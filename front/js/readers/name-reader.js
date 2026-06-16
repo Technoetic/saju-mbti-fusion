@@ -40,10 +40,46 @@
       return parts.join('');
     }
     /**
-     * 한글 이름 변경 시 한자 셀 자동 생성 (개인 모드와 동일 로직).
-     * 전역 splitName + 한글음_한자 + 한자획수 + 한자_뜻 + 불용한자 사용.
+     * 한글 음 → 한자 후보 조회. 백엔드 /api/hanja/candidates (대법원 인명용
+     * 9,932자) 우선, 실패 시 자체 사전(한글음_한자)으로 폴백.
+     * 결과: [{ han, stroke, meaning }] (획수 있는 것만). 음절별 1회 캐시.
      */
-    updateHanjaSelectors() {
+    async fetchHanjaCandidates(ch) {
+      this._hanjaCache = this._hanjaCache || {};
+      if (this._hanjaCache[ch]) return this._hanjaCache[ch];
+
+      const fallback = () =>
+        (window['한글음_한자'][ch] || [])
+          .filter(h => window['한자획수'][h] && window['한자_뜻'][h])
+          .map(h => ({ han: h, stroke: window['한자획수'][h], meaning: window['한자_뜻'][h] || '' }));
+
+      let list;
+      try {
+        const res = await fetch(`/api/hanja/candidates?ko=${encodeURIComponent(ch)}`);
+        if (!res.ok) throw new Error('http ' + res.status);
+        const data = await res.json();
+        const cands = (data && data.candidates) || [];
+        list = cands
+          .filter(c => c.strokes)
+          .map(c => ({
+            han: c.han,
+            // 자체 사전에 한국어 훈/원획수가 있으면 우선 (영문·총획 폴백보다 정확)
+            stroke: window['한자획수'][c.han] || c.strokes,
+            meaning: window['한자_뜻'][c.han] || c.meaning || '',
+          }));
+        if (list.length === 0) list = fallback();
+      } catch (_e) {
+        list = fallback();
+      }
+      this._hanjaCache[ch] = list;
+      return list;
+    }
+
+    /**
+     * 한글 이름 변경 시 한자 셀 자동 생성 (개인 모드와 동일 로직).
+     * 후보·획수·뜻은 백엔드 API, 불용한자 표시는 자체 사전 유지.
+     */
+    async updateHanjaSelectors() {
       const fullName = ($('nameFullKo')?.value || '').trim();
       const { surname, givenName } = window.splitName(fullName);
 
@@ -71,28 +107,37 @@
         return;
       }
 
+      // 입력이 빠르게 바뀌면 마지막 호출만 반영 (경쟁 방지)
+      const token = (this._hanjaToken = (this._hanjaToken || 0) + 1);
+
       const previous = {};
       container.querySelectorAll('.hanja-select').forEach(sel => {
         if (sel.value) previous[sel.dataset.char + ':' + sel.dataset.idx] = sel.value;
       });
+
+      // 모든 글자 후보를 병렬 조회 (음절별 캐시됨)
+      const lists = await Promise.all(allChars.map(ch => this.fetchHanjaCandidates(ch)));
+      if (token !== this._hanjaToken) return; // 더 최신 입력이 들어옴 → 폐기
 
       let html = '<div style="margin-bottom:6px;color:#d4af37;font-weight:600">한자 고르기 <span style="font-weight:normal;color:#8b7e5d;font-size:12px">(모르면 그냥 두세요)</span></div>';
       let hasUnknown = false;
       for (let i = 0; i < allChars.length; i++) {
         const ch = allChars[i];
         const isSurname = i < surnameChars.length;
-        const candidates = (window['한글음_한자'][ch] || []).filter(h => window['한자획수'][h] && window['한자_뜻'][h]);
+        const candidates = lists[i] || [];
         if (candidates.length === 0) hasUnknown = true;
         const key = ch + ':' + i;
         const prevSel = previous[key] || '';
         const opts = [`<option value="">— 한자 안 씀 —</option>`,
-          ...candidates.map(h => {
-            const stroke = window['한자획수'][h];
-            const meaning = window['한자_뜻'][h] || '';
+          ...candidates.map(c => {
+            const h = c.han;
+            const stroke = c.stroke;
+            const meaning = c.meaning || '';
             const sel = (h === prevSel) ? ' selected' : '';
             const strokePart = stroke ? ` (${stroke}획)` : '';
             const unusable = (typeof window['불용한자'] !== 'undefined' && window['불용한자'].has(h)) ? ' · [불용]' : '';
-            return `<option value="${h}"${sel}>${h} ${meaning}${strokePart}${unusable}</option>`;
+            // data-stroke로 획수 보존 → updateStrokeTotal이 자체 사전 없이도 계산
+            return `<option value="${h}" data-stroke="${stroke || 0}"${sel}>${h} ${meaning}${strokePart}${unusable}</option>`;
           })
         ].join('');
         html += `<span class="hanja-cell">
@@ -126,7 +171,9 @@
           rows.push(`<span class="stroke-row stroke-empty">${ch} → 한자 없음</span>`);
           return;
         }
-        const stroke = window['한자획수'][han] || 0;
+        // 선택된 option의 data-stroke 우선, 없으면 자체 사전 폴백
+        const opt = sel.selectedOptions && sel.selectedOptions[0];
+        const stroke = (opt && parseInt(opt.dataset.stroke, 10)) || window['한자획수'][han] || 0;
         total += stroke;
         rows.push(`<span class="stroke-row">${ch}(${han}) ${stroke}획</span>`);
       });

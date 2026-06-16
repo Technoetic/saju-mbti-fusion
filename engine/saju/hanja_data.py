@@ -623,19 +623,68 @@ HANJA_LIST: list[dict] = [
 
 
 # 한글 음 → 해당 음의 한자 후보 리스트
+# ─────────────────────────── 뜻 사전 (지연 로드) ───────────────────────────
+import json as _json
+from functools import lru_cache as _lru_cache
+from pathlib import Path as _Path
+
+_MEANINGS_PATH = (
+    _Path(__file__).resolve().parent.parent.parent
+    / "data" / "hanja" / "hanja_meanings.json"
+)
+
+
+@_lru_cache(maxsize=1)
+def _meanings() -> dict:
+    """char → 짧은 뜻 (한국어 우선, 영문 폴백). 파일 없으면 빈 dict."""
+    try:
+        return _json.loads(_MEANINGS_PATH.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+
+
 def candidates_by_ko(ko: str) -> list[dict]:
-    """주어진 한글 음에 해당하는 모든 후보 한자."""
+    """주어진 한글 음 → 후보 한자 리스트.
+
+    1순위: 하드코딩 HANJA_LIST (검증된 자원오행·한국어 뜻).
+    2순위: Unihan 9,932자 풀 (대법원 인명용)로 누락 한자 보강.
+    각 항목: {han, ko, strokes, wuxing, meaning}.
+    """
     if not ko:
         return []
     ko = ko.strip()
     out = []
     seen = set()
+
+    # 1순위 — 검증된 하드코딩 후보 (자원오행·한국어 뜻 신뢰)
     for entry in HANJA_LIST:
-        # 다중 음 (예: "량/양", "리/이") 지원
         kos = [k.strip() for k in entry["ko"].split("/")]
         if ko in kos and entry["han"] not in seen:
             out.append(entry)
             seen.add(entry["han"])
+
+    # 2순위 — Unihan 풀로 보강 (대법원 인명용 한자 전수)
+    try:
+        from engine.divination.name import unihan as _unihan
+
+        meanings = _meanings()
+        for han in _unihan.get_candidates_by_hangul(ko):
+            if han in seen:
+                continue
+            strokes = _unihan.kangxi_strokes(han)
+            if not strokes:
+                continue  # 획수 없으면 작명 계산 불가 → 제외
+            out.append({
+                "han": han,
+                "ko": ko,
+                "strokes": strokes,
+                "wuxing": _unihan.resource_ohaeng(han) or "",
+                "meaning": meanings.get(han, ""),
+            })
+            seen.add(han)
+    except Exception:
+        pass  # Unihan 보강 실패해도 하드코딩 후보는 반환
+
     return out
 
 
@@ -644,6 +693,21 @@ def lookup_han(han: str) -> dict | None:
     for entry in HANJA_LIST:
         if entry["han"] == han:
             return entry
+    # Unihan 폴백
+    try:
+        from engine.divination.name import unihan as _unihan
+
+        strokes = _unihan.kangxi_strokes(han)
+        if strokes:
+            return {
+                "han": han,
+                "ko": _unihan.hangul_of(han) or "",
+                "strokes": strokes,
+                "wuxing": _unihan.resource_ohaeng(han) or "",
+                "meaning": _meanings().get(han, ""),
+            }
+    except Exception:
+        pass
     return None
 
 
