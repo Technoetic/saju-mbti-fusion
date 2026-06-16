@@ -247,10 +247,14 @@ _STAGE2_PERSONA_SYSTEM = (
     "    3) eyebrow·eye·nose — 눈썹·눈·코\n"
     "    4) mouth·chin — 입·턱\n"
     "    5) distinctive_feature — 그대만의 한 가지\n"
-    "    6) **종합 인상(캐릭터화)** — 윤곽·부위·기색의 시각적 종합이 주는 일반적 "
-    "첫인상을 한 단락으로 풀어낸다. 예: \"단정한·온화한·또렷한·따뜻한·차분한·"
-    "강단 있어 보이는·부드러운·서글서글한·기품 있어 보이는\" 같은 일반 시각 인상 어휘. "
-    "**필수 단락 — 생략 X**. 사용자가 \"이 사람이 어떤 인상인지\"를 느끼게 하는 게 목적.\n"
+    "    6) **종합 인상(캐릭터화)** — 그대가 '어떤 본바탕의 사람으로 보이는지' 한 단락으로 "
+    "풀어낸다. **필수 단락 — 생략 X**. 사용자가 \"내가 어떤 캐릭터인지\"를 알게 하는 게 목적.\n"
+    "       ▸ deterministic_scores에 '오행 5형 기질'(ADR-277)이 있으면 **반드시** 그 본바탕을 "
+    "축으로 캐릭터를 풀어낸다 — 5형(목·화·토·금·수)의 핵심 결·강점 결·주의 결을 "
+    "주어진 tendency 문구의 '~로 봅니다/풀이합니다' 경향 어조로 엮어, \"전통 관상에서 "
+    "그대 같은 ~형은 ~한 결로 봅니다\" 식으로 종합. 강점과 주의 결을 함께 제시(양면).\n"
+    "       ▸ 5형이 '복합형'이거나 기질 블록이 없으면, 윤곽·부위·기색이 주는 일반 시각 인상 "
+    "어휘(\"단정한·온화한·또렷한·따뜻한·차분한·강단 있어 보이는·기품 있어 보이는\")로 캐릭터화.\n"
     "  • deterministic_scores에 있는 명칭·점수는 적절한 부위 단락에 자연스럽게 인용 "
     "(어느 부위에 어느 명칭이 해당하는지는 본 시스템이 명시하지 않음 — 입력 2의 "
     "라벨을 그대로 인용하되, 라벨 뒤에 새 매핑 추가 금지)\n"
@@ -447,10 +451,18 @@ def _build_user_text(
     if face_shape and face_shape.get("shape_type"):
         lines.append("")
         lines.append("[얼굴 구조 분류 — MediaPipe 키포인트 기반 결정론, ADR-022]")
-        lines.append(f"  • 오행 5형: {face_shape['shape_type']} ({face_shape.get('morphological_name', '')})")
+        shape_type = face_shape["shape_type"]
+        lines.append(f"  • 오행 5형: {shape_type} ({face_shape.get('morphological_name', '')})")
         criteria = face_shape.get("matched_criteria") or []
         if criteria:
             lines.append(f"  • 통과 임계값: {', '.join(str(c) for c in criteria[:3])}")
+        # ADR-277 — 5형 전통 기질 주입 (캐릭터 결론 단락 재료). 복합형·미상은 생략.
+        from engine.divination.face.knowledge import format_five_shape_trait_for_prompt
+
+        trait_block = format_five_shape_trait_for_prompt(shape_type)
+        if trait_block:
+            lines.append("")
+            lines.append(trait_block)
 
     # 결정론 점수 — 12궁·삼정·오관 (ADR-004)
     if palace_scores:
@@ -759,10 +771,26 @@ def _build_deterministic_scores_summary(
     """
     out: dict[str, Any] = {}
     if face_shape and face_shape.get("shape_type"):
-        out["face_shape"] = {
-            "shape": face_shape["shape_type"],
+        shape_type = face_shape["shape_type"]
+        fs: dict[str, Any] = {
+            "shape": shape_type,
             "morphological_name": face_shape.get("morphological_name", ""),
         }
+        # ADR-277 — 5형 전통 기질 주입 (캐릭터 결론 단락 재료). 복합형·미상은 생략.
+        from engine.divination.face.knowledge import get_five_shape_trait
+
+        trait = get_five_shape_trait(shape_type)
+        if trait is not None:
+            fs["ohaeng_trait"] = {
+                "ohaeng": trait.ohaeng,
+                "ohsang": trait.ohsang,
+                "keyword": trait.keyword,
+                "tendency": trait.tendency,
+                "strength": trait.strength,
+                "caution": trait.caution,
+                "note": "전통 관상 경향 — 단정 X, '~형은 ~한 결로 봅니다' 어조 (ADR-277·006·094)",
+            }
+        out["face_shape"] = fs
     if facial_features:
         # facial_feature_classifier 결과 (mouth_corner 등). 한국어 라벨만 노출.
         ff_clean: dict[str, Any] = {}
