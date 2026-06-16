@@ -50,6 +50,7 @@ jobs:
               - 'web/**'
               - 'front/**'
               - 'data/**'
+              - 'assets/**'
               - 'Dockerfile'
               - 'fly.toml'
               - 'requirements.txt'
