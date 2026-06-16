@@ -611,3 +611,134 @@ def format_school_interpretations_for_prompt(feature_key: str) -> str | None:
         lines.append(f"  출처: {s['source_url']}")
         lines.append(f"  안전 가드: {s['adr_006_warning']}")
     return "\n".join(lines)
+
+
+# ═════════════════════════════════════════════════════════════════════════════
+# ADR-277 — 오행 5형(五形) 전통 기질 매핑 (관상 캐릭터 풀이)
+#
+# 배경: "정통 관상"이 형태 묘사·인상 형용사에 그쳐 "당신은 어떤 본바탕인가"라는
+#   관상의 핵심 결론이 빠진다는 사용자 지적. 5형 분류(shape.py)는 결정론으로
+#   산출되나 그 형이 뜻하는 전통 기질이 LLM에 주입되지 않았다.
+#
+# 해결: 오행 철학의 표준 오상(五常) 대응 — 목=仁·화=禮·토=信·금=義·수=智 —
+#   을 관상 5형에 연결한 전통 해석을 데이터화. 사주(saju_mbti) 도메인이 4축
+#   경향성을 내는 것과 동일 패턴.
+#
+# ★ ADR-010/006 정합: "당신은 ~한 사람이다"(단정·예언) X.
+#   "전통 관상에서 ~형은 ~한 기질로 봅니다"(출처 명시 경향)만 허용.
+#   tendency 문구는 모두 "~한 경향으로 봅니다 / ~로 풀이합니다" 형식.
+#
+# 출처:
+#   - 오행-오상 대응: 동중서 春秋繁露, 황제내경(공유 철학 지식)
+#   - 관상 5형 분류: 麻衣相法·신상전편(神相全編) 오형론, 송우철(2017) DBpia
+# ═════════════════════════════════════════════════════════════════════════════
+
+_FIVE_SHAPE_SOURCE_OHAENG = "동중서 春秋繁露 五行對應 + 황제내경 (오행-오상 공유 지식)"
+_FIVE_SHAPE_SOURCE_FACE = "https://www.dbpia.co.kr/journal/articleDetail?nodeId=NODE11235666"  # 송우철(2017) 오형 분류
+
+
+@dataclass(frozen=True)
+class FiveShapeTrait:
+    """오행 5형의 전통 기질 매핑 (ADR-277).
+
+    Attributes:
+        shape_type: 한글 오행명 (목형·화형·토형·금형·수형)
+        ohaeng: 오행 (木火土金水)
+        ohsang: 대응 오상 (仁禮信義智)
+        keyword: 핵심 기질 키워드 (1~2어)
+        tendency: 전통 해석상 경향 (단정 X — "~로 봅니다" 형식)
+        strength: 강점 결 (관상 전통 통설)
+        caution: 균형을 위한 주의 결 (양면 제시, ADR-094)
+    """
+
+    shape_type: str
+    ohaeng: str
+    ohsang: str
+    keyword: str
+    tendency: str
+    strength: str
+    caution: str
+
+
+FIVE_SHAPE_TRAITS: tuple[FiveShapeTrait, ...] = (
+    FiveShapeTrait(
+        shape_type="목형",
+        ohaeng="木",
+        ohsang="仁",
+        keyword="인자함·성장",
+        tendency="곧게 위로 뻗는 나무의 결처럼, 전통 관상에서 목형은 어질고 곧으며 꾸준히 자라나는 기질로 풀이합니다",
+        strength="인정이 두텁고 곧으며, 멀리 보고 꾸준히 나아가는 결",
+        caution="때로 고집이 강해질 수 있으니 유연함을 곁들이면 더 좋은 결",
+    ),
+    FiveShapeTrait(
+        shape_type="화형",
+        ohaeng="火",
+        ohsang="禮",
+        keyword="정열·예의",
+        tendency="위로 타오르는 불의 결처럼, 전통 관상에서 화형은 밝고 정열적이며 예를 아는 기질로 풀이합니다",
+        strength="활기차고 표현이 밝으며, 사람을 끌어모으는 따뜻한 결",
+        caution="기운이 급히 솟구칠 수 있으니 차분함을 더하면 더 좋은 결",
+    ),
+    FiveShapeTrait(
+        shape_type="토형",
+        ohaeng="土",
+        ohsang="信",
+        keyword="포용·신의",
+        tendency="만물을 품는 흙의 결처럼, 전통 관상에서 토형은 듬직하고 믿음직하며 너그러운 기질로 풀이합니다",
+        strength="포용력이 넓고 신의가 두터우며, 주변을 안정시키는 묵직한 결",
+        caution="변화에 더딜 수 있으니 새로움을 받아들이면 더 좋은 결",
+    ),
+    FiveShapeTrait(
+        shape_type="금형",
+        ohaeng="金",
+        ohsang="義",
+        keyword="결단·의리",
+        tendency="날카롭게 다듬어진 쇠의 결처럼, 전통 관상에서 금형은 단호하고 의리 있으며 맺고 끊음이 분명한 기질로 풀이합니다",
+        strength="결단력이 뚜렷하고 원칙이 분명하며, 의리를 지키는 곧은 결",
+        caution="때로 냉정해 보일 수 있으니 너그러움을 곁들이면 더 좋은 결",
+    ),
+    FiveShapeTrait(
+        shape_type="수형",
+        ohaeng="水",
+        ohsang="智",
+        keyword="지혜·유연",
+        tendency="굽이쳐 흐르는 물의 결처럼, 전통 관상에서 수형은 슬기롭고 유연하며 두루 어울리는 기질로 풀이합니다",
+        strength="총명하고 적응이 빠르며, 상황을 부드럽게 풀어가는 슬기로운 결",
+        caution="마음이 자주 흔들릴 수 있으니 중심을 다잡으면 더 좋은 결",
+    ),
+)
+
+_FIVE_SHAPE_BY_TYPE = {t.shape_type: t for t in FIVE_SHAPE_TRAITS}
+
+
+def get_five_shape_trait(shape_type: str) -> FiveShapeTrait | None:
+    """한글 오행명(목형·화형·토형·금형·수형) → 기질 매핑. 복합형·미상은 None."""
+    return _FIVE_SHAPE_BY_TYPE.get(shape_type)
+
+
+def format_five_shape_trait_for_prompt(shape_type: str) -> str | None:
+    """5형 기질을 Stage 2 프롬프트 주입용 텍스트로. 복합형 등은 None.
+
+    캐릭터 결론 단락의 재료. 단정 금지(ADR-006) — 모두 "~로 봅니다" 경향 어조.
+    """
+    t = get_five_shape_trait(shape_type)
+    if t is None:
+        return None
+    return (
+        f"[오행 5형 기질 — {t.shape_type}({t.ohaeng}·오상 {t.ohsang}), ADR-277]\n"
+        f"  • 핵심 결: {t.keyword}\n"
+        f"  • 전통 해석: {t.tendency}\n"
+        f"  • 강점 결: {t.strength}\n"
+        f"  • 주의 결(균형): {t.caution}\n"
+        f"  • 출처: {_FIVE_SHAPE_SOURCE_OHAENG} / 5형 분류 {_FIVE_SHAPE_SOURCE_FACE}\n"
+        f"  ※ 캐릭터 결론 단락에 활용. '~한 사람이다·~할 것이다' 단정 X, "
+        f"'전통 관상에서 ~형은 ~한 결로 봅니다' 경향 어조만 (ADR-006·094)."
+    )
+
+
+__all__ += [
+    "FiveShapeTrait",
+    "FIVE_SHAPE_TRAITS",
+    "get_five_shape_trait",
+    "format_five_shape_trait_for_prompt",
+]
