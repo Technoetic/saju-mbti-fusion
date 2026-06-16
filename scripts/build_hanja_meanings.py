@@ -62,7 +62,7 @@ def english_meanings() -> dict[str, str]:
 
 
 def supplement_meanings() -> dict[str, str]:
-    """수동 보강 훈 (표준 자전 통설). 영문 폴백보다 우선. 없으면 빈 dict."""
+    """수동 보강 훈 (표준 자전 통설). 없으면 빈 dict."""
     path = ROOT / "assets" / "hanja" / "hanja_meanings_supplement.json"
     try:
         raw = json.loads(path.read_text(encoding="utf-8"))
@@ -71,21 +71,37 @@ def supplement_meanings() -> dict[str, str]:
         return {}
 
 
+def naver_meanings() -> dict[str, str]:
+    """네이버 한자사전 수집 훈음 (한국어 훈+음). 없으면 빈 dict.
+
+    한자의 훈음은 자전 공유 지식(사실)이며 본 수집물은 우리 가공 데이터.
+    """
+    path = ROOT / "assets" / "hanja" / "hanja_meanings_naver.json"
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+
+
 def main() -> None:
     ko = korean_meanings()
+    nv = naver_meanings()
     sup = supplement_meanings()
     en = english_meanings()
     db = json.loads(KOREAN_HANJA.read_text(encoding="utf-8"))
 
+    # 한국어 소스 우선순위: 프론트/HANJA_LIST(검증된 작명용) > 네이버 > 수동보강 > 영문
     out: dict[str, str] = {}
-    ko_n = sup_n = en_n = none_n = 0
+    ko_n = nv_n = sup_n = en_n = none_n = 0
     for x in db:
         ch = x["char"]
-        if ch in ko:  # 1·2순위: 프론트 한자_뜻 + HANJA_LIST
+        if ch in ko:
             out[ch] = ko[ch]; ko_n += 1
-        elif ch in sup:  # 3순위: 수동 보강 훈
+        elif ch in nv:
+            out[ch] = nv[ch]; nv_n += 1
+        elif ch in sup:
             out[ch] = sup[ch]; sup_n += 1
-        elif ch in en:  # 4순위: 영문 폴백
+        elif ch in en:
             out[ch] = en[ch]; en_n += 1
         else:
             none_n += 1
@@ -94,8 +110,11 @@ def main() -> None:
         json.dumps(out, ensure_ascii=False, separators=(",", ":")), encoding="utf-8"
     )
     print(
-        f"한국어 {ko_n} / 보강 {sup_n} / 영문폴백 {en_n} / 뜻없음 {none_n} → {len(out)}자"
+        f"프론트/리스트 {ko_n} / 네이버 {nv_n} / 보강 {sup_n} / "
+        f"영문폴백 {en_n} / 뜻없음 {none_n} → {len(out)}자"
     )
+    kor_total = ko_n + nv_n + sup_n
+    print(f"한국어 합계 {kor_total} ({100*kor_total/len(out):.1f}%)")
     print(f"저장: {OUT}")
 
 
