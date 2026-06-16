@@ -16,9 +16,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 NAME_ENGINE = ROOT / "front" / "js" / "core" / "name-engine.js"
-UNIHAN_READINGS = ROOT / "data" / "unihan" / "Unihan_Readings.txt"
-KOREAN_HANJA = ROOT / "data" / "hanja" / "korean_hanja_unihan.json"
-OUT = ROOT / "data" / "hanja" / "hanja_meanings.json"
+UNIHAN_READINGS = ROOT / "assets" / "unihan" / "Unihan_Readings.txt"
+KOREAN_HANJA = ROOT / "assets" / "hanja" / "korean_hanja_unihan.json"
+OUT = ROOT / "assets" / "hanja" / "hanja_meanings.json"
 
 
 def korean_meanings() -> dict[str, str]:

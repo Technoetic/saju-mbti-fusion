@@ -42,7 +42,7 @@ from typing import Any
 # 데이터 경로 — engine/ 기준 부모 디렉토리의 data/
 _DATA_PATH = (
     Path(__file__).resolve().parent.parent.parent.parent
-    / "data"
+    / "assets"
     / "hanja/korean_hanja_unihan.json"
 )
 
@@ -194,12 +194,12 @@ def total_chars() -> int:
 # 데이터 경로 — 부수 디폴트 + 학파 분기 (보고서 §6 본문 명시 데이터)
 _KCI_RADICAL_DEFAULT_PATH = (
     Path(__file__).resolve().parent.parent.parent.parent
-    / "data"
+    / "assets"
     / "hanja/kci_radical_default_ohaeng.json"
 )
 _KCI_SCHOOL_SPLIT_PATH = (
     Path(__file__).resolve().parent.parent.parent.parent
-    / "data"
+    / "assets"
     / "hanja/kci_school_split.json"
 )
 

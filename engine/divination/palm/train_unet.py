@@ -225,13 +225,21 @@ def train_unet(
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
     criterion = nn.BCEWithLogitsLoss()
 
-    # 6. 학습 루프
+    # 6. 학습 루프 (ADR-237 — print 자세히 + flush)
+    import time as _time
+    total_batches_per_epoch = len(loader)
+    print(f"[학습 시작] {len(image_paths)}장 / batch {batch_size} / "
+          f"{total_batches_per_epoch} batch/epoch / {epochs} epoch / "
+          f"model={model_type} / device={device}", flush=True)
     final_loss = float("inf")
+    train_start = _time.time()
     for epoch in range(epochs):
         model.train()
         total_loss = 0.0
         n_batches = 0
+        epoch_start = _time.time()
         for img_batch, lbl_batch in loader:
+            batch_start = _time.time()
             img_batch = img_batch.to(device)
             lbl_batch = lbl_batch.to(device)
             optimizer.zero_grad()
@@ -241,10 +249,29 @@ def train_unet(
             optimizer.step()
             total_loss += loss.item()
             n_batches += 1
+            # 매 10 batch마다 진행 출력
+            if n_batches % 10 == 0 or n_batches == total_batches_per_epoch:
+                pct = 100.0 * n_batches / total_batches_per_epoch
+                avg_so_far = total_loss / n_batches
+                batch_time = _time.time() - batch_start
+                eta_sec = (total_batches_per_epoch - n_batches) * batch_time
+                print(
+                    f"[Epoch {epoch + 1}/{epochs}] "
+                    f"batch {n_batches}/{total_batches_per_epoch} ({pct:.1f}%) | "
+                    f"avg_loss={avg_so_far:.4f} | "
+                    f"batch={batch_time:.1f}s | "
+                    f"ETA={eta_sec/60:.1f}min",
+                    flush=True,
+                )
         avg_loss = total_loss / max(n_batches, 1)
         final_loss = avg_loss
-        if epoch % 5 == 0 or epoch == epochs - 1:
-            print(f"[Epoch {epoch + 1}/{epochs}] loss={avg_loss:.4f}")
+        epoch_time = _time.time() - epoch_start
+        print(
+            f"[Epoch {epoch + 1}/{epochs} 완료] loss={avg_loss:.4f} | "
+            f"epoch={epoch_time/60:.1f}min | "
+            f"total={(_time.time() - train_start)/60:.1f}min",
+            flush=True,
+        )
 
     # 7. 가중치 저장
     output_dir = os.path.dirname(output_path)
