@@ -606,7 +606,10 @@ def interpret_dream(
         try:
             text = call_llm_sync(user_text=user, system_prompt=DREAM_SYSTEM)
         except Exception as e:
-            text = f"(풀이 생성 실패: {e})"
+            import logging
+
+            logging.getLogger(__name__).warning("dream LLM 호출 실패: %s", e)
+            text = "(풀이 생성 실패: 지금은 해몽을 불러오지 못했어요. 잠시 후 다시 시도해주세요.)"
         critique = critique_dream(text, analysis)
         critic_history.append({"round": round_idx, **critique})
         final_text = text

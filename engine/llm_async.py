@@ -12,12 +12,15 @@ fallback: AsyncAnthropic (BIZROUTER_API_KEY 미설정 시).
 
 from __future__ import annotations
 
+import logging
 import os
 import re
 from functools import lru_cache
 
 from anthropic import AsyncAnthropic
 from openai import AsyncOpenAI
+
+_log = logging.getLogger(__name__)
 
 # === Bizrouter 기본값 ===
 
@@ -32,6 +35,10 @@ _MAX_TOKENS = 4096
 
 def _bizrouter_enabled() -> bool:
     return bool(os.environ.get("BIZROUTER_API_KEY"))
+
+
+def _anthropic_enabled() -> bool:
+    return bool(os.environ.get("ANTHROPIC_API_KEY"))
 
 
 @lru_cache(maxsize=1)
@@ -154,7 +161,22 @@ async def call_llm_async(
     Args:
         usage_sink: ADR-013. Anthropic 호출의 usage 객체 sink.
             Bizrouter는 OpenAI 형식이라 append 안 함.
+
+    Bizrouter 호출이 실패(외부 장애·5xx·Redis 등)하면 Anthropic 키가 있을 때
+    런타임 폴백한다. 둘 다 없거나 폴백도 실패하면 원래 예외를 전파한다.
     """
     if _bizrouter_enabled():
-        return await _call_bizrouter_async(user_text, system_prompt, model, max_tokens)
+        try:
+            return await _call_bizrouter_async(user_text, system_prompt, model, max_tokens)
+        except Exception as exc:
+            if not _anthropic_enabled():
+                raise
+            _log.warning(
+                "Bizrouter 호출 실패 → Anthropic 폴백: %s", exc, exc_info=False
+            )
+            # model이 Bizrouter 전용 식별자면 Anthropic 기본 모델로 재선택
+            fallback_model = model if (model and model.startswith("claude")) else None
+            return await _call_anthropic_async(
+                user_text, system_prompt, fallback_model, max_tokens, usage_sink=usage_sink
+            )
     return await _call_anthropic_async(user_text, system_prompt, model, max_tokens, usage_sink=usage_sink)
