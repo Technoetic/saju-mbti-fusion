@@ -1576,7 +1576,12 @@ class PersonalityAPIServer:
             cands.sort(
                 key=lambda c: (not c.get("recommended"), c.get("overload", False))
             )
-            return {"ko": ko, "candidates": cands}
+            resp: dict[str, Any] = {"ko": ko, "candidates": cands}
+            # 진단: Unihan 보강 동작 여부 (임시)
+            if weak == "__diag__":
+                from engine.saju.hanja_data import _diag_unihan
+                resp["_diag"] = _diag_unihan(ko)
+            return resp
         except Exception as e:
             raise HTTPException(500, str(e))
 

@@ -711,4 +711,26 @@ def lookup_han(han: str) -> dict | None:
     return None
 
 
+def _diag_unihan(ko: str) -> dict:
+    """진단(임시) — Unihan 보강 동작 여부를 노출."""
+    info: dict = {}
+    try:
+        from engine.divination.name import unihan as _unihan
+
+        info["unihan_import"] = "ok"
+        info["unihan_total"] = _unihan.total_chars()
+        info["get_cands_count"] = len(_unihan.get_candidates_by_hangul(ko))
+        info["data_path"] = str(getattr(_unihan, "_DATA_PATH", "?"))
+        info["data_path_exists"] = (
+            getattr(_unihan, "_DATA_PATH").exists()
+            if hasattr(_unihan, "_DATA_PATH") else None
+        )
+    except Exception as e:
+        info["unihan_import"] = f"FAIL: {type(e).__name__}: {e}"
+    info["meanings_path"] = str(_MEANINGS_PATH)
+    info["meanings_exists"] = _MEANINGS_PATH.exists()
+    info["meanings_count"] = len(_meanings())
+    return info
+
+
 __all__ = ["HANJA_LIST", "candidates_by_ko", "lookup_han"]
