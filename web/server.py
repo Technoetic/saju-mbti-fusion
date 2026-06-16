@@ -1778,6 +1778,8 @@ class PersonalityAPIServer:
         ext = {
             "minimax_api_key_set": bool(os.environ.get("MINIMAX_API_KEY", "").strip()),
             "bizrouter_api_key_set": bool(os.environ.get("BIZROUTER_API_KEY", "").strip()),
+            # BizRouter 장애 시 LLM 폴백 가능 여부 진단용.
+            "anthropic_api_key_set": bool(os.environ.get("ANTHROPIC_API_KEY", "").strip()),
             "rate_limit_per_min": self._rate_limit_per_min,
         }
         if self.engine is None:
