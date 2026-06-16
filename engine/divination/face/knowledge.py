@@ -706,6 +706,15 @@ FIVE_SHAPE_TRAITS: tuple[FiveShapeTrait, ...] = (
         strength="총명하고 적응이 빠르며, 상황을 부드럽게 풀어가는 슬기로운 결",
         caution="마음이 자주 흔들릴 수 있으니 중심을 다잡으면 더 좋은 결",
     ),
+    FiveShapeTrait(
+        shape_type="복합형",
+        ohaeng="土(中)",
+        ohsang="中庸",
+        keyword="균형·중용",
+        tendency="어느 한쪽으로 치우치지 않은 결로, 전통 관상에서 복합형은 오행의 기운을 고루 갖춘 균형의 기질로 풀이합니다",
+        strength="치우침 없이 두루 어울리며, 상황에 맞춰 여러 면모를 발휘하는 균형 잡힌 결",
+        caution="뚜렷한 색이 옅을 수 있으니 자기만의 결을 또렷이 세우면 더 좋은 결",
+    ),
 )
 
 _FIVE_SHAPE_BY_TYPE = {t.shape_type: t for t in FIVE_SHAPE_TRAITS}
@@ -736,9 +745,99 @@ def format_five_shape_trait_for_prompt(shape_type: str) -> str | None:
     )
 
 
+# ═════════════════════════════════════════════════════════════════════════════
+# ADR-278 — 삼정(三停) 시기론 + 성격·인생 흐름 풀이
+#
+# 배경: "성격·인생 풀이를 하라"는 사용자 명시 요구. 기존 ADR-006은 성격·운명
+#   단정을 막았으나, 사용자가 관상의 본령(성격·인생 흐름 해석)을 요구.
+#   → 단정·예언은 여전히 금지하되, "전통 관상에서 ~한 시기·기질로 보는 경향"
+#   어조의 성격·인생 흐름 풀이를 허용 (ADR-014 saju_mbti 경향성 예외와 동일 논리).
+#
+# 삼정 시기론: 전통 관상의 표준 — 얼굴을 상·중·하 삼등분하여 인생 시기에 대응.
+#   상정(이마) = 초년運 (초년~30대 초반의 흐름·복록의 결)
+#   중정(눈썹~코) = 중년運 (30~50대의 활동·실행의 결)
+#   하정(입~턱) = 말년運 (50대 이후의 안정·수확의 결)
+#
+# ★ ADR-006/010/094 정합: "초년에 ~할 것이다"(예언) X.
+#   "전통 관상에서 상정이 발달하면 초년의 결이 밝다고 봅니다"(경향) O.
+#   각 정의 점수가 높으면 "그 시기의 결이 도드라진다", 낮으면 "차분히 다진다"
+#   양면 어조. 시간 축은 '경향'으로만, 단정·구체 사건 예언 금지.
+#
+# 출처: 麻衣相法·神相全編 삼정론 (전통 관상 공유 지식), 송우철(2017) DBpia
+# ═════════════════════════════════════════════════════════════════════════════
+
+
+@dataclass(frozen=True)
+class SamjeongPeriod:
+    """삼정 시기론 — 정(停)별 인생 시기 대응 (ADR-278).
+
+    Attributes:
+        region: 삼정 영역 (상정·중정·하정)
+        period: 대응 인생 시기
+        high_tendency: 점수 높을 때 경향 (단정 X — "~한 결로 봅니다")
+        low_tendency: 점수 낮을 때 경향 (균형 어조)
+    """
+
+    region: str
+    period: str
+    high_tendency: str
+    low_tendency: str
+
+
+SAMJEONG_PERIODS: dict[str, SamjeongPeriod] = {
+    "상정": SamjeongPeriod(
+        region="상정",
+        period="초년運 (초년~30대 초반)",
+        high_tendency="이마(상정)가 도드라지니, 전통 관상에서 초년의 기운과 배움·복록의 결이 밝다고 보는 경향이 있습니다",
+        low_tendency="이마(상정)가 차분하니, 초년은 서두르기보다 천천히 기틀을 다지는 결로 봅니다",
+    ),
+    "중정": SamjeongPeriod(
+        region="중정",
+        period="중년運 (30~50대)",
+        high_tendency="눈썹~코(중정)의 기운이 강하니, 전통 관상에서 중년의 활동력·실행과 자기 확립의 결이 도드라진다고 보는 경향이 있습니다",
+        low_tendency="중정이 차분하니, 중년은 무리하기보다 내실을 다지는 결로 봅니다",
+    ),
+    "하정": SamjeongPeriod(
+        region="하정",
+        period="말년運 (50대 이후)",
+        high_tendency="입~턱(하정)이 도드라지니, 전통 관상에서 말년의 안정·수확과 사람을 품는 결이 두텁다고 보는 경향이 있습니다",
+        low_tendency="하정이 차분하니, 말년의 결은 욕심을 덜고 마음을 다스리면 더 안정되는 것으로 봅니다",
+    ),
+}
+
+
+def format_samjeong_periods_for_prompt(samjeong_scores: dict[str, float]) -> str | None:
+    """삼정 점수 dict({상정:0.21, 중정:1.0, 하정:0.0}) → 인생 흐름 프롬프트.
+
+    인생(시기) 풀이 단락 재료. 단정·예언 금지(ADR-006) — '~로 보는 경향' 어조.
+    """
+    if not samjeong_scores:
+        return None
+    lines = ["[삼정 시기론 — 인생 흐름 경향, ADR-278]"]
+    for region in ("상정", "중정", "하정"):
+        score = samjeong_scores.get(region)
+        if score is None:
+            continue
+        p = SAMJEONG_PERIODS.get(region)
+        if p is None:
+            continue
+        t = p.high_tendency if score >= 0.5 else p.low_tendency
+        lines.append(f"  • {p.region}({p.period}) 점수 {score:.2f} → {t}")
+    if len(lines) == 1:
+        return None
+    lines.append(
+        "  ※ 인생 흐름 단락에 활용. '초년에 ~할 것이다·~운이 온다' 단정·예언 X, "
+        "'전통 관상에서 ~시기의 결을 ~로 보는 경향이 있습니다' 어조만 (ADR-006·094)."
+    )
+    return "\n".join(lines)
+
+
 __all__ += [
     "FiveShapeTrait",
     "FIVE_SHAPE_TRAITS",
     "get_five_shape_trait",
     "format_five_shape_trait_for_prompt",
+    "SamjeongPeriod",
+    "SAMJEONG_PERIODS",
+    "format_samjeong_periods_for_prompt",
 ]
