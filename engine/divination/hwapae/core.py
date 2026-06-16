@@ -324,7 +324,11 @@ def generate_hwapae_reading(
         try:
             text = call_llm_sync(user_text=user, system_prompt=_HWAPAE_SYSTEM)
         except Exception as e:
-            text = f"(풀이 생성 실패: {e})"
+            import logging
+
+            logging.getLogger(__name__).warning("hwapae LLM 호출 실패: %s", e)
+            # 사용자에게는 내부 에러(Redis·5xx 등) 대신 안내 문구만 노출.
+            text = "(풀이 생성 실패: 지금은 화선 낭자가 잠시 자리를 비웠어요. 잠시 후 다시 시도해주세요.)"
         critique = critique_hwapae(text, ctx)
         critic_history.append({"round": round_idx, **critique})
         final_text = text
