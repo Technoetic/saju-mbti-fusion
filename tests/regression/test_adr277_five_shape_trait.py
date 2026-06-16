@@ -19,9 +19,10 @@ OHSANG = {"목형": "仁", "화형": "禮", "토형": "信", "금형": "義", "�
 
 
 def test_all_five_shapes_present():
-    assert len(FIVE_SHAPE_TRAITS) == 5
+    # ADR-278에서 복합형 기질 추가 → 6종. 5형 핵심이 모두 있는지 검사.
     types = {t.shape_type for t in FIVE_SHAPE_TRAITS}
-    assert types == set(SHAPES)
+    assert set(SHAPES).issubset(types)
+    assert len(FIVE_SHAPE_TRAITS) >= 5
 
 
 @pytest.mark.parametrize("shape", SHAPES)
@@ -52,9 +53,8 @@ def test_strength_and_caution_both_present(shape):
     assert t.caution.strip()
 
 
-def test_composite_returns_none():
-    """복합형·미상은 기질 매핑 없음 (형용사 인상 방식으로 폴백)."""
-    assert get_five_shape_trait("복합형") is None
+def test_unknown_returns_none():
+    """미상·빈값은 기질 매핑 없음. (복합형은 ADR-278에서 기질 보유.)"""
     assert get_five_shape_trait("") is None
     assert get_five_shape_trait("미상") is None
 
@@ -70,8 +70,8 @@ def test_prompt_block_format(shape):
     assert "단정 X" in block or "단정" in block
 
 
-def test_prompt_block_none_for_composite():
-    assert format_five_shape_trait_for_prompt("복합형") is None
+def test_prompt_block_none_for_unknown():
+    assert format_five_shape_trait_for_prompt("미상") is None
 
 
 def test_injected_into_stage2_summary():
@@ -89,11 +89,14 @@ def test_injected_into_stage2_summary():
     assert "봅니다" in trait["tendency"] or "풀이합니다" in trait["tendency"]
 
 
-def test_composite_not_injected_into_stage2():
+def test_composite_injected_into_stage2():
+    """ADR-278: 복합형도 균형형 기질이 주입된다."""
     from engine.divination.face.reading import _build_deterministic_scores_summary
 
     out = _build_deterministic_scores_summary(
         palace_scores=None,
         face_shape={"shape_type": "복합형", "morphological_name": "평균"},
     )
-    assert "ohaeng_trait" not in out.get("face_shape", {})
+    trait = out.get("face_shape", {}).get("ohaeng_trait")
+    assert trait is not None
+    assert "균형" in trait["keyword"] or "중용" in trait["keyword"]
