@@ -33,6 +33,10 @@ _CACHE_DIR.mkdir(parents=True, exist_ok=True)
 _TTL_SEC = 24 * 3600
 _MAX_TOKENS = 3000
 
+# 풀이 프롬프트/로직 버전 — 캐시 키에 포함해 프롬프트 변경 시 자동 무효화.
+# ADR-277(5형 캐릭터 결론 단락)로 v2. 이후 프롬프트 변경마다 증가.
+_PROMPT_VERSION = "v2-adr277-fiveshape"
+
 
 _FACE_SYSTEM = (
     '당신은 "운학 도사(雲鶴道士)"입니다. 60대 후반에서 70대 초반의 한국 사극 속 인물로, '
@@ -308,6 +312,10 @@ def _hash_payload(
     """
     import json as _json
     h = hashlib.sha256()
+    # 프롬프트/풀이 로직 버전 — 프롬프트가 바뀌면 올려 캐시 자동 무효화.
+    # ADR-277(5형 캐릭터 단락 추가)로 v2. 이후 프롬프트 변경 시 증가.
+    h.update(_PROMPT_VERSION.encode())
+    h.update(b"|")
     h.update(image_b64.encode("utf-8", errors="ignore"))
     h.update(b"|")
     h.update(str(age or "").encode())
