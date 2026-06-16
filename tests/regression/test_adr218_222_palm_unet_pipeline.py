@@ -132,7 +132,7 @@ def test_adr221_train_unet_with_synthetic_data(tmp_path):
 def test_adr222_default_weights_paths_defined():
     from engine.divination.palm.unet_line_extractor import _DEFAULT_WEIGHTS_PATHS
     assert len(_DEFAULT_WEIGHTS_PATHS) >= 1
-    assert any("data/palm" in p for p in _DEFAULT_WEIGHTS_PATHS)
+    assert any("assets/palm" in p for p in _DEFAULT_WEIGHTS_PATHS)
 
 
 def test_adr222_no_env_no_default_falls_back():
