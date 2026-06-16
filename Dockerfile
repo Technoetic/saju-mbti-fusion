@@ -47,12 +47,13 @@ COPY --from=builder /root/.local /root/.local
 COPY engine ./engine
 COPY web ./web
 COPY front ./front
-# 작명 모듈이 data/hanja/korean_hanja_unihan.json (9,932자) 사용 — ADR-041 도메인 분리
-COPY data ./data
+# 정적 데이터 (한자 9,932자·사주·손금 JSON 등) — assets/ 로 분리.
+# data/ 는 Fly.io 볼륨(saju_data → /app/data) 마운트에 가려지므로,
+# 코드가 읽는 정적 데이터는 볼륨 밖 assets/ 에 둔다. data/ 볼륨은 app.db·백업 전용.
+COPY assets ./assets
 # ADR-114: Skyfield + JPL DE440s ephemeris (1849-2150년 32MB, star 도메인 빅3·하우스·트랜짓)
 COPY de440s.bsp ./de440s.bsp
-# ADR-246 — CFM 가중치 (11MB). data/ 는 Fly.io 볼륨 마운트(/app/data)에
-# 가려지므로 models/ 별도 경로. unet_line_extractor 가 models/ 우선 탐색.
+# ADR-246 — CFM 가중치 (11MB). models/ 별도 경로. unet_line_extractor 가 models/ 우선 탐색.
 COPY models ./models
 
 # ADR-245 — CFM 가중치 사전 학습 + repo 포함 + 빌드 시 COPY (학습 X)

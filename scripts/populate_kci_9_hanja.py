@@ -73,7 +73,7 @@ KCI_9_HANJA_DATA = {
 
 def main() -> int:
     """본 시스템 unihan DB에 KCI 9 한자 매핑 본문화."""
-    db_path = Path(__file__).resolve().parent.parent / "data" / "hanja" / "korean_hanja_unihan.json"
+    db_path = Path(__file__).resolve().parent.parent / "assets" / "hanja" / "korean_hanja_unihan.json"
     if not db_path.exists():
         print(f"ERR: {db_path} not found.")
         return 1

@@ -43,8 +43,8 @@ _DEFAULT_ONNX_PATHS = (
 _DEFAULT_WEIGHTS_PATHS = (
     "models/unet_weights.pt",
     "models/unet_weights.pth",
-    "data/palm/unet_weights.pt",
-    "data/palm/unet_weights.pth",
+    "assets/palm/unet_weights.pt",
+    "assets/palm/unet_weights.pth",
 )
 
 
