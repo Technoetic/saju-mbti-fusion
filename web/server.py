@@ -2050,7 +2050,8 @@ class PersonalityAPIServer:
             "단정적 예언 금지, 경향성·자기이해 위주. 점쟁이 톤 금지. "
             "한국어로 자연스럽게 작성하세요."
         )
-        bizrouter_model = os.environ.get(
+        # 요청에 model이 명시되면 우선 사용(클라이언트 모델 선택 허용), 없으면 env 기본.
+        bizrouter_model = req.model or os.environ.get(
             "BIZROUTER_MODEL", "google/gemini-2.5-flash-lite"
         )
 
