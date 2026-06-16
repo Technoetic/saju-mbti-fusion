@@ -44,8 +44,12 @@ def test_life_flow_gradient_tone_only():
     """인생 흐름은 경향 어조 — 단정·예언 어휘 없음."""
     out = format_samjeong_periods_for_prompt({"상정": 0.8, "중정": 0.8, "하정": 0.8})
     assert out is not None
+    # 안내(※) 줄은 금지어를 '예시로' 포함하므로 본문(시기 해석)만 검사
+    body = "
+".join(l for l in out.split("
+") if not l.strip().startswith("※"))
     for banned in ["할 것이다", "운이 온다", "틀림없", "반드시"]:
-        assert banned not in out
+        assert banned not in body
 
 
 def test_life_flow_empty():
