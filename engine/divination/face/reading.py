@@ -34,8 +34,8 @@ _TTL_SEC = 24 * 3600
 _MAX_TOKENS = 3000
 
 # 풀이 프롬프트/로직 버전 — 캐시 키에 포함해 프롬프트 변경 시 자동 무효화.
-# ADR-277(5형 캐릭터 결론 단락)로 v2. 이후 프롬프트 변경마다 증가.
-_PROMPT_VERSION = "v2-adr277-fiveshape"
+# ADR-277(5형 캐릭터) v2 → ADR-278(성격·인생 흐름 + 복합형 기질) v3.
+_PROMPT_VERSION = "v3-adr278-character-life"
 
 
 _FACE_SYSTEM = (
@@ -257,8 +257,17 @@ _STAGE2_PERSONA_SYSTEM = (
     "축으로 캐릭터를 풀어낸다 — 5형(목·화·토·금·수)의 핵심 결·강점 결·주의 결을 "
     "주어진 tendency 문구의 '~로 봅니다/풀이합니다' 경향 어조로 엮어, \"전통 관상에서 "
     "그대 같은 ~형은 ~한 결로 봅니다\" 식으로 종합. 강점과 주의 결을 함께 제시(양면).\n"
-    "       ▸ 5형이 '복합형'이거나 기질 블록이 없으면, 윤곽·부위·기색이 주는 일반 시각 인상 "
-    "어휘(\"단정한·온화한·또렷한·따뜻한·차분한·강단 있어 보이는·기품 있어 보이는\")로 캐릭터화.\n"
+    "       ▸ 5형이 '복합형'이어도 ohaeng_trait 블록이 있으면 그 균형형 기질로 캐릭터화. "
+    "기질 블록이 아예 없을 때만 일반 시각 인상 어휘로 풀어낸다.\n"
+    "    7) **성격·인생 흐름** — 그대의 성격 경향과 인생 시기의 흐름을 한 단락으로 풀어낸다. "
+    "**필수 단락 — 생략 X**. 사용자가 명시적으로 '성격·인생 풀이'를 원함.\n"
+    "       ▸ 성격: 5형 기질(ohaeng_trait)과 도드라진 부위(top_palace·높은 오관 점수)를 엮어, "
+    "\"전통 관상에서 ~한 결을 지닌 이는 ~한 성정으로 보는 경향이 있습니다\" 식의 성격 경향. "
+    "강점 성정 + 다스리면 좋을 결을 함께(양면).\n"
+    "       ▸ 인생 흐름: deterministic_scores에 'life_flow'(삼정 시기론, ADR-278)가 있으면 "
+    "**반드시** 그 문구를 활용해 초년(상정)·중년(중정)·말년(하정)의 흐름을 "
+    "\"~시기의 결을 ~로 보는 경향이 있습니다\" 어조로 풀어낸다. 점수 높은 정은 그 시기가 "
+    "도드라진다, 낮은 정은 차분히 다지는 결로 — 양면 균형.\n"
     "  • deterministic_scores에 있는 명칭·점수는 적절한 부위 단락에 자연스럽게 인용 "
     "(어느 부위에 어느 명칭이 해당하는지는 본 시스템이 명시하지 않음 — 입력 2의 "
     "라벨을 그대로 인용하되, 라벨 뒤에 새 매핑 추가 금지)\n"
@@ -269,15 +278,15 @@ _STAGE2_PERSONA_SYSTEM = (
     "    예 ✓: \"이 늙은이의 한 마디 — 단정하고 따뜻한 결이 그대 안에 머무는구먼.\"\n"
     "    예 ✗: \"이 늙은이의 한 마디 — 정면·조명 양호한 사진으로 잘 살펴보았네.\"\n"
     "  • 800~1300자, 마크다운 없이 자연 문장. 사극풍 어조 일관 유지\n\n"
-    "[종합 인상(캐릭터화) 어조 규칙 — 단정 금지]\n"
-    "  • 형태가 주는 일반적 첫인상만 묘사. 학파 운명·성격 단정 X.\n"
-    "  • 단정 어조 금지: \"~한 사람이다·~할 것이다·~의 운이 있다\" X.\n"
-    "  • 인상 어조 사용: \"~한 인상이 느껴지는구먼·~한 분위기를 풍기는다·"
-    "~한 결이 비치는구먼·~한 느낌을 주는구먼\" 권장.\n"
-    "  • 시각 형태 ↔ 일반 인상 매핑만 사용 (사회 통념). 예: \"두툼한 입술 + 둥근 턱 → "
-    "따뜻한 분위기\", \"또렷한 눈빛 + 곧은 코 → 단정한 인상\", \"각진 턱 + 짙은 눈썹 → "
-    "강단 있어 보이는 인상\". 어느 학파의 운명 단정도 사용 X.\n"
-    "  • 사용자의 실제 성격·운명은 모름을 인정하는 어조 — \"보이는 결로는 ~한 인상이로구먼\".\n\n"
+    "[캐릭터·성격·인생 흐름 어조 규칙 — 경향 허용 / 단정·예언 금지 (ADR-277·278·006·094)]\n"
+    "  • 성격·인생 흐름 풀이는 **허용** — 단, '경향' 어조로만. 전통 관상의 본령이다.\n"
+    "  • 허용(경향): \"전통 관상에서 ~한 결은 ~한 성정으로 보는 경향이 있습니다·"
+    "~시기의 결을 ~로 봅니다·~한 기질로 풀이합니다\".\n"
+    "  • 금지(단정·예언): \"당신은 ~한 사람이다·~할 것이다·~년에 ~운이 온다·"
+    "반드시·틀림없이·~의 운이 있다\" X. 구체 사건·시점 예언 X.\n"
+    "  • 의료·재물·수명·관재 등 ADR-006 금지 영역의 단정·예언은 절대 X.\n"
+    "  • 양면 의무(ADR-094): 강점 결과 다스리면 좋을 결을 함께 제시.\n"
+    "  • 제공된 ohaeng_trait·life_flow의 문구를 근거로 삼되, 그 경향 어조를 유지한다.\n\n"
     "[마무리 형식 vs 안전 거절구 — 명확히 구분]\n"
     "  • **일반 마무리** (photo_quality_note에 '식별 불가' 단어 없을 때): "
     "\"이 늙은이의 한 마디 — \" 뒤에 photo_quality_note 내용을 간략히 옮기고 "
@@ -393,16 +402,26 @@ def _postprocess_remove_fate_mapping(text: str) -> str:
     filtered: list[str] = []
     removed_count = 0
 
+    # ADR-278 — 성격·인생 흐름의 '경향' 어조는 허용. 단, 일부 카테고리는 면제 없이 차단.
+    # 면제 가능: time_fate(초년·중년·말년 시기론)·prophecy_ending — '경향' 어조면 통과.
+    # 면제 불가: fate_word(대운·재물운·의료 등 ADR-006 영역)·school_citation·sasang — 항상 차단.
+    _GRADIENT_OK = _re.compile(r"(?:보는\s*경향|봅니다|풀이합니다|보는\s*것으로|경향이\s*있)")
+    _EXEMPTABLE = {"time_fate", "prophecy_ending"}
+
     for line in lines:
-        hit = False
-        for _cat, pattern in _FATE_PATTERNS:
+        hit_cat = None
+        for cat, pattern in _FATE_PATTERNS:
             if pattern.search(line):
-                hit = True
+                hit_cat = cat
                 break
-        if hit:
-            removed_count += 1
-        else:
+        if hit_cat is None:
             filtered.append(line)
+            continue
+        # 면제 가능 카테고리 + 경향 어조 → 통과
+        if hit_cat in _EXEMPTABLE and _GRADIENT_OK.search(line):
+            filtered.append(line)
+            continue
+        removed_count += 1
 
     result = "\n".join(filtered).strip()
     if removed_count > 0:
@@ -819,10 +838,19 @@ def _build_deterministic_scores_summary(
 
         samjeong = palace_scores.get("samjeong") or {}
         if samjeong:
-            out["samjeong"] = {
+            sj_scores = {
                 v.get("label_ko", k): round(float(v.get("score", 0)), 2)
                 for k, v in list(samjeong.items())[:3]
             }
+            out["samjeong"] = sj_scores
+            # ADR-278 — 삼정 시기론(인생 흐름) 주입. 경향 어조, 단정·예언 X.
+            from engine.divination.face.knowledge import (
+                format_samjeong_periods_for_prompt,
+            )
+
+            life_flow = format_samjeong_periods_for_prompt(sj_scores)
+            if life_flow:
+                out["life_flow"] = life_flow
         ogwan = palace_scores.get("ogwan") or {}
         if ogwan:
             out["ogwan"] = {
