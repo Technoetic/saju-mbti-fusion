@@ -25,30 +25,34 @@ const PAGES = [
     src: 'media/saju_webtoon/p7.jpg',
     slots: [
       { type: 'oval', top: 0.185, left: 0.04,  width: 0.92, height: 0.0875 },
-      { type: 'oval', top: 0.48,  left: 0.025, width: 0.95, height: 0.235 },
+      // round1: corners outside oval — shrink inset
+      { type: 'oval', top: 0.495, left: 0.04,  width: 0.92, height: 0.205 },
       { type: 'oval', top: 0.915, left: 0.04,  width: 0.72, height: 0.045 },
     ],
   },
   {
     src: 'media/saju_webtoon/p8.jpg',
     slots: [
-      { type: 'oval', top: 0.16, left: 0.04,  width: 0.74, height: 0.105 },
-      { type: 'oval', top: 0.5,  left: 0.04,  width: 0.9,  height: 0.155 },
-      { type: 'oval', top: 0.86, left: 0.155, width: 0.71, height: 0.115 },
+      // round1: top edge outside oval — push down + shrink slightly
+      { type: 'oval', top: 0.17, left: 0.05,  width: 0.72, height: 0.095 },
+      { type: 'oval', top: 0.515, left: 0.05,  width: 0.88, height: 0.135 },
+      { type: 'oval', top: 0.875, left: 0.165, width: 0.69, height: 0.095 },
     ],
   },
   {
     src: 'media/saju_webtoon/p9.jpg',
     slots: [
-      { type: 'oval', top: 0.12,   left: 0.4,  width: 0.55, height: 0.085 },
-      { type: 'oval', top: 0.5475, left: 0.04, width: 0.92, height: 0.155 },
-      { type: 'oval', top: 0.8276, left: 0,    width: 0.65, height: 0.13 },
+      // round1: corners outside oval — inset
+      { type: 'oval', top: 0.13,   left: 0.41, width: 0.53, height: 0.07 },
+      { type: 'oval', top: 0.5625, left: 0.05, width: 0.9,  height: 0.135 },
+      { type: 'oval', top: 0.8376, left: 0.015, width: 0.635, height: 0.115 },
     ],
   },
   {
     src: 'media/saju_webtoon/p10.jpg',
     slots: [
-      { type: 'oval', top: 0.195, left: 0.03,  width: 0.78, height: 0.155 },
+      // round1: slot fell on sky — drop down (oval actually lower on page)
+      { type: 'oval', top: 0.215, left: 0.04,  width: 0.76, height: 0.135 },
       { type: 'oval', top: 0.83,  left: 0.025, width: 0.7,  height: 0.155 },
     ],
   },
