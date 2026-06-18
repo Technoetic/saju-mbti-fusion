@@ -16,53 +16,53 @@ const PAGES = [
     src: 'media/saju_webtoon/p6.jpg',
     slots: [
       // p6 컷1 끝 — 갈색 박스 (정자 풍경 뒤)
-      { type: 'box',  top: 0.205, left: 0.200, width: 0.475, height: 0.060, color: 'narration' },
+      { type: 'box',  top: 0.198, left: 0.200, width: 0.475, height: 0.070, color: 'narration' },
       // p6 컷2 끝 — 흰 타원 (만월 아씨 + 수정구)
-      { type: 'oval', top: 0.495, left: 0.125, width: 0.725, height: 0.090 },
+      { type: 'oval', top: 0.460, left: 0.125, width: 0.725, height: 0.110 },
       // p6 컷3 끝 — 갈색 박스 (책상)
-      { type: 'box',  top: 0.915, left: 0.200, width: 0.475, height: 0.080, color: 'narration' },
+      { type: 'box',  top: 0.905, left: 0.200, width: 0.475, height: 0.090, color: 'narration' },
     ],
   },
   {
     src: 'media/saju_webtoon/p7.jpg',
     slots: [
       // p7 컷1 끝 — 작은 흰 타원 (책상 컷)
-      { type: 'oval', top: 0.200, left: 0.080, width: 0.530, height: 0.090 },
+      { type: 'oval', top: 0.190, left: 0.080, width: 0.530, height: 0.100 },
       // p7 컷2 끝 — 큰 흰 타원 (가운데 종이)
-      { type: 'oval', top: 0.500, left: 0.060, width: 0.780, height: 0.160 },
+      { type: 'oval', top: 0.485, left: 0.060, width: 0.780, height: 0.180 },
       // p7 컷3 끝 — 작은 흰 타원 (꼬리)
-      { type: 'oval', top: 0.905, left: 0.060, width: 0.345, height: 0.090 },
+      { type: 'oval', top: 0.895, left: 0.060, width: 0.345, height: 0.100 },
     ],
   },
   {
     src: 'media/saju_webtoon/p8.jpg',
     slots: [
       // p8 컷1 끝 — 흰 타원 + 뿔 (책상 컷)
-      { type: 'oval', top: 0.255, left: 0.080, width: 0.700, height: 0.075 },
+      { type: 'oval', top: 0.245, left: 0.080, width: 0.700, height: 0.090 },
       // p8 컷2 끝 — 큰 흰 타원 + 꼬리 (만월 아씨 + 보름달)
-      { type: 'oval', top: 0.620, left: 0.080, width: 0.770, height: 0.085 },
+      { type: 'oval', top: 0.605, left: 0.080, width: 0.770, height: 0.100 },
       // p8 컷3 끝 — 흰 타원 + 꼬리 (등 컷)
-      { type: 'oval', top: 0.940, left: 0.120, width: 0.720, height: 0.060 },
+      { type: 'oval', top: 0.925, left: 0.120, width: 0.720, height: 0.075 },
     ],
   },
   {
     src: 'media/saju_webtoon/p9.jpg',
     slots: [
       // p9 컷1 끝 — 흰 타원 + 뿔 (놀란 만월)
-      { type: 'oval', top: 0.110, left: 0.488, width: 0.488, height: 0.075 },
+      { type: 'oval', top: 0.105, left: 0.488, width: 0.488, height: 0.085 },
       // p9 컷2 끝 — 큰 흰 타원 (가운데 컷)
-      { type: 'oval', top: 0.605, left: 0.060, width: 0.790, height: 0.090 },
+      { type: 'oval', top: 0.590, left: 0.060, width: 0.790, height: 0.105 },
       // p9 컷3 끝 — 흰 타원 꼬리 (왼쪽, 책상)
-      { type: 'oval', top: 0.915, left: 0.060, width: 0.580, height: 0.075 },
+      { type: 'oval', top: 0.905, left: 0.060, width: 0.580, height: 0.090 },
     ],
   },
   {
     src: 'media/saju_webtoon/p10.jpg',
     slots: [
       // p10 컷1 끝 — 큰 흰 타원 + 뿔 (오른쪽 위)
-      { type: 'oval', top: 0.385, left: 0.030, width: 0.820, height: 0.095 },
+      { type: 'oval', top: 0.370, left: 0.030, width: 0.820, height: 0.115 },
       // p10 컷2 끝 — 큰 흰 타원 + 뿔 (오른쪽 위)
-      { type: 'oval', top: 0.915, left: 0.080, width: 0.770, height: 0.080 },
+      { type: 'oval', top: 0.900, left: 0.080, width: 0.770, height: 0.095 },
     ],
   },
 ];
