@@ -114,7 +114,8 @@
 }
 
 /* 로딩 화면 — 풀이 생성 중 (streaming 본문 노출 X, 웹툰 진입 전) */
-.webtoon-loading {
+/* webtoon-container 들어오면 flex 제거 (block로 자식이 폭 100% 받게) */
+.webtoon-loading:not(:has(.webtoon-container)) {
   min-height: 320px;
   display: flex !important;
   align-items: center;

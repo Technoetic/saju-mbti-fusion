@@ -243,6 +243,8 @@ export function renderWebtoonReading(targetEl, markdownText, opts = {}) {
   raw.appendChild(pre);
   container.appendChild(raw);
 
+  // 로딩 상태 클래스 제거 (flex 강제 등 잔존 스타일이 webtoon-container 폭을 깎는 문제 차단)
+  targetEl.classList.remove('claude-loading', 'webtoon-loading');
   targetEl.innerHTML = '';
   targetEl.appendChild(container);
 }
