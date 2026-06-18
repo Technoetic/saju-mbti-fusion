@@ -2,128 +2,178 @@
 //
 // 사용:
 //   import { renderWebtoonReading } from './webtoon-renderer.js';
-//   renderWebtoonReading(targetEl, markdownText);
+//   renderWebtoonReading(targetEl, markdownText, { title, name });
 //
-// 페이지 5장(p6~p10.jpg)에 미리 정의된 말풍선 슬롯(15개)에
-// 풀이 본문을 단락 단위로 균등 배분해 채운다.
+// 5장(p6~p10.jpg)에 14개 슬롯. 풀이를 단락→문장으로 쪼개 슬롯에 균등 배분.
+// 각 슬롯은 짧고 또렷한 한 마디. 긴 단락은 핵심 문장만 골라 압축.
 
 // ────────────────────────────────────────────────────────
-// 페이지 메타 — 슬롯 좌표는 페이지 가로/세로 비율(0~1) 기준.
-// type: 'oval' (흰 타원 말풍선) | 'box' (갈색 나레이션 박스)
+// 페이지 메타 — 슬롯 좌표는 페이지 가로/세로 비율(0~1).
+// type: 'oval' (흰 타원 말풍선 — 대사) | 'box' (갈색 박스 — 나레이션)
 // ────────────────────────────────────────────────────────
 const PAGES = [
   {
     src: 'media/saju_webtoon/p6.jpg',
     slots: [
-      { type: 'box',  top: 0.182, left: 0.20, width: 0.60, height: 0.045, color: 'narration' },
-      { type: 'oval', top: 0.495, left: 0.16, width: 0.70, height: 0.090 },
-      { type: 'box',  top: 0.925, left: 0.20, width: 0.60, height: 0.060, color: 'narration' },
+      // p6 컷1 갈색 박스 (정자 풍경 다음)
+      { type: 'box',  top: 0.190, left: 0.205, width: 0.475, height: 0.080, color: 'narration' },
+      // p6 컷2 흰 타원 (만월 아씨 + 수정구)
+      { type: 'oval', top: 0.500, left: 0.110, width: 0.745, height: 0.080 },
+      // p6 컷3 갈색 박스 (책상)
+      { type: 'box',  top: 0.880, left: 0.205, width: 0.475, height: 0.105, color: 'narration' },
     ],
   },
   {
     src: 'media/saju_webtoon/p7.jpg',
     slots: [
-      { type: 'oval', top: 0.225, left: 0.10, width: 0.60, height: 0.070 },
-      { type: 'oval', top: 0.495, left: 0.08, width: 0.78, height: 0.180 },
-      { type: 'oval', top: 0.840, left: 0.05, width: 0.55, height: 0.085 },
+      // p7 컷1 작은 흰 타원 (책상)
+      { type: 'oval', top: 0.220, left: 0.080, width: 0.530, height: 0.075 },
+      // p7 컷2 큰 흰 타원 (가운데 종이)
+      { type: 'oval', top: 0.490, left: 0.060, width: 0.780, height: 0.190 },
+      // p7 컷3 작은 흰 타원 (꼬리)
+      { type: 'oval', top: 0.910, left: 0.060, width: 0.345, height: 0.075 },
     ],
   },
   {
     src: 'media/saju_webtoon/p8.jpg',
     slots: [
-      { type: 'oval', top: 0.190, left: 0.22, width: 0.70, height: 0.075 },
-      { type: 'oval', top: 0.470, left: 0.12, width: 0.78, height: 0.075 },
-      { type: 'oval', top: 0.840, left: 0.10, width: 0.75, height: 0.070 },
+      // p8 컷1 흰 타원 + 뿔 (오른쪽)
+      { type: 'oval', top: 0.220, left: 0.080, width: 0.700, height: 0.075 },
+      // p8 컷2 큰 흰 타원 + 꼬리
+      { type: 'oval', top: 0.530, left: 0.080, width: 0.770, height: 0.085 },
+      // p8 컷3 흰 타원 + 꼬리
+      { type: 'oval', top: 0.880, left: 0.120, width: 0.720, height: 0.075 },
     ],
   },
   {
     src: 'media/saju_webtoon/p9.jpg',
     slots: [
-      { type: 'oval', top: 0.200, left: 0.12, width: 0.72, height: 0.080 },
-      { type: 'oval', top: 0.490, left: 0.10, width: 0.78, height: 0.090 },
-      { type: 'oval', top: 0.835, left: 0.10, width: 0.72, height: 0.075 },
+      // p9 컷1 흰 타원 + 뿔 (오른쪽)
+      { type: 'oval', top: 0.220, left: 0.420, width: 0.520, height: 0.070 },
+      // p9 컷2 큰 흰 타원 (가운데)
+      { type: 'oval', top: 0.500, left: 0.060, width: 0.790, height: 0.085 },
+      // p9 컷3 흰 타원 꼬리 (왼쪽)
+      { type: 'oval', top: 0.880, left: 0.060, width: 0.580, height: 0.075 },
     ],
   },
   {
     src: 'media/saju_webtoon/p10.jpg',
     slots: [
-      { type: 'oval', top: 0.200, left: 0.12, width: 0.72, height: 0.080 },
-      { type: 'oval', top: 0.490, left: 0.10, width: 0.78, height: 0.090 },
-      { type: 'oval', top: 0.840, left: 0.10, width: 0.72, height: 0.075 },
+      // p10 컷1 큰 흰 타원 + 뿔 (왼쪽)
+      { type: 'oval', top: 0.380, left: 0.030, width: 0.820, height: 0.080 },
+      // p10 컷2 큰 흰 타원 + 뿔 (오른쪽 끝)
+      { type: 'oval', top: 0.890, left: 0.080, width: 0.770, height: 0.080 },
     ],
   },
 ];
 
 // ────────────────────────────────────────────────────────
-// 텍스트 정제·단락 분할
+// 텍스트 정제 + 핵심 추출
 // ────────────────────────────────────────────────────────
 function stripMarkdown(md) {
   if (!md) return '';
   return String(md)
-    // 코드블록·인용·헤더 prefix 제거
     .replace(/^#{1,6}\s+/gm, '')
     .replace(/^>\s+/gm, '')
     .replace(/```[\s\S]*?```/g, '')
     .replace(/`([^`]+)`/g, '$1')
-    // 강조 마크업만 제거(내용 유지)
     .replace(/\*\*([^*]+)\*\*/g, '$1')
     .replace(/\*([^*]+)\*/g, '$1')
     .replace(/__([^_]+)__/g, '$1')
     .replace(/_([^_]+)_/g, '$1')
-    // 링크 [text](url) → text
     .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
-    // 리스트 마커
     .replace(/^\s*[-*+]\s+/gm, '')
     .replace(/^\s*\d+\.\s+/gm, '')
     .trim();
 }
 
-function splitParagraphs(text) {
-  return stripMarkdown(text)
-    .split(/\n{2,}|\r\n{2,}/)
+function splitSentences(text) {
+  return String(text)
+    .split(/(?<=[.!?。…!?])\s+|(?<=[다요죠네야오])\.\s*|\n+/)
     .map(s => s.replace(/\s+/g, ' ').trim())
-    .filter(Boolean);
+    .filter(s => s.length >= 6);
 }
 
-// N개 슬롯에 단락을 균등 분배.
-// 단락 수 > 슬롯 수: 인접 단락을 자연스럽게 묶어 슬롯 수에 맞춤.
-// 단락 수 < 슬롯 수: 긴 단락을 문장 단위로 쪼개 슬롯 수를 채움.
-function distributeIntoSlots(paragraphs, slotCount) {
-  if (!paragraphs.length) return Array(slotCount).fill('');
-  let units = paragraphs.slice();
+// 한 슬롯에 들어갈 한 문장 압축: maxLen 넘으면 자연스러운 자리에서 자름
+function compressForSlot(s, maxLen) {
+  s = (s || '').trim();
+  if (s.length <= maxLen) return s;
+  // 자연스러운 끝맺음(쉼표·접속어)에서 자름
+  const cut = s.slice(0, maxLen);
+  const lastPunct = Math.max(cut.lastIndexOf(','), cut.lastIndexOf('·'), cut.lastIndexOf(' '));
+  return (lastPunct > maxLen * 0.6 ? cut.slice(0, lastPunct) : cut).trim() + '…';
+}
 
-  // 단락 수 < 슬롯 수: 가장 긴 단락을 문장으로 쪼갬
-  while (units.length < slotCount) {
-    let idx = 0, longest = 0;
-    units.forEach((u, i) => { if (u.length > longest) { longest = u.length; idx = i; } });
-    const sentences = units[idx].split(/(?<=[.!?。…ㄻ"'\]\)])\s+/);
-    if (sentences.length < 2) break;
-    const mid = Math.ceil(sentences.length / 2);
-    units.splice(idx, 1, sentences.slice(0, mid).join(' ').trim(), sentences.slice(mid).join(' ').trim());
-  }
+// 풀이를 N개 슬롯에 균등 분배
+// 1) 마크다운 제거 → 문장 단위로 모두 분해
+// 2) 각 슬롯 maxLen에 맞춰 문장 1~2개 묶어 채움
+// 3) 슬롯 수보다 문장이 적으면 뒤쪽 슬롯은 비움
+function distributeToSlots(fullText, slots) {
+  const sentences = splitSentences(stripMarkdown(fullText));
+  if (!sentences.length) return slots.map(() => '');
 
-  // 단락 수 > 슬롯 수: 인접 단락 병합
-  while (units.length > slotCount) {
-    let idx = 0, shortest = Infinity;
-    for (let i = 0; i < units.length - 1; i++) {
-      const sum = units[i].length + units[i + 1].length;
-      if (sum < shortest) { shortest = sum; idx = i; }
+  // 슬롯별 최대 글자수 — 높이·폭 기반 어림 (cqw 기반 폰트 size 가정)
+  const slotCapacities = slots.map(s => {
+    // 면적(0~1²) × 100 정도로 한 어림. 실측치 보정.
+    const area = s.width * s.height;
+    if (s.type === 'box') return Math.round(area * 1400) + 25;
+    return Math.round(area * 1600) + 30;
+  });
+
+  // 문장 큐
+  const queue = sentences.slice();
+  const result = [];
+  const slotCount = slots.length;
+
+  for (let i = 0; i < slotCount; i++) {
+    const cap = slotCapacities[i];
+    if (!queue.length) { result.push(''); continue; }
+
+    let chunk = '';
+    while (queue.length) {
+      const next = queue[0];
+      const joiner = chunk ? ' ' : '';
+      const tentative = chunk + joiner + next;
+      // 남은 슬롯이 충분하면 한 슬롯에 하나만, 빠듯하면 합침
+      const remainingSlots = slotCount - i - 1;
+      const mustCompress = queue.length > remainingSlots + 1;
+
+      if (tentative.length <= cap) {
+        chunk = tentative;
+        queue.shift();
+        if (!mustCompress) break;  // 여유 있으면 한 문장씩
+      } else if (!chunk) {
+        // 한 문장이 슬롯보다 큼 — 압축해서 한 슬롯에 담고 다음으로
+        chunk = compressForSlot(next, cap);
+        queue.shift();
+        break;
+      } else {
+        break;
+      }
     }
-    units.splice(idx, 2, units[idx] + ' ' + units[idx + 1]);
+    result.push(chunk);
   }
 
-  // 마지막 안전망 — 길이 모자라면 빈 문자열로 채움
-  while (units.length < slotCount) units.push('');
-  return units.slice(0, slotCount);
+  // 마지막 슬롯이 비어있고 남은 문장이 있으면 마지막 슬롯에 합쳐 넣기
+  if (queue.length && result.length) {
+    let lastIdx = result.length - 1;
+    while (lastIdx >= 0 && !result[lastIdx]) lastIdx--;
+    if (lastIdx < 0) lastIdx = 0;
+    const merge = queue.join(' ');
+    const cap = slotCapacities[lastIdx];
+    const combined = (result[lastIdx] ? result[lastIdx] + ' ' : '') + merge;
+    result[lastIdx] = compressForSlot(combined, cap);
+  }
+
+  return result;
 }
 
 // ────────────────────────────────────────────────────────
-// 페이지·슬롯 DOM 생성
+// DOM 생성
 // ────────────────────────────────────────────────────────
 function buildPage(pageMeta, slotTexts, pageIdx) {
   const page = document.createElement('div');
   page.className = 'webtoon-page';
-  page.style.setProperty('--page-aspect', '1 / 5');  // 2000x10000
 
   const img = document.createElement('img');
   img.className = 'webtoon-page-img';
@@ -134,12 +184,20 @@ function buildPage(pageMeta, slotTexts, pageIdx) {
 
   pageMeta.slots.forEach((slot, sIdx) => {
     const el = document.createElement('div');
-    el.className = `webtoon-slot webtoon-slot-${slot.type}` + (slot.color === 'narration' ? ' webtoon-slot-narration' : '');
+    el.className = `webtoon-slot webtoon-slot-${slot.type}` +
+      (slot.color === 'narration' ? ' webtoon-slot-narration' : '');
     el.style.top    = (slot.top * 100) + '%';
     el.style.left   = (slot.left * 100) + '%';
     el.style.width  = (slot.width * 100) + '%';
     el.style.height = (slot.height * 100) + '%';
-    el.textContent = slotTexts[sIdx] || '';
+    const text = slotTexts[sIdx] || '';
+    el.textContent = text;
+    // 텍스트 길이 기반 클래스 — CSS에서 폰트 자동 축소
+    const len = text.length;
+    if (len > 80) el.classList.add('len-xl');
+    else if (len > 50) el.classList.add('len-l');
+    else if (len > 25) el.classList.add('len-m');
+    else el.classList.add('len-s');
     page.appendChild(el);
   });
 
@@ -153,9 +211,9 @@ export function renderWebtoonReading(targetEl, markdownText, opts = {}) {
   if (!targetEl) return;
 
   const title = opts.title || '만월 아씨의 사주 이야기';
-  const paragraphs = splitParagraphs(markdownText);
-  const totalSlots = PAGES.reduce((n, p) => n + p.slots.length, 0);
-  const allSlotTexts = distributeIntoSlots(paragraphs, totalSlots);
+
+  const allSlots = PAGES.flatMap(p => p.slots);
+  const slotTexts = distributeToSlots(markdownText, allSlots);
 
   const container = document.createElement('div');
   container.className = 'webtoon-container';
@@ -165,14 +223,14 @@ export function renderWebtoonReading(targetEl, markdownText, opts = {}) {
   header.textContent = title;
   container.appendChild(header);
 
-  let slotCursor = 0;
+  let cursor = 0;
   PAGES.forEach((pm, pIdx) => {
-    const texts = allSlotTexts.slice(slotCursor, slotCursor + pm.slots.length);
-    slotCursor += pm.slots.length;
+    const texts = slotTexts.slice(cursor, cursor + pm.slots.length);
+    cursor += pm.slots.length;
     container.appendChild(buildPage(pm, texts, pIdx));
   });
 
-  // 원본 본문은 펼침 가능한 details로 보관 (접근성·복사용)
+  // 본문 그대로 보기
   const raw = document.createElement('details');
   raw.className = 'webtoon-raw';
   const summary = document.createElement('summary');
@@ -180,6 +238,8 @@ export function renderWebtoonReading(targetEl, markdownText, opts = {}) {
   raw.appendChild(summary);
   const pre = document.createElement('div');
   pre.className = 'webtoon-raw-body';
+  const paragraphs = stripMarkdown(markdownText)
+    .split(/\n{2,}/).map(p => p.replace(/\s+/g, ' ').trim()).filter(Boolean);
   pre.innerHTML = paragraphs.map(p => `<p>${p.replace(/</g, '&lt;')}</p>`).join('');
   raw.appendChild(pre);
   container.appendChild(raw);
@@ -188,5 +248,4 @@ export function renderWebtoonReading(targetEl, markdownText, opts = {}) {
   targetEl.appendChild(container);
 }
 
-// 마지막 풀이 텍스트를 보관해 두면 stream 종료 후 다시 렌더링 가능
-export const __WEBTOON_RENDERER_VERSION__ = '1.0.0';
+export const __WEBTOON_RENDERER_VERSION__ = '2.0.0';
