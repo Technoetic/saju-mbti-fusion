@@ -1,18 +1,23 @@
 /* webtoon.css — 만월 아씨 정통 사주 결과 웹툰 모드 v2 */
 
-/* .claude-output가 webtoon-container를 품을 때 — 다크 보더 제거 */
+/* .claude-output가 webtoon-container를 품을 때 — 다크 보더 제거 + 폭 보장 */
 .claude-output:has(.webtoon-container) {
   background: transparent;
-  border: 0;
-  padding: 0;
+  border: 0 !important;
+  border-left: 0 !important;
+  padding: 0 !important;
   margin: 0;
-  box-shadow: none;
+  box-shadow: none !important;
+  display: block;
+  width: 100%;
 }
 
 .webtoon-container {
+  width: 100%;
   max-width: 560px;
   margin: 24px auto 32px;
-  padding: 0 6px;
+  padding: 0;
+  box-sizing: border-box;
 }
 .webtoon-title {
   font-family: 'Nanum Myeongjo', serif;
