@@ -34,16 +34,18 @@ const PAGES = [
     src: 'media/saju_webtoon/p8.jpg',
     slots: [
       // round1: top edge outside oval — push down + shrink slightly
-      { type: 'oval', top: 0.17, left: 0.05,  width: 0.72, height: 0.095 },
-      { type: 'oval', top: 0.515, left: 0.05,  width: 0.88, height: 0.135 },
-      { type: 'oval', top: 0.875, left: 0.165, width: 0.69, height: 0.095 },
+      // round3 glyph: all 3 ovals suggest 'down' → top += 0.02
+      { type: 'oval', top: 0.19, left: 0.05,  width: 0.72, height: 0.095 },
+      { type: 'oval', top: 0.535, left: 0.05,  width: 0.88, height: 0.135 },
+      { type: 'oval', top: 0.895, left: 0.165, width: 0.69, height: 0.095 },
     ],
   },
   {
     src: 'media/saju_webtoon/p9.jpg',
     slots: [
       // p9 컷1: 픽셀 측정 top 0.121 left 0.252 w 0.747 h 0.062 — 우상단 흰 타원 + 뿔
-      { type: 'oval', top: 0.135, left: 0.270, width: 0.700, height: 0.060 },
+      // round3 glyph: suggestion 'smaller' → inset by 0.01/-0.02
+      { type: 'oval', top: 0.145, left: 0.280, width: 0.680, height: 0.040 },
       // p9 컷2: 가운데 큰 타원
       { type: 'oval', top: 0.5625, left: 0.05, width: 0.9,  height: 0.135 },
       // p9 컷3: 책상 컷 끝 흰 타원 (좌측 꼬리)
@@ -54,7 +56,8 @@ const PAGES = [
     src: 'media/saju_webtoon/p10.jpg',
     slots: [
       // round1: slot fell on sky — drop down (oval actually lower on page)
-      { type: 'oval', top: 0.215, left: 0.04,  width: 0.76, height: 0.135 },
+      // round3 glyph: 'down' → top += 0.02
+      { type: 'oval', top: 0.235, left: 0.04,  width: 0.76, height: 0.135 },
       { type: 'oval', top: 0.83,  left: 0.025, width: 0.7,  height: 0.155 },
     ],
   },
