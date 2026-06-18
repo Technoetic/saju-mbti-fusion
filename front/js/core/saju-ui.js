@@ -824,6 +824,12 @@ async function triggerAICall() {
   }
   out.querySelector('.claude-output').classList.remove('claude-loading');
   out.querySelector('.claude-output').innerHTML = simpleMarkdown(full);
+  // 정통 사주 본 결과는 웹툰 모드로 변환 (만월 아씨가 이야기해주는 5장 컷)
+  try {
+  const { renderWebtoonReading } = await import('../ui/webtoon-renderer.js');
+  const title = (호칭 ? 호칭 + '의 ' : '') + '사주 이야기';
+  renderWebtoonReading(out.querySelector('.claude-output'), full, { title });
+  } catch (_) { /* 모듈 로드 실패 시 줄글 풀이 그대로 둠 */ }
   } catch (err) {
   out.querySelector('.claude-output').classList.remove('claude-loading');
   out.querySelector('.claude-output').innerHTML =

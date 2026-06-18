@@ -13,6 +13,15 @@ window.WHM_CONTENTS = {
   charKey: 'saju',
   items: [
   {
+  key: 'classic', name: '정통 사주', glyph: '四 柱',
+  illust: 'media/manweol_menu/classic.png',
+  desc: '일주·오행·십신·신살 등 사주의 기본 골격을 정확히 풀어드립니다.',
+  tier: 'free', est: '30~60초',
+  quote: '"이리 오시지요. 그대의 사주를 풀어드리겠사옵니다."',
+  tab: 'saju', // 기존 만월 풀이 화면으로 위임
+  cta: '정통 사주 풀이로 가기',
+  },
+  {
   key: 'today', name: '오늘의 운세', glyph: '今 日',
   illust: 'media/manweol_menu/today.png',
   desc: '일진(日辰) 기반으로 오늘 하루의 흐름을 가볍게 짚어드립니다.',
@@ -24,15 +33,6 @@ window.WHM_CONTENTS = {
   ],
   cta: '오늘의 운세 받기',
   sample: '오늘 그대의 별자리에는 부드러운 기운이 흐르고 있사옵니다. 이른 아침에 떠올린 한 가지 생각을 흘려보내지 마시지요. 그 안에 작은 길이 숨어있겠지요.\n\n오후엔 잠깐의 멈춤이 필요한 시각이옵니다. 따스한 차 한 잔에 마음을 적시면, 답답하던 일이 한 결 가벼워질 것이외다.',
-  },
-  {
-  key: 'classic', name: '정통 사주', glyph: '四 柱',
-  illust: 'media/manweol_menu/classic.png',
-  desc: '일주·오행·십신·신살 등 사주의 기본 골격을 정확히 풀어드립니다.',
-  tier: 'free', est: '30~60초',
-  quote: '"이리 오시지요. 그대의 사주를 풀어드리겠사옵니다."',
-  tab: 'saju', // 기존 만월 풀이 화면으로 위임
-  cta: '정통 사주 풀이로 가기',
   },
   {
   key: 'year2026', name: '올해의 운세 (2026)', glyph: '丙 午',
