@@ -42,9 +42,11 @@ const PAGES = [
   {
     src: 'media/saju_webtoon/p9.jpg',
     slots: [
-      // round1: corners outside oval — inset
-      { type: 'oval', top: 0.13,   left: 0.41, width: 0.53, height: 0.07 },
+      // p9 컷1: 픽셀 측정 top 0.121 left 0.252 w 0.747 h 0.062 — 우상단 흰 타원 + 뿔
+      { type: 'oval', top: 0.135, left: 0.270, width: 0.700, height: 0.060 },
+      // p9 컷2: 가운데 큰 타원
       { type: 'oval', top: 0.5625, left: 0.05, width: 0.9,  height: 0.135 },
+      // p9 컷3: 책상 컷 끝 흰 타원 (좌측 꼬리)
       { type: 'oval', top: 0.8376, left: 0.015, width: 0.635, height: 0.115 },
     ],
   },
