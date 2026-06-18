@@ -15,54 +15,54 @@ const PAGES = [
   {
     src: 'media/saju_webtoon/p6.jpg',
     slots: [
-      // p6 컷1 갈색 박스 (정자 풍경 다음)
-      { type: 'box',  top: 0.190, left: 0.205, width: 0.475, height: 0.080, color: 'narration' },
-      // p6 컷2 흰 타원 (만월 아씨 + 수정구)
-      { type: 'oval', top: 0.500, left: 0.110, width: 0.745, height: 0.080 },
-      // p6 컷3 갈색 박스 (책상)
-      { type: 'box',  top: 0.880, left: 0.205, width: 0.475, height: 0.105, color: 'narration' },
+      // p6 컷1 끝 — 갈색 박스 (정자 풍경 뒤)
+      { type: 'box',  top: 0.205, left: 0.200, width: 0.475, height: 0.060, color: 'narration' },
+      // p6 컷2 끝 — 흰 타원 (만월 아씨 + 수정구)
+      { type: 'oval', top: 0.495, left: 0.125, width: 0.725, height: 0.090 },
+      // p6 컷3 끝 — 갈색 박스 (책상)
+      { type: 'box',  top: 0.915, left: 0.200, width: 0.475, height: 0.080, color: 'narration' },
     ],
   },
   {
     src: 'media/saju_webtoon/p7.jpg',
     slots: [
-      // p7 컷1 작은 흰 타원 (책상)
-      { type: 'oval', top: 0.220, left: 0.080, width: 0.530, height: 0.075 },
-      // p7 컷2 큰 흰 타원 (가운데 종이)
-      { type: 'oval', top: 0.490, left: 0.060, width: 0.780, height: 0.190 },
-      // p7 컷3 작은 흰 타원 (꼬리)
-      { type: 'oval', top: 0.910, left: 0.060, width: 0.345, height: 0.075 },
+      // p7 컷1 끝 — 작은 흰 타원 (책상 컷)
+      { type: 'oval', top: 0.200, left: 0.080, width: 0.530, height: 0.090 },
+      // p7 컷2 끝 — 큰 흰 타원 (가운데 종이)
+      { type: 'oval', top: 0.500, left: 0.060, width: 0.780, height: 0.160 },
+      // p7 컷3 끝 — 작은 흰 타원 (꼬리)
+      { type: 'oval', top: 0.905, left: 0.060, width: 0.345, height: 0.090 },
     ],
   },
   {
     src: 'media/saju_webtoon/p8.jpg',
     slots: [
-      // p8 컷1 흰 타원 + 뿔 (오른쪽)
-      { type: 'oval', top: 0.220, left: 0.080, width: 0.700, height: 0.075 },
-      // p8 컷2 큰 흰 타원 + 꼬리
-      { type: 'oval', top: 0.530, left: 0.080, width: 0.770, height: 0.085 },
-      // p8 컷3 흰 타원 + 꼬리
-      { type: 'oval', top: 0.880, left: 0.120, width: 0.720, height: 0.075 },
+      // p8 컷1 끝 — 흰 타원 + 뿔 (책상 컷)
+      { type: 'oval', top: 0.255, left: 0.080, width: 0.700, height: 0.075 },
+      // p8 컷2 끝 — 큰 흰 타원 + 꼬리 (만월 아씨 + 보름달)
+      { type: 'oval', top: 0.620, left: 0.080, width: 0.770, height: 0.085 },
+      // p8 컷3 끝 — 흰 타원 + 꼬리 (등 컷)
+      { type: 'oval', top: 0.940, left: 0.120, width: 0.720, height: 0.060 },
     ],
   },
   {
     src: 'media/saju_webtoon/p9.jpg',
     slots: [
-      // p9 컷1 흰 타원 + 뿔 (오른쪽)
-      { type: 'oval', top: 0.220, left: 0.420, width: 0.520, height: 0.070 },
-      // p9 컷2 큰 흰 타원 (가운데)
-      { type: 'oval', top: 0.500, left: 0.060, width: 0.790, height: 0.085 },
-      // p9 컷3 흰 타원 꼬리 (왼쪽)
-      { type: 'oval', top: 0.880, left: 0.060, width: 0.580, height: 0.075 },
+      // p9 컷1 끝 — 흰 타원 + 뿔 (놀란 만월)
+      { type: 'oval', top: 0.110, left: 0.488, width: 0.488, height: 0.075 },
+      // p9 컷2 끝 — 큰 흰 타원 (가운데 컷)
+      { type: 'oval', top: 0.555, left: 0.060, width: 0.790, height: 0.090 },
+      // p9 컷3 끝 — 흰 타원 꼬리 (왼쪽, 책상)
+      { type: 'oval', top: 0.935, left: 0.060, width: 0.580, height: 0.060 },
     ],
   },
   {
     src: 'media/saju_webtoon/p10.jpg',
     slots: [
-      // p10 컷1 큰 흰 타원 + 뿔 (왼쪽)
-      { type: 'oval', top: 0.380, left: 0.030, width: 0.820, height: 0.080 },
-      // p10 컷2 큰 흰 타원 + 뿔 (오른쪽 끝)
-      { type: 'oval', top: 0.890, left: 0.080, width: 0.770, height: 0.080 },
+      // p10 컷1 끝 — 큰 흰 타원 + 뿔 (오른쪽 위)
+      { type: 'oval', top: 0.385, left: 0.030, width: 0.820, height: 0.095 },
+      // p10 컷2 끝 — 큰 흰 타원 + 뿔 (오른쪽 위)
+      { type: 'oval', top: 0.915, left: 0.080, width: 0.770, height: 0.080 },
     ],
   },
 ];
@@ -112,12 +112,11 @@ function distributeToSlots(fullText, slots) {
   const sentences = splitSentences(stripMarkdown(fullText));
   if (!sentences.length) return slots.map(() => '');
 
-  // 슬롯별 최대 글자수 — 높이·폭 기반 어림 (cqw 기반 폰트 size 가정)
+  // 슬롯별 최대 글자수 — 면적 기반. 짧고 또렷한 한 마디 우선.
   const slotCapacities = slots.map(s => {
-    // 면적(0~1²) × 100 정도로 한 어림. 실측치 보정.
     const area = s.width * s.height;
-    if (s.type === 'box') return Math.round(area * 1400) + 25;
-    return Math.round(area * 1600) + 30;
+    if (s.type === 'box') return Math.round(area * 1100) + 18;
+    return Math.round(area * 1200) + 22;
   });
 
   // 문장 큐
