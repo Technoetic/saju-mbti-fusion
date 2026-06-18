@@ -12,57 +12,58 @@
 // type: 'oval' (흰 타원 말풍선 — 대사) | 'box' (갈색 박스 — 나레이션)
 // ────────────────────────────────────────────────────────
 const PAGES = [
+  // 픽셀 분석(_full_calib.mjs) + 사용자 첨부 화면 시각 측정 종합 좌표.
   {
     src: 'media/saju_webtoon/p6.jpg',
     slots: [
-      // p6 컷1 끝 — 갈색 박스 (정자 풍경 뒤)
-      { type: 'box',  top: 0.198, left: 0.200, width: 0.475, height: 0.070, color: 'narration' },
-      // p6 컷2 끝 — 흰 타원 (만월 아씨 + 수정구)
-      { type: 'oval', top: 0.460, left: 0.125, width: 0.725, height: 0.110 },
-      // p6 컷3 끝 — 갈색 박스 (책상)
-      { type: 'box',  top: 0.905, left: 0.200, width: 0.475, height: 0.090, color: 'narration' },
+      // p6 갈색 박스1 — 픽셀 측정: top 0.204 left 0.193 w 0.589 h 0.054
+      { type: 'box',  top: 0.204, left: 0.193, width: 0.589, height: 0.054, color: 'narration' },
+      // p6 흰 타원 — 컷2 끝. 픽셀 흰 영역 0.498~0.600 + 가로 시각 측정
+      { type: 'oval', top: 0.510, left: 0.150, width: 0.750, height: 0.085 },
+      // p6 갈색 박스2 — 픽셀 측정: top 0.845 w 0.848 h 0.114
+      { type: 'box',  top: 0.845, left: 0.075, width: 0.848, height: 0.114, color: 'narration' },
     ],
   },
   {
     src: 'media/saju_webtoon/p7.jpg',
     slots: [
-      // p7 컷1 끝 — 작은 흰 타원 (책상 컷)
-      { type: 'oval', top: 0.190, left: 0.080, width: 0.530, height: 0.100 },
-      // p7 컷2 끝 — 큰 흰 타원 (가운데 종이)
-      { type: 'oval', top: 0.485, left: 0.060, width: 0.780, height: 0.180 },
-      // p7 컷3 끝 — 작은 흰 타원 (꼬리)
-      { type: 'oval', top: 0.895, left: 0.060, width: 0.345, height: 0.100 },
+      // p7 컷1 흰 타원 — 책상 컷 끝
+      { type: 'oval', top: 0.200, left: 0.075, width: 0.610, height: 0.100 },
+      // p7 컷2 흰 타원 — 가운데 종이 (큰), 픽셀 측정 484~507 헤더 + 509~688 본체
+      { type: 'oval', top: 0.500, left: 0.060, width: 0.870, height: 0.180 },
+      // p7 컷3 작은 흰 타원 (꼬리)
+      { type: 'oval', top: 0.910, left: 0.060, width: 0.345, height: 0.085 },
     ],
   },
   {
     src: 'media/saju_webtoon/p8.jpg',
     slots: [
-      // p8 컷1 끝 — 흰 타원 + 뿔 (책상 컷)
-      { type: 'oval', top: 0.245, left: 0.080, width: 0.700, height: 0.090 },
-      // p8 컷2 끝 — 큰 흰 타원 + 꼬리 (만월 아씨 + 보름달)
-      { type: 'oval', top: 0.605, left: 0.080, width: 0.770, height: 0.100 },
-      // p8 컷3 끝 — 흰 타원 + 꼬리 (등 컷)
-      { type: 'oval', top: 0.925, left: 0.120, width: 0.720, height: 0.075 },
+      // p8 컷1 — 책상 컷 끝 흰 타원 + 뿔
+      { type: 'oval', top: 0.260, left: 0.260, width: 0.680, height: 0.105 },
+      // p8 컷2 — 만월 + 보름달 컷 끝 큰 흰 타원 + 꼬리
+      { type: 'oval', top: 0.625, left: 0.080, width: 0.820, height: 0.095 },
+      // p8 컷3 — 등 컷 끝 흰 타원 + 꼬리
+      { type: 'oval', top: 0.915, left: 0.110, width: 0.800, height: 0.080 },
     ],
   },
   {
     src: 'media/saju_webtoon/p9.jpg',
     slots: [
-      // p9 컷1 끝 — 흰 타원 + 뿔 (놀란 만월)
-      { type: 'oval', top: 0.105, left: 0.488, width: 0.488, height: 0.085 },
-      // p9 컷2 끝 — 큰 흰 타원 (가운데 컷)
-      { type: 'oval', top: 0.590, left: 0.060, width: 0.790, height: 0.105 },
-      // p9 컷3 끝 — 흰 타원 꼬리 (왼쪽, 책상)
-      { type: 'oval', top: 0.905, left: 0.060, width: 0.580, height: 0.090 },
+      // p9 컷1 — 종이 든 만월. 픽셀 측정: top 0.121 left 0.252 w 0.747 h 0.062
+      { type: 'oval', top: 0.121, left: 0.252, width: 0.747, height: 0.062 },
+      // p9 컷2 — 가운데 큰 컷 흰 타원
+      { type: 'oval', top: 0.560, left: 0.060, width: 0.840, height: 0.130 },
+      // p9 컷3 — 책상 컷 흰 타원 꼬리. 측정: top 0.840 left 0.203 w 0.720
+      { type: 'oval', top: 0.860, left: 0.060, width: 0.720, height: 0.110 },
     ],
   },
   {
     src: 'media/saju_webtoon/p10.jpg',
     slots: [
-      // p10 컷1 끝 — 큰 흰 타원 + 뿔 (오른쪽 위)
-      { type: 'oval', top: 0.370, left: 0.030, width: 0.820, height: 0.115 },
-      // p10 컷2 끝 — 큰 흰 타원 + 뿔 (오른쪽 위)
-      { type: 'oval', top: 0.900, left: 0.080, width: 0.770, height: 0.095 },
+      // p10 컷1 — 큰 흰 타원, 위치 0.344~0.498 흰 영역
+      { type: 'oval', top: 0.380, left: 0.060, width: 0.820, height: 0.110 },
+      // p10 컷2 — 흰 타원 + 뿔, 위치 0.784~끝 흰 영역 안에서
+      { type: 'oval', top: 0.840, left: 0.080, width: 0.780, height: 0.130 },
     ],
   },
 ];
