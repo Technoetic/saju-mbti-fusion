@@ -51,9 +51,9 @@ const PAGES = [
       // p9 컷1 끝 — 흰 타원 + 뿔 (놀란 만월)
       { type: 'oval', top: 0.110, left: 0.488, width: 0.488, height: 0.075 },
       // p9 컷2 끝 — 큰 흰 타원 (가운데 컷)
-      { type: 'oval', top: 0.555, left: 0.060, width: 0.790, height: 0.090 },
+      { type: 'oval', top: 0.605, left: 0.060, width: 0.790, height: 0.090 },
       // p9 컷3 끝 — 흰 타원 꼬리 (왼쪽, 책상)
-      { type: 'oval', top: 0.935, left: 0.060, width: 0.580, height: 0.060 },
+      { type: 'oval', top: 0.915, left: 0.060, width: 0.580, height: 0.075 },
     ],
   },
   {
