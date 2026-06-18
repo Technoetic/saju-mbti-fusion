@@ -805,31 +805,37 @@ async function triggerAICall() {
   ? `${lastSajuResult.name.surname}${lastSajuResult.name.givenName}님`
   : '';
   const out = document.getElementById('claudeResult');
+  // 정통 사주 본 결과는 처음부터 웹툰 모드. streaming 본문은 사용자에게
+  // 노출하지 않고 로딩 상태만 유지 → 풀이 완성 후 단번에 웹툰으로 펼침.
   out.innerHTML = `
-  <h2 class="story-title"> ${호칭 ? 호칭 + '의 ' : ''}${titleSuffix} </h2>
-  <div class="claude-output claude-loading">별빛 아래에서 풀이를 적고 있습니다 ⋯ <br><small style="opacity:0.6">(${model})</small></div>
+  <div class="claude-output claude-loading webtoon-loading">
+    <div class="webtoon-loading-inner">
+      <div class="webtoon-loading-emblem">月</div>
+      <div class="webtoon-loading-title">${호칭 ? 호칭 + '의 ' : ''}사주 이야기</div>
+      <div class="webtoon-loading-sub">만월 아씨가 그대의 사주를 이야기로 풀고 있어요 ⋯</div>
+      <small style="opacity:0.55">(${model})</small>
+    </div>
+  </div>
   `;
 
   try {
   let full = '';
-  await callFreeAI(model, prompt, (chunk, txt) => {
-  full = txt;
-  const outBox = out.querySelector('.claude-output');
-  outBox.classList.remove('claude-loading');
-  outBox.innerHTML = simpleMarkdown(full) + '<span class="cursor">▌</span>';
-  });
+  // streaming 콜백에서는 실시간 텍스트를 그리지 않는다 — 로딩 화면만 유지.
+  await callFreeAI(model, prompt, (chunk, txt) => { full = txt; });
   if (!full || !full.trim()) full = await callFreeAI(model, prompt);
   if (!full || !full.trim()) {
   throw new Error('AI 응답이 비어 있습니다. 잠시 후 다시 시도하거나 다른 모델을 골라보세요.');
   }
+  // 완성된 본문 → 웹툰 5장으로 펼침
   out.querySelector('.claude-output').classList.remove('claude-loading');
-  out.querySelector('.claude-output').innerHTML = simpleMarkdown(full);
-  // 정통 사주 본 결과는 웹툰 모드로 변환 (만월 아씨가 이야기해주는 5장 컷)
   try {
   const { renderWebtoonReading } = await import('../ui/webtoon-renderer.js');
   const title = (호칭 ? 호칭 + '의 ' : '') + '사주 이야기';
   renderWebtoonReading(out.querySelector('.claude-output'), full, { title });
-  } catch (_) { /* 모듈 로드 실패 시 줄글 풀이 그대로 둠 */ }
+  } catch (_) {
+  // 모듈 로드 실패 시 폴백 — 단순 줄글
+  out.querySelector('.claude-output').innerHTML = simpleMarkdown(full);
+  }
   } catch (err) {
   out.querySelector('.claude-output').classList.remove('claude-loading');
   out.querySelector('.claude-output').innerHTML =
