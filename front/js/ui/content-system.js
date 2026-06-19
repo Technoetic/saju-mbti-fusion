@@ -58,9 +58,25 @@
   return;
   }
 
-  menuGrid.innerHTML = data.items.map(item => `
-  <button class="menu-card${item.illust ? ' menu-card-illust' : ''}" type="button" data-content-key="${item.key}">
-  ${item.illust ? `<div class="menu-card-art"><img src="${item.illust}" alt="" loading="lazy"></div>` : ''}
+  menuGrid.innerHTML = data.items.map(item => {
+  // 일러스트 영역: video가 있으면 mp4 자동 재생 + jpg/png 포스터 폴백
+  let artHtml = '';
+  if (item.illust || item.video) {
+  if (item.video) {
+  artHtml = `
+  <div class="menu-card-art">
+  <img class="menu-card-art-poster" src="${item.illust}" alt="" loading="lazy">
+  <video class="menu-card-art-video" muted loop playsinline autoplay preload="auto" poster="${item.illust || ''}">
+  <source src="${item.video}" type="video/mp4">
+  </video>
+  </div>`;
+  } else {
+  artHtml = `<div class="menu-card-art"><img src="${item.illust}" alt="" loading="lazy"></div>`;
+  }
+  }
+  return `
+  <button class="menu-card${(item.illust || item.video) ? ' menu-card-illust' : ''}" type="button" data-content-key="${item.key}">
+  ${artHtml}
   <div class="menu-card-body">
   <div class="menu-card-badges">${badgeHtml(item)}</div>
   <div class="menu-card-glyph">${item.glyph || ''}</div>
@@ -71,8 +87,8 @@
   <span>${item.tier === 'premium' ? '💎' : item.tier === 'season' ? '🌸 시즌' : '☆ 무료'}</span>
   </div>
   </div>
-  </button>
-  `).join('');
+  </button>`;
+  }).join('');
   }
 
   function escapeHtml(s) {
