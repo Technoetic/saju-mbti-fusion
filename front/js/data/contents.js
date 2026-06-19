@@ -15,6 +15,7 @@ window.WHM_CONTENTS = {
   {
   key: 'classic', name: '정통 사주', glyph: '四 柱',
   illust: 'media/manweol_menu/classic.png',
+  video: 'media/manweol_menu/classic.mp4',
   desc: '일주·오행·십신·신살 등 사주의 기본 골격을 정확히 풀어드립니다.',
   tier: 'free', est: '30~60초',
   quote: '"이리 오시지요. 그대의 사주를 풀어드리겠사옵니다."',
@@ -54,6 +55,7 @@ window.WHM_CONTENTS = {
   {
   key: 'wealth', name: '재물 사주', glyph: '財 寶',
   illust: 'media/manweol_menu/wealth.png',
+  video: 'media/manweol_menu/wealth.mp4',
   desc: '평생 재물운의 흐름·부자가 될 시기·적합한 재테크 방식을 짚어드립니다.',
   tier: 'premium', est: '5~10분',
   quote: '"그대의 재물 별자리가 어찌 짜여 있는지 살펴드리지요."',
@@ -107,6 +109,7 @@ window.WHM_CONTENTS = {
   {
   key: 'career', name: '직업 사주', glyph: '職 業',
   illust: 'media/manweol_menu/career.png',
+  video: 'media/manweol_menu/career.mp4',
   desc: '적성에 맞는 직업·성공할 직장 형태·사업 vs 직장 선택을 짚어드립니다.',
   tier: 'premium', est: '5~10분',
   quote: '"그대의 길은 어디에서 빛나는지 살펴드리지요."',
@@ -162,6 +165,7 @@ window.WHM_CONTENTS = {
   {
   key: 'lifetime', name: '평생 운세 보감', glyph: '一 生',
   illust: 'media/manweol_menu/lifetime.png',
+  video: 'media/manweol_menu/lifetime.mp4',
   desc: '평생 대운 흐름(10년 단위)·인생 그래프·황금기/시련기를 종합 풀이서로 드립니다.',
   tier: 'premium', badges: ['hot'], est: '15~20분',
   quote: '"그대 일생의 별빛이 어찌 흐르는지, 한 번에 풀어드리지요."',
