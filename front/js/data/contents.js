@@ -24,6 +24,7 @@ window.WHM_CONTENTS = {
   {
   key: 'today', name: '오늘의 운세', glyph: '今 日',
   illust: 'media/manweol_menu/today.png',
+  video: 'media/manweol_menu/today.mp4',
   desc: '일진(日辰) 기반으로 오늘 하루의 흐름을 가볍게 짚어드립니다.',
   tier: 'free', badges: ['hot'], est: '5분',
   quote: '"오늘 그대의 하루를 한 번 살펴드리지요."',
@@ -37,6 +38,7 @@ window.WHM_CONTENTS = {
   {
   key: 'year2026', name: '올해의 운세 (2026)', glyph: '丙 午',
   illust: 'media/manweol_menu/year2026.png',
+  video: 'media/manweol_menu/year2026.mp4',
   desc: '병오년 2026년의 12개월 흐름과 신년 운세를 자세히 풀어드립니다.',
   tier: 'season', badges: ['hot'], est: '5~10분',
   quote: '"한 해의 별자리가 그대 위로 어찌 흐르는지 살펴드리지요."',
@@ -68,6 +70,7 @@ window.WHM_CONTENTS = {
   {
   key: 'love', name: '연애 사주', glyph: '緣 月',
   illust: 'media/manweol_menu/love.png',
+  video: 'media/manweol_menu/love.mp4',
   desc: '연애 스타일·이상형·인연이 오는 시기를 사주 깊이 분석으로 풀어드립니다.',
   tier: 'premium', badges: ['hot'], est: '5~10분',
   quote: '"그대의 별엔 어떤 인연이 비치는지 살펴드리지요."',
@@ -88,6 +91,7 @@ window.WHM_CONTENTS = {
   {
   key: 'marriage', name: '결혼 사주', glyph: '婚 緣',
   illust: 'media/manweol_menu/marriage.png',
+  video: 'media/manweol_menu/marriage.mp4',
   desc: '결혼할 시기·좋은 배우자상·결혼 후 운세·자녀운을 풀어드립니다.',
   tier: 'premium', est: '5~10분',
   quote: '"그대 평생의 짝을 별이 어찌 비추는지 살펴드리지요."',
@@ -119,6 +123,7 @@ window.WHM_CONTENTS = {
   {
   key: 'suneung', name: '수능 운세', glyph: '科 擧',
   illust: 'media/manweol_menu/suneung.png',
+  video: 'media/manweol_menu/suneung.mp4',
   desc: '입시생 대상 — 수능 당일 운세·합격 가능성·시험운을 짚어드립니다.',
   tier: 'season', badges: ['new'], est: '5분',
   quote: '"그대의 별빛이 시험장에 어찌 비치는지 살펴드리지요."',
@@ -134,6 +139,7 @@ window.WHM_CONTENTS = {
   {
   key: 'moving', name: '이사 사주', glyph: '移 居',
   illust: 'media/manweol_menu/moving.png',
+  video: 'media/manweol_menu/moving.mp4',
   desc: '이사 길일·좋은 방위·이사 후 운세를 짚어드립니다.',
   tier: 'premium', est: '5분',
   quote: '"그대 새 거처에 별이 어찌 흐를지 살펴드리지요."',
