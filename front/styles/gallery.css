@@ -344,6 +344,7 @@ body.gallery-mode .gallery-edge { opacity: 1; }
     rgba(232, 217, 154, 0.00) 100%);
   filter: blur(1px);
   animation: edgeGlowPulse 3.4s ease-in-out infinite;
+  transition: filter 0.35s ease, background 0.35s ease;
 }
 .gallery-edge-right::before {
   background: linear-gradient(270deg,
@@ -363,7 +364,7 @@ body.gallery-at-end   .gallery-edge-right { opacity: 0.10; }
 body.gallery-at-start .gallery-edge-left::before,
 body.gallery-at-end   .gallery-edge-right::before { animation: none; }
 
-/* 클릭·터치 투명 핫존 */
+/* 클릭·터치 투명 핫존 — 범용 button:hover/box-shadow 차단 */
 .gallery-swipe-hint {
   position: absolute;
   top: 12%; bottom: 12%;
@@ -375,13 +376,60 @@ body.gallery-at-end   .gallery-edge-right::before { animation: none; }
   cursor: pointer;
   pointer-events: auto;
   -webkit-tap-highlight-color: transparent;
+  /* forms.css 범용 button 의 box-shadow / transition 무력화 */
+  box-shadow: none;
+  transition: none;
 }
 .gallery-swipe-hint-left  { left: 0; }
 .gallery-swipe-hint-right { right: 0; }
+
+/* hover/active/focus — 범용 button 효과를 모두 덮어쓰기 (배경·이동·그림자 X) */
+.gallery-swipe-hint:hover,
+.gallery-swipe-hint:focus,
+.gallery-swipe-hint:active {
+  background: transparent;
+  transform: none;
+  box-shadow: none;
+}
+
 .gallery-swipe-hint:focus-visible {
   outline: 1px dashed var(--gold);
   outline-offset: -4px;
   border-radius: 6px;
+}
+
+/* hover 시 같은 쪽 카드 가장자리의 은금 글로우만 한 단계 더 짙게 — :has() 사용 (DOM 순서 무관) */
+.card-gallery:has(.gallery-swipe-hint-left:hover)  .gallery-edge-left::before,
+.card-gallery:has(.gallery-swipe-hint-right:hover) .gallery-edge-right::before {
+  background: linear-gradient(90deg,
+    rgba(232, 217, 154, 0.00),
+    rgba(232, 217, 154, 0.42) 55%,
+    rgba(232, 217, 154, 0.06) 100%);
+  filter: blur(0.5px);
+  animation-duration: 1.6s;
+}
+.card-gallery:has(.gallery-swipe-hint-right:hover) .gallery-edge-right::before {
+  background: linear-gradient(270deg,
+    rgba(232, 217, 154, 0.00),
+    rgba(232, 217, 154, 0.42) 55%,
+    rgba(232, 217, 154, 0.06) 100%);
+}
+/* 형제 셀렉터 폴백 — DOM 순서가 hint→edge 인 경우 대비 */
+.gallery-swipe-hint-left:hover  ~ .gallery-edge-left::before {
+  background: linear-gradient(90deg,
+    rgba(232, 217, 154, 0.00),
+    rgba(232, 217, 154, 0.42) 55%,
+    rgba(232, 217, 154, 0.06) 100%);
+  filter: blur(0.5px);
+  animation-duration: 1.6s;
+}
+.gallery-swipe-hint-right:hover ~ .gallery-edge-right::before {
+  background: linear-gradient(270deg,
+    rgba(232, 217, 154, 0.00),
+    rgba(232, 217, 154, 0.42) 55%,
+    rgba(232, 217, 154, 0.06) 100%);
+  filter: blur(0.5px);
+  animation-duration: 1.6s;
 }
 
 /* 갤러리 모드 외 숨김 */
