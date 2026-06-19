@@ -156,3 +156,46 @@
   .webtoon-container { padding: 0 4px; }
   .webtoon-title { font-size: 18px; letter-spacing: 4px; }
 }
+
+.webtoon-page-banana {
+  aspect-ratio: auto;
+  background: transparent;
+}
+.webtoon-page-banana .webtoon-page-img {
+  position: static;
+  width: 100%;
+  height: auto;
+}
+.webtoon-banana-loading {
+  min-height: 320px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 40px 24px;
+  background: linear-gradient(180deg, rgba(29,35,66,0.78), rgba(20,24,43,0.85));
+  border: 1px solid rgba(232,217,154,0.30);
+  border-radius: 14px;
+  gap: 10px;
+}
+.webtoon-banana-loading .webtoon-loading-emblem {
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 56px;
+  color: var(--gold-bri, #e8d99a);
+  text-shadow: 0 0 24px rgba(244,211,94,0.55);
+  animation: webtoonMoonPulse 2.2s ease-in-out infinite;
+}
+.webtoon-banana-loading .webtoon-loading-title {
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 19px;
+  letter-spacing: 5px;
+  color: var(--gold-bri, #e8d99a);
+}
+.webtoon-banana-loading .webtoon-loading-sub,
+.webtoon-banana-loading .webtoon-loading-progress {
+  font-family: 'Gowun Dodum', sans-serif;
+  font-size: 13px;
+  color: var(--text-soft, #d8d3c0);
+  letter-spacing: 1px;
+}

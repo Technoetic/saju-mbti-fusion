@@ -1,0 +1,9 @@
+STEP_1 goto
+STEP_2 click saju card
+STEP_3 click menu
+STEP_4 fill form
+STEP_5 click result
+STEP_6 wait webtoon
+STEP_6 poll 0: {"hasWebtoon":false,"slotCount":0,"pageCount":0,"bodyLen":1490,"visible":false}
+STEP_6 poll 5: {"hasWebtoon":false,"slotCount":0,"pageCount":0,"bodyLen":1490,"visible":false}
+STEP_7 webtoon found=true
