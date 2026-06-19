@@ -22,6 +22,24 @@ logger = logging.getLogger(__name__)
 
 _BIZROUTER_BASE = os.environ.get("BIZROUTER_BASE_URL", "https://api.bizrouter.ai/v1")
 _MODEL = os.environ.get("BIZROUTER_WEBTOON_MODEL", "google/gemini-3-pro-image")
+_RECOMPOSE_MODEL = os.environ.get("BIZROUTER_RECOMPOSE_MODEL", "anthropic/claude-sonnet-4.6")
+
+_RECOMPOSE_SYSTEM = (
+    "당신은 한국 사극 만담 구성가입니다. 사주 풀이 본문을 받아서 만월 아씨(달빛 아래 사주를 짚어드리는 정자의 아씨)의 "
+    "웹툰 5장(14컷) 대사로 자연스럽게 다듬어 주세요.\n\n"
+    "## 컷 배치\n"
+    "1장(3컷): 나레이션·인사 → 만월 대사·운명 운\n"
+    "2장(3컷): 성격·기질 본격 풀이\n"
+    "3장(3컷): 재물·일·직업\n"
+    "4장(3컷): 인연·인간관계·연애\n"
+    "5장(2컷): 마무리 조언·한 마디\n\n"
+    "## 규칙\n"
+    "- 한 컷 = 한 마디. 30~70자, 자연스러운 종결.\n"
+    "- 사극 존댓말 (\"~하시지요\", \"~의 결로 흐를 듯하옵니다\" 등). 만월 아씨가 손님에게 차분히 이야기하는 톤.\n"
+    "- AI/모델 메타 언급 금지. 단정적 예언 금지(\"~의 흐름이 보입니다\" 같은 경향성).\n"
+    "- 14컷 흐름이 한 편의 만담이 되도록. 끊김·중복 없이.\n"
+    "- JSON 외 다른 텍스트는 출력하지 마라."
+)
 
 _WEBTOON_DIR = Path(__file__).resolve().parent.parent.parent / "front" / "media" / "saju_webtoon"
 _CACHE_DIR = Path(__file__).resolve().parent.parent.parent / "step_archive" / "saju_webtoon_cache"
@@ -98,22 +116,63 @@ def _distribute_to_slots(text: str, total_slots: int) -> list[str]:
     return [u[:80] for u in units]
 
 
+def _recompose_to_14_cuts(reading_text: str) -> list[str]:
+    """풀이 본문을 14컷 사극 만담 대사로 다듬는다. 실패 시 단순 분배 폴백."""
+    api_key = os.environ.get("BIZROUTER_API_KEY", "").strip()
+    if not api_key:
+        return _distribute_to_slots(reading_text, 14)
+
+    from openai import OpenAI
+    client = OpenAI(api_key=api_key, base_url=_BIZROUTER_BASE)
+    user_msg = (
+        f"[풀이 본문]\n{reading_text}\n\n"
+        "위 풀이를 14컷 만담으로 다듬어 다음 JSON으로만 반환:\n"
+        '{"cuts": ["...", "...", ...] }\n'
+        "cuts 배열 길이는 정확히 14."
+    )
+    try:
+        resp = client.chat.completions.create(
+            model=_RECOMPOSE_MODEL,
+            messages=[
+                {"role": "system", "content": _RECOMPOSE_SYSTEM},
+                {"role": "user", "content": user_msg},
+            ],
+            max_tokens=4096,
+        )
+        content = (resp.choices[0].message.content or "").strip()
+        m = re.search(r"\{[\s\S]*\}", content)
+        if not m:
+            raise ValueError("no JSON in recompose response")
+        data = json.loads(m.group(0))
+        cuts = data.get("cuts", [])
+        if not isinstance(cuts, list) or len(cuts) != 14:
+            raise ValueError(f"cuts length != 14 (got {len(cuts)})")
+        return [str(c).strip()[:120] for c in cuts]
+    except Exception as e:
+        logger.warning("recompose failed, fallback to simple distribution: %s", e)
+        return _distribute_to_slots(reading_text, 14)
+
+
 def _build_prompt(page_idx: int, page_meta: dict, slot_texts: list[str]) -> str:
     slot_desc = []
     for i, (slot, text) in enumerate(zip(page_meta["slots"], slot_texts), 1):
-        if text:
-            slot_desc.append(f"{i}. {slot['pos']}의 {slot['kind']} → \"{text}\"")
+        clean = (text or "").strip()
+        if clean:
+            slot_desc.append(f"{i}번 슬롯 — {slot['pos']}의 {slot['kind']}:\n   \"{clean}\"")
         else:
-            slot_desc.append(f"{i}. {slot['pos']}의 {slot['kind']} → (빈칸 유지)")
+            slot_desc.append(f"{i}번 슬롯 — {slot['pos']}의 {slot['kind']}: (빈칸 유지)")
     return (
-        "이 웹툰 페이지의 빈 말풍선과 나레이션 박스에 한국어 글자를 깔끔하게 그려 넣어주세요.\n\n"
-        "## 규칙\n"
-        "- 그림(만월 아씨 캐릭터·배경·말풍선 모양)은 절대 바꾸지 마세요.\n"
-        "- 빈 흰 타원과 갈색 박스 안에만 글자를 그리세요.\n"
-        "- 글자는 한국어 손글씨 스타일, 또렷한 검은색(흰 타원) 또는 따뜻한 크림색(갈색 박스).\n"
-        "- 글자는 말풍선 가운데에 자연스럽게 정렬, 줄바꿈은 적절히.\n"
-        "- 한 글자도 빠뜨리지 말고 정확하게 그려주세요.\n\n"
-        f"## 이 페이지의 말풍선 → 들어갈 글자\n" + "\n".join(slot_desc)
+        "## 이미지 편집 작업: 빈 말풍선·박스에 한국어 글자 그리기\n\n"
+        "이 만월 아씨 웹툰 페이지 이미지에 한국어 글자를 그려 넣어주세요.\n\n"
+        "## 절대 규칙\n"
+        "1. 원본 그림(만월 아씨 캐릭터, 배경, 말풍선과 박스의 모양·테두리·색)은 **절대** 바꾸지 마세요.\n"
+        "2. 흰 타원과 갈색 박스 안에만 글자를 그립니다.\n"
+        "3. **글자는 한 글자도 빠뜨리거나 잘못 쓰지 말고 정확히** 받아쓰세요. 받침·자모 모두 정확.\n"
+        "4. 글자 스타일: 한국어 손글씨, 또렷한 가독성. 흰 타원 안엔 진한 갈색(#2a1f1c), 갈색 박스 안엔 따뜻한 크림색(#f5ead2).\n"
+        "5. 글자는 말풍선/박스의 가운데에 자연스럽게 배치. 줄바꿈은 가독성 좋게.\n"
+        "6. 글자 크기는 말풍선 안에 가득 들어차되 가장자리 여백 5%.\n\n"
+        "## 이 페이지의 글자 배치\n" + "\n".join(slot_desc) + "\n\n"
+        "위 글자들을 정확하게 그려 넣어 완성된 이미지를 반환해주세요."
     )
 
 
@@ -200,15 +259,20 @@ def generate_webtoon_images(reading_text: str) -> list[str]:
         return cached
 
     total_slots = sum(len(p["slots"]) for p in PAGES)
-    all_texts = _distribute_to_slots(reading_text, total_slots)
+    # Stage A: 14컷 재구성 (Sonnet 4.6)
+    all_texts = _recompose_to_14_cuts(reading_text)
+    if len(all_texts) != total_slots:
+        # 길이 안 맞으면 안전 폴백
+        all_texts = _distribute_to_slots(reading_text, total_slots)
 
     cursor = 0
     page_inputs = []
-    for p in PAGES:
-        n = len(p["slots"])
-        page_inputs.append((p, all_texts[cursor:cursor+n]))
+    for pm in PAGES:
+        n = len(pm["slots"])
+        page_inputs.append((pm, all_texts[cursor:cursor+n]))
         cursor += n
 
+    # Stage B: 5장 병렬 호출 (Nano Banana Pro)
     results: list[str | None] = [None] * len(PAGES)
     errors: list[str] = []
 

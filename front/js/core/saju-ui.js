@@ -820,9 +820,11 @@ async function triggerAICall() {
 
   try {
   let full = '';
+  // 정통 사주 풀이는 모델 선택과 무관하게 Sonnet 4.6 고정
+  const sajuModel = 'anthropic/claude-sonnet-4.6';
   // streaming 콜백에서는 실시간 텍스트를 그리지 않는다 — 로딩 화면만 유지.
-  await callFreeAI(model, prompt, (chunk, txt) => { full = txt; });
-  if (!full || !full.trim()) full = await callFreeAI(model, prompt);
+  await callFreeAI(sajuModel, prompt, (chunk, txt) => { full = txt; });
+  if (!full || !full.trim()) full = await callFreeAI(sajuModel, prompt);
   if (!full || !full.trim()) {
   throw new Error('AI 응답이 비어 있습니다. 잠시 후 다시 시도하거나 다른 모델을 골라보세요.');
   }
