@@ -16,49 +16,54 @@ const PAGES = [
   {
     src: 'media/saju_webtoon/p6.jpg',
     slots: [
-      { type: 'box',  top: 0.2034, left: 0.193, width: 0.589, height: 0.0544, color: 'narration' },
-      { type: 'oval', top: 0.492,  left: 0.205, width: 0.62,  height: 0.095 },
-      { type: 'box',  top: 0.8446, left: 0.075, width: 0.848, height: 0.1142, color: 'narration' },
+      // p6 컷1 끝 갈색 박스 — 직접 측정: y 0.210~0.265, x 0.200~0.700
+      { type: 'box',  top: 0.210, left: 0.200, width: 0.500, height: 0.055, color: 'narration' },
+      // p6 컷2 끝 흰 타원 — 직접 측정: y 0.495~0.585, x 0.125~0.850
+      { type: 'oval', top: 0.495, left: 0.125, width: 0.725, height: 0.090 },
+      // p6 컷3 끝 갈색 박스 — 직접 측정: y 0.900~0.993, x 0.200~0.725
+      { type: 'box',  top: 0.900, left: 0.200, width: 0.525, height: 0.093, color: 'narration' },
     ],
   },
   {
     src: 'media/saju_webtoon/p7.jpg',
     slots: [
-      { type: 'oval', top: 0.185, left: 0.04,  width: 0.92, height: 0.0875 },
-      // round1: corners outside oval — shrink inset
-      { type: 'oval', top: 0.495, left: 0.04,  width: 0.92, height: 0.205 },
-      { type: 'oval', top: 0.915, left: 0.04,  width: 0.72, height: 0.045 },
+      // p7 컷1 흰 타원 — 직접 측정: y 0.205~0.285, x 0.090~0.850
+      { type: 'oval', top: 0.205, left: 0.090, width: 0.760, height: 0.080 },
+      // p7 컷2 큰 흰 타원 — 직접 측정: y 0.510~0.660, x 0.050~0.925
+      { type: 'oval', top: 0.510, left: 0.050, width: 0.875, height: 0.150 },
+      // p7 컷3 흰 타원 꼬리 — 직접 측정: y 0.915~0.998, x 0.040~0.450
+      { type: 'oval', top: 0.915, left: 0.040, width: 0.410, height: 0.083 },
     ],
   },
   {
     src: 'media/saju_webtoon/p8.jpg',
     slots: [
-      // round1: top edge outside oval — push down + shrink slightly
-      // round3 glyph: all 3 ovals suggest 'down' → top += 0.02
-      { type: 'oval', top: 0.19, left: 0.05,  width: 0.72, height: 0.095 },
-      { type: 'oval', top: 0.535, left: 0.05,  width: 0.88, height: 0.135 },
-      { type: 'oval', top: 0.895, left: 0.165, width: 0.69, height: 0.095 },
+      // p8 컷1 흰 타원 + 뿔 — 직접 측정: y 0.265~0.330, x 0.240~0.925
+      { type: 'oval', top: 0.265, left: 0.240, width: 0.690, height: 0.065 },
+      // p8 컷2 큰 흰 타원 — 직접 측정: y 0.615~0.690, x 0.165~0.913
+      { type: 'oval', top: 0.615, left: 0.165, width: 0.750, height: 0.075 },
+      // p8 컷3 흰 타원 + 꼬리 — 직접 측정: y 0.935~0.998, x 0.190~0.900
+      { type: 'oval', top: 0.935, left: 0.190, width: 0.710, height: 0.063 },
     ],
   },
   {
     src: 'media/saju_webtoon/p9.jpg',
     slots: [
-      // p9 컷1: 픽셀 측정 top 0.121 left 0.252 w 0.747 h 0.062 — 우상단 흰 타원 + 뿔
-      // round3 glyph: suggestion 'smaller' → inset by 0.01/-0.02
-      { type: 'oval', top: 0.145, left: 0.280, width: 0.680, height: 0.040 },
-      // p9 컷2: 가운데 큰 타원
-      { type: 'oval', top: 0.5625, left: 0.05, width: 0.9,  height: 0.135 },
-      // p9 컷3: 책상 컷 끝 흰 타원 (좌측 꼬리)
-      { type: 'oval', top: 0.8376, left: 0.015, width: 0.635, height: 0.115 },
+      // p9 컷1 흰 타원 + 뿔 (우상단) — 직접 측정: y 0.115~0.185, x 0.475~0.975
+      { type: 'oval', top: 0.115, left: 0.475, width: 0.500, height: 0.070 },
+      // p9 컷2 큰 흰 타원 — 직접 측정: y 0.560~0.700, x 0.075~0.950
+      { type: 'oval', top: 0.560, left: 0.075, width: 0.875, height: 0.140 },
+      // p9 컷3 흰 타원 + 꼬리 (좌측) — 직접 측정: y 0.915~0.998, x 0.000~0.650
+      { type: 'oval', top: 0.915, left: 0.000, width: 0.650, height: 0.083 },
     ],
   },
   {
     src: 'media/saju_webtoon/p10.jpg',
     slots: [
-      // round1: slot fell on sky — drop down (oval actually lower on page)
-      // round3 glyph: 'down' → top += 0.02
-      { type: 'oval', top: 0.235, left: 0.04,  width: 0.76, height: 0.135 },
-      { type: 'oval', top: 0.83,  left: 0.025, width: 0.7,  height: 0.155 },
+      // p10 컷1 큰 흰 타원 + 뿔 — 직접 측정: y 0.370~0.480, x 0.015~0.925
+      { type: 'oval', top: 0.370, left: 0.015, width: 0.910, height: 0.110 },
+      // p10 컷2 큰 흰 타원 + 뿔 — 직접 측정: y 0.920~0.998, x 0.050~0.913
+      { type: 'oval', top: 0.920, left: 0.050, width: 0.860, height: 0.078 },
     ],
   },
 ];
