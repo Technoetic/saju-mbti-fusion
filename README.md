@@ -1,6 +1,12 @@
+<div align="center">
+
 # 月下夢 · 월하몽
 
 ### 사주·MBTI·꿈·관상·손금·임상 스크리닝을 하나로 묶은 인격 융합 운세 대시보드 — *달 아래의 꿈*
+
+<img src="docs/hero_saju.gif" width="300" alt="月下夢 메인 — 사주·궁합 입력 화면"/>
+
+</div>
 
 [![Live Demo](https://img.shields.io/badge/Live_Demo-月下夢-6C5CE7?style=for-the-badge&logo=fly.io&logoColor=white)](https://saju-mbti-fusion.fly.dev/)
 [![Python](https://img.shields.io/badge/Python-3.11-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
@@ -46,6 +52,14 @@ flowchart LR
 | 🩺 | **임상 스크리닝** | BDI-K·CES-D·ISI·PSQI·STAI-K 등 표준 척도 + IRT 기반 정신건강 자가 점검 (참고용, 진단 아님) |
 | 🛡️ | **안전 가드레일** | 의료·법률·금융·결혼·이혼 단정/예언 어휘를 자동 차단(sanitize)하고 모든 출력에 면책 고지 (ADR-006) |
 | 🎵 | **멀티모달 결과물** | 사주 기반 웹툰 이미지 생성·운세 음악(MiniMax)·궁합 시청각화 등 결과를 풍부하게 표현 |
+
+<div align="center">
+
+<img src="docs/dream.gif" width="240" alt="해몽 — 꿈 입력 & 14 AI 에이전트"/> &nbsp; <img src="docs/hwapae.gif" width="240" alt="화패 — 화선 낭자 패 고르기"/> &nbsp; <img src="docs/face.gif" width="240" alt="관상 — 운학 도사 얼굴 분석"/>
+
+<sub>왼쪽부터 — 🌙 해몽 멀티에이전트 · 🌸 화패 · 👤 관상</sub>
+
+</div>
 
 ---
 
@@ -245,7 +259,11 @@ pytest tests/smoke/ -q        # 스모크
 
 <div align="center">
 
+<img src="docs/footer_saju.gif" width="320" alt="사주 결과 — 만월 아씨가 그려주는 사주 웹툰"/>
+
 **月下夢 · 월하몽** — 달 아래의 꿈
+
+*계산은 엔진이, 해석은 LLM이. 동서양 운세 전통을 하나의 달빛 아래에.*
 
 [![Live Demo](https://img.shields.io/badge/▶_지금_체험하기-saju--mbti--fusion.fly.dev-6C5CE7?style=for-the-badge)](https://saju-mbti-fusion.fly.dev/)
 
