@@ -4,7 +4,7 @@
 
 ### 사주·MBTI·꿈·관상·손금·임상 스크리닝을 하나로 묶은 인격 융합 운세 대시보드 — *달 아래의 꿈*
 
-<img src="docs/hero_manweol.jpg" width="300" alt="月下夢 — 만월 아씨"/>
+<img src="docs/hero_saju.gif" width="300" alt="月下夢 메인 — 사주·궁합 입력 화면"/>
 
 </div>
 
@@ -259,27 +259,24 @@ pytest tests/smoke/ -q        # 스모크
 
 <div align="center">
 
-### 月下夢의 운세 길잡이들
+### ✦ 月下夢 · 월하몽 ✦
 
-<table>
-  <tr>
-    <td align="center"><img src="docs/chars/manweol.jpg" width="200" alt="만월 아씨"/><br/><b>만월 아씨</b><br/><sub>🀄 사주·궁합</sub></td>
-    <td align="center"><img src="docs/chars/hwaseon.jpg" width="200" alt="화선 낭자"/><br/><b>화선 낭자</b><br/><sub>🌸 화패</sub></td>
-    <td align="center"><img src="docs/chars/unhak.jpg" width="200" alt="운학 도사"/><br/><b>운학 도사</b><br/><sub>👤 관상</sub></td>
-  </tr>
-  <tr>
-    <td align="center"><img src="docs/chars/mongi.jpg" width="200" alt="몽이 도령"/><br/><b>몽이 도령</b><br/><sub>🌙 해몽</sub></td>
-    <td align="center"><img src="docs/chars/mukhyang.jpg" width="200" alt="묵향 선생"/><br/><b>묵향 선생</b><br/><sub>✍️ 작명</sub></td>
-    <td align="center"><img src="docs/chars/okseon.jpg" width="200" alt="옥선 할미"/><br/><b>옥선 할미</b><br/><sub>✋ 손금</sub></td>
-  </tr>
-</table>
+*달 아래의 꿈 — 계산은 엔진이, 해석은 LLM이.*
+*동서양 운세 전통을 하나의 달빛 아래에 모으다.*
 
 <br/>
 
-**月下夢 · 월하몽** — 달 아래의 꿈
+🀄 사주 · 💞 궁합 · ✍️ 작명 · 👤 관상 · ✋ 손금 · 🌙 해몽 · 🌸 화패 · ⭐ 점성술 · 🎲 윷점
 
-*계산은 엔진이, 해석은 LLM이. 동서양 운세 전통을 하나의 달빛 아래에.*
+<br/>
 
 [![Live Demo](https://img.shields.io/badge/▶_지금_체험하기-saju--mbti--fusion.fly.dev-6C5CE7?style=for-the-badge)](https://saju-mbti-fusion.fly.dev/)
+[![Made with FastAPI](https://img.shields.io/badge/Made_with-FastAPI_+_Gemini-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://saju-mbti-fusion.fly.dev/)
 
+<sub>참고용 서비스입니다 · 의료·법률·금융 의사결정의 단독 근거가 될 수 없습니다</sub>
+
+</div>
+
+<div align="center">
+<sub>© 月下夢 — All rights reserved</sub>
 </div>
