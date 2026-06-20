@@ -4,7 +4,7 @@
 
 ### 사주·MBTI·꿈·관상·손금·임상 스크리닝을 하나로 묶은 인격 융합 운세 대시보드 — *달 아래의 꿈*
 
-<img src="docs/hero_saju.gif" width="300" alt="月下夢 메인 — 사주·궁합 입력 화면"/>
+<img src="docs/hero_manweol.gif" width="320" alt="月下夢 — 만월 아씨"/>
 
 </div>
 
