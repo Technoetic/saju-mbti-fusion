@@ -4,7 +4,7 @@
 
 ### 사주·MBTI·꿈·관상·손금·임상 스크리닝을 하나로 묶은 인격 융합 운세 대시보드 — *달 아래의 꿈*
 
-<img src="docs/hero_saju.gif" width="300" alt="月下夢 메인 — 사주·궁합 입력 화면"/>
+<img src="docs/hero_manweol.jpg" width="300" alt="月下夢 — 만월 아씨"/>
 
 </div>
 
@@ -259,7 +259,22 @@ pytest tests/smoke/ -q        # 스모크
 
 <div align="center">
 
-<img src="docs/footer_saju.gif" width="320" alt="사주 결과 — 만월 아씨가 그려주는 사주 웹툰"/>
+### 月下夢의 운세 길잡이들
+
+<table>
+  <tr>
+    <td align="center"><img src="docs/chars/manweol.jpg" width="200" alt="만월 아씨"/><br/><b>만월 아씨</b><br/><sub>🀄 사주·궁합</sub></td>
+    <td align="center"><img src="docs/chars/hwaseon.jpg" width="200" alt="화선 낭자"/><br/><b>화선 낭자</b><br/><sub>🌸 화패</sub></td>
+    <td align="center"><img src="docs/chars/unhak.jpg" width="200" alt="운학 도사"/><br/><b>운학 도사</b><br/><sub>👤 관상</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="docs/chars/mongi.jpg" width="200" alt="몽이 도령"/><br/><b>몽이 도령</b><br/><sub>🌙 해몽</sub></td>
+    <td align="center"><img src="docs/chars/mukhyang.jpg" width="200" alt="묵향 선생"/><br/><b>묵향 선생</b><br/><sub>✍️ 작명</sub></td>
+    <td align="center"><img src="docs/chars/okseon.jpg" width="200" alt="옥선 할미"/><br/><b>옥선 할미</b><br/><sub>✋ 손금</sub></td>
+  </tr>
+</table>
+
+<br/>
 
 **月下夢 · 월하몽** — 달 아래의 꿈
 
