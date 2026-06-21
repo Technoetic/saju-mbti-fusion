@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import os
 import sys
 from pathlib import Path
 
@@ -27,21 +26,23 @@ def test_check_availability_no_pytorch_or_no_weights(tmp_path, monkeypatch):
     assert r.fallback_reason in ("no_pytorch", "no_weights")
 
 
-def test_check_availability_nonexistent_weights_path():
-    """존재하지 않는 가중치 경로 → no_weights."""
-    from engine.divination.palm.unet_line_extractor import check_unet_availability
-    prev = os.environ.get("PALM_UNET_MODEL_PATH")
-    os.environ["PALM_UNET_MODEL_PATH"] = "/nonexistent/path/model.pt"
-    try:
-        r = check_unet_availability()
-        if r.pytorch_available:
-            assert r.fallback_reason == "no_weights"
-            assert r.model_loadable is False
-    finally:
-        if prev:
-            os.environ["PALM_UNET_MODEL_PATH"] = prev
-        else:
-            os.environ.pop("PALM_UNET_MODEL_PATH", None)
+def test_check_availability_nonexistent_weights_path(monkeypatch):
+    """존재하지 않는 가중치 경로 → no_weights (PyTorch 분기).
+
+    ADR-253 이후 check_unet_availability 는 ONNX(_HAS_ORT)를 우선 점검하므로,
+    PyTorch 가중치 분기를 검증하려면 ONNX 경로를 비활성화해야 한다.
+    (onnxruntime 설치 환경에서 _HAS_ORT=True 면 환경변수 무관하게 'ready' 반환)
+    """
+    from engine.divination.palm import unet_line_extractor as ule
+
+    # ONNX 우선 경로 비활성화 → PyTorch 가중치 분기 강제
+    monkeypatch.setattr(ule, "_HAS_ORT", False, raising=False)
+    monkeypatch.setenv("PALM_UNET_MODEL_PATH", "/nonexistent/path/model.pt")
+
+    r = ule.check_unet_availability()
+    if r.pytorch_available:  # PyTorch 미설치 환경은 no_pytorch 로 조기 반환
+        assert r.fallback_reason == "no_weights"
+        assert r.model_loadable is False
 
 
 def test_extract_palm_lines_falls_back_to_gabor(tmp_path, monkeypatch):

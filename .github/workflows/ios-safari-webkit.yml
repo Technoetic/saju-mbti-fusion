@@ -53,6 +53,17 @@ jobs:
 
       - name: Run WebKit smoke tests
         run: |
+          # ADR-197 — playwright.config 없이 --project=webkit 지정 시
+          # "Project(s) webkit not found" 실패 → config로 webkit 프로젝트 명시
+          cat > playwright.config.js <<'EOF'
+          const { defineConfig, devices } = require('@playwright/test');
+          module.exports = defineConfig({
+            testDir: '.',
+            projects: [
+              { name: 'webkit', use: { ...devices['Desktop Safari'] } },
+            ],
+          });
+          EOF
           cat > smoke-webkit.spec.js <<'EOF'
           // ADR-197 — Mobile Safari emulation smoke
           const { test, expect, devices } = require('@playwright/test');
