@@ -89,3 +89,39 @@ data/palm/unet_weights_*.pt
 
 # 합성 학습 데이터 생성 스크립트만 영속 (재현성)
 !engine/divination/palm/train_unet.py
+
+# ─────────────────────────────────────────────────────────────
+# 디렉토리 정리 (2026-06-21) — "빌드에 필요한 것만 남긴다"
+# 런타임 추론은 models/unet_weights{.pt,_cfm.onnx} 2개만 로드
+# (engine/divination/palm/unet_line_extractor.py). 아래는 학습·실험 산출물.
+# ─────────────────────────────────────────────────────────────
+
+# SOTA 학습 앙상블 가중치 (deeplabv3plus 103MB 등) — 런타임 미사용 + GitHub 100MB 초과
+models/sota/
+# 학습 부산물 .pt (epoch 스냅샷) — 런타임은 unet_weights.pt/.onnx 만 사용
+models/unet_weights_cfm_30ep.pt
+models/*_30ep.pt
+models/*_60ep.pt
+
+# 디버그·데모·학습 실행 스크립트 (빌드/배포 무관, 로컬 작업용)
+scripts/playwright_*.py
+scripts/demo_*.py
+scripts/debug_*.py
+scripts/eval_*.py
+scripts/sota_phase*.py
+scripts/palm_*.py
+scripts/gamma_*.py
+scripts/*_verify.py
+scripts/test_palm_result.py
+scripts/fix_persona_slide.py
+
+# 로컬 디스플레이 유틸 (Windows 작업 환경 전용)
+check_display.ps1
+reset_display.ps1
+
+# 카톡 등으로 받은 원본 이미지 (README는 docs/ 에 사본 보관)
+KakaoTalk_*.gif
+
+# 기획 문서 폴더 (vault 처럼 로컬 보존, repo 미포함)
+/1. 기획안/
+/2. WBS & 수행일지/
