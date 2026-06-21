@@ -150,3 +150,7 @@ KakaoTalk_*.gif
 # Unihan 원본 zip + 추출 txt (assets/) — 빌드 결과 JSON만 필요 (cf. data/unihan/)
 assets/unihan/Unihan.zip
 assets/unihan/*.txt
+
+# CI가 런타임 생성하는 Playwright 잔재 (ios-safari-webkit.yml 내부 cat >)
+/smoke-webkit.spec.js
+/playwright.config.js
