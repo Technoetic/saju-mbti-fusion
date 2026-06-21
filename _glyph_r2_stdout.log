@@ -1,6 +1,0 @@
-STEP: goto
-STEP: click char
-STEP: click menu
-STEP: fill form
-STEP: wait webtoon
-STEP: webtoon ready=true

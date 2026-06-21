@@ -48,3 +48,23 @@ tarot_*.json
 
 # GitHub Actions / CI 설정 (Railway 빌드와 무관)
 .github/
+
+# ─── 빌드 컨텍스트 슬림화 (2026-06-21) ───
+# 루트 검증 스크래치 (_verify_·_webtoon_ 등) — 런타임 무관
+/_*
+/bootstrap-claude-commands.sh
+# 백업 바이너리 (원본 de440s.bsp·unet_weights 는 유지)
+*_backup.pt
+*.local-backup
+# SOTA 학습 앙상블·학습 부산물 — 런타임은 unet_weights{.pt,_cfm.onnx} 만 로드
+models/sota/
+models/*_30ep.*
+models/*_60ep.*
+# Unihan 원본 zip+txt — 빌드 결과 JSON만 필요
+assets/unihan/Unihan.zip
+assets/unihan/*.txt
+# 디버그·학습 스크립트 (운영 컨테이너 불필요)
+scripts/playwright_*.py
+scripts/demo_*.py
+scripts/debug_*.py
+scripts/sota_phase*.py
