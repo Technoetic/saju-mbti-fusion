@@ -255,19 +255,38 @@ pytest tests/smoke/ -q        # 스모크
 
 <div align="center">
 
-<img src="docs/team.gif" width="90%" alt="Best Of Think — 월하몽 팀"/>
+### ✦ Best Of Think ✦
+*Decoding your destiny, one chart at a time.*
+
+<a href="https://saju-mbti-fusion.fly.dev/">
+  <img src="docs/team.gif" width="100%" alt="Best Of Think — 월하몽을 만드는 5인 팀 스킬 차트" />
+</a>
 
 </div>
 
-> **Best Of Think** — *Decoding your destiny, one chart at a time.*
-
-| 역할 | 이름 | 담당 |
-|---|---|---|
-| 🟣 **QA** | 전문준 | Full-stack Developer · System Architecture |
-| 🔵 **FE/ST** | 박형민 | Frontend Lead · Story · World · Art |
-| 🟡 **PM** | 소혜경 | Project Manager · Planning & WBS |
-| 🔴 **AI** | 이채영 | AI Art Lead · Prompt Engineering |
-| 🟢 **RS** | 김준현 | Research Lead · Market & Insight |
+<table>
+  <tr>
+    <th align="left">🟣 QA · 전문준</th>
+    <th align="left">🔵 FE/ST · 박형민</th>
+    <th align="left">🟡 PM · 소혜경</th>
+    <th align="left">🔴 AI · 이채영</th>
+    <th align="left">🟢 RS · 김준현</th>
+  </tr>
+  <tr valign="top">
+    <td><sub><b>Full-stack Developer</b><br/>System Architecture</sub></td>
+    <td><sub><b>Frontend Lead</b><br/>Story · World · Art</sub></td>
+    <td><sub><b>Project Manager</b><br/>Planning & WBS</sub></td>
+    <td><sub><b>AI Art Lead</b><br/>Prompt Engineering</sub></td>
+    <td><sub><b>Research Lead</b><br/>Market & Insight</sub></td>
+  </tr>
+  <tr valign="top">
+    <td><sub>Architecture · Full-stack<br/>Pipeline · QA & Test<br/>📦 <b>12K+ lines</b></sub></td>
+    <td><sub>React · Story & World<br/>Art Direction · Viewer UX<br/>🎬 <b>12 episodes</b></sub></td>
+    <td><sub>Planning · WBS<br/>Risk · Docs<br/>🗓️ <b>5 milestones</b></sub></td>
+    <td><sub>Midjourney · Prompting<br/>Consistency · Retouch<br/>🖼️ <b>180+ cuts</b></sub></td>
+    <td><sub>Market Research · Sourcing<br/>Competitor · Insight<br/>🔍 <b>40+ sources</b></sub></td>
+  </tr>
+</table>
 
 ---
 
