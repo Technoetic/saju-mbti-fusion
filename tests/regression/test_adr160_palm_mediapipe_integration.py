@@ -96,7 +96,8 @@ class TestServerPalmRequest:
     """PalmReadingRequest.metrics 필드 + endpoint 결정론 score_palm 호출."""
 
     def test_request_has_metrics_field(self):
-        src = Path("web/server.py").read_text(encoding="utf-8")
+        # 요청 모델은 web/schemas.py 로 분리됨 (구조 리팩터링 2026-06-21)
+        src = Path("web/schemas.py").read_text(encoding="utf-8")
         # PalmReadingRequest 본체에 metrics 필드 명시
         # 단순 grep으로 metrics: dict 검색
         assert "metrics: dict[str, Any] | None" in src

@@ -9,11 +9,16 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent.parent
 SERVER_PY = ROOT / "web" / "server.py"
+SCHEMAS_PY = ROOT / "web" / "schemas.py"  # 요청 모델 분리 (구조 리팩터링 2026-06-21)
 CONTENT_JS = ROOT / "front" / "js" / "ui" / "content-system.js"
 
 
 def _server_text() -> str:
     return SERVER_PY.read_text(encoding="utf-8")
+
+
+def _schemas_text() -> str:
+    return SCHEMAS_PY.read_text(encoding="utf-8")
 
 
 def _client_text() -> str:
@@ -31,7 +36,7 @@ def test_content_reading_route_registered():
 
 def test_content_reading_request_model():
     """ContentReadingRequest pydantic 모델 — char_key·content_key·fields."""
-    src = _server_text()
+    src = _schemas_text()  # 모델은 web/schemas.py 로 분리됨
     assert "class ContentReadingRequest" in src
     assert "char_key: str" in src
     assert "content_key: str" in src
