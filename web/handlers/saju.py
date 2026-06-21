@@ -7,6 +7,8 @@ PersonalityAPIServer 가 본 Mixin 을 상속. self.engine·self.saju_cli·self.
 from __future__ import annotations
 
 import asyncio  # noqa: F401
+import datetime  # noqa: F401
+import time  # noqa: F401
 from pathlib import Path  # noqa: F401
 from typing import Any  # noqa: F401
 
@@ -707,7 +709,7 @@ class SajuHandlersMixin:
             reading = (body or {}).get("reading", "").strip()
             if not reading or len(reading) < 50:
                 raise HTTPException(400, "reading text required (min 50 chars)")
-            from engine.divination.saju_webtoon import generate_webtoon_images
+            from engine.divination.saju_mbti.webtoon import generate_webtoon_images
             images = await asyncio.to_thread(generate_webtoon_images, reading)
             return {"images": images, "count": len(images)}
         except HTTPException:

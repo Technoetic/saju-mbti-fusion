@@ -7,6 +7,8 @@ PersonalityAPIServer 가 본 Mixin 을 상속. self.engine·self.saju_cli·self.
 from __future__ import annotations
 
 import asyncio  # noqa: F401
+import datetime  # noqa: F401
+import os  # noqa: F401
 from pathlib import Path  # noqa: F401
 from typing import Any  # noqa: F401
 

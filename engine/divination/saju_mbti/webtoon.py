@@ -41,8 +41,15 @@ _RECOMPOSE_SYSTEM = (
     "- JSON 외 다른 텍스트는 출력하지 마라."
 )
 
-_WEBTOON_DIR = Path(__file__).resolve().parent.parent.parent / "front" / "media" / "saju_webtoon"
-_CACHE_DIR = Path(__file__).resolve().parent.parent.parent / "step_archive" / "saju_webtoon_cache"
+# saju_mbti/ 하위로 이동해 깊이 +1 (구조 리팩터링 2026-06-21)
+_WEBTOON_DIR = (
+    Path(__file__).resolve().parent.parent.parent.parent / "front" / "media" / "saju_webtoon"
+)
+_CACHE_DIR = (
+    Path(__file__).resolve().parent.parent.parent.parent
+    / "step_archive"
+    / "saju_webtoon_cache"
+)
 _CACHE_DIR.mkdir(parents=True, exist_ok=True)
 _TTL_SEC = 7 * 24 * 3600  # 7일
 

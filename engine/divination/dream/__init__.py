@@ -70,7 +70,9 @@ from engine.safety import (
 )
 
 
-_CACHE_DIR = Path(__file__).resolve().parent.parent.parent / "step_archive" / "dream_cache"
+_CACHE_DIR = (
+    Path(__file__).resolve().parent.parent.parent.parent / "step_archive" / "dream_cache"
+)  # dream/ 패키지화로 깊이 +1 (구조 리팩터링 2026-06-21)
 _CACHE_DIR.mkdir(parents=True, exist_ok=True)
 _TTL_SEC = 24 * 3600
 
