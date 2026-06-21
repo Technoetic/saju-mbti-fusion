@@ -138,8 +138,10 @@ KakaoTalk_*.gif
 # _glyph_·_hover_ 등 .mjs/.png/.log/.txt/.out/.json/.py) — 빌드·런타임 무관
 /_*
 
-# 백업 바이너리 (원본은 추적 유지, *_backup·*.local-backup 만 제외)
+# 백업 바이너리·스냅샷 (원본은 추적 유지, *_backup·*.local-backup 만 제외)
+# 단, engine/.../backup_manifest.py 는 '백업 기능 코드'라 제외 안 함
 *_backup.pt
+*_backup.json
 *.local-backup
 
 # Claude 명령 부트스트랩 (로컬 환경 세팅용)
