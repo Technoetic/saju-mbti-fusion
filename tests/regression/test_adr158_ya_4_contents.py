@@ -13,6 +13,26 @@
 """
 from __future__ import annotations
 
+from pathlib import Path
+
+
+def _server_source() -> str:
+    """server.py + web/handlers/*.py + schemas.py 를 합친 텍스트.
+
+    핸들러 본문이 web/server.py 에서 web/handlers/*.py Mixin 으로 물리 분리됨 (구조 리팩터링,
+    동작 불변). 모델은 web/schemas.py 로 이동. 핸들러/모델이 어느 파일에 있든 grep 통과하도록 합침.
+    """
+    root = Path(__file__).resolve().parent.parent.parent
+    parts = [(root / "web" / "server.py").read_text(encoding="utf-8")]
+    hdir = root / "web" / "handlers"
+    if hdir.is_dir():
+        for p in sorted(hdir.glob("*.py")):
+            parts.append(p.read_text(encoding="utf-8"))
+    schemas = root / "web" / "schemas.py"
+    if schemas.is_file():
+        parts.append(schemas.read_text(encoding="utf-8"))
+    return "\n".join(parts)
+
 
 # ─────────────────────────── sok_gunghap (속궁합) ───────────────────────────
 
@@ -204,8 +224,7 @@ class TestServerSanitize7Layer:
     """ADR-158 sanitize 7중 안전망 분기 영속."""
 
     def test_server_has_ya_sanitize_branch(self):
-        from pathlib import Path
-        src = Path("web/server.py").read_text(encoding="utf-8")
+        src = _server_source()
         assert "ADR-158 sanitize 7중 안전망" in src
         assert "char_key == \"ya\"" in src
         # 4 컨텐츠 sanitize import 분기
@@ -215,8 +234,7 @@ class TestServerSanitize7Layer:
         assert "sanitize_jeongin_saju_text" in src
 
     def test_server_has_ya_compute_branch(self):
-        from pathlib import Path
-        src = Path("web/server.py").read_text(encoding="utf-8")
+        src = _server_source()
         assert "ADR-158 야선 아씨 4 컨텐츠" in src
         assert "compute_sok_gunghap" in src
         assert "compute_desire_saju" in src

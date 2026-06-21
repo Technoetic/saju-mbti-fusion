@@ -14,8 +14,27 @@ ROOT = Path(__file__).resolve().parent.parent.parent
 SERVER_PY = ROOT / "web" / "server.py"
 
 
+def _server_source() -> str:
+    """server.py + web/handlers/*.py + web/schemas.py 합본.
+
+    핸들러 본문(post_*·deterministic_block·sanitize 분기·dream 지시 등)이
+    web/server.py → web/handlers/*.py 로 물리 분리되고, 모델 클래스는
+    web/schemas.py 로 이동했으므로 grep 대상 소스를 모두 합쳐 검사한다.
+    라우트 등록(_register_routes)은 server.py 에 남아 있어 그대로 포함된다.
+    """
+    parts = [SERVER_PY.read_text(encoding="utf-8")]
+    hdir = ROOT / "web" / "handlers"
+    if hdir.is_dir():
+        for p in sorted(hdir.glob("*.py")):
+            parts.append(p.read_text(encoding="utf-8"))
+    schemas = ROOT / "web" / "schemas.py"
+    if schemas.is_file():
+        parts.append(schemas.read_text(encoding="utf-8"))
+    return "\n".join(parts)
+
+
 def _src() -> str:
-    return SERVER_PY.read_text(encoding="utf-8")
+    return _server_source()
 
 
 # ── ① ADR-094 단정 차단 ─────────────────────────────

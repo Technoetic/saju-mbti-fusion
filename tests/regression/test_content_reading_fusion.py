@@ -12,7 +12,22 @@ SERVER_PY = ROOT / "web" / "server.py"
 
 
 def _src() -> str:
-    return SERVER_PY.read_text(encoding="utf-8")
+    """server.py + web/handlers/*.py + web/schemas.py 합본.
+
+    구조 리팩터링으로 핸들러 본문이 web/handlers/{saju,dream,palmface,
+    clinical,user,domain,ops}.py 의 Mixin 으로 분리되고, 요청 모델은
+    web/schemas.py 로 이동했다. 코드 문자열 grep 검증이 분리된 위치를
+    모두 포함하도록 텍스트를 합쳐 반환한다.
+    """
+    parts = [SERVER_PY.read_text(encoding="utf-8")]
+    hdir = ROOT / "web" / "handlers"
+    if hdir.is_dir():
+        for p in sorted(hdir.glob("*.py")):
+            parts.append(p.read_text(encoding="utf-8"))
+    schemas = ROOT / "web" / "schemas.py"
+    if schemas.is_file():
+        parts.append(schemas.read_text(encoding="utf-8"))
+    return "\n".join(parts)
 
 
 def test_deterministic_blocks_list_accumulation():

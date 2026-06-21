@@ -10,7 +10,21 @@ SERVER_PY = ROOT / "web" / "server.py"
 
 
 def _src() -> str:
-    return SERVER_PY.read_text(encoding="utf-8")
+    """server.py + web/handlers/*.py + web/schemas.py 를 합친 소스.
+
+    핸들러 본문이 server.py → web/handlers/*.py 로 물리 분리되고
+    모델이 web/schemas.py 로 이동된 구조 리팩터링 이후에도
+    핸들러 코드 문자열 grep assert 가 통과하도록 합쳐서 반환한다.
+    """
+    parts = [SERVER_PY.read_text(encoding="utf-8")]
+    hdir = ROOT / "web" / "handlers"
+    if hdir.is_dir():
+        for p in sorted(hdir.glob("*.py")):
+            parts.append(p.read_text(encoding="utf-8"))
+    schemas = ROOT / "web" / "schemas.py"
+    if schemas.is_file():
+        parts.append(schemas.read_text(encoding="utf-8"))
+    return "\n".join(parts)
 
 
 # ── ADR-081 palm Phase 2 ────────────────────────────────

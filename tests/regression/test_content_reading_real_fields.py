@@ -12,7 +12,23 @@ SERVER_PY = ROOT / "web" / "server.py"
 
 
 def _src() -> str:
-    return SERVER_PY.read_text(encoding="utf-8")
+    """server.py + web/handlers/*.py + web/schemas.py 합본 소스.
+
+    핸들러 메서드가 web/server.py → web/handlers/ Mixin 으로 물리 분리되고
+    (구조 리팩터링, 동작 불변), 요청 모델이 web/schemas.py 로 이동했으므로,
+    핸들러 본문/모델 정의를 grep 하는 검사가 어느 파일에 있든 통과하도록
+    합본 텍스트를 반환한다. 라우트 등록(_register_routes)·핸들러명 검사는
+    server.py 만으로도 통과하며 합본에도 당연히 포함된다.
+    """
+    parts = [SERVER_PY.read_text(encoding="utf-8")]
+    hdir = ROOT / "web" / "handlers"
+    if hdir.is_dir():
+        for p in sorted(hdir.glob("*.py")):
+            parts.append(p.read_text(encoding="utf-8"))
+    schemas = ROOT / "web" / "schemas.py"
+    if schemas.is_file():
+        parts.append(schemas.read_text(encoding="utf-8"))
+    return "\n".join(parts)
 
 
 def test_baleum_report_actual_fields():

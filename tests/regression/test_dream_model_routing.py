@@ -11,7 +11,18 @@ SERVER_PY = ROOT / "web" / "server.py"
 
 
 def _src() -> str:
-    return SERVER_PY.read_text(encoding="utf-8")
+    # 구조 리팩터링: API 핸들러 본문이 web/server.py → web/handlers/*.py 로 분리됨.
+    # 모델(class XxxRequest)은 web/schemas.py 로 이동됨.
+    # grep 기반 assert 가 통과하도록 server.py + handlers/*.py + schemas.py 를 합쳐서 반환.
+    parts = [SERVER_PY.read_text(encoding="utf-8")]
+    hdir = ROOT / "web" / "handlers"
+    if hdir.is_dir():
+        for p in sorted(hdir.glob("*.py")):
+            parts.append(p.read_text(encoding="utf-8"))
+    schemas = ROOT / "web" / "schemas.py"
+    if schemas.is_file():
+        parts.append(schemas.read_text(encoding="utf-8"))
+    return "\n".join(parts)
 
 
 def test_adr_098_marker_present():

@@ -14,7 +14,15 @@ CONTENT_JS = ROOT / "front" / "js" / "ui" / "content-system.js"
 
 
 def _server_text() -> str:
-    return SERVER_PY.read_text(encoding="utf-8")
+    # 구조 리팩터링(2026-06-21): API 핸들러가 web/server.py → web/handlers/*.py 의
+    # Mixin 클래스로 물리 분리됨. PersonalityAPIServer 가 이들을 상속하므로 동작은
+    # 불변이나, 핸들러 본문 grep 검증을 위해 server.py + handlers/*.py 를 합쳐 읽는다.
+    parts = [SERVER_PY.read_text(encoding="utf-8")]
+    hdir = ROOT / "web" / "handlers"
+    if hdir.is_dir():
+        for p in sorted(hdir.glob("*.py")):
+            parts.append(p.read_text(encoding="utf-8"))
+    return "\n".join(parts)
 
 
 def _schemas_text() -> str:

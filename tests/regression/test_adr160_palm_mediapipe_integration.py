@@ -14,6 +14,25 @@ from __future__ import annotations
 from pathlib import Path
 
 
+def _server_source() -> str:
+    """server.py + web/handlers/*.py + web/schemas.py 합본 텍스트.
+
+    구조 리팩터링(2026-06-21)으로 핸들러 본문이 web/handlers/*.py Mixin 으로,
+    요청 모델이 web/schemas.py 로 물리 분리됨. grep 검사가 위치 무관하게
+    통과하도록 합쳐서 반환한다.
+    """
+    root = Path(__file__).resolve().parent.parent.parent
+    parts = [(root / "web" / "server.py").read_text(encoding="utf-8")]
+    hdir = root / "web" / "handlers"
+    if hdir.is_dir():
+        for p in sorted(hdir.glob("*.py")):
+            parts.append(p.read_text(encoding="utf-8"))
+    schemas = root / "web" / "schemas.py"
+    if schemas.is_file():
+        parts.append(schemas.read_text(encoding="utf-8"))
+    return "\n".join(parts)
+
+
 # ─────────────────────────── front/js/readers/palm-metrics.js ───────────────────────────
 
 
@@ -103,28 +122,28 @@ class TestServerPalmRequest:
         assert "metrics: dict[str, Any] | None" in src
 
     def test_endpoint_imports_score_palm(self):
-        src = Path("web/server.py").read_text(encoding="utf-8")
+        src = _server_source()
         assert "from engine.divination.palm.scoring import score_palm" in src
 
     def test_endpoint_calls_score_palm_on_keypoints(self):
-        src = Path("web/server.py").read_text(encoding="utf-8")
+        src = _server_source()
         assert "score_palm" in src
         assert "ADR-160" in src
         # keypoints dict 검증 분기
         assert 'k.startswith("kp")' in src
 
     def test_deterministic_block_in_result(self):
-        src = Path("web/server.py").read_text(encoding="utf-8")
+        src = _server_source()
         assert "deterministic_block" in src
 
     def test_safety_disclaimer_in_block(self):
-        src = Path("web/server.py").read_text(encoding="utf-8")
+        src = _server_source()
         # 안전 장치 ADR-006/113 명시
         assert "ADR-006/113" in src
 
     def test_no_metric_fallback_no_regression(self):
         """metrics 부재 시 기존 LLM Vision 단독 동작 유지 (분기 가드)."""
-        src = Path("web/server.py").read_text(encoding="utf-8")
+        src = _server_source()
         # palm_deterministic_block = None 디폴트 + req.metrics 검증
         assert "palm_deterministic_block = None" in src
         assert "req.metrics" in src

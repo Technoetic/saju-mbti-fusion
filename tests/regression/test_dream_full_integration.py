@@ -10,7 +10,21 @@ SERVER_PY = ROOT / "web" / "server.py"
 
 
 def _src() -> str:
-    return SERVER_PY.read_text(encoding="utf-8")
+    """server.py + web/handlers/*.py + web/schemas.py 합본 소스.
+
+    구조 리팩터링으로 핸들러 본문이 web/handlers/{saju,dream,...}.py 의 Mixin 으로,
+    요청 모델이 web/schemas.py 로 물리 분리됨. grep 기반 정합 검사가 어느 파일에
+    있든 통과하도록 합본 텍스트를 반환한다.
+    """
+    parts = [SERVER_PY.read_text(encoding="utf-8")]
+    hdir = ROOT / "web" / "handlers"
+    if hdir.is_dir():
+        for p in sorted(hdir.glob("*.py")):
+            parts.append(p.read_text(encoding="utf-8"))
+    schemas = ROOT / "web" / "schemas.py"
+    if schemas.is_file():
+        parts.append(schemas.read_text(encoding="utf-8"))
+    return "\n".join(parts)
 
 
 # ── ① server.py 통합 정합 ──────────────────────────

@@ -11,7 +11,21 @@ SERVER_PY = ROOT / "web" / "server.py"
 
 
 def _src() -> str:
-    return SERVER_PY.read_text(encoding="utf-8")
+    """server.py + web/handlers/*.py + web/schemas.py 합본 소스.
+
+    구조 리팩터링으로 API 핸들러 본문이 web/server.py → web/handlers/*.py 로
+    물리 분리되고 Request 모델이 web/schemas.py 로 이동했다 (동작 불변).
+    따라서 핸들러 코드 문자열 grep 검증은 합본 소스를 대상으로 한다.
+    """
+    parts = [SERVER_PY.read_text(encoding="utf-8")]
+    hdir = ROOT / "web" / "handlers"
+    if hdir.is_dir():
+        for p in sorted(hdir.glob("*.py")):
+            parts.append(p.read_text(encoding="utf-8"))
+    schemas = ROOT / "web" / "schemas.py"
+    if schemas.is_file():
+        parts.append(schemas.read_text(encoding="utf-8"))
+    return "\n".join(parts)
 
 
 def test_name_branch_present():

@@ -10,7 +10,30 @@ SERVER_PY = ROOT / "web" / "server.py"
 
 
 def _src() -> str:
-    return SERVER_PY.read_text(encoding="utf-8")
+    # 구조 리팩터링 후 핸들러 본문이 web/handlers/*.py Mixin 으로 이동,
+    # 모델(class XxxRequest)이 web/schemas.py 로 이동 → 라우트(server.py)와 합쳐 grep.
+    parts = [SERVER_PY.read_text(encoding="utf-8")]
+    schemas = ROOT / "web" / "schemas.py"
+    if schemas.is_file():
+        parts.append(schemas.read_text(encoding="utf-8"))
+    hdir = ROOT / "web" / "handlers"
+    if hdir.is_dir():
+        for p in sorted(hdir.glob("*.py")):
+            parts.append(p.read_text(encoding="utf-8"))
+    return "\n".join(parts)
+
+
+def _handler_body_src() -> str:
+    # split('get_diag_kasi_verify')[1].split('post_error_log')[0] 슬라이싱은
+    # 핸들러 정의 순서(get_diag_kasi_verify → post_error_log)가 보존된 소스가 필요.
+    # server.py 라우트 등록부는 두 이름의 등록 순서가 반대라 합친 소스로는 슬라이스가 깨짐.
+    # 핸들러 본문은 web/handlers/*.py 에 있으므로 그것만 합쳐 본문 순서를 보존.
+    hdir = ROOT / "web" / "handlers"
+    parts: list[str] = []
+    if hdir.is_dir():
+        for p in sorted(hdir.glob("*.py")):
+            parts.append(p.read_text(encoding="utf-8"))
+    return "\n".join(parts)
 
 
 def test_endpoint_registered():
@@ -37,8 +60,9 @@ def test_returns_statistics_only():
     assert '"mismatch"' in src
     assert '"skip"' in src
     assert '"match_rate_pct"' in src
-    # 키 텍스트 반환 차단
-    assert "ServiceKey" not in src.split("get_diag_kasi_verify")[1].split("post_error_log")[0]
+    # 키 텍스트 반환 차단 — 핸들러 본문(handlers/*.py)에서 정의 순서 보존된 슬라이스로 검사
+    body = _handler_body_src()
+    assert "ServiceKey" not in body.split("get_diag_kasi_verify")[1].split("post_error_log")[0]
 
 
 def test_count_clamped_to_1000():
@@ -55,8 +79,8 @@ def test_uses_batch_verify():
 
 def test_mismatched_samples_limited_to_10():
     """불일치 샘플 10건까지만 반환 (개별 키·일진 텍스트 노출 최소화)."""
-    src = _src()
-    assert "[:10]" in src.split("get_diag_kasi_verify")[1].split("post_error_log")[0]
+    body = _handler_body_src()
+    assert "[:10]" in body.split("get_diag_kasi_verify")[1].split("post_error_log")[0]
 
 
 def test_local_endpoint_returns_200():
