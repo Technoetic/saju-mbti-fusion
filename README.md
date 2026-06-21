@@ -251,6 +251,26 @@ pytest tests/smoke/ -q        # 스모크
 
 ---
 
+## Team · 월하몽을 만드는 사람들
+
+<div align="center">
+
+<img src="docs/team.gif" width="90%" alt="Best Of Think — 월하몽 팀"/>
+
+</div>
+
+> **Best Of Think** — *Decoding your destiny, one chart at a time.*
+
+| 역할 | 이름 | 담당 |
+|---|---|---|
+| 🟣 **QA** | 전문준 | Full-stack Developer · System Architecture |
+| 🔵 **FE/ST** | 박형민 | Frontend Lead · Story · World · Art |
+| 🟡 **PM** | 소혜경 | Project Manager · Planning & WBS |
+| 🔴 **AI** | 이채영 | AI Art Lead · Prompt Engineering |
+| 🟢 **RS** | 김준현 | Research Lead · Market & Insight |
+
+---
+
 ## License
 
 별도 라이선스 명시 전까지 모든 권리는 저작권자에게 있습니다. (All rights reserved)
