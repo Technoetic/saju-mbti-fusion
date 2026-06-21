@@ -44,21 +44,23 @@ jobs:
           npm install --save-dev @playwright/test
           npx playwright install --with-deps webkit
 
-      - name: Start static server (background)
-        run: |
-          cd front
-          python -m http.server 8080 &
-          sleep 3
-        shell: bash
-
       - name: Run WebKit smoke tests
         run: |
           # ADR-197 — playwright.config 없이 --project=webkit 지정 시
-          # "Project(s) webkit not found" 실패 → config로 webkit 프로젝트 명시
+          # "Project(s) webkit not found" 실패 → config로 webkit 프로젝트 명시.
+          # webServer 로 정적 서버를 Playwright가 직접 띄우고 준비 대기
+          # (별도 'run' 스텝의 background 서버는 다음 스텝에서 죽어 page.goto 타임아웃).
           cat > playwright.config.js <<'EOF'
           const { defineConfig, devices } = require('@playwright/test');
           module.exports = defineConfig({
             testDir: '.',
+            use: { baseURL: 'http://localhost:8080' },
+            webServer: {
+              command: 'python -m http.server 8080 --directory front',
+              url: 'http://localhost:8080',
+              timeout: 60000,
+              reuseExistingServer: false,
+            },
             projects: [
               { name: 'webkit', use: { ...devices['Desktop Safari'] } },
             ],
