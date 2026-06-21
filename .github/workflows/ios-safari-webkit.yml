@@ -46,21 +46,19 @@ jobs:
 
       - name: Run WebKit smoke tests
         run: |
-          # ADR-197 — playwright.config 없이 --project=webkit 지정 시
-          # "Project(s) webkit not found" 실패 → config로 webkit 프로젝트 명시.
-          # webServer 로 정적 서버를 Playwright가 직접 띄우고 준비 대기
-          # (별도 'run' 스텝의 background 서버는 다음 스텝에서 죽어 page.goto 타임아웃).
+          # ADR-197 · webServer 타임아웃 근본수정
+          # 근본원인 1순위(확정): python -m http.server 는 macOS에서 IPv4(0.0.0.0)만
+          #   바인딩하는데 macOS getaddrinfo("localhost")는 ::1(IPv6)을 먼저 반환 →
+          #   Playwright 헬스체크가 ::1:8080 에 ECONNREFUSED 반복 → "Timed out 60000ms".
+          #   (로컬 Windows는 dual-stack 바인딩이라 통과 → CI만 실패한 이유)
+          # 근본원인 2순위: 서브프로세스에서 'python' shim 해석 불확실.
+          # 방어책: python3 + --bind 127.0.0.1 + url/goto 모두 127.0.0.1 +
+          #   단일 셸 background 기동 + curl(127.0.0.1) 명시 대기 + PID 정리.
           cat > playwright.config.js <<'EOF'
           const { defineConfig, devices } = require('@playwright/test');
           module.exports = defineConfig({
             testDir: '.',
-            use: { baseURL: 'http://localhost:8080' },
-            webServer: {
-              command: 'python -m http.server 8080 --directory front',
-              url: 'http://localhost:8080',
-              timeout: 60000,
-              reuseExistingServer: false,
-            },
+            use: { baseURL: 'http://127.0.0.1:8080' },
             projects: [
               { name: 'webkit', use: { ...devices['Desktop Safari'] } },
             ],
@@ -73,7 +71,7 @@ jobs:
           test.use({ ...devices['iPhone 14'] });
 
           test('face-complexion.js loads in WebKit', async ({ page }) => {
-            await page.goto('http://localhost:8080/');
+            await page.goto('http://127.0.0.1:8080/');
             const faceComplexionAvailable = await page.evaluate(() => {
               const script = document.createElement('script');
               script.src = 'js/readers/face-complexion.js';
@@ -87,7 +85,7 @@ jobs:
           });
 
           test('device-compat.js detects iOS Safari', async ({ page }) => {
-            await page.goto('http://localhost:8080/');
+            await page.goto('http://127.0.0.1:8080/');
             const compat = await page.evaluate(async () => {
               const script = document.createElement('script');
               script.src = 'js/readers/device-compat.js';
@@ -100,7 +98,7 @@ jobs:
           });
 
           test('WebGL2 fallback works in WebKit', async ({ page }) => {
-            await page.goto('http://localhost:8080/');
+            await page.goto('http://127.0.0.1:8080/');
             const gpu = await page.evaluate(async () => {
               const script = document.createElement('script');
               script.src = 'js/readers/device-compat.js';
@@ -111,7 +109,30 @@ jobs:
             expect(gpu.webgl2_available || gpu.webgpu_available).toBeTruthy();
           });
           EOF
+
+          # HTTP 서버 — IPv4 루프백 명시 바인딩, 단일 셸 background 기동
+          python3 -m http.server 8080 --bind 127.0.0.1 --directory front > /tmp/http-server.log 2>&1 &
+          SERVER_PID=$!
+          echo "HTTP server PID: $SERVER_PID"
+
+          # 명시적 준비 대기 — 127.0.0.1 직접 폴링 (DNS 미사용), 최대 60초
+          for attempt in $(seq 1 60); do
+            if curl -sf http://127.0.0.1:8080/ > /dev/null 2>&1; then
+              echo "Server ready on attempt $attempt"; break
+            fi
+            if [ "$attempt" -eq 60 ]; then
+              echo "Server failed to start"; cat /tmp/http-server.log
+              kill "$SERVER_PID" 2>/dev/null || true; exit 1
+            fi
+            sleep 1
+          done
+
+          # 테스트 실행 → 종료코드 보존 → 서버 정리
           npx playwright test smoke-webkit.spec.js --project=webkit
+          TEST_EXIT=$?
+          kill "$SERVER_PID" 2>/dev/null || true
+          exit $TEST_EXIT
+        shell: bash
 
       - name: Upload test report
         if: failure()
