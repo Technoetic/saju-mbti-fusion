@@ -7,7 +7,7 @@ ADR-090 단정 차단 후 결정론 산출은 성명학 융합 완전 활성이�
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent.parent
-EXPLAIN_PY = ROOT / "engine" / "saju" / "explain.py"
+EXPLAIN_PY = ROOT / "engine" / "saju" / "interpret" / "explain.py"
 
 
 def _src() -> str:

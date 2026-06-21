@@ -16,7 +16,7 @@ from engine.llm_sync import call_llm_sync
 
 
 # explain 결과 캐시 — 같은 입력 hash 24h 보관
-_EXPLAIN_CACHE_DIR = Path(__file__).resolve().parent.parent.parent / "step_archive" / "explain_cache"
+_EXPLAIN_CACHE_DIR = Path(__file__).resolve().parent.parent.parent.parent / "step_archive" / "explain_cache"
 _EXPLAIN_CACHE_DIR.mkdir(parents=True, exist_ok=True)
 _EXPLAIN_TTL_SEC = 24 * 3600
 
@@ -274,8 +274,8 @@ def explain_fusion(
 
     같은 입력은 24h 캐시.
     """
-    from .mbti_functions import function_stack_lines
-    from .ten_gods import (
+    from engine.saju.gunghap.mbti_functions import function_stack_lines
+    from engine.saju.tengods.ten_gods import (
         cluster_mbti_hints,
         sipsung_clusters,
         tengod_function_hints,
@@ -506,8 +506,8 @@ def _refine_fusion(
     model_label: str | None = None,
 ) -> str:
     """critic 피드백 반영 재생성."""
-    from .mbti_functions import function_stack_lines
-    from .ten_gods import cluster_mbti_hints, sipsung_clusters
+    from engine.saju.gunghap.mbti_functions import function_stack_lines
+    from engine.saju.tengods.ten_gods import cluster_mbti_hints, sipsung_clusters
 
     tg = saju_data.get("ten_gods", {})
     clusters = sipsung_clusters(tg)

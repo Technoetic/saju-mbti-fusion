@@ -17,7 +17,7 @@ from typing import Any
 
 import requests
 
-_CACHE_DIR = Path(__file__).resolve().parent.parent.parent / "step_archive" / "music_cache"
+_CACHE_DIR = Path(__file__).resolve().parent.parent.parent.parent / "step_archive" / "music_cache"
 _CACHE_DIR.mkdir(parents=True, exist_ok=True)
 
 

@@ -13,7 +13,7 @@ from pathlib import Path
 from typing import Any
 
 # 캐시 디렉토리 — 같은 프롬프트는 재호출 안 함
-_CACHE_DIR = Path(__file__).resolve().parent.parent.parent / "step_archive" / "img_cache"
+_CACHE_DIR = Path(__file__).resolve().parent.parent.parent.parent / "step_archive" / "img_cache"
 _CACHE_DIR.mkdir(parents=True, exist_ok=True)
 
 _IMG_MODEL = os.environ.get("BIZROUTER_IMAGE_MODEL", "google/gemini-2.5-flash-image")

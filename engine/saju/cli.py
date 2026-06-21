@@ -16,13 +16,13 @@ from typing import Any
 
 from engine.cli_base import BaseCLI
 
-from .alias import compute_alias
-from .calendar import solar_term_month
-from .luck_cycle import compute_luck_cycle
-from .pillars import compute_pillars
-from .shensha import compute_shensha, SHENSHA_MEANINGS
-from .ten_gods import compute_ten_gods
-from .wuxing import wuxing_dist
+from engine.saju.hanja.alias import compute_alias
+from engine.saju.core.calendar import solar_term_month
+from engine.saju.core.luck_cycle import compute_luck_cycle
+from engine.saju.core.pillars import compute_pillars
+from engine.saju.sinsal.shensha import compute_shensha, SHENSHA_MEANINGS
+from engine.saju.tengods.ten_gods import compute_ten_gods
+from engine.saju.core.wuxing import wuxing_dist
 
 
 def _pillar_label(p: dict) -> str:
@@ -222,7 +222,7 @@ class SajuCLI(BaseCLI):
             gender=args.gender,
         )
         if args.interpret:
-            from .explain import explain_saju
+            from engine.saju.interpret.explain import explain_saju
 
             try:
                 payload["interpretation"] = await asyncio.to_thread(

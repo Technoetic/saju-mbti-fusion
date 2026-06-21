@@ -144,7 +144,7 @@ def initial_wuxing_dist(name_ko: str) -> dict[str, int]:
 
 def _stroke_of_han(ch: str) -> int:
     """한자 1글자 → 강희자전 획수 (hanja_data 사전 lookup)."""
-    from .hanja_data import lookup_han
+    from engine.saju.hanja.hanja_data import lookup_han
 
     entry = lookup_han(ch)
     return entry["strokes"] if entry else 10  # 사전 없으면 10획 fallback
@@ -152,7 +152,7 @@ def _stroke_of_han(ch: str) -> int:
 
 def _wuxing_of_han(ch: str) -> str:
     """한자 1글자 → 자원오행."""
-    from .hanja_data import lookup_han
+    from engine.saju.hanja.hanja_data import lookup_han
 
     entry = lookup_han(ch)
     return entry["wuxing"] if entry else "?"

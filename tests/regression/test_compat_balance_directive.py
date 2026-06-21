@@ -7,7 +7,7 @@ ADR-090 단정 차단 + ADR-091 성명학 인용 강화 후 라이브 평가 결
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent.parent
-EXPLAIN_PY = ROOT / "engine" / "saju" / "explain.py"
+EXPLAIN_PY = ROOT / "engine" / "saju" / "interpret" / "explain.py"
 
 
 def _src() -> str:

@@ -92,7 +92,7 @@ def test_stem_relations_preserved():
 
 def _explain_src() -> str:
     return Path(
-        Path(__file__).resolve().parent.parent.parent / "engine/saju/explain.py"
+        Path(__file__).resolve().parent.parent.parent / "engine/saju/interpret/explain.py"
     ).read_text(encoding="utf-8")
 
 

@@ -629,7 +629,7 @@ from functools import lru_cache as _lru_cache
 from pathlib import Path as _Path
 
 _MEANINGS_PATH = (
-    _Path(__file__).resolve().parent.parent.parent
+    _Path(__file__).resolve().parent.parent.parent.parent
     / "assets" / "hanja" / "hanja_meanings.json"
 )
 
