@@ -80,31 +80,35 @@ h4 { font-size: 14px; color: var(--text-soft); letter-spacing: 0.5px; margin: 10
 .tab-content { display: none; }
 .tab-content.active { display: block; animation: fadeIn 0.35s ease; }
 
-/* 분석 종류 선택 모드 바 (개인/궁합) */
+/* 분석 종류 선택 모드 바 (개인/궁합) — 4개 grid 균등 (이전 3+1 줄바꿈 문제 해결) */
 .mode-bar {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  justify-content: center;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
   margin: 0 0 22px;
-  padding: 12px;
+  padding: 10px;
   background: var(--cream);
   border: 1.5px solid var(--ink);
   border-radius: var(--radius-lg);
+  box-sizing: border-box;
 }
 .mode-btn {
   background: var(--milk);
   border: 1.5px solid var(--ink);
   color: var(--ink);
-  padding: 9px 22px;
+  padding: 9px 6px;
   cursor: pointer;
   border-radius: var(--radius-pill);
   font-family: 'Gowun Dodum', sans-serif;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
   transition: all 0.2s;
   box-shadow: 0 2px 0 var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
 }
 .mode-btn:hover {
   background: var(--pink-bri);
@@ -118,8 +122,8 @@ h4 { font-size: 14px; color: var(--text-soft); letter-spacing: 0.5px; margin: 10
 }
 
 @media (max-width: 720px) {
-  .mode-btn { padding: 8px 16px; font-size: 13px; letter-spacing: 0.5px; }
-  .mode-bar { padding: 8px; gap: 6px; }
+  .mode-btn { padding: 8px 4px; font-size: 12px; letter-spacing: 0.3px; }
+  .mode-bar { padding: 8px; gap: 5px; }
   h1 { font-size: 34px; letter-spacing: 5px; }
   .subtitle { letter-spacing: 4px; font-size: 12px; }
 }
