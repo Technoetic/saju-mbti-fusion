@@ -684,10 +684,12 @@
   </div>
   <div class="row">
   <label>생년월일</label>
-  <select id="year" data-ymd="year" style="width:100px"></select> 년
-  <select id="month" data-ymd="month" style="width:80px"></select> 월
-  <select id="day" data-ymd="day" style="width:80px"></select> 일
-  <span class="hint" id="ymdHint">(위에서 선택한 달력 기준)</span>
+  <div class="row-group">
+  <select id="year" data-ymd="year"></select>
+  <select id="month" data-ymd="month"></select>
+  <select id="day" data-ymd="day"></select>
+  </div>
+  <span class="hint" id="ymdHint" style="display:block;margin-top:4px">(위에서 선택한 달력 기준)</span>
   </div>
   <div class="row">
   <label>태어난 시각</label>
@@ -820,6 +822,7 @@
   <legend>三. 지금 現</legend>
   <div class="row">
   <label>직장·일</label>
+  <div class="row-group">
   <select id="jobStatus">
   <option value="">— 선택 안 함 —</option>
   <option value="working">재직 중</option>
@@ -841,8 +844,10 @@
   <option value="10년 이상">10년 이상</option>
   </select>
   </div>
+  </div>
   <div class="row">
   <label>연애·결혼</label>
+  <div class="row-group">
   <select id="loveStatus">
   <option value="">— 선택 안 함 —</option>
   <option value="dating">연애 중</option>
@@ -860,6 +865,7 @@
   <option value="5~10년">5 ~ 10년</option>
   <option value="10년 이상">10년 이상</option>
   </select>
+  </div>
   </div>
   <div class="row hint">
   적어주시면 AI가 지금 상황을 고려해서 더 맞춤형 풀이를 해드립니다.
@@ -879,10 +885,12 @@
   <div id="pStrokeTotal" class="row stroke-total">한자를 골라주세요</div>
   <div class="row">
   <label>생년월일</label>
-  <select id="pYear" data-ymd="year" style="width:100px"></select> 년
-  <select id="pMonth" data-ymd="month" style="width:80px"></select> 월
-  <select id="pDay" data-ymd="day" style="width:80px"></select> 일
-  <span class="hint">(양력)</span>
+  <div class="row-group">
+  <select id="pYear" data-ymd="year"></select>
+  <select id="pMonth" data-ymd="month"></select>
+  <select id="pDay" data-ymd="day"></select>
+  </div>
+  <span class="hint" style="display:block;margin-top:4px">(양력)</span>
   </div>
   <div class="row">
   <label>태어난 시각</label>
