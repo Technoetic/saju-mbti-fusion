@@ -77,6 +77,38 @@ input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; marg
 }
 .row { margin: 12px 0; }
 
+/* ───── 태어난 곳 — 입력 모드 라디오 바 (검색/지역 선택/모름) ───── */
+#tab-saju .bp-mode-bar {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  margin: 4px 0 10px;
+  padding: 6px;
+  background: rgba(10, 15, 30, 0.35);
+  border: 1px solid var(--ink-light, rgba(216,211,192,0.3));
+  border-radius: 8px;
+}
+#tab-saju .bp-mode-opt {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 6px 4px;
+  cursor: pointer;
+  border-radius: 6px;
+  font-size: 12px;
+  letter-spacing: 0.3px;
+  transition: background 0.15s;
+  min-width: 0;
+}
+#tab-saju .bp-mode-opt:hover { background: rgba(255,255,255,0.06); }
+#tab-saju .bp-mode-opt input[type="radio"] { margin: 0; accent-color: var(--gold, #d4af37); }
+#tab-saju .bp-mode-opt input[type="radio"]:checked + span { color: var(--gold, #d4af37); font-weight: 600; }
+#tab-saju .bp-panel { animation: bp-fade 0.15s ease; }
+@keyframes bp-fade { from { opacity: 0; } to { opacity: 1; } }
+#tab-saju .bp-region-group { gap: 6px; }
+#tab-saju .bp-region-group > select { font-size: 13px; }
+
 /* ───── 정통 사주 폼 (#tab-saju) — 라벨 위·입력 아래 통일 (오늘의 운세 패턴) ───── */
 /* 사용자 보고: 달력 hint가 select 옆에 인라인으로 붙어 "생년/월일을..." 줄바꿈,
    라벨 일부는 옆/일부는 위로 들쭉날쭉, 성별 select가 라벨 옆에 좁게 덜렁. */

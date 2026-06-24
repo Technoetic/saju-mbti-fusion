@@ -240,3 +240,120 @@
 // NameReader 외부 모듈: js/readers/name-reader.js (ADR-038 Phase 2 확장)
 // 본 위치 인라인 정의는 외부 .js로 이동.
 
+
+// ============================================================
+// SECTION: 태어난 곳 — 시도→시군구→읍면동 cascade 드롭다운 + 모드 토글
+// 데이터: assets/korea_regions.json (행정안전부 표준 KOSTAT 2013, 동 ~3,482)
+// 모드: search (Daum Postcode) / select (3단 cascade) / unknown (서울 종로 디폴트)
+// ============================================================
+(function initBirthplaceRegions() {
+  let _regions = null;
+  let _loadingPromise = null;
+
+  function loadRegions() {
+    if (_regions) return Promise.resolve(_regions);
+    if (_loadingPromise) return _loadingPromise;
+    _loadingPromise = fetch('assets/korea_regions.json')
+      .then(r => r.json())
+      .then(j => { _regions = j; return j; });
+    return _loadingPromise;
+  }
+
+  function fillSelect(sel, items, placeholder) {
+    sel.innerHTML = '';
+    const ph = document.createElement('option');
+    ph.value = ''; ph.textContent = placeholder;
+    sel.appendChild(ph);
+    for (const it of items) {
+      const opt = document.createElement('option');
+      opt.value = it.code; opt.textContent = it.name;
+      opt.dataset.lon = it.lon; opt.dataset.lat = it.lat;
+      sel.appendChild(opt);
+    }
+  }
+
+  function applyCoords(lon, sidoKey) {
+    const lonInput = document.getElementById('longitude');
+    if (lonInput) lonInput.value = (+lon).toFixed(3);
+    const tzInput = document.getElementById('timezone');
+    if (tzInput) tzInput.value = 9;
+    const bp = document.getElementById('birthplace');
+    if (bp) {
+      const targetKey = sidoKey || 'custom';
+      const opt = bp.querySelector(`option[value="${targetKey}"]`);
+      if (opt) { bp.value = targetKey; bp.dispatchEvent(new Event('change')); }
+      else { bp.value = 'custom'; bp.dispatchEvent(new Event('change')); }
+    }
+  }
+
+  // 시도 한글명 → 기존 #birthplace 옵션 key 매핑
+  const SIDO_NAME_KEY = {
+    '서울특별시': 'seoul', '부산광역시': 'busan', '대구광역시': 'daegu',
+    '인천광역시': 'incheon', '광주광역시': 'gwangju', '대전광역시': 'daejeon',
+    '울산광역시': 'ulsan', '세종특별자치시': 'sejong', '경기도': 'gyeonggi',
+    '강원도': 'gangwon', '강원특별자치도': 'gangwon',
+    '충청북도': 'chungbuk', '충청남도': 'chungnam',
+    '전라북도': 'jeonbuk', '전북특별자치도': 'jeonbuk', '전라남도': 'jeonnam',
+    '경상북도': 'gyeongbuk', '경상남도': 'gyeongnam',
+    '제주특별자치도': 'jeju',
+  };
+
+  async function initRegionCascade() {
+    const sidoSel = document.getElementById('bpSidoSel');
+    const sggSel = document.getElementById('bpSggSel');
+    const dongSel = document.getElementById('bpDongSel');
+    if (!sidoSel || !sggSel || !dongSel) return;
+
+    const regs = await loadRegions();
+    fillSelect(sidoSel, regs.sido, '— 도/시 —');
+
+    sidoSel.addEventListener('change', () => {
+      const code = sidoSel.value;
+      if (!code) {
+        fillSelect(sggSel, [], '— 시·군·구 —'); sggSel.disabled = true;
+        fillSelect(dongSel, [], '— 읍·면·동 —'); dongSel.disabled = true;
+        return;
+      }
+      const list = regs.sgg[code] || [];
+      fillSelect(sggSel, list, '— 시·군·구 —');
+      sggSel.disabled = !list.length;
+      fillSelect(dongSel, [], '— 읍·면·동 —'); dongSel.disabled = true;
+    });
+
+    sggSel.addEventListener('change', () => {
+      const code = sggSel.value;
+      if (!code) { fillSelect(dongSel, [], '— 읍·면·동 —'); dongSel.disabled = true; return; }
+      const list = regs.dong[code] || [];
+      fillSelect(dongSel, list, list.length ? '— 읍·면·동 —' : '— 동 데이터 없음 —');
+      dongSel.disabled = !list.length;
+    });
+
+    dongSel.addEventListener('change', () => {
+      const opt = dongSel.selectedOptions[0];
+      if (!opt || !opt.dataset.lon) return;
+      const sidoOpt = sidoSel.selectedOptions[0];
+      const sidoKey = sidoOpt ? SIDO_NAME_KEY[sidoOpt.textContent] : null;
+      applyCoords(opt.dataset.lon, sidoKey);
+    });
+  }
+
+  function initModeRadios() {
+    const radios = document.querySelectorAll('input[name="bpMode"]');
+    if (!radios.length) return;
+    radios.forEach(r => r.addEventListener('change', () => {
+      const mode = document.querySelector('input[name="bpMode"]:checked').value;
+      document.querySelectorAll('.bp-panel').forEach(p => {
+        p.style.display = (p.dataset.bpMode === mode) ? '' : 'none';
+      });
+      if (mode === 'unknown') applyCoords(126.978, 'seoul'); // 서울 종로 디폴트
+      if (mode === 'select') loadRegions(); // prefetch
+    }));
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => { initRegionCascade(); initModeRadios(); });
+  } else {
+    initRegionCascade(); initModeRadios();
+  }
+})();
+

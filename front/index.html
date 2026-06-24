@@ -727,8 +727,31 @@
   </div>
   <div class="row">
   <label>태어난 곳</label>
-  <input type="text" id="birthplaceQuery" placeholder="여기를 눌러 주소 검색 (예: 봉빛병원, 강남역, 부산 해운대)" readonly style="width:340px;cursor:pointer;background:rgba(10,15,30,0.45)">
-  <span class="hint" style="display:block;margin-top:4px">입력란을 누르면 주소 검색이 열립니다. 결과를 누르면 바로 기입돼요. (외국 출생은 아래 "고급 설정"에서 직접 입력)</span>
+  <!-- 입력 모드 선택 (3가지) -->
+  <div class="bp-mode-bar" role="radiogroup" aria-label="태어난 곳 입력 방식">
+    <label class="bp-mode-opt"><input type="radio" name="bpMode" value="search" checked><span>주소 검색</span></label>
+    <label class="bp-mode-opt"><input type="radio" name="bpMode" value="select"><span>지역 선택</span></label>
+    <label class="bp-mode-opt"><input type="radio" name="bpMode" value="unknown"><span>모름</span></label>
+  </div>
+  <!-- 모드 1: 주소 검색 (기존) -->
+  <div class="bp-panel" data-bp-mode="search">
+  <input type="text" id="birthplaceQuery" placeholder="여기를 눌러 주소 검색 (예: 봉빛병원, 강남역, 부산 해운대)" readonly style="cursor:pointer;background:rgba(10,15,30,0.45)">
+  <span class="hint" style="display:block;margin-top:4px">입력란을 누르면 주소 검색이 열립니다. 결과를 누르면 바로 기입돼요.</span>
+  </div>
+  <!-- 모드 2: 지역 선택 (시도 → 시군구 → 읍면동) -->
+  <div class="bp-panel" data-bp-mode="select" style="display:none">
+  <div class="row-group bp-region-group">
+  <select id="bpSidoSel" data-bp-region="sido"><option value="">— 도/시 —</option></select>
+  <select id="bpSggSel" data-bp-region="sgg" disabled><option value="">— 시·군·구 —</option></select>
+  <select id="bpDongSel" data-bp-region="dong" disabled><option value="">— 읍·면·동 —</option></select>
+  </div>
+  <span class="hint" style="display:block;margin-top:4px">행정안전부 표준 (시도 17 · 시군구 251 · 읍면동 3,482)</span>
+  </div>
+  <!-- 모드 3: 모름 -->
+  <div class="bp-panel" data-bp-mode="unknown" style="display:none">
+  <span class="hint" style="display:block">정확한 출생지를 모르시면 서울 종로구 기준으로 풀이합니다. 동·시 단위 위치 차이는 사주 정확도에 큰 영향이 없습니다.</span>
+  </div>
+  <span class="hint" style="display:block;margin-top:6px;opacity:0.75">외국 출생은 아래 "고급 설정"에서 직접 입력하세요.</span>
   </div>
   <!-- 숨김 select — 주소 검색 결과의 시·도가 자동으로 선택됨. JS 호환성 위해 DOM은 유지. -->
   <select id="birthplace" style="display:none">
