@@ -11,6 +11,10 @@ fieldset {
   margin: 0 0 22px;
   position: relative;
   box-shadow: 0 4px 0 var(--ink), var(--shadow-sm);
+  /* fieldset의 브라우저 기본 min-width:min-content 해제 → 부모 폭에 맞춤
+     (출생 fieldset이 .paper-scroll보다 우측으로 18px 삐져나오는 문제) */
+  min-width: 0;
+  box-sizing: border-box;
 }
 fieldset::before, fieldset::after { content: none; }  /* 사극 코너 장식 제거 */
 
