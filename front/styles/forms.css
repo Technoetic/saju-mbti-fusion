@@ -75,19 +75,22 @@ input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; marg
 
 /* ───── row-group — 라벨 옆 입력란 가로 묶음 (년/월/일·상태/기간 등) ───── */
 /* tab-saju 폼이 오늘의 운세(.content-form .row-group)와 동일한 그리드 정렬을 갖도록 한다. */
+/* 모바일 폭에서 라벨이 윗줄로 자동 줄바꿈되므로 row-group은 100% 폭을 차지한다. */
 .row > .row-group {
-  display: inline-flex;
+  display: flex;
   gap: 8px;
-  flex-wrap: wrap;
-  vertical-align: middle;
-  width: calc(100% - 120px);
-  max-width: 360px;
+  flex-wrap: nowrap;
+  width: 100%;
+  max-width: 380px;
+  margin-top: 6px;
 }
 .row > .row-group > select,
 .row > .row-group > input {
-  flex: 1 1 80px;
+  flex: 1 1 0;
   min-width: 0;
   width: auto;
+  padding-left: 10px;
+  padding-right: 22px;
 }
 
 /* ───── 고급 설정 details ───── */
