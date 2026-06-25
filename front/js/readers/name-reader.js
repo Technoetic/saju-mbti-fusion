@@ -128,7 +128,7 @@
         if (candidates.length === 0) hasUnknown = true;
         const key = ch + ':' + i;
         const prevSel = previous[key] || '';
-        const opts = [`<option value="">— 한자 안 씀 —</option>`,
+        const opts = [`<option value="">✦ 한글이름 (순우리말)</option>`,
           ...candidates.map(c => {
             const h = c.han;
             const stroke = c.stroke;

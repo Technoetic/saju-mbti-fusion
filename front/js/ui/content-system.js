@@ -172,7 +172,7 @@
   const candidates = (map[ch] || []).filter(h => strokes[h] && meanings[h]);
   const key = ch + ':' + i;
   const prevSel = previous[key] || '';
-  const opts = ['<option value="">— 한자 안 씀 —</option>'].concat(
+  const opts = ['<option value="">✦ 한글이름 (순우리말)</option>'].concat(
   candidates.map(h => {
   const stroke = strokes[h];
   const meaning = meanings[h] || '';

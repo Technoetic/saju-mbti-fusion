@@ -401,7 +401,7 @@ function updateHanjaSelectors() {
   if (candidates.length === 0) hasUnknown = true;
   const key = ch + ':' + i;
   const prevSel = previous[key] || '';
-  const opts = [`<option value="">— 한자 안 씀 —</option>`,
+  const opts = [`<option value="">✦ 한글이름 (순우리말)</option>`,
   ...candidates.map(h => {
   const stroke = 한자획수[h];
   const meaning = 한자_뜻[h] || '';
@@ -536,7 +536,7 @@ function updatePartnerHanjaSelectors() {
     if (candidates.length === 0) hasUnknown = true;
     const key = ch + ':' + i;
     const prevSel = previous[key] || '';
-    const opts = [`<option value="">— 한자 안 씀 —</option>`,
+    const opts = [`<option value="">✦ 한글이름 (순우리말)</option>`,
       ...candidates.map(h => {
         const stroke = 한자획수[h];
         const meaning = 한자_뜻[h] || '';
