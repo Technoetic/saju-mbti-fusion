@@ -249,9 +249,16 @@
 // ============================================================
 (async function supplementHanjaCandidates() {
   try {
-    const r = await fetch('assets/hangul_to_hanja.json');
-    if (!r.ok) throw new Error('HTTP ' + r.status);
-    const supp = await r.json();
+    // 1) 한글음→한자 후보 보강 (Unihan 9,932자)
+    const [rSupp, rMeta] = await Promise.all([
+      fetch('assets/hangul_to_hanja.json'),
+      fetch('assets/hanja_meta.json'),
+    ]);
+    if (!rSupp.ok || !rMeta.ok) throw new Error('HTTP ' + rSupp.status + '/' + rMeta.status);
+    const supp = await rSupp.json();
+    const meta = await rMeta.json();
+
+    // 한글음_한자 merge
     if (!window.한글음_한자) window.한글음_한자 = {};
     const target = window.한글음_한자;
     let added = 0;
@@ -264,12 +271,25 @@
       }
       target[g] = out;
     }
-    // 보강 후 현재 입력된 이름이 있으면 한자 셀 재생성
-    if (typeof window.updateHanjaSelectors === 'function') {
-      window.updateHanjaSelectors();
+
+    // 2) 한자획수 + 한자_뜻 보강 (saju-ui filter 통과 위해 필수)
+    if (!window.한자획수) window.한자획수 = {};
+    if (!window.한자_뜻) window.한자_뜻 = {};
+    let metaAdded = 0;
+    for (const ch of Object.keys(meta)) {
+      if (!window.한자획수[ch] && meta[ch].s) { window.한자획수[ch] = meta[ch].s; metaAdded++; }
+      if (!window.한자_뜻[ch]) window.한자_뜻[ch] = meta[ch].m || '';
     }
-    // 디버그 (필요 시 console에서 확인)
-    window.__hanjaSuppLoaded = { added, total: Object.values(target).reduce((s, a) => s + a.length, 0) };
+
+    // 보강 후 현재 입력된 이름이 있으면 한자 셀 재생성
+    if (typeof window.updateHanjaSelectors === 'function') window.updateHanjaSelectors();
+
+    window.__hanjaSuppLoaded = {
+      added, metaAdded,
+      totalCandidates: Object.values(target).reduce((s, a) => s + a.length, 0),
+      totalStrokes: Object.keys(window.한자획수).length,
+      totalMeanings: Object.keys(window.한자_뜻).filter(k => window.한자_뜻[k]).length,
+    };
   } catch (e) {
     console.warn('한자 보강 로드 실패 (기존 큐레이션만 사용):', e);
   }

@@ -396,8 +396,8 @@ function updateHanjaSelectors() {
   for (let i = 0; i < allChars.length; i++) {
   const ch = allChars[i];
   const isSurname = i < surnameChars.length;
-  // 획수와 뜻이 모두 있는 한자만 드롭다운에 노출 (?획·뜻없음 한자 숨김)
-  const candidates = (한글음_한자[ch] || []).filter(h => 한자획수[h] && 한자_뜻[h]);
+  // 획수가 있는 한자는 모두 드롭다운에 노출 (뜻 없어도 표시 — Unihan 보강 후)
+  const candidates = (한글음_한자[ch] || []).filter(h => 한자획수[h]);
   if (candidates.length === 0) hasUnknown = true;
   const key = ch + ':' + i;
   const prevSel = previous[key] || '';
