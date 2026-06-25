@@ -87,6 +87,8 @@ input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; marg
   background: rgba(10, 15, 30, 0.35);
   border: 1px solid var(--ink-light, rgba(216,211,192,0.3));
   border-radius: 8px;
+  box-sizing: border-box;
+  width: 100%;
 }
 #tab-saju .bp-mode-opt {
   display: flex;
@@ -106,8 +108,38 @@ input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; marg
 #tab-saju .bp-mode-opt input[type="radio"]:checked + span { color: var(--gold, #d4af37); font-weight: 600; }
 #tab-saju .bp-panel { animation: bp-fade 0.15s ease; }
 @keyframes bp-fade { from { opacity: 0; } to { opacity: 1; } }
-#tab-saju .bp-region-group { gap: 6px; }
-#tab-saju .bp-region-group > select { font-size: 13px; }
+
+/* ★ 핵심: bp-panel 안의 input/select도 다른 단일 입력란(달력/태어난 시각/성별)과 동일 규격 (100% 폭) */
+#tab-saju .bp-panel > input,
+#tab-saju .bp-panel > input[type="text"] {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding: 9px 14px;
+  font-size: 14px;
+  border-radius: 10px;
+  margin: 0;
+}
+
+/* ★ 지역 선택 3단 (도/시/동) — stack: 각 select가 100% 폭으로 세로 정렬
+   (모바일/데스크탑 모두 다른 입력란과 일관, 줄바꿈 없음) */
+#tab-saju .bp-region-group {
+  display: flex !important;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+#tab-saju .bp-region-group > select {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding: 9px 14px;
+  font-size: 14px;
+  border-radius: 10px;
+  margin: 0;
+}
 
 /* ───── 정통 사주 폼 (#tab-saju) — 라벨 위·입력 아래 통일 (오늘의 운세 패턴) ───── */
 /* 사용자 보고: 달력 hint가 select 옆에 인라인으로 붙어 "생년/월일을..." 줄바꿈,
