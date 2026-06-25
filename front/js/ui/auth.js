@@ -77,8 +77,8 @@ function prefillSajuForm(account) {
     el.dispatchEvent(new Event('input', { bubbles: true }));
   };
 
-  // 이름
-  trySet('fullName', account.name_ko);
+  // 이름은 자동 채우지 않음 — 사용자 요청 (기본 상태는 빈 input)
+  // trySet('fullName', account.name_ko);
   // 성별
   trySet('gender', account.gender);
   // MBTI
