@@ -141,6 +141,40 @@ input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; marg
   margin: 0;
 }
 
+/* ───── 정통 사주 한자 셀 — grid stack (다른 입력란과 동일 100% 폭) ───── */
+#tab-saju #hanjaSelectors,
+#tab-saju #pHanjaSelectors {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  margin-top: 8px;
+}
+#tab-saju #hanjaSelectors .hanja-cell,
+#tab-saju #pHanjaSelectors .hanja-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  gap: 8px;
+  margin: 0;
+  width: 100%;
+  min-width: 0;
+  padding: 14px 16px;
+  box-sizing: border-box;
+  text-align: center;
+}
+#tab-saju #hanjaSelectors .hanja-cell .hanja-han,
+#tab-saju #pHanjaSelectors .hanja-cell .hanja-han { text-align: center; margin-bottom: 0; }
+#tab-saju #hanjaSelectors .hanja-cell select,
+#tab-saju #pHanjaSelectors .hanja-cell select {
+  width: 100%;
+  margin: 0;
+  padding: 9px 14px;
+  font-size: 14px;
+  border-radius: 10px;
+  box-sizing: border-box;
+}
+
 /* ───── 정통 사주 폼 (#tab-saju) — 라벨 위·입력 아래 통일 (오늘의 운세 패턴) ───── */
 /* 사용자 보고: 달력 hint가 select 옆에 인라인으로 붙어 "생년/월일을..." 줄바꿈,
    라벨 일부는 옆/일부는 위로 들쭉날쭉, 성별 select가 라벨 옆에 좁게 덜렁. */
