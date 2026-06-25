@@ -242,6 +242,41 @@
 
 
 // ============================================================
+// SECTION: 한자 후보 보강 — Unihan 9,932자 전체를 한글음_한자에 merge
+// 사용자 보고: 한글음→한자 드롭다운에 한자 누락 다수 (예: '민' 9개만 표시, 실제 42개)
+// 해결: 페이지 로드 시 front/assets/hangul_to_hanja.json fetch하여 window.한글음_한자에 merge
+// 기존 큐레이션 한자는 앞에 (자주 쓰는 거 우선), Unihan 누락 한자는 뒤에 추가
+// ============================================================
+(async function supplementHanjaCandidates() {
+  try {
+    const r = await fetch('assets/hangul_to_hanja.json');
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const supp = await r.json();
+    if (!window.한글음_한자) window.한글음_한자 = {};
+    const target = window.한글음_한자;
+    let added = 0;
+    for (const g of Object.keys(supp)) {
+      const existing = target[g] || [];
+      const seen = new Set(existing);
+      const out = [...existing];
+      for (const ch of supp[g]) {
+        if (!seen.has(ch)) { seen.add(ch); out.push(ch); added++; }
+      }
+      target[g] = out;
+    }
+    // 보강 후 현재 입력된 이름이 있으면 한자 셀 재생성
+    if (typeof window.updateHanjaSelectors === 'function') {
+      window.updateHanjaSelectors();
+    }
+    // 디버그 (필요 시 console에서 확인)
+    window.__hanjaSuppLoaded = { added, total: Object.values(target).reduce((s, a) => s + a.length, 0) };
+  } catch (e) {
+    console.warn('한자 보강 로드 실패 (기존 큐레이션만 사용):', e);
+  }
+})();
+
+
+// ============================================================
 // SECTION: 태어난 곳 — 시도→시군구→읍면동 cascade 드롭다운 + 모드 토글
 // 데이터: assets/korea_regions.json (행정안전부 표준 KOSTAT 2013, 동 ~3,482)
 // 모드: search (Daum Postcode) / select (3단 cascade) / unknown (서울 종로 디폴트)
