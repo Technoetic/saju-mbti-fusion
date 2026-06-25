@@ -66,37 +66,9 @@ function updateUserBadge(account) {
 
 // 사주/이름 풀이 폼에 가입 정보 자동 채움
 function prefillSajuForm(account) {
-  if (!account) return;
-
-  const trySet = (id, value) => {
-    if (value == null || value === '') return;
-    const el = document.getElementById(id);
-    if (!el) return;
-    el.value = String(value);
-    el.dispatchEvent(new Event('change', { bubbles: true }));
-    el.dispatchEvent(new Event('input', { bubbles: true }));
-  };
-
-  // 이름은 자동 채우지 않음 — 사용자 요청 (기본 상태는 빈 input)
-  // trySet('fullName', account.name_ko);
-  // 성별
-  trySet('gender', account.gender);
-  // MBTI
-  trySet('mbti', account.mbti);
-  // 생년월일 (select#year, #month, #day)
-  trySet('year', account.birth_year);
-  trySet('month', account.birth_month);
-  trySet('day', account.birth_day);
-  // 태어난 시각
-  trySet('hourBranch', account.birth_hour_branch);
-  // 태어난 곳 (숨김 select#birthplace + birthplaceQuery 표시)
-  if (account.birthplace) {
-    const bp = document.getElementById('birthplace');
-    if (bp) {
-      bp.value = account.birthplace;
-      bp.dispatchEvent(new Event('change', { bubbles: true }));
-    }
-  }
+  // 사용자 요청: 새로고침 시 모든 입력란 초기화 (기본 상태 유지).
+  // 회원 정보 자동 채우기 전체 비활성화 — 이름·성별·MBTI·생년월일·태어난 시각·태어난 곳 모두 비움.
+  return;
 }
 
 async function submitAuth(modal) {
