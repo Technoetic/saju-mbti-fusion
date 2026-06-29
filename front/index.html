@@ -27,6 +27,7 @@
 <script type="module" src="js/core/saju-engine.js"></script>
 <script type="module" src="js/core/name-engine.js"></script>
 <script type="module" src="js/core/saju-ui.js"></script>
+<script type="module" src="js/core/comprehensive-reading.js"></script>
 <script src="js/core/share-utils.js"></script>
 <script type="module" src="js/readers/face-visualizations.js"></script>
 <script type="module" src="js/readers/face-metrics.js"></script>
@@ -895,6 +896,24 @@
   </div>
 </fieldset>
 
+<!-- ────────── 四. 종합 풀이 — 관상·꿈해몽 추가 입력 (자미두수·타로는 자동) ────────── -->
+<fieldset id="comprehensiveFieldset">
+  <legend>四. 종합 풀이 (選)</legend>
+  <div class="row">
+  <label>얼굴 사진</label>
+  <input type="file" id="facePhotoInput" accept="image/*" capture="user">
+  <span class="hint" style="display:block;margin-top:4px">사진을 올리시면 관상도 함께 풀어드립니다. <strong style="color:var(--gold,#d4af37)">(선택)</strong></span>
+  </div>
+  <div class="row">
+  <label>최근 꾼 꿈</label>
+  <textarea id="dreamTextInput" rows="3" maxlength="500" placeholder="간략히 적어주세요 (예: 푸른 하늘을 날아다녔다)" style="width:100%;box-sizing:border-box;padding:10px 14px;border-radius:10px;font-family:inherit;font-size:14px;resize:vertical"></textarea>
+  <span class="hint" style="display:block;margin-top:4px">꿈을 적으시면 해몽도 함께 풀어드립니다. <strong style="color:var(--gold,#d4af37)">(선택)</strong></span>
+  </div>
+  <div class="row hint" style="background:rgba(212,175,55,0.08);padding:10px 12px;border-radius:8px;border:1px dashed rgba(212,175,55,0.3)">
+  ✦ <strong>자미두수</strong>와 <strong>타로</strong>는 사주 데이터로 <strong>자동</strong> 함께 풀어드립니다 — 종합검진처럼.
+  </div>
+</fieldset>
+
 <fieldset id="partnerFieldset" style="display:none">
   <legend>五. 상대방 情</legend>
   <div class="row">
@@ -1032,6 +1051,9 @@
   </div>
   <div id="claudeResult"></div>
   <div id="result"></div>
+
+  <!-- ────────── 종합검진 결과 (자미두수·관상·꿈·타로) ────────── -->
+  <div id="comprehensiveResults"></div>
 
   <!-- ────────── 결과 후 추가 입력 (MBTI · 고민) ────────── -->
   <div id="afterResultCard" class="after-card">

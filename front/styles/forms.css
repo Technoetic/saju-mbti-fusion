@@ -78,6 +78,83 @@ input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; marg
 .row { margin: 12px 0; }
 
 /* ============================================================
+   종합검진 결과 페이지 — 자미두수·관상·꿈·타로 섹션
+   ============================================================ */
+#comprehensiveResults {
+  margin-top: 28px;
+}
+#comprehensiveResults:empty { display: none; }
+#comprehensiveResults .comp-header {
+  text-align: center;
+  margin-bottom: 16px;
+  padding: 14px 16px;
+  background: rgba(212,175,55,0.06);
+  border: 1px dashed rgba(212,175,55,0.35);
+  border-radius: 12px;
+}
+#comprehensiveResults .comp-title {
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 20px;
+  letter-spacing: 4px;
+  color: var(--gold, #d4af37);
+  margin: 0 0 4px;
+}
+#comprehensiveResults .comp-sub {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin: 0;
+  letter-spacing: 0.5px;
+}
+#comprehensiveResults .comp-section {
+  margin: 14px 0;
+  padding: 18px 18px 16px;
+  background: rgba(29, 35, 66, 0.45);
+  border: 1px solid rgba(216, 211, 192, 0.18);
+  border-radius: 12px;
+  box-shadow: 0 2px 0 rgba(0,0,0,0.18);
+}
+#comprehensiveResults .comp-section-title {
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 16px;
+  letter-spacing: 2px;
+  color: var(--gold, #d4af37);
+  margin: 0 0 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px dashed rgba(212,175,55,0.25);
+}
+#comprehensiveResults .comp-section-content {
+  font-size: 14px;
+  line-height: 1.75;
+  letter-spacing: 0.3px;
+  color: var(--text-main);
+}
+#comprehensiveResults .comp-section-content p { margin: 0 0 10px; }
+#comprehensiveResults .comp-section-content strong { color: var(--gold-bri, #ffd866); }
+#comprehensiveResults .comp-loading { color: var(--text-dim); font-style: italic; }
+#comprehensiveResults .comp-spinner {
+  display: inline-block;
+  width: 12px; height: 12px;
+  border: 2px solid rgba(212,175,55,0.25);
+  border-top-color: var(--gold, #d4af37);
+  border-radius: 50%;
+  animation: comp-spin 0.8s linear infinite;
+  vertical-align: middle;
+  margin-right: 6px;
+}
+@keyframes comp-spin { to { transform: rotate(360deg); } }
+#comprehensiveResults .comp-error {
+  color: #e9a8a8;
+  font-size: 13px;
+  margin: 0;
+}
+#comprehensiveResults .comp-error small {
+  display: block;
+  margin-top: 4px;
+  font-size: 11px;
+  opacity: 0.7;
+}
+
+/* ============================================================
    사용자 요청: 만월아씨 전용 단순화 모드 (Phase 1·2)
    - 홈 화면: 만월(saju) 캐릭터 카드만 표시, 다른 캐릭터 모두 숨김
    - 만월 메뉴: 정통 사주(classic)만 표시, 다른 메뉴 모두 숨김
