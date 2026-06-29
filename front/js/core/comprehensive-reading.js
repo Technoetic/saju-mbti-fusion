@@ -64,13 +64,13 @@ async function fetchZiwei({ year, month, day, hourBranch, gender, name }) {
   return await callLLM(prompt);
 }
 
-async function fetchFace(file, gender, age) {
-  const base64 = await fileToBase64(file);
+async function fetchFace(base64DataUrl, gender, age) {
+  // 카메라 캡쳐된 base64 dataURL을 그대로 사용 (face-camera.js)
   const r = await fetch('/api/face/reading', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      image_base64: base64,
+      image_base64: base64DataUrl,
       gender,
       age: age || 30,
       school: 'korean',
@@ -132,13 +132,13 @@ export async function runComprehensiveReadings(ctx) {
   const container = document.getElementById('comprehensiveResults');
   if (!container) return;
 
-  const facePhoto = document.getElementById('facePhotoInput')?.files?.[0];
+  const facePhotoBase64 = (typeof window.__getCapturedFacePhoto === 'function') ? window.__getCapturedFacePhoto() : null;
   const dreamText = document.getElementById('dreamTextInput')?.value?.trim();
   const age = ctx.year ? Math.max(1, new Date().getFullYear() - ctx.year) : 30;
 
   const sections = [];
   sections.push({ key: 'ziwei', emoji: '✦', title: '자미두수 (紫微斗數)', fetcher: () => fetchZiwei(ctx) });
-  if (facePhoto) sections.push({ key: 'face', emoji: '✦', title: '관상 (觀相)', fetcher: () => fetchFace(facePhoto, ctx.gender, age) });
+  if (facePhotoBase64) sections.push({ key: 'face', emoji: '✦', title: '관상 (觀相)', fetcher: () => fetchFace(facePhotoBase64, ctx.gender, age) });
   if (dreamText) sections.push({ key: 'dream', emoji: '✦', title: '꿈해몽 (解夢)', fetcher: () => fetchDream({ dreamText, name: ctx.name, gender: ctx.gender, age }) });
   sections.push({ key: 'tarot', emoji: '✦', title: '타로 (Tarot)', fetcher: () => fetchTarot(ctx.name) });
 
