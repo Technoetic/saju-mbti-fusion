@@ -77,6 +77,15 @@ input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; marg
 }
 .row { margin: 12px 0; }
 
+/* ============================================================
+   사용자 요청: 만월아씨 전용 단순화 모드 (Phase 1·2)
+   - 홈 화면: 만월(saju) 캐릭터 카드만 표시, 다른 캐릭터 모두 숨김
+   - 만월 메뉴: 정통 사주(classic)만 표시, 다른 메뉴 모두 숨김
+   ============================================================ */
+.char-card:not([data-character="saju"]) { display: none !important; }
+.gallery-swipe-hint { display: none !important; }
+.menu-card[data-content-key]:not([data-content-key="classic"]) { display: none !important; }
+
 /* ───── 태어난 곳 — 입력 모드 라디오 바 (검색/지역 선택/모름) ───── */
 #tab-saju .bp-mode-bar {
   display: grid;
