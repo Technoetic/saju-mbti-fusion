@@ -845,22 +845,6 @@ async function triggerAICall() {
   <p class="hint">무료 서버가 잠시 응답이 없네요. 모델을 바꿔서 다시 시도해보세요.</p>`;
   }
 
-  // 종합검진 (자미두수·관상·꿈·타로) — 사주 풀이 후 자동 호출 (fire-and-forget)
-  try {
-    if (typeof window.runComprehensiveReadings === 'function' && lastSajuResult) {
-      const ctx = {
-        name: (lastSajuResult.name && (lastSajuResult.name.surname || '') + (lastSajuResult.name.givenName || '')) || '',
-        surname: lastSajuResult.name?.surname || '',
-        givenName: lastSajuResult.name?.givenName || '',
-        gender: lastSajuResult.gender || document.getElementById('gender')?.value || 'M',
-        year: lastSajuResult.year || +document.getElementById('year')?.value,
-        month: lastSajuResult.month || +document.getElementById('month')?.value,
-        day: lastSajuResult.day || +document.getElementById('day')?.value,
-        hourBranch: lastSajuResult.hourBranch || document.getElementById('hourBranch')?.value,
-      };
-      window.runComprehensiveReadings(ctx); // await 없이 fire-and-forget
-    }
-  } catch (e) { console.warn('[종합검진] 호출 실패:', e); }
 }
 
 // [풀이 보기] — 입력 화면에서 클릭 시 사주 계산 + 결과 화면 전환 + AI 자동 호출
@@ -876,6 +860,22 @@ document.getElementById('goResultBtn').addEventListener('click', async () => {
   name: document.getElementById('fullName')?.value || '',
   ilju: null, keyMessage: null,
   });
+  // 종합검진 (자미두수·관상·꿈·타로) — 사주 LLM과 병렬로 즉시 시작
+  try {
+    if (typeof window.runComprehensiveReadings === 'function' && lastSajuResult) {
+      const ctx = {
+        name: (lastSajuResult.name && (lastSajuResult.name.surname || '') + (lastSajuResult.name.givenName || '')) || '',
+        surname: lastSajuResult.name?.surname || '',
+        givenName: lastSajuResult.name?.givenName || '',
+        gender: lastSajuResult.gender || document.getElementById('gender')?.value || 'M',
+        year: lastSajuResult.year || +document.getElementById('year')?.value,
+        month: lastSajuResult.month || +document.getElementById('month')?.value,
+        day: lastSajuResult.day || +document.getElementById('day')?.value,
+        hourBranch: lastSajuResult.hourBranch || document.getElementById('hourBranch')?.value,
+      };
+      window.runComprehensiveReadings(ctx); // fire-and-forget, 사주와 병렬 진행
+    }
+  } catch (e) { console.warn('[종합검진] 호출 실패:', e); }
   // AI 풀이 자동 시작
   await triggerAICall();
 });
