@@ -27,17 +27,22 @@ function fileToBase64(file) {
 }
 
 async function callLLM(prompt) {
+  // /api/llm/chat 형식: { prompt: str, stream: bool, model?: str, system?: str, max_tokens?: int }
   const r = await fetch('/api/llm/chat', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      messages: [{ role: 'user', content: prompt }],
-      model: 'google/gemini-2.5-flash-lite',
+      prompt,
+      stream: false, // 비스트리밍 — 단일 JSON 응답 { text: "..." }
+      max_tokens: 2048,
     }),
   });
-  if (!r.ok) throw new Error('LLM HTTP ' + r.status);
+  if (!r.ok) {
+    const errText = await r.text().catch(() => '');
+    throw new Error('LLM HTTP ' + r.status + ' — ' + errText.slice(0, 200));
+  }
   const j = await r.json();
-  return j.text || j.message?.content || j.choices?.[0]?.message?.content || j.content || '';
+  return j.text || '';
 }
 
 async function fetchZiwei({ year, month, day, hourBranch, gender, name }) {
