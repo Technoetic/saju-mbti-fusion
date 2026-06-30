@@ -319,6 +319,8 @@ input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; marg
 .char-card:not([data-character="saju"]) { display: none !important; }
 .gallery-swipe-hint { display: none !important; }
 .menu-card[data-content-key]:not([data-content-key="classic"]) { display: none !important; }
+/* 첫 진입 튜토리얼 — 단일 카드라 좌우 스와이프 안내 불필요 */
+#swipeHint { display: none !important; }
 
 /* ───── 태어난 곳 — 입력 모드 라디오 바 (검색/지역 선택/모름) ───── */
 #tab-saju .bp-mode-bar {
