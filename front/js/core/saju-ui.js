@@ -872,6 +872,14 @@ document.getElementById('goResultBtn').addEventListener('click', async () => {
         month: lastSajuResult.month || +document.getElementById('month')?.value,
         day: lastSajuResult.day || +document.getElementById('day')?.value,
         hourBranch: lastSajuResult.hourBranch || document.getElementById('hourBranch')?.value,
+        // 자미두수 결정론 명반용 정수 시각(0~23) — #hour hidden(직접입력/대표시각) 우선, 없으면 정오
+        birthHour: (() => {
+          const h = parseInt(document.getElementById('hour')?.value, 10);
+          if (!Number.isNaN(h) && h >= 0 && h <= 23) return h;
+          const opt = document.getElementById('hourBranch')?.selectedOptions?.[0];
+          const dh = opt ? parseInt(opt.getAttribute('data-hour'), 10) : NaN;
+          return (!Number.isNaN(dh)) ? dh : 12;
+        })(),
       };
       window.runComprehensiveReadings(ctx); // fire-and-forget, 사주와 병렬 진행
     }

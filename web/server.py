@@ -555,6 +555,17 @@ class StarReadingRequest(BaseModel):
     target_date: str | None = None  # None이면 오늘
 
 
+class ZiweiChartRequest(BaseModel):
+    """자미두수 결정론 명반 산출 요청 (ADR-010).
+
+    양력 생년월일시 → 안성법 결정론 명반. LLM 자체산출 X.
+    """
+
+    birth: str  # 'YYYY-MM-DD'
+    birth_hour: int = 12  # 0~23 시각 (시지 산출용). 미상이면 정오(오시) 기본.
+    gender: str = "M"  # 'M'|'F' (배치는 성별 무관, 에코용)
+
+
 class ContentReadingRequest(BaseModel):
     """메뉴 콘텐츠 풀이 요청 — saju 도메인 결정론 + LLM 결합 (ADR-069).
 
@@ -1192,6 +1203,7 @@ class PersonalityAPIServer:
         self.app.post("/api/palm/reading")(self.post_palm_reading)
         self.app.get("/api/palm/diagnostics")(self.get_palm_diagnostics)
         self.app.post("/api/star/reading")(self.post_star_reading)
+        self.app.post("/api/ziwei/chart")(self.post_ziwei_chart)
         self.app.post("/api/content/reading")(self.post_content_reading)
         self.app.post("/api/name/reading")(self.post_name_reading)
         self.app.post("/api/dream/interpret")(self.post_dream_interpret)
@@ -2515,6 +2527,71 @@ class PersonalityAPIServer:
             }
         except ValueError as ve:
             raise HTTPException(400, f"날짜 형식 오류 (YYYY-MM-DD 필요): {ve}")
+        except Exception as e:
+            raise HTTPException(500, str(e))
+
+    async def post_ziwei_chart(
+        self, req: ZiweiChartRequest
+    ) -> dict[str, Any]:
+        """자미두수 결정론 명반 산출 (ADR-010).
+
+        결정론 안성법으로 명궁·12궁·14주성·오행국·생년사화를 산출한다.
+        LLM 호출은 하지 않으며(cost·latency 최소화), 프론트가 prompt_meta를
+        /api/llm/chat 시스템 프롬프트에 주입해 해석 작문을 얻는다.
+        명반 배치를 LLM이 자체산출하지 않도록 결정론 결과를 강제 제공한다.
+        """
+        try:
+            from datetime import date as _date
+            from engine.divination.ziwei.scoring import (
+                compute_ziwei_chart,
+                format_ziwei_for_prompt,
+            )
+            from engine.safety import build_legal_footer, build_ai_generation_meta
+
+            birth = _date.fromisoformat(req.birth)
+            if not 0 <= req.birth_hour <= 23:
+                raise ValueError(f"birth_hour must be 0..23, got {req.birth_hour}")
+
+            chart = compute_ziwei_chart(birth, req.birth_hour, req.gender)
+
+            return {
+                "lunar_month": chart.lunar_month,
+                "lunar_day": chart.lunar_day,
+                "is_leap_month": chart.is_leap_month,
+                "hour_branch_ko": chart.hour_branch_ko,
+                "year_gan_ko": chart.year_gan_ko,
+                "ming_branch_ko": chart.ming_branch_ko,
+                "body_branch_ko": chart.body_branch_ko,
+                "wuxing_ju_ko": chart.wuxing_ju_ko,
+                "wuxing_ju_num": chart.wuxing_ju_num,
+                "ziwei_branch_ko": chart.ziwei_branch_ko,
+                "palaces": [
+                    {
+                        "key": p.key,
+                        "label_ko": p.label_ko,
+                        "label_hanja": p.label_hanja,
+                        "alias_ko": p.alias_ko,
+                        "branch_ko": p.branch_ko,
+                        "branch_hanja": p.branch_hanja,
+                        "main_stars_ko": list(p.main_stars_ko),
+                    }
+                    for p in chart.palaces
+                ],
+                "sihua": {
+                    "school": chart.sihua_school,
+                    "lu_ko": chart.sihua_lu_ko,
+                    "quan_ko": chart.sihua_quan_ko,
+                    "ke_ko": chart.sihua_ke_ko,
+                    "ji_ko": chart.sihua_ji_ko,
+                    "has_variants": chart.sihua_has_variants,
+                },
+                "prompt_meta": format_ziwei_for_prompt(chart),
+                "disclaimer": chart.disclaimer,
+                "legal_notice": build_legal_footer(),
+                "ai_generation": build_ai_generation_meta(model_label="deterministic-engine"),
+            }
+        except ValueError as ve:
+            raise HTTPException(400, f"입력 형식 오류: {ve}")
         except Exception as e:
             raise HTTPException(500, str(e))
 

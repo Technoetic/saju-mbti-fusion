@@ -45,21 +45,38 @@ async function callLLM(prompt) {
   return j.text || '';
 }
 
-async function fetchZiwei({ year, month, day, hourBranch, gender, name }) {
-  const genderKo = gender === 'M' ? '남' : '여';
-  const prompt = `당신은 자미두수(紫微斗數) 명리학 마스터입니다. 다음 사주 정보로 자미두수 풀이를 한국어 400~600자로 풀어주세요.
+// 자미두수 — 결정론 명반(命盤)을 백엔드에서 산출(ADR-010) 후 LLM 해석 주입.
+//   1. /api/ziwei/chart 로 안성법 결정론 명반 산출 (명궁·12궁·14주성·오행국·사화)
+//   2. 결정론 결과(prompt_meta)를 시스템 프롬프트에 주입 — LLM은 배치를 자체산출하지 않음
+async function fetchZiwei({ year, month, day, birthHour, gender, name }) {
+  // 결정론 명반 산출
+  const iso = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+  const chartRes = await fetch('/api/ziwei/chart', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      birth: iso,
+      birth_hour: (typeof birthHour === 'number') ? birthHour : 12,
+      gender: gender || 'M',
+    }),
+  });
+  if (!chartRes.ok) {
+    const errText = await chartRes.text().catch(() => '');
+    throw new Error('ziwei chart HTTP ' + chartRes.status + ' — ' + errText.slice(0, 200));
+  }
+  const chart = await chartRes.json();
 
-[입력]
-이름: ${name || '(생략)'}
-생년월일: ${year}년 ${month}월 ${day}일
-태어난 시각: ${hourBranch}시
-성별: ${genderKo}
+  // 결정론 배치를 프롬프트에 주입 (LLM은 해석만, 배치 변경 금지)
+  const prompt = `당신은 자미두수(紫微斗數) 명리학 마스터입니다. 아래 결정론 엔진이 산출한 명반(命盤) 배치를 근거로만 한국어 400~600자 풀이를 해주세요.
+
+${chart.prompt_meta}
 
 [풀이 지침]
-- 명궁(命宮)·재백궁(財帛宮)·관록궁(官祿宮)·복덕궁(福德宮) 4궁 중심으로 풀어주세요.
-- 14주성(자미·천기·태양·무곡·천동·염정·천부·태음·탐랑·거문·천상·천량·칠살·파군) 중 핵심 1~2개만 짚어주세요.
-- 단정 어조("반드시", "확실히", "운명적으로") 피하고 "결의 흐름이 보입니다", "기운이 흘러갑니다" 같이 부드럽게.
-- 시작은 "✦ 자미두수로 보아 그대의 명궁에는..." 같이 자연스럽게.
+- 위 확정 배치(명궁·오행국·자미성·4대 궁 주성·생년사화)를 근거로만 풀이. 배치를 새로 만들지 마세요.
+- 명궁(命宮)·재백궁(財帛宮)·관록궁(官祿宮)·복덕궁(福德宮) 4궁 중심으로.
+- 명궁 주성과 생년사화의 결(흐름)을 부드럽게 연결.
+- 단정 어조("반드시", "확실히", "운명적으로") 피하고 "결의 흐름이 보입니다", "기운이 흘러갑니다" 같이.
+- 시작은 "✦ 자미두수로 보아 그대의 명궁(${chart.ming_branch_ko}궁)에는..." 같이 자연스럽게.
 - 한자(漢字)는 처음 등장 시에만 괄호로 표기.`;
   return await callLLM(prompt);
 }
@@ -126,7 +143,7 @@ async function fetchTarot(name) {
 
 /**
  * 종합검진 실행 — 사주 결과 페이지에 자미두수/관상/꿈/타로 섹션 추가
- * @param {object} ctx - { name, surname, givenName, gender, year, month, day, hourBranch }
+ * @param {object} ctx - { name, surname, givenName, gender, year, month, day, hourBranch, birthHour }
  */
 export async function runComprehensiveReadings(ctx) {
   const container = document.getElementById('comprehensiveResults');
