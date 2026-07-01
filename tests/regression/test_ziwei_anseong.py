@@ -84,6 +84,48 @@ def test_ziwei_star_range_validation():
         an_xing.ziwei_star(6, 31)
 
 
+def test_ziwei_table_comprehensive():
+    """자미성 정국표 150칸(국수 2~6 × 생일 1~30) 전수 무결성.
+
+    모든 칸이 유효 지지 인덱스(0~11)를 반환하고 예외 없이 산출됨을 보장.
+    조견표 하드코딩이 손상되면 이 테스트가 잡는다.
+    """
+    for ju in range(2, 7):
+        for day in range(1, 31):
+            br = an_xing.ziwei_star(ju, day)
+            assert 0 <= br <= 11, f"{ju}국 {day}일 → {br} (범위 밖)"
+
+
+def test_ziwei_table_matches_classical_formula():
+    """자미성 정국표 150칸이 원전 안자미성결(安紫微星訣) 공식과 완전 일치.
+
+    원전 공식 (《자미두수전서》 卷二): 商=ceil(생일/국수), 補數=商*국수-생일,
+    보수 홀수→向前(역행), 짝수→向後(순행), 인궁 기점.
+    → 하드코딩 조견표가 이 공식을 재현하는지 150칸 전수 대조.
+    (조견표 채택 이유는 원전 서술의 방향 모호성 회피이나, 공식과 결과 동치임을 여기서 보장.)
+    """
+    import math
+
+    def classical(ju: int, day: int) -> int:
+        if day % ju == 0:
+            n = day // ju
+        else:
+            shang = math.ceil(day / ju)
+            bosu = shang * ju - day
+            n = shang - bosu if bosu % 2 == 1 else shang + bosu
+        return (2 + (n - 1)) % 12  # 인궁(2) 기점
+
+    for ju in range(2, 7):
+        for day in range(1, 31):
+            assert an_xing.ziwei_star(ju, day) == classical(ju, day), \
+                f"{ju}국 {day}일: 표={an_xing.ziwei_star(ju, day)} 공식={classical(ju, day)}"
+
+
+def test_ziwei_table_geng6_day21():
+    """검증 예시 핵심: 화6국 21일 = 인(寅) (원전 二十一寅 축자 + 공식 일치)."""
+    assert an_xing.ziwei_star(6, 21) == 2
+
+
 # ─────────────────────────── 14주성 배치 ───────────────────────────
 
 def test_fourteen_stars_count():
@@ -197,6 +239,38 @@ def test_sihua_aux_star_resolved():
     assert sh.ke_star_ko == "문창"
     assert "PLACEHOLDER" not in sh.ke_star_ko
     assert "문창" in SIHUA_STAR_LABEL_KO.values()
+
+
+# ─────────────────────────── 윤달 분월법 (원전 15일 분월, lunar-python 불요) ───────────────────────────
+
+def test_leap_month_split_boundary():
+    """윤달 15일 분월법 경계 (원전 卷一 '十五日以前作前月，十五日以後作後月').
+
+    lunar-python은 윤달을 음수 월로 반환. 15일 이하=전월, 16일 이상=후월.
+    """
+    from engine.divination.ziwei.scoring import _leap_month_split
+
+    # 윤4월 (raw = -4)
+    assert _leap_month_split(-4, 1) == (4, True)    # 1일 → 전월(4)
+    assert _leap_month_split(-4, 15) == (4, True)   # 15일 → 전월(4)
+    assert _leap_month_split(-4, 16) == (5, True)   # 16일 → 후월(5)
+    assert _leap_month_split(-4, 30) == (5, True)   # 30일 → 후월(5)
+
+
+def test_leap_month_split_december_rollover():
+    """윤12월 16일 이후 → 다음 해 1월 롤오버 (12→1)."""
+    from engine.divination.ziwei.scoring import _leap_month_split
+
+    assert _leap_month_split(-12, 15) == (12, True)  # 전월(12)
+    assert _leap_month_split(-12, 16) == (1, True)   # 후월 → 1월 롤오버
+
+
+def test_leap_month_split_normal_month():
+    """평달(양수 월)은 그대로, is_leap=False."""
+    from engine.divination.ziwei.scoring import _leap_month_split
+
+    assert _leap_month_split(4, 21) == (4, False)
+    assert _leap_month_split(12, 30) == (12, False)
 
 
 # ─────────────────────────── compute_ziwei_chart (lunar-python 연동) ───────────────────────────
