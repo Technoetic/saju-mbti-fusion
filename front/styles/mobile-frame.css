@@ -107,7 +107,9 @@ html, body {
    ────────────────────────────────────────────── */
 @media (min-width: 481px) {
   body {
-    padding: 24px 0 64px;
+    /* 하단 padding 0 — 폰 프레임이 뷰포트 최하단까지 채우고
+       탭바가 그 위에 정확히 얹히도록 (표준 모바일 앱 UX) */
+    padding: 24px 0 0;
   }
 
   /* 폰 프레임 — 미세 금테 + 부드러운 그림자, 배경은 깔지 않음
@@ -125,7 +127,7 @@ html, body {
       0 20px 50px rgba(232, 154, 168, 0.22),
       0 8px 24px rgba(232, 154, 168, 0.18);
     background: var(--milk);
-    min-height: calc(100vh - 88px);
+    min-height: calc(100vh - 24px);
     position: relative;
   }
 
