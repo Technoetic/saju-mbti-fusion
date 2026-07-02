@@ -25,9 +25,7 @@
     bottom: 64px;
     /* 폰 프레임 하단 곡선과 맞물리도록 아래 모서리만 둥글게 */
     border-radius: 0 0 var(--radius-xl) var(--radius-xl);
-    border-left: 1.5px solid var(--ink);
-    border-right: 1.5px solid var(--ink);
-    border-bottom: 1.5px solid var(--ink);
+    /* 좌·우·하 테두리는 폰 프레임(2px)이 이미 제공 — 탭바는 상단 구분선만 */
     box-shadow: 0 -10px 28px rgba(160, 100, 90, 0.18);
   }
 }
@@ -111,8 +109,16 @@ body.in-app #tabView {
 
 @media (min-width: 481px) {
   .tab-view {
-    padding-left: 22px;
-    padding-right: 22px;
+    /* 폰 프레임 스타일 — 일지·프로필 탭에서도 홈과 동일한 프레임 유지 */
+    padding: 28px 22px 48px;
+    border-radius: var(--radius-xl);
+    border: 2px solid var(--ink);
+    box-shadow:
+      0 6px 0 var(--ink),
+      0 20px 50px rgba(232, 154, 168, 0.22),
+      0 8px 24px rgba(232, 154, 168, 0.18);
+    background: var(--milk);
+    min-height: calc(100vh - 88px);
   }
 }
 
