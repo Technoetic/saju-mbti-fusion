@@ -21,9 +21,13 @@
 
 @media (min-width: 481px) {
   .bottom-tabs {
-    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    /* 폰 프레임 하단 안쪽에 정착 — body padding-bottom(64px)만큼 위로 */
+    bottom: 64px;
+    /* 폰 프레임 하단 곡선과 맞물리도록 아래 모서리만 둥글게 */
+    border-radius: 0 0 var(--radius-xl) var(--radius-xl);
     border-left: 1.5px solid var(--ink);
     border-right: 1.5px solid var(--ink);
+    border-bottom: 1.5px solid var(--ink);
     box-shadow: 0 -10px 28px rgba(160, 100, 90, 0.18);
   }
 }
