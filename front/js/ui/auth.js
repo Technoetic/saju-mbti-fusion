@@ -32,10 +32,10 @@ function setMode(modal, mode) {
   const submit = document.getElementById('authSubmit');
   const tabs = modal.querySelectorAll('.auth-tab');
   if (mode === 'login') {
-    if (title) title.textContent = '月 下 夢 · 로그인';
+    if (title) title.textContent = '四柱鏡 · 로그인';
     if (submit) submit.textContent = '로그인';
   } else {
-    if (title) title.textContent = '月 下 夢 · 회원가입';
+    if (title) title.textContent = '四柱鏡 · 회원가입';
     if (submit) submit.textContent = '회원가입';
   }
   tabs.forEach(t => t.classList.toggle('active', t.dataset.authMode === mode));

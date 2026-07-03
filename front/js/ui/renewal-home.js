@@ -1,174 +1,365 @@
 /* ============================================================
-   renewal-home.js — 리뉴얼 홈 렌더링 (2026-07)
+   renewal-home.js — 四柱鏡·사주경 · 심야편 (2026-07)
    ============================================================
-   - WHM_CONTENTS 순회 → 상품 카드 그리드
-   - 카테고리 필터
-   - 카드 클릭 → 기존 tab-bar 라우팅 재사용 (결정론 엔진 손대지 않음)
+   히어로 인터랙션:
+   - ON AIR 자동 점화 (β · 도착 3.2초 뒤 티틱)
+   - 오실로스코프 파형 (문장 진행 · 소강 리듬 시뮬)
+   - 간헐 지직 노이즈 (0.7~2.2초 랜덤, 100~320ms 지속)
+   - Web Audio 프로그래매틱 사운드 (핑크 hiss + 티틱 + static)
+   - CTA → 기존 tab-bar 재사용 (결정론 엔진 손대지 않음)
    ============================================================ */
 (function () {
   'use strict';
 
-  const CATS = [
-    { key: 'all',    label: '전체' },
-    { key: 'saju',   label: '사주' },
-    { key: 'dream',  label: '꿈' },
-    { key: 'hwapae', label: '꽃패' },
-    { key: 'face',   label: '관상' },
-  ];
-  const ACTIVE = new Set(['saju', 'dream', 'hwapae', 'face']);
+  // ── 타이밍 상수 ─────────────────────────────────────────
+  const IGNITE_DELAY  = 3200;      // 첫 티틱까지 대기
+  const IGNITE_DUR    = 1100;      // 점화 애니 duration (CSS 매칭)
+  const BURST_MIN     = 700;       // static burst 간격 최소
+  const BURST_MAX     = 2200;      // static burst 간격 최대
+  const BURST_DUR_MIN = 100;
+  const BURST_DUR_MAX = 320;
+  const JITTER_PROB   = 0.28;      // burst 시 헤드라인 흔들림 확률
 
-  const TIER = {
-    free:    { text: '무료' },
-    season:  { text: '시즌' },
-    premium: { text: '봉인' },
+  const scene         = document.getElementById('heroScene');
+  const onAirSign     = document.getElementById('onAirSign');
+  const soundToggle   = document.getElementById('soundToggle');
+  const waveformPath  = document.getElementById('waveformPath');
+  const staticOverlay = scene ? scene.querySelector('.hero-static') : null;
+
+  if (!scene) {
+    console.warn('[사주경] hero scene 없음 — 이전 홈 렌더러 무시');
+    exposeCompat();
+    return;
+  }
+
+  const state = {
+    ignited: false,
+    burstTimer: null,
+    rafId: null,
+    audio: null,
+    reduced: !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches),
   };
-  const FLAG = { hot: 'HOT', new: 'NEW' };
 
-  function esc(s) {
-    return String(s == null ? '' : s)
-      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  // ============================================================
+  // 1) ON AIR 점화 시퀀스 (β · 도착 3.2초 뒤 자동)
+  // ============================================================
+  function ignite() {
+    if (state.ignited) return;
+    state.ignited = true;
+
+    scene.classList.add('igniting');
+    if (state.audio && state.audio.on) playTick();
+
+    setTimeout(() => {
+      scene.classList.remove('igniting');
+      scene.classList.add('on-air');
+      startWaveform();
+      scheduleBurst();
+    }, IGNITE_DUR);
   }
 
-  function flatten(contents) {
-    const list = [];
-    Object.keys(contents || {}).forEach(domain => {
-      if (!ACTIVE.has(domain)) return;
-      const d = contents[domain] || {};
-      (d.items || []).forEach(item => list.push({ domain, master: d.master, ...item }));
-    });
-    return list;
-  }
+  // ============================================================
+  // 2) 오실로스코프 파형 (문장 진행·소강 리듬)
+  // ============================================================
+  function startWaveform() {
+    if (!waveformPath || state.reduced) return;
+    const W = 1200, H = 52, MID = 26;
+    const N = 220;
+    let t = 0;
 
-  function renderCats(container) {
-    container.innerHTML = CATS.map((c, i) => `
-      <button type="button" class="home-cat" role="tab"
-              data-cat="${c.key}" aria-selected="${i === 0 ? 'true' : 'false'}">
-        ${esc(c.label)}
-      </button>
-    `).join('');
-  }
+    const rand = (i, k) =>
+      Math.sin(i * 0.073 + k * 1.31) * 0.5 +
+      Math.sin(i * 0.317 + k * 2.71) * 0.35 +
+      Math.sin(i * 1.24 + k * 5.09) * 0.15;
 
-  function renderBadges(item) {
-    const parts = [];
-    const t = TIER[item.tier];
-    if (t) parts.push(`<span class="p-badge" data-tier="${esc(item.tier)}">${esc(t.text)}</span>`);
-    (item.badges || []).forEach(f => {
-      const label = FLAG[f];
-      if (label) parts.push(`<span class="p-badge" data-flag="${esc(f)}">${esc(label)}</span>`);
-    });
-    return parts.join('');
-  }
+    function draw() {
+      // 문장 리듬: 크게 상승하다 짧게 침묵, 다시 상승
+      const rhythm  = 0.5 + 0.5 * Math.sin(t * 0.019);
+      const pause   = Math.max(0, Math.sin(t * 0.0085) - 0.35);
+      const gate    = Math.pow(rhythm, 1.8) * (1 - pause * 1.6);
+      const activity = Math.max(0, Math.min(1, gate));
 
-  function renderCard(item) {
-    const hasIllust = !!item.illust;
-    const poster = hasIllust
-      ? `<img class="p-card-poster" src="${esc(item.illust)}" alt="${esc(item.name)}" loading="lazy">`
-      : '';
-    const glyph = !hasIllust && item.glyph
-      ? `<span class="p-card-glyph-big" aria-hidden="true">${esc(item.glyph)}</span>`
-      : '';
-    // 목업 할인율 (프로덕션 후기에 실제 데이터 연결)
-    const mockDiscount = item.tier === 'season' ? 54 : item.tier === 'premium' ? 41 : 0;
-    const discountBadge = mockDiscount > 0
-      ? `<span class="p-card-discount">${mockDiscount}% 할인중</span>` : '';
+      // 신호가 이따금 뚝 끊김 (2% 확률로 짧은 flat)
+      const cut = Math.random() < 0.02;
 
-    return `
-      <button type="button" class="p-card ${hasIllust ? 'has-illust' : 'no-illust'}"
-              data-domain="${esc(item.domain)}" data-key="${esc(item.key)}"
-              aria-label="${esc(item.name)}">
-        <div class="p-card-media">
-          ${poster}${glyph}
-          <div class="p-card-badges">${renderBadges(item)}</div>
-          ${discountBadge}
-        </div>
-        <div class="p-card-body">
-          <p class="p-card-eyebrow">${esc(item.master || '')}</p>
-          <h3 class="p-card-name">${esc(item.name)}</h3>
-          <p class="p-card-desc">${esc(item.desc || '')}</p>
-          <div class="p-card-meta">
-            ${item.est ? `<span class="p-card-est">${esc(item.est)}</span>` : ''}
-            <span class="p-card-star">★ 4.${8 - (item.key?.length || 0) % 3}</span>
-          </div>
-        </div>
-      </button>
-    `;
-  }
-
-  function renderCards(container, items, cat) {
-    const filtered = cat === 'all' ? items : items.filter(it => it.domain === cat);
-    if (!filtered.length) {
-      container.innerHTML = `<div class="home-empty">아직 봉인 안에 있어</div>`;
-      return;
+      let d = `M 0 ${MID}`;
+      for (let i = 1; i <= N; i++) {
+        const x = (i / N) * W;
+        if (cut && i > N * 0.3 && i < N * 0.6) {
+          d += ` L ${x.toFixed(1)} ${MID}`;
+          continue;
+        }
+        const low  = Math.sin(i * 0.29 + t * 0.14) * 6;
+        const mid  = Math.sin(i * 0.83 + t * 0.28) * 4;
+        const hi   = Math.sin(i * 2.31 + t * 0.57) * 2;
+        const noise = (rand(i, t * 0.028)) * 3.5;
+        const y = MID + (low + mid + hi + noise) * activity;
+        d += ` L ${x.toFixed(1)} ${y.toFixed(2)}`;
+      }
+      waveformPath.setAttribute('d', d);
+      t += 1;
+      state.rafId = requestAnimationFrame(draw);
     }
-    container.innerHTML = filtered.map(renderCard).join('');
+    draw();
   }
 
-  function routeToDomain(domain) {
-    const tab = document.querySelector(`.tab-btn[data-tab="${domain}"]`);
-    if (tab) {
-      tab.click();
-      requestAnimationFrame(() => {
-        const target = document.getElementById(`tab-${domain}`);
-        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      });
-      return true;
+  // ============================================================
+  // 3) 지직 노이즈 · 간헐 스파이크
+  // ============================================================
+  function scheduleBurst() {
+    if (state.reduced) return;
+    const gap = BURST_MIN + Math.random() * (BURST_MAX - BURST_MIN);
+    state.burstTimer = setTimeout(fireBurst, gap);
+  }
+
+  function fireBurst() {
+    if (!scene.classList.contains('on-air')) return;
+
+    if (staticOverlay) {
+      staticOverlay.style.setProperty('--static-x', `${Math.floor(Math.random() * 400)}px`);
+      staticOverlay.style.setProperty('--static-y', `${Math.floor(Math.random() * 400)}px`);
     }
-    return false;
+    scene.classList.add('burst');
+    if (Math.random() < JITTER_PROB) scene.classList.add('jitter');
+
+    const dur = BURST_DUR_MIN + Math.random() * (BURST_DUR_MAX - BURST_DUR_MIN);
+    if (state.audio && state.audio.on) playStatic(dur / 1000);
+
+    setTimeout(() => {
+      scene.classList.remove('burst', 'jitter');
+      scheduleBurst();
+    }, dur);
   }
 
-  function attach(section) {
-    const catsEl = section.querySelector('.home-cats');
-    const cardsEl = section.querySelector('.home-cards');
+  // ============================================================
+  // 4) Web Audio — 프로그래매틱 사운드 합성
+  // ============================================================
+  function ensureAudio() {
+    if (state.audio) return state.audio;
+    try {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return null;
+      const ctx = new AC();
 
-    catsEl.addEventListener('click', (e) => {
-      const btn = e.target.closest('.home-cat');
-      if (!btn) return;
-      catsEl.querySelectorAll('.home-cat').forEach(b => b.setAttribute('aria-selected', b === btn ? 'true' : 'false'));
-      renderCards(cardsEl, section.__items || [], btn.dataset.cat);
+      // 마스터 게인
+      const master = ctx.createGain();
+      master.gain.value = 0;
+      master.connect(ctx.destination);
+
+      // 핑크 노이즈 버퍼 (Paul Kellett 근사)
+      const bufSize = 2 * ctx.sampleRate;
+      const buf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
+      const data = buf.getChannelData(0);
+      let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+      for (let i = 0; i < bufSize; i++) {
+        const white = Math.random() * 2 - 1;
+        b0 = 0.99886 * b0 + white * 0.0555179;
+        b1 = 0.99332 * b1 + white * 0.0750759;
+        b2 = 0.96900 * b2 + white * 0.1538520;
+        b3 = 0.86650 * b3 + white * 0.3104856;
+        b4 = 0.55000 * b4 + white * 0.5329522;
+        b5 = -0.7616 * b5 - white * 0.0168980;
+        data[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362) * 0.11;
+        b6 = white * 0.115926;
+      }
+
+      // 상시 hiss (loop)
+      const src = ctx.createBufferSource();
+      src.buffer = buf;
+      src.loop = true;
+
+      // Low-pass로 warm 톤 (오래된 라디오)
+      const lp = ctx.createBiquadFilter();
+      lp.type = 'lowpass';
+      lp.frequency.value = 2400;
+      lp.Q.value = 0.7;
+
+      const hissGain = ctx.createGain();
+      hissGain.gain.value = 0.06;
+
+      src.connect(lp).connect(hissGain).connect(master);
+      src.start();
+
+      state.audio = { ctx, master, hissGain, on: false };
+      return state.audio;
+    } catch (e) {
+      console.warn('[사주경] AudioContext 실패:', e);
+      return null;
+    }
+  }
+
+  function playTick() {
+    if (!state.audio) return;
+    const { ctx, master } = state.audio;
+    const now = ctx.currentTime;
+
+    // 전기 클릭 (60ms, 짧은 지수 감쇠)
+    const dur = 0.06;
+    const size = Math.floor(ctx.sampleRate * dur);
+    const buf = ctx.createBuffer(1, size, ctx.sampleRate);
+    const data = buf.getChannelData(0);
+    const decay = ctx.sampleRate * 0.008;
+    for (let i = 0; i < size; i++) {
+      const env = Math.exp(-i / decay);
+      data[i] = (Math.random() * 2 - 1) * env;
+    }
+
+    const src = ctx.createBufferSource();
+    src.buffer = buf;
+
+    const hp = ctx.createBiquadFilter();
+    hp.type = 'highpass';
+    hp.frequency.value = 1400;
+
+    const g = ctx.createGain();
+    g.gain.value = 0.85;
+
+    src.connect(hp).connect(g).connect(master);
+    src.start(now);
+  }
+
+  function playStatic(dur) {
+    if (!state.audio) return;
+    const { ctx, master } = state.audio;
+    const now = ctx.currentTime;
+
+    const size = Math.max(1, Math.floor(ctx.sampleRate * dur));
+    const buf = ctx.createBuffer(1, size, ctx.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < size; i++) {
+      const env = 1 - i / size;
+      data[i] = (Math.random() * 2 - 1) * env * 0.6;
+    }
+
+    const src = ctx.createBufferSource();
+    src.buffer = buf;
+
+    const hp = ctx.createBiquadFilter();
+    hp.type = 'highpass';
+    hp.frequency.value = 900;
+
+    const g = ctx.createGain();
+    g.gain.value = 0.55;
+
+    src.connect(hp).connect(g).connect(master);
+    src.start(now);
+  }
+
+  function fadeMaster(from, to, dur) {
+    if (!state.audio) return;
+    const { ctx, master } = state.audio;
+    const now = ctx.currentTime;
+    master.gain.cancelScheduledValues(now);
+    master.gain.setValueAtTime(from, now);
+    master.gain.linearRampToValueAtTime(to, now + dur);
+  }
+
+  // ============================================================
+  // 5) 사운드 토글
+  // ============================================================
+  if (soundToggle) {
+    soundToggle.addEventListener('click', () => {
+      const a = ensureAudio();
+      if (!a) return;
+      if (a.ctx.state === 'suspended') a.ctx.resume();
+
+      if (a.on) {
+        fadeMaster(a.master.gain.value, 0, 0.4);
+        a.on = false;
+        soundToggle.classList.remove('is-on');
+        soundToggle.setAttribute('aria-pressed', 'false');
+        soundToggle.setAttribute('aria-label', '방송 사운드 켜기');
+      } else {
+        fadeMaster(0, 1, 0.6);
+        a.on = true;
+        soundToggle.classList.add('is-on');
+        soundToggle.setAttribute('aria-pressed', 'true');
+        soundToggle.setAttribute('aria-label', '방송 사운드 끄기');
+        playTick(); // 라디오 켜지는 팟
+      }
     });
 
-    cardsEl.addEventListener('click', (e) => {
-      const card = e.target.closest('.p-card');
-      if (!card) return;
-      const domain = card.dataset.domain;
-      if (domain) routeToDomain(domain);
-    });
+    // 사운드 아이콘 상태별 교체
+    const svgMuted = soundToggle.innerHTML;
+    const svgOn = `
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+        <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+        <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+      </svg>`;
+    const updateIcon = () => {
+      soundToggle.innerHTML = soundToggle.classList.contains('is-on') ? svgOn : svgMuted;
+    };
+    const mo = new MutationObserver(updateIcon);
+    mo.observe(soundToggle, { attributes: true, attributeFilter: ['class'] });
   }
 
-  function build() {
-    const section = document.getElementById('homeMain');
-    const contents = window.WHM_CONTENTS;
-    if (!section || !contents) return false;
-    const catsEl = section.querySelector('.home-cats');
-    const cardsEl = section.querySelector('.home-cards');
-    if (!catsEl || !cardsEl) return false;
-
-    const items = flatten(contents);
-    section.__items = items;
-    renderCats(catsEl);
-    renderCards(cardsEl, items, 'all');
-    attach(section);
-    return true;
-  }
-
-  function waitAndBuild(retries = 40) {
-    if (build()) return;
-    if (retries <= 0) return;
-    setTimeout(() => waitAndBuild(retries - 1), 100);
-  }
-
-  // 히어로 CTA 클릭 → 2026 신년운세로 (사주 탭 전환)
-  document.addEventListener('click', (e) => {
+  // ============================================================
+  // 6) CTA 라우팅 (기존 tab-bar 재사용)
+  // ============================================================
+  scene.addEventListener('click', (e) => {
     const cta = e.target.closest('.hero-cta');
-    if (cta) routeToDomain('saju');
+    if (!cta) return;
+    if (!scene.classList.contains('on-air')) return;
+
+    const tab = cta.dataset.tab;
+    if (!tab) return;
+
+    // 라우팅 순간 아주 짧은 티틱 (오디오 켜져 있을 때만)
+    if (state.audio && state.audio.on) playTick();
+
+    const target = document.querySelector(`.tab-btn[data-tab="${tab}"]`);
+    if (target) {
+      target.click();
+      requestAnimationFrame(() => {
+        const pane = document.getElementById(`tab-${tab}`);
+        if (pane) pane.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    }
   });
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => waitAndBuild());
-  } else {
-    waitAndBuild();
+  // ============================================================
+  // 7) 페이지 가시성 · 탭 비활성 시 애니 정지 (배터리 절약)
+  // ============================================================
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      if (state.rafId) { cancelAnimationFrame(state.rafId); state.rafId = null; }
+      if (state.burstTimer) { clearTimeout(state.burstTimer); state.burstTimer = null; }
+    } else if (scene.classList.contains('on-air')) {
+      if (!state.rafId) startWaveform();
+      if (!state.burstTimer) scheduleBurst();
+    }
+  });
+
+  // ============================================================
+  // 8) 시작 — β 시퀀스 예약
+  // ============================================================
+  function start() {
+    if (state.reduced) {
+      // 접근성: 애니 없이 즉시 ON AIR
+      scene.classList.add('on-air');
+      return;
+    }
+    setTimeout(ignite, IGNITE_DELAY);
   }
 
-  window.RenewalHome = { build, routeToDomain };
+  // 호환 유지 (외부 코드가 여전히 참조 가능)
+  function exposeCompat() {
+    window.RenewalHome = {
+      build: () => !!scene,
+      routeToDomain(domain) {
+        const t = document.querySelector(`.tab-btn[data-tab="${domain}"]`);
+        if (t) { t.click(); return true; }
+        return false;
+      },
+    };
+    window.Sajukyung = { ignite };
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => { start(); exposeCompat(); });
+  } else {
+    start();
+    exposeCompat();
+  }
 })();

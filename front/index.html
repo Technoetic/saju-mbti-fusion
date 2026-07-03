@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#f7efe1">
-<title>月下夢 · 월하몽 — 달 아래의 꿈</title>
+<title>四柱鏡 · 사주경 · 심야편 — 미래를 엿볼 준비가 됐나</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <!-- 月下夢 파스텔 치비 디자인 폰트 — 둥근 손글씨 / 부드러운 산세리프 -->
@@ -58,7 +58,7 @@
 <div id="authModal" class="auth-modal" role="dialog" aria-labelledby="authTitle" aria-modal="true" style="display:none">
   <div class="auth-card">
     <button type="button" class="auth-close" id="authClose" aria-label="닫기">×</button>
-    <h2 class="auth-title" id="authTitle">月 下 夢 · 회원가입</h2>
+    <h2 class="auth-title" id="authTitle">四柱鏡 · 회원가입</h2>
     <div class="auth-tabs">
       <button type="button" class="auth-tab active" data-auth-mode="signup">회원가입</button>
       <button type="button" class="auth-tab" data-auth-mode="login">로그인</button>
@@ -329,45 +329,137 @@
      2026-07 UI 리뉴얼 홈 (renewal-home.css/js)
      ═══════════════════════════════════════════════════════════ -->
 <header class="app-header" role="banner">
-  <a class="brand" href="#" aria-label="월하몽 홈">
-    <span class="brand-han">月下夢</span>
-    <span class="brand-ko">월하몽</span>
+  <a class="brand" href="#" aria-label="사주경 홈">
+    <span class="brand-han">四柱鏡</span>
+    <span class="brand-ko">SAJUKYUNG</span>
   </a>
   <div class="app-header-actions">
     <button type="button" class="header-btn" id="renewalLoginBtn">로그인</button>
-    <button type="button" class="header-btn header-btn-primary" id="renewalSignupBtn">시작하기</button>
+    <button type="button" class="header-btn header-btn-primary" id="renewalSignupBtn">시작</button>
   </div>
 </header>
 
 <main id="homeMain" class="home-main">
-  <!-- 히어로 -->
-  <section class="home-hero" aria-label="2026 병오년 신년 풀이">
-    <div>
-      <p class="hero-eyebrow">丙午 · 병오년의 별</p>
-      <h1 class="hero-title">달이 잠긴 밤,<br/>네 별은 어디로 흐르고 있을까</h1>
-      <p class="hero-sub">병오년 열두 달의 별자리가 네 위로 어떻게 흐를지, 조용히 짚어줄게.</p>
-      <button type="button" class="hero-cta">별을 마주하기</button>
+  <!-- ═════════════════════════════════════════════════════════
+       히어로 · 심야 방송실 (四柱鏡·심야편)
+       ═════════════════════════════════════════════════════════ -->
+  <section class="home-hero hero-scene" id="heroScene" aria-label="사주경 심야편 · 미래를 엿볼 준비가 됐나">
+
+    <!-- 방송실 실루엣 -->
+    <div class="hero-stage" aria-hidden="true">
+
+      <!-- 오래된 콘덴서 마이크 (중앙) -->
+      <svg class="hero-mic" viewBox="0 0 200 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- 스탠드 지지대 -->
+        <line x1="100" y1="240" x2="100" y2="360"/>
+        <path d="M 60 360 Q 100 355 140 360" stroke-linecap="round"/>
+        <line x1="60" y1="360" x2="140" y2="360" stroke-linecap="round"/>
+        <!-- 서스펜션 크래들 (Y 모양) -->
+        <path d="M 60 190 Q 60 165 80 165 L 100 155 L 120 165 Q 140 165 140 190" stroke-linecap="round"/>
+        <line x1="80" y1="165" x2="80" y2="130"/>
+        <line x1="120" y1="165" x2="120" y2="130"/>
+        <line x1="80" y1="130" x2="120" y2="130"/>
+        <!-- 마이크 바디 (콘덴서 · 실린더 상단 + 원통) -->
+        <rect class="mic-fill" x="72" y="80" width="56" height="130" rx="6"/>
+        <!-- 메시 그릴 (상단 격자) -->
+        <line class="mic-mesh" x1="72" y1="95" x2="128" y2="95"/>
+        <line class="mic-mesh" x1="72" y1="103" x2="128" y2="103"/>
+        <line class="mic-mesh" x1="72" y1="111" x2="128" y2="111"/>
+        <line class="mic-mesh" x1="72" y1="119" x2="128" y2="119"/>
+        <line class="mic-mesh" x1="72" y1="127" x2="128" y2="127"/>
+        <line class="mic-mesh" x1="72" y1="135" x2="128" y2="135"/>
+        <line class="mic-mesh" x1="72" y1="143" x2="128" y2="143"/>
+        <line class="mic-mesh" x1="72" y1="151" x2="128" y2="151"/>
+        <line class="mic-mesh" x1="80" y1="80" x2="80" y2="160" opacity="0.5"/>
+        <line class="mic-mesh" x1="100" y1="80" x2="100" y2="160" opacity="0.5"/>
+        <line class="mic-mesh" x1="120" y1="80" x2="120" y2="160" opacity="0.5"/>
+        <!-- 하단 라벨/브랜드 라인 -->
+        <line x1="82" y1="180" x2="118" y2="180"/>
+        <line x1="82" y1="195" x2="118" y2="195"/>
+        <!-- 상단 캡 -->
+        <line x1="72" y1="80" x2="128" y2="80"/>
+        <line x1="76" y1="75" x2="124" y2="75"/>
+        <!-- 팝필터 힌트 (마이크 뒤 원형 그림자) -->
+        <circle cx="100" cy="115" r="40" opacity="0.15"/>
+      </svg>
+
+      <!-- 촛불 (좌하단) -->
+      <svg class="hero-candle" viewBox="0 0 60 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- 촛대 -->
+        <path class="wax" d="M 22 44 L 22 90 L 38 90 L 38 44 Q 38 40 30 40 Q 22 40 22 44 Z"/>
+        <!-- 심지 -->
+        <line class="wick" x1="30" y1="40" x2="30" y2="32"/>
+        <!-- 불꽃 3중 (halo · outer · mid · inner · core) -->
+        <g class="candle-halo">
+          <ellipse class="flame-outer" cx="30" cy="20" rx="12" ry="18"/>
+        </g>
+        <g class="candle-flame">
+          <path class="flame-mid" d="M 30 32 Q 22 24 24 14 Q 26 6 30 4 Q 34 6 36 14 Q 38 24 30 32 Z"/>
+          <path class="flame-inner" d="M 30 30 Q 25 22 27 14 Q 28 8 30 8 Q 32 8 33 14 Q 35 22 30 30 Z"/>
+          <path class="flame-core candle-core" d="M 30 26 Q 27 20 28 15 Q 29 12 30 12 Q 31 12 32 15 Q 33 20 30 26 Z"/>
+        </g>
+      </svg>
+
     </div>
+
+    <!-- ON AIR 사인 (초기 OFF) -->
+    <div class="on-air-sign" id="onAirSign" role="status" aria-live="polite" aria-label="방송 상태">
+      <span class="on-air-dot" aria-hidden="true"></span>
+      <span class="on-air-label">심야편 · ON AIR</span>
+    </div>
+
+    <!-- 사운드 토글 -->
+    <button type="button" class="sound-toggle" id="soundToggle" aria-pressed="false" aria-label="방송 사운드 켜기">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <!-- 기본: mute -->
+        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+        <line x1="23" y1="9" x2="17" y2="15"/>
+        <line x1="17" y1="9" x2="23" y2="15"/>
+      </svg>
+    </button>
+
+    <!-- 중앙 콘텐츠 -->
+    <div class="hero-content">
+      <p class="hero-eyebrow">四柱鏡 · 심야편</p>
+      <h1 class="hero-title">
+        <span data-text="미래를 엿볼 준비가">미래를 엿볼 준비가</span><br/>
+        <span data-text="됐나?">됐나?</span>
+      </h1>
+      <p class="hero-sub">오늘 밤엔 두 편이 나가. 어느 쪽부터 들을래.</p>
+      <div class="hero-ctas">
+        <button type="button" class="hero-cta" data-tab="saju" aria-label="첫 손님 · 사주 · 만월아씨의 통합 풀이">
+          <span class="hero-cta-num">01 · 첫 손님</span>
+          <span class="hero-cta-label">
+            <span>만월아씨의 사주</span>
+            <span class="hero-cta-arrow">→</span>
+          </span>
+        </button>
+        <button type="button" class="hero-cta" data-tab="hwapae" aria-label="둘째 손님 · 꽃패">
+          <span class="hero-cta-num">02 · 둘째 손님</span>
+          <span class="hero-cta-label">
+            <span>오늘의 꽃패</span>
+            <span class="hero-cta-arrow">→</span>
+          </span>
+        </button>
+      </div>
+    </div>
+
+    <!-- 하단 파형 라인 (라이브 신호) -->
+    <div class="hero-waveform" aria-hidden="true">
+      <svg viewBox="0 0 1200 52" preserveAspectRatio="none">
+        <path id="waveformPath" d="M 0 26 L 1200 26"/>
+      </svg>
+    </div>
+
+    <!-- 지직 노이즈 오버레이 (JS 트리거) -->
+    <div class="hero-static" aria-hidden="true"></div>
+
   </section>
 
-  <!-- 카테고리 탭 -->
-  <nav class="home-cats" role="tablist" aria-label="풀이 카테고리"></nav>
-
-  <!-- 상품 카드 그리드 -->
-  <div class="home-cards-wrap">
-    <div class="home-cards" role="list" aria-label="풀이 목록"></div>
-  </div>
-
-  <!-- 리뷰 슬롯 -->
-  <section class="home-reviews" aria-label="후기">
-    <h2 class="section-title">Whispers from the Dark</h2>
-    <p class="home-reviews-hint">먼저 별을 마주한 이들의 이야기 · 곧 도착해</p>
-  </section>
-
-  <!-- 푸터 -->
+  <!-- 푸터 · 조용한 마감 라인 -->
   <footer class="home-footer" role="contentinfo">
-    <p><strong>月下夢 · 월하몽</strong></p>
-    <p>사주 · 꿈 · 꽃패 · 관상 · 네 밤의 네 갈래 · 베타 무료</p>
+    <p><strong>四柱鏡 · SAJUKYUNG</strong></p>
+    <p>심야편 · 사주 · 꽃패 · 베타 방송분</p>
   </footer>
 </main>
 
@@ -375,8 +467,8 @@
      기존 히어로 (숨김 · CSS에서 display:none)
      ═══════════════════════════════════════════════════════════ -->
 <div class="header-ornament"></div>
-<h1>月 下 夢</h1>
-<p class="subtitle">월 하 몽 · 달 아 래 의  꿈</p>
+<h1>四 柱 鏡</h1>
+<p class="subtitle">사 주 경 · 심 야 편</p>
 
 <!-- 카드 갤러리 — 7명 점술가를 큰 카드로 한 명씩 표시, 스와이프로 전환 -->
 <section id="cardGallery" class="card-gallery" aria-label="점술가 선택">
@@ -1849,7 +1941,7 @@
   <div class="tab-pane" data-tab-pane="codex">
     <header class="tab-header">
       <h2 class="tab-title">도 감</h2>
-      <p class="tab-subtitle">圖 鑑 · 月下夢 등장 인물 모음</p>
+      <p class="tab-subtitle">圖 鑑 · 四柱鏡 등장 인물 모음</p>
     </header>
 
     <div class="codex-section">
