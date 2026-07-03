@@ -12,7 +12,6 @@
 <link rel="stylesheet" href="styles/main.css">
 <link rel="stylesheet" href="styles/school-toggle.css">
 <link rel="stylesheet" href="styles/webtoon.css">
-<link rel="stylesheet" href="styles/home-grid.css">
 <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 <!-- 음력→양력 변환 (lunar-javascript by 6tail) -->
 <script src="https://cdn.jsdelivr.net/npm/lunar-javascript@1.6.13/lunar.js"></script>
@@ -622,31 +621,6 @@
   <!-- 하단 컨트롤 — 화살표 + 점 인디케이터 통합 (카드 그림을 가리지 않음) -->
   <!-- 본관 갤러리 컨트롤(화살표·점) 제거 — 드래그/스와이프로만 전환 -->
   <div id="galleryDots" hidden></div>
-</section>
-
-<!-- ─────────────────────────────────────────────────────────
-     홈 콘텐츠 카드 그리드 (신규 · 홈 히어로 아래 스크롤 노출)
-     - 카테고리 탭 (전체·사주·꿈·꽃패·관상)
-     - WHM_CONTENTS 순회한 콘텐츠 카드 그리드
-     - JS: js/ui/home-grid.js (contents.js 로드 후 동작)
-     - CSS: styles/home-grid.css
-     ───────────────────────────────────────────────────────── -->
-<section id="homeGridSection" class="home-grid-section" aria-label="풀이 목록" hidden>
-  <header class="home-grid-header">
-    <div class="home-grid-title-row">
-      <h2 class="home-grid-title">
-        <span class="home-grid-title-han">四海</span>풀이 목록
-      </h2>
-      <span class="home-beta-notice">베타 · 무료 이용중</span>
-    </div>
-    <p class="home-grid-subtitle">달빛 아래 네 도사가 풀어드리는 이야기 — 마음에 드는 풀이를 골라보시지요</p>
-  </header>
-
-  <div class="home-cat-tabs" role="tablist" aria-label="풀이 카테고리"></div>
-
-  <div class="home-grid" role="list"></div>
-
-  <div class="home-grid-divider" aria-hidden="true">月 下 夢</div>
 </section>
 
 <!-- 도사별 메뉴 그리드 — 카드 클릭 후 진입 (콘텐츠 7~12개) -->
@@ -1989,8 +1963,6 @@
 <script type="module" src="js/ui/chwiseon.js"></script>
 <script type="module" src="js/readers/tools.js"></script>
 <script type="module" src="js/ui/init.js"></script>
-<!-- 홈 콘텐츠 카드 그리드 (신규) — WHM_CONTENTS 로드 후 렌더 -->
-<script src="js/ui/home-grid.js" defer></script>
 </div><!-- /app-container -->
 
 <!-- ════════════════════════════════════════════════════════
