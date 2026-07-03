@@ -11,7 +11,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Gaegu:wght@400;700&family=Nanum+Pen+Script&family=Quicksand:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;700&family=Nanum+Myeongjo:wght@400;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles/main.css">
 <link rel="stylesheet" href="styles/school-toggle.css">
-<link rel="stylesheet" href="styles/webtoon.css">
 <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 <!-- 음력→양력 변환 (lunar-javascript by 6tail) -->
 <script src="https://cdn.jsdelivr.net/npm/lunar-javascript@1.6.13/lunar.js"></script>
@@ -45,222 +44,6 @@
 </head>
 <body>
 <div class="bg-overlay" aria-hidden="true"></div>
-
-<!-- 캐릭터별 떠다니는 배경 문양 (활성 카드에 맞춰 body.char-{key} 클래스로 분기) -->
-<div id="charBg" class="char-bg" aria-hidden="true">
-  <!-- 만월 아씨 — 한국 전통 사주 문양 -->
-  <div class="char-bg-layer" data-for="saju">
-  <span class="cbg-sym" style="left:8%;top:14%;animation-delay:0s;animation-duration:34s;font-size:64px">☯</span>
-  <span class="cbg-sym" style="left:88%;top:22%;animation-delay:-7s;animation-duration:42s;font-size:46px">月</span>
-  <span class="cbg-sym" style="left:14%;top:72%;animation-delay:-14s;animation-duration:38s;font-size:38px">甲</span>
-  <span class="cbg-sym" style="left:78%;top:78%;animation-delay:-3s;animation-duration:46s;font-size:34px">子</span>
-  <span class="cbg-sym" style="left:6%;top:46%;animation-delay:-22s;animation-duration:36s;font-size:28px">☰</span>
-  <span class="cbg-sym" style="left:92%;top:54%;animation-delay:-10s;animation-duration:40s;font-size:30px">☷</span>
-  <span class="cbg-sym" style="left:22%;top:28%;animation-delay:-18s;animation-duration:44s;font-size:24px">乙</span>
-  <span class="cbg-sym" style="left:72%;top:38%;animation-delay:-5s;animation-duration:32s;font-size:26px">丑</span>
-  <span class="cbg-sym" style="left:36%;top:88%;animation-delay:-12s;animation-duration:48s;font-size:32px">木</span>
-  <span class="cbg-sym" style="left:62%;top:12%;animation-delay:-26s;animation-duration:38s;font-size:30px">火</span>
-  <span class="cbg-sym" style="left:4%;top:88%;animation-delay:-9s;animation-duration:42s;font-size:22px">土</span>
-  <span class="cbg-sym" style="left:96%;top:8%;animation-delay:-15s;animation-duration:36s;font-size:24px">金</span>
-  <span class="cbg-sym" style="left:48%;top:6%;animation-delay:-20s;animation-duration:50s;font-size:20px">水</span>
-  <span class="cbg-sym" style="left:52%;top:94%;animation-delay:-2s;animation-duration:34s;font-size:36px">☾</span>
-  <span class="cbg-sym" style="left:28%;top:58%;animation-delay:-25s;animation-duration:40s;font-size:22px">☵</span>
-  <span class="cbg-sym" style="left:68%;top:62%;animation-delay:-11s;animation-duration:44s;font-size:22px">☴</span>
-  </div>
-
-  <!-- 몽이 도령 — 구름·꿈·나비 (호접몽) 문양 -->
-  <div class="char-bg-layer" data-for="dream">
-  <span class="cbg-sym" style="left:10%;top:16%;animation-delay:0s;animation-duration:38s;font-size:54px">雲</span>
-  <span class="cbg-sym" style="left:84%;top:22%;animation-delay:-8s;animation-duration:44s;font-size:48px">夢</span>
-  <span class="cbg-sym" style="left:16%;top:72%;animation-delay:-15s;animation-duration:40s;font-size:42px">蝶</span>
-  <span class="cbg-sym" style="left:78%;top:78%;animation-delay:-4s;animation-duration:46s;font-size:36px">霞</span>
-  <span class="cbg-sym" style="left:5%;top:44%;animation-delay:-22s;animation-duration:36s;font-size:32px">☁</span>
-  <span class="cbg-sym" style="left:92%;top:50%;animation-delay:-11s;animation-duration:42s;font-size:34px">☾</span>
-  <span class="cbg-sym" style="left:24%;top:30%;animation-delay:-18s;animation-duration:48s;font-size:28px">眠</span>
-  <span class="cbg-sym" style="left:72%;top:38%;animation-delay:-6s;animation-duration:34s;font-size:30px">蝶</span>
-  <span class="cbg-sym" style="left:38%;top:88%;animation-delay:-12s;animation-duration:50s;font-size:32px">雲</span>
-  <span class="cbg-sym" style="left:62%;top:10%;animation-delay:-26s;animation-duration:38s;font-size:36px">☁</span>
-  <span class="cbg-sym" style="left:4%;top:88%;animation-delay:-9s;animation-duration:44s;font-size:24px">夢</span>
-  <span class="cbg-sym" style="left:96%;top:8%;animation-delay:-16s;animation-duration:36s;font-size:26px">蝶</span>
-  <span class="cbg-sym" style="left:50%;top:6%;animation-delay:-20s;animation-duration:50s;font-size:22px">寢</span>
-  <span class="cbg-sym" style="left:48%;top:94%;animation-delay:-3s;animation-duration:34s;font-size:30px">☾</span>
-  <span class="cbg-sym" style="left:30%;top:56%;animation-delay:-25s;animation-duration:42s;font-size:24px">霞</span>
-  <span class="cbg-sym" style="left:68%;top:60%;animation-delay:-13s;animation-duration:46s;font-size:26px">☁</span>
-  </div>
-
-  <!-- 화선 낭자 — 꽃·꽃잎·화패 문양 -->
-  <div class="char-bg-layer" data-for="hwapae">
-  <span class="cbg-sym" style="left:10%;top:14%;animation-delay:0s;animation-duration:40s;font-size:56px">花</span>
-  <span class="cbg-sym" style="left:84%;top:20%;animation-delay:-8s;animation-duration:46s;font-size:46px">牡</span>
-  <span class="cbg-sym" style="left:16%;top:72%;animation-delay:-15s;animation-duration:38s;font-size:42px">蓮</span>
-  <span class="cbg-sym" style="left:78%;top:78%;animation-delay:-4s;animation-duration:44s;font-size:38px">梅</span>
-  <span class="cbg-sym" style="left:5%;top:46%;animation-delay:-22s;animation-duration:36s;font-size:34px">菊</span>
-  <span class="cbg-sym" style="left:92%;top:50%;animation-delay:-11s;animation-duration:42s;font-size:36px">桃</span>
-  <span class="cbg-sym" style="left:24%;top:30%;animation-delay:-18s;animation-duration:48s;font-size:30px">❀</span>
-  <span class="cbg-sym" style="left:72%;top:36%;animation-delay:-6s;animation-duration:34s;font-size:32px">✿</span>
-  <span class="cbg-sym" style="left:38%;top:88%;animation-delay:-12s;animation-duration:50s;font-size:34px">春</span>
-  <span class="cbg-sym" style="left:62%;top:10%;animation-delay:-26s;animation-duration:38s;font-size:30px">❁</span>
-  <span class="cbg-sym" style="left:4%;top:86%;animation-delay:-9s;animation-duration:44s;font-size:26px">香</span>
-  <span class="cbg-sym" style="left:96%;top:8%;animation-delay:-16s;animation-duration:36s;font-size:28px">牌</span>
-  <span class="cbg-sym" style="left:50%;top:5%;animation-delay:-20s;animation-duration:50s;font-size:24px">花</span>
-  <span class="cbg-sym" style="left:48%;top:94%;animation-delay:-3s;animation-duration:34s;font-size:32px">✿</span>
-  <span class="cbg-sym" style="left:30%;top:58%;animation-delay:-25s;animation-duration:42s;font-size:24px">❀</span>
-  <span class="cbg-sym" style="left:68%;top:62%;animation-delay:-13s;animation-duration:46s;font-size:26px">蓮</span>
-  </div>
-
-  <!-- 성하 공자 — 별자리 떠다님 + 별마다 간헐적 반짝임 -->
-  <div class="char-bg-layer" data-for="star">
-  <!-- 북두칠성 (왼쪽 위) — 7개 별 -->
-  <svg class="cbg-constel" style="left:6%;top:10%;width:200px;height:140px;animation-duration:46s;animation-delay:0s" viewBox="0 0 200 140" aria-hidden="true">
-  <line class="cstar-line" x1="20" y1="30" x2="55" y2="42" />
-  <line class="cstar-line" x1="55" y1="42" x2="92" y2="48" />
-  <line class="cstar-line" x1="92" y1="48" x2="124" y2="62" />
-  <line class="cstar-line" x1="124" y1="62" x2="138" y2="92" />
-  <line class="cstar-line" x1="138" y1="92" x2="160" y2="108" />
-  <line class="cstar-line" x1="160" y1="108" x2="182" y2="118" />
-  <circle class="cstar" cx="20" cy="30" r="2.4" style="animation-delay:0s" />
-  <circle class="cstar" cx="55" cy="42" r="2" style="animation-delay:-2.2s" />
-  <circle class="cstar" cx="92" cy="48" r="2.6" style="animation-delay:-4.5s" />
-  <circle class="cstar" cx="124" cy="62" r="2" style="animation-delay:-1.1s" />
-  <circle class="cstar" cx="138" cy="92" r="2.4" style="animation-delay:-3.3s" />
-  <circle class="cstar" cx="160" cy="108" r="2" style="animation-delay:-5.8s" />
-  <circle class="cstar" cx="182" cy="118" r="2.6" style="animation-delay:-0.7s" />
-  </svg>
-
-  <!-- 카시오페이아 W (오른쪽 위) — 5개 별 -->
-  <svg class="cbg-constel" style="right:6%;top:14%;width:170px;height:110px;animation-duration:52s;animation-delay:-12s" viewBox="0 0 170 110" aria-hidden="true">
-  <line class="cstar-line" x1="14" y1="80" x2="48" y2="22" />
-  <line class="cstar-line" x1="48" y1="22" x2="82" y2="68" />
-  <line class="cstar-line" x1="82" y1="68" x2="118" y2="18" />
-  <line class="cstar-line" x1="118" y1="18" x2="156" y2="76" />
-  <circle class="cstar" cx="14" cy="80" r="2.4" style="animation-delay:-1.8s" />
-  <circle class="cstar" cx="48" cy="22" r="2.8" style="animation-delay:-3.5s" />
-  <circle class="cstar" cx="82" cy="68" r="2" style="animation-delay:-0.4s" />
-  <circle class="cstar" cx="118" cy="18" r="2.6" style="animation-delay:-2.7s" />
-  <circle class="cstar" cx="156" cy="76" r="2.2" style="animation-delay:-4.6s" />
-  </svg>
-
-  <!-- 오리온 (아래 중앙) — 7개 별 (어깨·다리·허리띠) -->
-  <svg class="cbg-constel" style="left:50%;top:70%;transform:translateX(-50%);width:160px;height:200px;animation-duration:58s;animation-delay:-6s" viewBox="0 0 160 200" aria-hidden="true">
-  <line class="cstar-line" x1="30" y1="30" x2="135" y2="38" />
-  <line class="cstar-line" x1="30" y1="30" x2="60" y2="95" />
-  <line class="cstar-line" x1="135" y1="38" x2="100" y2="95" />
-  <line class="cstar-line" x1="60" y1="95" x2="80" y2="100" />
-  <line class="cstar-line" x1="80" y1="100" x2="100" y2="95" />
-  <line class="cstar-line" x1="60" y1="95" x2="35" y2="170" />
-  <line class="cstar-line" x1="100" y1="95" x2="125" y2="170" />
-  <circle class="cstar" cx="30" cy="30" r="2.8" style="animation-delay:-2.1s" />
-  <circle class="cstar" cx="135" cy="38" r="2.6" style="animation-delay:-4.4s" />
-  <circle class="cstar" cx="60" cy="95" r="2" style="animation-delay:-1.3s" />
-  <circle class="cstar" cx="80" cy="100" r="2.4" style="animation-delay:-3.0s" />
-  <circle class="cstar" cx="100" cy="95" r="2" style="animation-delay:-5.5s" />
-  <circle class="cstar" cx="35" cy="170" r="2.6" style="animation-delay:-0.8s" />
-  <circle class="cstar" cx="125" cy="170" r="2.4" style="animation-delay:-3.8s" />
-  </svg>
-
-  <!-- 작은 자유 별자리 (왼쪽 아래) — 4개 별 -->
-  <svg class="cbg-constel" style="left:8%;top:62%;width:140px;height:120px;animation-duration:42s;animation-delay:-18s" viewBox="0 0 140 120" aria-hidden="true">
-  <line class="cstar-line" x1="20" y1="20" x2="68" y2="48" />
-  <line class="cstar-line" x1="68" y1="48" x2="110" y2="32" />
-  <line class="cstar-line" x1="68" y1="48" x2="80" y2="100" />
-  <circle class="cstar" cx="20" cy="20" r="2.4" style="animation-delay:-1.5s" />
-  <circle class="cstar" cx="68" cy="48" r="2.8" style="animation-delay:-3.2s" />
-  <circle class="cstar" cx="110" cy="32" r="2" style="animation-delay:-0.9s" />
-  <circle class="cstar" cx="80" cy="100" r="2.4" style="animation-delay:-4.6s" />
-  </svg>
-
-  <!-- 작은 별자리 (오른쪽 아래) — 4개 별 -->
-  <svg class="cbg-constel" style="right:8%;top:64%;width:130px;height:110px;animation-duration:48s;animation-delay:-24s" viewBox="0 0 130 110" aria-hidden="true">
-  <line class="cstar-line" x1="18" y1="60" x2="50" y2="22" />
-  <line class="cstar-line" x1="50" y1="22" x2="92" y2="50" />
-  <line class="cstar-line" x1="92" y1="50" x2="110" y2="92" />
-  <circle class="cstar" cx="18" cy="60" r="2" style="animation-delay:-0.6s" />
-  <circle class="cstar" cx="50" cy="22" r="2.6" style="animation-delay:-2.8s" />
-  <circle class="cstar" cx="92" cy="50" r="2.4" style="animation-delay:-4.1s" />
-  <circle class="cstar" cx="110" cy="92" r="2.8" style="animation-delay:-1.4s" />
-  </svg>
-
-  <!-- 떠다니는 작은 별빛 점들 (스파클) -->
-  <span class="cbg-sparkle" style="left:32%;top:24%;animation-delay:-1s"></span>
-  <span class="cbg-sparkle" style="left:74%;top:46%;animation-delay:-3s"></span>
-  <span class="cbg-sparkle" style="left:42%;top:88%;animation-delay:-5s"></span>
-  <span class="cbg-sparkle" style="left:88%;top:32%;animation-delay:-2.5s"></span>
-  <span class="cbg-sparkle" style="left:18%;top:46%;animation-delay:-4s"></span>
-  <span class="cbg-sparkle" style="left:58%;top:18%;animation-delay:-0.5s"></span>
-  </div>
-
-  <!-- 운학 도사 — 구름·학·산·도(道) 문양 -->
-  <div class="char-bg-layer" data-for="face">
-  <span class="cbg-sym" style="left:8%;top:14%;animation-delay:0s;animation-duration:42s;font-size:58px">雲</span>
-  <span class="cbg-sym" style="left:84%;top:20%;animation-delay:-8s;animation-duration:48s;font-size:50px">鶴</span>
-  <span class="cbg-sym" style="left:16%;top:74%;animation-delay:-15s;animation-duration:40s;font-size:44px">山</span>
-  <span class="cbg-sym" style="left:78%;top:78%;animation-delay:-4s;animation-duration:46s;font-size:40px">道</span>
-  <span class="cbg-sym" style="left:5%;top:46%;animation-delay:-22s;animation-duration:38s;font-size:34px">仙</span>
-  <span class="cbg-sym" style="left:92%;top:52%;animation-delay:-11s;animation-duration:44s;font-size:36px">松</span>
-  <span class="cbg-sym" style="left:24%;top:28%;animation-delay:-18s;animation-duration:50s;font-size:30px">霧</span>
-  <span class="cbg-sym" style="left:72%;top:36%;animation-delay:-6s;animation-duration:36s;font-size:32px">峯</span>
-  <span class="cbg-sym" style="left:38%;top:88%;animation-delay:-12s;animation-duration:52s;font-size:30px">禪</span>
-  <span class="cbg-sym" style="left:62%;top:8%;animation-delay:-26s;animation-duration:40s;font-size:34px">雲</span>
-  <span class="cbg-sym" style="left:4%;top:86%;animation-delay:-9s;animation-duration:44s;font-size:24px">鶴</span>
-  <span class="cbg-sym" style="left:96%;top:8%;animation-delay:-16s;animation-duration:38s;font-size:26px">道</span>
-  <span class="cbg-sym" style="left:50%;top:5%;animation-delay:-20s;animation-duration:50s;font-size:22px">山</span>
-  <span class="cbg-sym" style="left:48%;top:94%;animation-delay:-3s;animation-duration:36s;font-size:30px">霧</span>
-  <span class="cbg-sym" style="left:30%;top:56%;animation-delay:-25s;animation-duration:42s;font-size:24px">松</span>
-  <span class="cbg-sym" style="left:68%;top:62%;animation-delay:-13s;animation-duration:46s;font-size:26px">仙</span>
-  </div>
-
-  <!-- 옥선 할미 — 손·장(掌)·옥·운명선 문양 -->
-  <div class="char-bg-layer" data-for="palm">
-  <span class="cbg-sym" style="left:10%;top:14%;animation-delay:0s;animation-duration:44s;font-size:56px">手</span>
-  <span class="cbg-sym" style="left:84%;top:20%;animation-delay:-8s;animation-duration:40s;font-size:48px">掌</span>
-  <span class="cbg-sym" style="left:16%;top:72%;animation-delay:-15s;animation-duration:46s;font-size:42px">玉</span>
-  <span class="cbg-sym" style="left:78%;top:78%;animation-delay:-4s;animation-duration:38s;font-size:38px">命</span>
-  <span class="cbg-sym" style="left:5%;top:46%;animation-delay:-22s;animation-duration:42s;font-size:34px">線</span>
-  <span class="cbg-sym" style="left:92%;top:50%;animation-delay:-11s;animation-duration:36s;font-size:36px">紋</span>
-  <span class="cbg-sym" style="left:24%;top:30%;animation-delay:-18s;animation-duration:48s;font-size:30px">壽</span>
-  <span class="cbg-sym" style="left:72%;top:36%;animation-delay:-6s;animation-duration:50s;font-size:32px">福</span>
-  <span class="cbg-sym" style="left:38%;top:88%;animation-delay:-12s;animation-duration:44s;font-size:30px">길</span>
-  <span class="cbg-sym" style="left:62%;top:10%;animation-delay:-26s;animation-duration:38s;font-size:34px">運</span>
-  <span class="cbg-sym" style="left:4%;top:88%;animation-delay:-9s;animation-duration:40s;font-size:24px">玉</span>
-  <span class="cbg-sym" style="left:96%;top:8%;animation-delay:-16s;animation-duration:46s;font-size:26px">手</span>
-  <span class="cbg-sym" style="left:50%;top:6%;animation-delay:-20s;animation-duration:50s;font-size:22px">紋</span>
-  <span class="cbg-sym" style="left:48%;top:94%;animation-delay:-3s;animation-duration:34s;font-size:30px">線</span>
-  <span class="cbg-sym" style="left:30%;top:58%;animation-delay:-25s;animation-duration:42s;font-size:24px">壽</span>
-  <span class="cbg-sym" style="left:68%;top:62%;animation-delay:-13s;animation-duration:46s;font-size:26px">福</span>
-  </div>
-
-  <!-- 묵향 선생 — 붓·먹·서예·이름 문양 -->
-  <div class="char-bg-layer" data-for="name">
-  <span class="cbg-sym" style="left:8%;top:12%;animation-delay:0s;animation-duration:46s;font-size:60px">墨</span>
-  <span class="cbg-sym" style="left:84%;top:18%;animation-delay:-8s;animation-duration:42s;font-size:48px">香</span>
-  <span class="cbg-sym" style="left:16%;top:72%;animation-delay:-15s;animation-duration:40s;font-size:44px">筆</span>
-  <span class="cbg-sym" style="left:78%;top:78%;animation-delay:-4s;animation-duration:48s;font-size:40px">名</span>
-  <span class="cbg-sym" style="left:5%;top:46%;animation-delay:-22s;animation-duration:36s;font-size:34px">書</span>
-  <span class="cbg-sym" style="left:92%;top:50%;animation-delay:-11s;animation-duration:44s;font-size:36px">字</span>
-  <span class="cbg-sym" style="left:24%;top:30%;animation-delay:-18s;animation-duration:50s;font-size:30px">道</span>
-  <span class="cbg-sym" style="left:72%;top:38%;animation-delay:-6s;animation-duration:38s;font-size:32px">硯</span>
-  <span class="cbg-sym" style="left:38%;top:88%;animation-delay:-12s;animation-duration:52s;font-size:30px">紙</span>
-  <span class="cbg-sym" style="left:62%;top:8%;animation-delay:-26s;animation-duration:40s;font-size:34px">畵</span>
-  <span class="cbg-sym" style="left:4%;top:88%;animation-delay:-9s;animation-duration:42s;font-size:24px">墨</span>
-  <span class="cbg-sym" style="left:96%;top:8%;animation-delay:-16s;animation-duration:36s;font-size:26px">名</span>
-  <span class="cbg-sym" style="left:50%;top:6%;animation-delay:-20s;animation-duration:50s;font-size:22px">筆</span>
-  <span class="cbg-sym" style="left:48%;top:94%;animation-delay:-3s;animation-duration:34s;font-size:30px">香</span>
-  <span class="cbg-sym" style="left:30%;top:56%;animation-delay:-25s;animation-duration:42s;font-size:24px">書</span>
-  <span class="cbg-sym" style="left:68%;top:62%;animation-delay:-13s;animation-duration:46s;font-size:26px">字</span>
-  </div>
-</div>
-
-<audio id="bgAudio" loop preload="auto">
-  <source src="./media/bg/Moon Over Han.wav" type="audio/wav">
-</audio>
-
-<button id="muteBtn" class="corner-btn mute-btn" aria-label="음소거 토글" title="소리 끄기">
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
-  <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
-  <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
-  </svg>
-</button>
 
 <button id="fullscreenBtn" class="corner-btn fullscreen-btn" aria-label="전체화면" title="전체화면 (F11)">
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -549,9 +332,6 @@
   <!-- 만월 아씨 -->
   <article class="char-card" data-go="saju" data-character="saju">
   <img class="char-card-poster" src="./media/characters/manweol_assi.jpg" alt="만월 아씨" loading="eager">
-  <video class="char-card-video" muted loop playsinline preload="auto" poster="./media/characters/manweol_assi.jpg">
-  <source src="./media/characters/manweol_assi.mp4" type="video/mp4">
-  </video>
   <div class="char-card-veil"></div>
   <div class="char-card-body">
   <h2 class="char-card-name">만월 아씨</h2>
@@ -564,9 +344,6 @@
   <!-- 몽이 도령 -->
   <article class="char-card" data-go="dream" data-character="dream">
   <img class="char-card-poster" src="./media/characters/mongi_doryeong.jpg" alt="몽이 도령" loading="eager">
-  <video class="char-card-video" muted loop playsinline preload="auto" poster="./media/characters/mongi_doryeong.jpg">
-  <source src="./media/characters/mongi_doryeong.mp4" type="video/mp4">
-  </video>
   <div class="char-card-veil"></div>
   <div class="char-card-body">
   <h2 class="char-card-name">몽이 도령</h2>
@@ -579,9 +356,6 @@
   <!-- 화선 낭자 -->
   <article class="char-card" data-go="hwapae" data-character="hwapae">
   <img class="char-card-poster" src="./media/characters/hwaseon_nangja.jpg" alt="화선 낭자" loading="eager">
-  <video class="char-card-video" muted loop playsinline preload="auto" poster="./media/characters/hwaseon_nangja.jpg">
-  <source src="./media/characters/hwaseon_nangja.mp4" type="video/mp4">
-  </video>
   <div class="char-card-veil"></div>
   <div class="char-card-body">
   <h2 class="char-card-name">화선 낭자</h2>
@@ -596,9 +370,6 @@
   <!-- 운학 도사 -->
   <article class="char-card" data-go="face" data-character="face">
   <img class="char-card-poster" src="./media/characters/unhak_dosa.jpg" alt="운학 도사" loading="eager">
-  <video class="char-card-video" muted loop playsinline preload="auto" poster="./media/characters/unhak_dosa.jpg">
-  <source src="./media/characters/unhak_dosa.mp4" type="video/mp4">
-  </video>
   <div class="char-card-veil"></div>
   <div class="char-card-body">
   <h2 class="char-card-name">운학 도사</h2>
