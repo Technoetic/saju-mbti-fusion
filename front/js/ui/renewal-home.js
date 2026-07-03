@@ -295,8 +295,33 @@
   }
 
   // ============================================================
-  // 6) CTA 라우팅 (기존 tab-bar 재사용)
+  // 6) CTA 라우팅 · 사주 입력 플로우 진입
   // ============================================================
+  function enterInputFlow(tab) {
+    // body 상태: gallery-mode/tab-home 제거, sk-input-flow 진입
+    document.body.classList.remove(
+      'gallery-mode', 'menu-mode', 'content-mode',
+      'tab-home', 'tab-journal', 'tab-profile',
+      'gallery-at-start'
+    );
+    document.body.classList.add('sk-input-flow', `sk-input-${tab}`);
+
+    // 기존 tab 시스템 활용해 .tab-content 활성화
+    const target = document.querySelector(`.tab-btn[data-tab="${tab}"]`);
+    if (target) target.click();
+
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }
+
+  function exitInputFlow() {
+    document.body.classList.remove(
+      'sk-input-flow',
+      'sk-input-saju', 'sk-input-hwapae', 'sk-input-dream', 'sk-input-face'
+    );
+    document.body.classList.add('gallery-mode', 'tab-home');
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }
+
   scene.addEventListener('click', (e) => {
     const cta = e.target.closest('.hero-cta');
     if (!cta) return;
@@ -305,18 +330,15 @@
     const tab = cta.dataset.tab;
     if (!tab) return;
 
-    // 라우팅 순간 아주 짧은 티틱 (오디오 켜져 있을 때만)
     if (state.audio && state.audio.on) playTick();
-
-    const target = document.querySelector(`.tab-btn[data-tab="${tab}"]`);
-    if (target) {
-      target.click();
-      requestAnimationFrame(() => {
-        const pane = document.getElementById(`tab-${tab}`);
-        if (pane) pane.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      });
-    }
+    enterInputFlow(tab);
   });
+
+  // 사주 입력 상단바 뒤로 버튼
+  const backBtn = document.getElementById('skBackBtn');
+  if (backBtn) {
+    backBtn.addEventListener('click', exitInputFlow);
+  }
 
   // ============================================================
   // 7) 페이지 가시성 · 탭 비활성 시 애니 정지 (배터리 절약)

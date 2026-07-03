@@ -14,6 +14,7 @@
 <!-- 2026-07 UI 리뉴얼: 새 팔레트/타이포/폰프레임 해제 + 홈 재설계 -->
 <link rel="stylesheet" href="styles/renewal-tokens.css">
 <link rel="stylesheet" href="styles/renewal-home.css">
+<link rel="stylesheet" href="styles/renewal-input.css">
 <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 <!-- 음력→양력 변환 (lunar-javascript by 6tail) -->
 <script src="https://cdn.jsdelivr.net/npm/lunar-javascript@1.6.13/lunar.js"></script>
@@ -330,6 +331,20 @@
      ═══════════════════════════════════════════════════════════ -->
 <!-- 상단바 완전 제거 (미니멀) -->
 <header class="app-header" role="banner" hidden></header>
+
+<!-- 사주 입력 플로우 전용 상단바 (body.sk-input-flow일 때만 노출) -->
+<div class="sk-input-topbar" id="skInputTopbar">
+  <button type="button" class="sk-back-btn" id="skBackBtn" aria-label="홈으로 돌아가기">
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M15 18l-6-6 6-6"/>
+    </svg>
+    <span>뒤로</span>
+  </button>
+  <div class="sk-input-badge" aria-label="라이브 방송">
+    <span class="sk-input-badge-dot" aria-hidden="true"></span>
+    <span>LIVE · 사주</span>
+  </div>
+</div>
 
 <main id="homeMain" class="home-main">
   <!-- ═════════════════════════════════════════════════════════

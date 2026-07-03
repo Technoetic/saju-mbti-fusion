@@ -1,0 +1,605 @@
+/* ============================================================
+   renewal-input.css — 사주 입력 화면 (오컬트 방송실 톤)
+   ============================================================
+   body.sk-input-flow 진입 시 활성화
+   - 홈 · 카드 갤러리 · 하단 탭 등 전부 hide
+   - #tab-saju .paper-scroll을 다크 콘솔 모듈처럼 재구성
+   - 방음 폼 배경 · 필드셋 = 콘솔 모듈 · 인풋 = 인셋 패널
+   - 서브밋 = ON AIR-red 대형 CTA
+   ============================================================ */
+
+/* ─── 입력 상단바 (기본은 숨김) ─────────────────────────── */
+.sk-input-topbar {
+  display: none;
+}
+body.sk-input-flow .sk-input-topbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 18px;
+  padding-top: calc(12px + env(safe-area-inset-top, 0px));
+  background: rgba(5, 3, 8, 0.9);
+  border-bottom: 1px solid rgba(232, 223, 208, 0.08);
+  backdrop-filter: saturate(140%) blur(14px);
+  -webkit-backdrop-filter: saturate(140%) blur(14px);
+  box-sizing: border-box;
+  min-height: 56px;
+}
+@media (min-width: 768px) {
+  body.sk-input-flow .sk-input-topbar { padding: 16px 32px; min-height: 68px; }
+}
+
+.sk-back-btn {
+  appearance: none;
+  background: transparent;
+  border: 1px solid rgba(232, 223, 208, 0.16);
+  color: var(--ink-soft);
+  padding: 8px 14px 8px 12px;
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: 3px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: color 0.25s ease, border-color 0.25s ease, background 0.25s ease;
+  text-transform: uppercase;
+}
+.sk-back-btn:hover {
+  color: var(--amber-bri);
+  border-color: var(--border-amber);
+  background: rgba(232, 196, 122, 0.06);
+}
+.sk-back-btn svg { flex: 0 0 auto; }
+
+.sk-input-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: linear-gradient(180deg, rgba(139, 26, 47, 0.55) 0%, rgba(74, 10, 21, 0.7) 100%);
+  border: 1px solid rgba(201, 36, 63, 0.5);
+  border-radius: 3px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 3.5px;
+  color: #ffcbd4;
+  text-transform: uppercase;
+  text-shadow: 0 0 8px rgba(255, 60, 90, 0.75);
+  box-shadow:
+    0 0 14px rgba(201, 36, 63, 0.4),
+    inset 0 -3px 8px rgba(255, 60, 90, 0.22),
+    inset 0 1px 0 rgba(255, 220, 230, 0.14);
+}
+.sk-input-badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #ff3a5c;
+  box-shadow: 0 0 6px #ff3a5c, 0 0 12px rgba(255, 60, 90, 0.6);
+  animation: skDotPulse 1.75s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+@keyframes skDotPulse {
+  0%, 100% { transform: scale(1);   opacity: 1; }
+  50%      { transform: scale(1.25); opacity: 0.6; }
+}
+
+/* ─── 홈 · 기존 뷰 완전 숨김 ────────────────────────────── */
+body.sk-input-flow #homeMain,
+body.sk-input-flow #cardGallery,
+body.sk-input-flow .card-gallery,
+body.sk-input-flow #menuView,
+body.sk-input-flow #contentView,
+body.sk-input-flow .home-footer,
+body.sk-input-flow .bg-overlay,
+body.sk-input-flow .tab-bar,
+body.sk-input-flow #tabView,
+body.sk-input-flow .app-container > .header-ornament,
+body.sk-input-flow .app-container > h1,
+body.sk-input-flow .app-container > .subtitle {
+  display: none !important;
+}
+
+/* .tab-content 강제 표시 (gallery-mode/menu-mode 잔재 무효화) */
+body.sk-input-flow .tab-content { display: none !important; }
+body.sk-input-flow #tab-saju,
+body.sk-input-flow #tab-saju.tab-content,
+body.sk-input-flow #tab-saju.tab-content.active {
+  display: block !important;
+  padding-top: 76px;
+  padding-bottom: 60px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+@media (min-width: 768px) {
+  body.sk-input-flow #tab-saju { padding-top: 96px; padding-bottom: 80px; }
+}
+
+/* .step 표시 (기존 로직 유지) */
+body.sk-input-flow #tab-saju .step { display: none; }
+body.sk-input-flow #tab-saju .step.active { display: block; animation: skFadeUp 0.4s ease both; }
+
+@keyframes skFadeUp {
+  0%   { opacity: 0; transform: translateY(12px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── 배경 · 홈과 동일한 방송실 폼 ──────────────────────── */
+body.sk-input-flow {
+  background-color: #05030a !important;
+  background-image:
+    radial-gradient(ellipse 80% 30% at 50% 0%, rgba(0, 0, 0, 0.55), transparent 55%),
+    radial-gradient(ellipse 90% 25% at 50% 100%, rgba(74, 10, 21, 0.45), transparent 70%),
+    linear-gradient(180deg, #05030a 0%, #0a0608 100%) !important;
+}
+/* 방음 폼 오버레이 · fixed */
+body.sk-input-flow::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(45deg, rgba(232, 223, 208, 0.035) 25%, transparent 25%, transparent 75%, rgba(232, 223, 208, 0.035) 75%),
+    linear-gradient(-45deg, rgba(0, 0, 0, 0.5) 25%, transparent 25%, transparent 75%, rgba(0, 0, 0, 0.5) 75%);
+  background-size: 18px 18px;
+  background-position: 0 0, 9px 9px;
+  opacity: 0.5;
+}
+@media (min-width: 768px) {
+  body.sk-input-flow::before {
+    background-size: 24px 24px;
+    background-position: 0 0, 12px 12px;
+  }
+}
+/* 폼 위 소프트 vignette */
+body.sk-input-flow::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse 65% 55% at 50% 45%, transparent 0%, rgba(0, 0, 0, 0.4) 70%, rgba(0, 0, 0, 0.7) 100%);
+}
+
+body.sk-input-flow .app-container {
+  position: relative;
+  z-index: 5;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  max-width: 100% !important;
+  padding-bottom: 0 !important;
+}
+
+/* ─── 메인 콘솔 카드 (paper-scroll) ─────────────────────── */
+body.sk-input-flow .paper-scroll {
+  background: rgba(16, 8, 12, 0.88) !important;
+  border: 1px solid rgba(232, 223, 208, 0.1) !important;
+  border-radius: 14px !important;
+  padding: 28px 22px !important;
+  margin: 0 16px 24px !important;
+  color: var(--ink) !important;
+  font-family: var(--font-sans) !important;
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.85),
+    0 12px 24px rgba(0, 0, 0, 0.6),
+    inset 0 0 40px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(232, 223, 208, 0.05) !important;
+  position: relative;
+  z-index: 6;
+  max-width: none !important;
+  width: auto !important;
+  background-image: none !important;
+}
+@media (min-width: 768px) {
+  body.sk-input-flow .paper-scroll {
+    padding: 40px 36px !important;
+    margin: 0 auto 32px !important;
+    border-radius: 18px !important;
+  }
+}
+
+/* paper-scroll 상단 얇은 amber 라인 (콘솔 상단 파워 라인) */
+body.sk-input-flow .paper-scroll::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 12%;
+  right: 12%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--amber-bri), transparent);
+  opacity: 0.5;
+}
+
+/* ─── 모드 바 (개인 · 커플 · 친구 · 동료) ──────────────── */
+body.sk-input-flow .mode-bar {
+  display: flex !important;
+  gap: 4px !important;
+  background: rgba(5, 3, 8, 0.7) !important;
+  padding: 4px !important;
+  border-radius: 999px !important;
+  border: 1px solid rgba(232, 223, 208, 0.1) !important;
+  margin: 0 0 24px !important;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.6);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+body.sk-input-flow .mode-bar::-webkit-scrollbar { display: none; }
+body.sk-input-flow .mode-btn {
+  flex: 1 0 auto !important;
+  padding: 10px 14px !important;
+  border: 0 !important;
+  background: transparent !important;
+  color: var(--ink-soft) !important;
+  font-family: var(--font-mono) !important;
+  font-size: 11px !important;
+  font-weight: 500 !important;
+  letter-spacing: 2.5px !important;
+  text-transform: uppercase !important;
+  border-radius: 999px !important;
+  cursor: pointer !important;
+  transition: all 0.25s ease !important;
+  white-space: nowrap !important;
+  min-width: auto !important;
+}
+body.sk-input-flow .mode-btn:hover {
+  color: var(--amber-bri) !important;
+}
+body.sk-input-flow .mode-btn.active {
+  background: linear-gradient(180deg, var(--crimson) 0%, var(--crimson-deep) 100%) !important;
+  color: #ffe0e6 !important;
+  box-shadow: 0 2px 8px rgba(201, 36, 63, 0.5), 0 0 12px rgba(201, 36, 63, 0.35), inset 0 1px 0 rgba(255, 220, 230, 0.15) !important;
+  text-shadow: 0 0 8px rgba(255, 60, 90, 0.6);
+}
+
+/* ─── 필드셋 (콘솔 모듈) ───────────────────────────────── */
+body.sk-input-flow fieldset {
+  border: 1px solid rgba(232, 223, 208, 0.09) !important;
+  border-radius: 10px !important;
+  padding: 22px 18px 18px !important;
+  margin: 0 0 18px !important;
+  background: rgba(5, 3, 8, 0.55) !important;
+  position: relative !important;
+  box-shadow: inset 0 0 24px rgba(0, 0, 0, 0.55) !important;
+}
+@media (min-width: 768px) {
+  body.sk-input-flow fieldset { padding: 26px 22px 22px !important; margin-bottom: 22px !important; }
+}
+
+/* 필드셋 우상단 STATUS 라벨 (콘솔 모듈 감성) */
+body.sk-input-flow fieldset::after {
+  content: "STATUS ●";
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  font-family: var(--font-mono);
+  font-size: 8.5px;
+  letter-spacing: 2px;
+  color: rgba(232, 196, 122, 0.35);
+  text-transform: uppercase;
+}
+
+/* 필드셋 legend = 모듈 명패 */
+body.sk-input-flow legend {
+  padding: 5px 14px !important;
+  background: linear-gradient(180deg, rgba(74, 45, 12, 0.4) 0%, rgba(20, 12, 6, 0.7) 100%) !important;
+  font-family: var(--font-mono) !important;
+  font-size: 10.5px !important;
+  font-weight: 700 !important;
+  letter-spacing: 4px !important;
+  color: var(--amber-bri) !important;
+  text-transform: uppercase !important;
+  border: 1px solid rgba(232, 196, 122, 0.42) !important;
+  border-radius: 3px !important;
+  box-shadow:
+    0 0 12px rgba(232, 196, 122, 0.25),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 220, 180, 0.14) !important;
+  text-shadow: 0 0 6px rgba(232, 196, 122, 0.55) !important;
+  margin: 0 0 4px 4px !important;
+  width: auto !important;
+  display: inline-block !important;
+}
+
+/* ─── 필드 (row) ──────────────────────────────────────── */
+body.sk-input-flow .row {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  margin: 0 0 16px !important;
+  align-items: stretch !important;
+}
+body.sk-input-flow .row:last-child { margin-bottom: 0 !important; }
+
+/* label = 모노 · uppercase · amber-dim */
+body.sk-input-flow .row > label:not(.bp-mode-opt) {
+  font-family: var(--font-mono) !important;
+  font-size: 10.5px !important;
+  color: var(--ink-dim) !important;
+  letter-spacing: 3px !important;
+  text-transform: uppercase !important;
+  font-weight: 500 !important;
+  margin: 0 0 2px !important;
+  padding: 0 !important;
+  background: transparent !important;
+  display: block !important;
+  width: auto !important;
+  min-width: 0 !important;
+  flex: 0 0 auto !important;
+}
+
+/* row-group (여러 input 나란히) */
+body.sk-input-flow .row-group,
+body.sk-input-flow .bp-region-group {
+  display: flex !important;
+  gap: 8px !important;
+  flex-wrap: wrap !important;
+  align-items: stretch !important;
+}
+body.sk-input-flow .row-group > *,
+body.sk-input-flow .bp-region-group > * {
+  flex: 1 1 100px !important;
+  min-width: 0 !important;
+}
+
+/* ─── 입력 · 셀렉트 (인셋 콘솔 패널) ───────────────────── */
+body.sk-input-flow input[type="text"],
+body.sk-input-flow input[type="number"],
+body.sk-input-flow input[type="email"],
+body.sk-input-flow input[type="tel"],
+body.sk-input-flow input:not([type]),
+body.sk-input-flow select,
+body.sk-input-flow textarea {
+  background: rgba(5, 3, 8, 0.85) !important;
+  border: 1px solid rgba(232, 223, 208, 0.14) !important;
+  color: var(--ink) !important;
+  padding: 12px 14px !important;
+  border-radius: 7px !important;
+  font-family: var(--font-sans) !important;
+  font-size: 14.5px !important;
+  font-weight: 500 !important;
+  letter-spacing: -0.005em !important;
+  transition: all 0.25s ease !important;
+  outline: none !important;
+  box-shadow:
+    inset 0 2px 6px rgba(0, 0, 0, 0.65),
+    inset 0 -1px 0 rgba(232, 223, 208, 0.03) !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  line-height: 1.4 !important;
+  min-height: 44px !important;
+}
+
+body.sk-input-flow input:focus,
+body.sk-input-flow select:focus,
+body.sk-input-flow textarea:focus {
+  border-color: var(--amber-bri) !important;
+  box-shadow:
+    inset 0 2px 6px rgba(0, 0, 0, 0.65),
+    0 0 0 2px rgba(232, 196, 122, 0.25),
+    0 0 22px rgba(232, 196, 122, 0.28) !important;
+  background: rgba(10, 6, 8, 0.9) !important;
+}
+
+body.sk-input-flow input::placeholder,
+body.sk-input-flow textarea::placeholder {
+  color: var(--ink-mute) !important;
+  font-family: var(--font-sans) !important;
+  font-weight: 400 !important;
+  letter-spacing: -0.005em !important;
+}
+
+/* Select 다크 화살표 */
+body.sk-input-flow select {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  padding-right: 36px !important;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23e8c47a' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 12px center !important;
+  background-size: 12px 12px !important;
+  cursor: pointer !important;
+}
+body.sk-input-flow select option {
+  background: #0a0608 !important;
+  color: var(--ink) !important;
+  padding: 8px !important;
+}
+
+/* 스몰 number 입력 (경도·시간대 등) */
+body.sk-input-flow input[type="number"][style*="width:60px"],
+body.sk-input-flow input[type="number"][style*="width:64px"],
+body.sk-input-flow input[type="number"][style*="width:90px"] {
+  width: auto !important;
+  min-width: 90px !important;
+  max-width: 130px !important;
+  display: inline-block !important;
+}
+
+/* hint · 도움말 */
+body.sk-input-flow .hint {
+  display: block !important;
+  font-size: 12px !important;
+  color: var(--ink-dim) !important;
+  line-height: 1.6 !important;
+  margin: 4px 0 0 !important;
+  font-family: var(--font-sans) !important;
+  letter-spacing: -0.005em !important;
+  font-style: normal !important;
+}
+body.sk-input-flow .hint b,
+body.sk-input-flow .hint strong { color: var(--amber-bri) !important; }
+
+/* stroke-total (한자 획수 표시) */
+body.sk-input-flow .stroke-total {
+  padding: 10px 14px !important;
+  background: rgba(232, 196, 122, 0.08) !important;
+  border: 1px solid rgba(232, 196, 122, 0.22) !important;
+  border-radius: 6px !important;
+  color: var(--amber-bri) !important;
+  font-family: var(--font-mono) !important;
+  font-size: 12px !important;
+  letter-spacing: 1.5px !important;
+  margin-top: 8px !important;
+}
+
+/* ─── BP 모드 바 (주소검색 / 지역선택 / 모름) ──────────── */
+body.sk-input-flow .bp-mode-bar {
+  display: flex !important;
+  gap: 4px !important;
+  background: rgba(5, 3, 8, 0.7) !important;
+  padding: 4px !important;
+  border-radius: 6px !important;
+  border: 1px solid rgba(232, 223, 208, 0.09) !important;
+  margin: 4px 0 !important;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.5) !important;
+}
+body.sk-input-flow .bp-mode-opt {
+  flex: 1 !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 9px 6px !important;
+  font-family: var(--font-mono) !important;
+  font-size: 10.5px !important;
+  letter-spacing: 2px !important;
+  font-weight: 500 !important;
+  color: var(--ink-soft) !important;
+  border-radius: 4px !important;
+  transition: all 0.25s ease !important;
+  text-transform: uppercase !important;
+  background: transparent !important;
+  margin: 0 !important;
+}
+body.sk-input-flow .bp-mode-opt input {
+  position: absolute !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+body.sk-input-flow .bp-mode-opt:has(input:checked) {
+  background: linear-gradient(180deg, rgba(232, 196, 122, 0.18) 0%, rgba(232, 196, 122, 0.08) 100%) !important;
+  color: var(--amber-bri) !important;
+  box-shadow: inset 0 0 8px rgba(232, 196, 122, 0.2), 0 0 6px rgba(232, 196, 122, 0.15) !important;
+}
+body.sk-input-flow .bp-mode-opt span { pointer-events: none; }
+
+body.sk-input-flow .bp-panel { margin-top: 8px; }
+
+/* ─── advanced-settings (details) ────────────────────── */
+body.sk-input-flow .advanced-settings {
+  margin: 16px 0 0 !important;
+  padding: 12px 0 0 !important;
+  border-top: 1px dashed rgba(232, 223, 208, 0.09) !important;
+}
+body.sk-input-flow .advanced-settings summary {
+  cursor: pointer !important;
+  font-family: var(--font-mono) !important;
+  font-size: 11px !important;
+  letter-spacing: 3px !important;
+  color: var(--ink-dim) !important;
+  padding: 8px 0 !important;
+  list-style: none !important;
+  text-transform: uppercase !important;
+  transition: color 0.25s ease;
+}
+body.sk-input-flow .advanced-settings summary:hover { color: var(--amber-bri) !important; }
+body.sk-input-flow .advanced-settings summary::-webkit-details-marker { display: none !important; }
+body.sk-input-flow .advanced-settings summary::before {
+  content: "▸ ";
+  color: var(--amber);
+  margin-right: 4px;
+  transition: transform 0.2s;
+}
+body.sk-input-flow .advanced-settings[open] summary::before { content: "▾ "; }
+
+/* ─── 서브밋 버튼 (풀 이 보 기) ───────────────────────── */
+body.sk-input-flow .big-action {
+  margin: 30px 0 0 !important;
+  padding: 24px 0 0 !important;
+  border-top: 1px solid rgba(232, 223, 208, 0.09) !important;
+  text-align: center !important;
+}
+body.sk-input-flow #goResultBtn,
+body.sk-input-flow .big-action > button {
+  appearance: none !important;
+  background: linear-gradient(180deg, #b8253d 0%, #8b1a2f 40%, #4a0a15 100%) !important;
+  color: #fff0f4 !important;
+  border: 1px solid rgba(255, 160, 180, 0.55) !important;
+  padding: 18px 42px !important;
+  border-radius: 8px !important;
+  font-family: var(--font-serif) !important;
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  letter-spacing: 8px !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+  box-shadow:
+    0 8px 26px rgba(201, 36, 63, 0.55),
+    0 0 40px rgba(201, 36, 63, 0.35),
+    inset 0 -4px 10px rgba(0, 0, 0, 0.5),
+    inset 0 2px 0 rgba(255, 220, 230, 0.18) !important;
+  text-shadow: 0 0 12px rgba(255, 60, 90, 0.65) !important;
+  min-width: 240px;
+  min-height: 56px;
+}
+@media (min-width: 768px) {
+  body.sk-input-flow #goResultBtn { font-size: 20px !important; padding: 22px 56px !important; letter-spacing: 10px !important; }
+}
+body.sk-input-flow #goResultBtn:hover {
+  transform: translateY(-2px) !important;
+  box-shadow:
+    0 12px 32px rgba(201, 36, 63, 0.7),
+    0 0 50px rgba(201, 36, 63, 0.5),
+    inset 0 -4px 10px rgba(0, 0, 0, 0.5),
+    inset 0 2px 0 rgba(255, 220, 230, 0.25) !important;
+}
+body.sk-input-flow #goResultBtn:active { transform: translateY(0) !important; }
+
+body.sk-input-flow #aiModel {
+  min-width: 240px;
+  margin-top: 10px;
+}
+
+/* ─── 한자 셀렉터 · 이름 옆 ─────────────────────────── */
+body.sk-input-flow #hanjaSelectors {
+  padding: 12px !important;
+  background: rgba(232, 196, 122, 0.04) !important;
+  border: 1px dashed rgba(232, 196, 122, 0.18) !important;
+  border-radius: 6px !important;
+}
+
+/* ─── 라디오 · 체크박스 커스텀 (필요 시) ─────────────── */
+body.sk-input-flow input[type="radio"],
+body.sk-input-flow input[type="checkbox"] {
+  accent-color: var(--amber-bri) !important;
+  cursor: pointer !important;
+}
+
+/* ─── 스크롤바 (콘솔 감성) ────────────────────────────── */
+body.sk-input-flow .paper-scroll ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+body.sk-input-flow .paper-scroll ::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.5);
+}
+body.sk-input-flow .paper-scroll ::-webkit-scrollbar-thumb {
+  background: rgba(232, 196, 122, 0.25);
+  border-radius: 4px;
+}
+
+/* ─── 접근성 · reduced-motion ────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  body.sk-input-flow .sk-input-badge-dot,
+  body.sk-input-flow #tab-saju .step.active { animation: none !important; }
+}
