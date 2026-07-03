@@ -20,7 +20,7 @@
   const TIER = {
     free:    { text: '무료' },
     season:  { text: '시즌' },
-    premium: { text: '깊이' },
+    premium: { text: '봉인' },
   };
   const FLAG = { hot: 'HOT', new: 'NEW' };
 
@@ -98,7 +98,7 @@
   function renderCards(container, items, cat) {
     const filtered = cat === 'all' ? items : items.filter(it => it.domain === cat);
     if (!filtered.length) {
-      container.innerHTML = `<div class="home-empty">아직 준비 중이야</div>`;
+      container.innerHTML = `<div class="home-empty">아직 봉인 안에 있어</div>`;
       return;
     }
     container.innerHTML = filtered.map(renderCard).join('');

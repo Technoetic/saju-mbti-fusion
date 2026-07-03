@@ -1,66 +1,79 @@
 /* ============================================================
-   renewal-tokens.css — 2026-07 UI/UX 전면 리뉴얼 팔레트
+   renewal-tokens.css — 2026-07 오컬트/미스터리 다크 팔레트
    ============================================================
-   방향: 다크 미스틱 → 밝은 모던 톤 (타이트사주 벤치마크)
-   - 오프화이트 배경 + 담백 카드 + 딥 코럴 강조
-   - 카테고리별 파스텔 서브 컬러 (감성 자극 이모지 대체)
+   방향: 밤·달·안개·잠긴 방·불꽃의 흔들림
+   - 배경: 딥 블랙 · 딥 퍼플 · 스모키 노이즈
+   - 강조: 크림슨 블러드 · 골드 잔불
+   - 미스터리 감성 세리프(Cinzel) + 산세리프(Pretendard) 조합
    - 폰 프레임 해제 (모바일 풀스크린 · 데스크톱 넓은 그리드)
-   - main.css 뒤에 로드되어 기존 다크 팔레트를 오버라이드
    ============================================================ */
 
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css");
+@import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap");
+
 :root {
-  /* 배경 */
-  --bg:              #faf7f1;
-  --bg-solid:        #faf7f1;
-  --surface:         #ffffff;
-  --surface-2:       #f4efe4;
-  --surface-3:       #ede8db;
+  /* ── 오컬트 팔레트 ─────────────────────────────────────── */
+  /* 배경 계층 (가장 깊은 것 → 가까운 것) */
+  --void:            #08060f;   /* 가장 깊은 밤 */
+  --bg:              #0d0a1a;   /* 페이지 배경 */
+  --bg-solid:        #0d0a1a;
+  --surface:         #16112a;   /* 카드 · 패널 */
+  --surface-2:       #1c1735;   /* 서브 패널 */
+  --surface-3:       #241d43;   /* 더 강조된 패널 */
+  --surface-hover:   #201a3d;
 
   /* 텍스트 */
-  --ink:             #1c1f2a;
-  --ink-soft:        #5b6070;
-  --ink-dim:         #8a8f9c;
-  --ink-mute:        #b8bcc6;
+  --ink:             #e8dfd0;   /* 본문 (스모키 아이보리) */
+  --ink-soft:        #b8a998;   /* 서브 */
+  --ink-dim:         #8a7d70;   /* 힌트 */
+  --ink-mute:        #5c5548;
+  --ink-inv:         #08060f;   /* 밝은 배경 위 검정 */
 
-  /* 강조 */
-  --accent:          #e94a5f;
-  --accent-hover:    #d43a4f;
-  --accent-soft:     #ffe5ea;
-  --accent-2:        #f8b76b;
+  /* 강조 컬러 (오컬트 시그니처) */
+  --crimson:         #8b1a2f;   /* 딥 크림슨 (블러드) */
+  --crimson-bri:     #b8253d;   /* 밝은 크림슨 (호버) */
+  --crimson-soft:    rgba(139, 26, 47, 0.18);
+  --gold:            #c9a960;   /* 잔불의 골드 */
+  --gold-bri:        #e8c47a;   /* 밝은 골드 (강조 텍스트) */
+  --gold-dim:        #8a7444;
+  --gold-soft:       rgba(201, 169, 96, 0.15);
+  --violet:          #6b4a9e;   /* 짙은 보라 (부수 강조) */
+  --violet-bri:      #8a63bd;
+  --moon:            #d4c9e8;   /* 문라이트 (아이콘 · 라인) */
+  --moon-soft:       rgba(212, 201, 232, 0.35);
 
-  /* 카테고리 파스텔 */
-  --pastel-love:     #ffe0e5;
-  --pastel-dream:    #e5e0ff;
-  --pastel-hwapae:   #fff0d5;
-  --pastel-face:     #d9ecdf;
-  --pastel-money:    #ffe9c2;
-  --pastel-career:   #d5e5ff;
-
-  --pastel-love-ink:   #b8455c;
-  --pastel-dream-ink:  #5c4bb8;
-  --pastel-hwapae-ink: #b8863a;
-  --pastel-face-ink:   #3a7a5e;
-  --pastel-money-ink:  #a67320;
-  --pastel-career-ink: #3a5db8;
+  /* 도메인 별 색조 (오컬트 톤) */
+  --dom-saju:        #c9a960;   /* 사주 = 잔불 골드 */
+  --dom-saju-ink:    #f0d68c;
+  --dom-dream:       #6b4a9e;   /* 꿈 = 보라 (환상) */
+  --dom-dream-ink:   #b09ad8;
+  --dom-hwapae:      #8b1a2f;   /* 꽃패 = 크림슨 (심장) */
+  --dom-hwapae-ink:  #d68b9c;
+  --dom-face:        #4a7a6e;   /* 관상 = 딥 세이지 (연기) */
+  --dom-face-ink:    #8dc4b3;
 
   /* 라인/보더 */
-  --border:          #e8e5dc;
-  --border-soft:     #f0ede4;
-  --border-strong:   #d5cfbf;
+  --border:          rgba(212, 201, 232, 0.12);
+  --border-soft:     rgba(212, 201, 232, 0.06);
+  --border-strong:   rgba(212, 201, 232, 0.22);
+  --border-crimson:  rgba(139, 26, 47, 0.5);
+  --border-gold:     rgba(201, 169, 96, 0.42);
 
-  /* 그림자 (부드러운) */
-  --shadow-sm:       0 1px 2px rgba(28, 31, 42, 0.06);
-  --shadow-md:       0 4px 12px rgba(28, 31, 42, 0.08);
-  --shadow-lg:       0 10px 32px rgba(28, 31, 42, 0.12);
-  --shadow-card:     0 2px 8px rgba(28, 31, 42, 0.06), 0 1px 2px rgba(28, 31, 42, 0.04);
-  --shadow-card-hover: 0 8px 24px rgba(28, 31, 42, 0.14), 0 2px 4px rgba(28, 31, 42, 0.08);
+  /* 그림자 (미스티) */
+  --shadow-sm:       0 1px 2px rgba(0, 0, 0, 0.55);
+  --shadow-md:       0 6px 20px rgba(0, 0, 0, 0.55);
+  --shadow-lg:       0 16px 40px rgba(0, 0, 0, 0.65);
+  --shadow-card:     0 6px 24px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(212, 201, 232, 0.04);
+  --shadow-card-hover: 0 14px 40px rgba(0, 0, 0, 0.75), 0 0 0 1px var(--border-gold), inset 0 1px 0 rgba(212, 201, 232, 0.06);
+  --glow-gold:       0 0 24px rgba(201, 169, 96, 0.35);
+  --glow-crimson:    0 0 24px rgba(139, 26, 47, 0.45);
 
   /* 라운드 */
-  --r-xs:  8px;
-  --r-sm:  12px;
-  --r-md:  16px;
-  --r-lg:  20px;
-  --r-xl:  28px;
+  --r-xs:  6px;
+  --r-sm:  10px;
+  --r-md:  14px;
+  --r-lg:  18px;
+  --r-xl:  26px;
   --r-pill: 999px;
 
   /* 폰트 스케일 */
@@ -70,13 +83,14 @@
   --fs-body-lg: 15px;
   --fs-title:   17px;
   --fs-h3:      20px;
-  --fs-h2:      24px;
-  --fs-h1:      30px;
-  --fs-hero:    36px;
+  --fs-h2:      26px;
+  --fs-h1:      34px;
+  --fs-hero:    44px;
 
-  /* 폰트 패밀리 오버라이드 (모던 산세리프 중심) */
-  --font-sans: "Pretendard Variable", "Pretendard", "Noto Sans KR", -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
-  --font-serif: "Nanum Myeongjo", serif;
+  /* 폰트 패밀리 */
+  --font-sans:  "Pretendard Variable", "Pretendard", "Noto Sans KR", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-serif: "Cinzel", "Cormorant Garamond", "Nanum Myeongjo", serif;
+  --font-mono:  "JetBrains Mono", "SF Mono", monospace;
 
   /* 스페이싱 (8pt 그리드) */
   --sp-1: 4px;
@@ -89,9 +103,9 @@
   --sp-10: 40px;
   --sp-12: 48px;
 
-  /* 호환용 (기존 CSS가 참조하는 토큰들 재매핑) */
+  /* 호환용 (기존 CSS가 참조하는 토큰 재매핑) */
   --bg-night:   var(--bg);
-  --bg-deep:    var(--surface-2);
+  --bg-deep:    var(--void);
   --bg-mid:     var(--surface);
   --milk:       var(--surface);
   --cream:      var(--surface-2);
@@ -99,28 +113,45 @@
   --hanji-md:   var(--surface);
   --hanji-lt:   var(--surface-2);
   --hanji-dk:   var(--surface-3);
+  --hanji-edge: var(--border-strong);
   --text-main:  var(--ink);
   --text-soft:  var(--ink-soft);
   --text-dim:   var(--ink-dim);
   --text-mute:  var(--ink-mute);
-  --gold:       var(--accent);
-  --gold-bri:   var(--accent-hover);
+  --gold-bri:   var(--gold-bri);
+  --pink-dp:    var(--gold);
 }
 
-/* Pretendard 웹폰트 */
-@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css");
-
-/* ── 폰 프레임 해제 (mobile-frame.css 오버라이드) ──────────── */
+/* ── 페이지 기본 (다크 · 노이즈 배경) ────────────────────── */
 body {
   background: var(--bg) !important;
-  background-image: none !important;
+  /* 딥 퍼플 → 딥 블랙 그라디언트 + 상단 좌측 미묘한 크림슨 글로우 + 상단 우측 골드 잔불 */
+  background-image:
+    radial-gradient(ellipse 60% 40% at 15% 8%, rgba(139, 26, 47, 0.24) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 30% at 88% 12%, rgba(201, 169, 96, 0.14) 0%, transparent 55%),
+    radial-gradient(ellipse 70% 40% at 50% 100%, rgba(107, 74, 158, 0.18) 0%, transparent 55%),
+    linear-gradient(180deg, var(--bg) 0%, var(--void) 100%) !important;
+  background-attachment: fixed !important;
   color: var(--ink) !important;
   font-family: var(--font-sans) !important;
   font-size: var(--fs-body) !important;
-  line-height: 1.55 !important;
+  line-height: 1.65 !important;
   letter-spacing: -0.005em !important;
   padding: 0 !important;
   min-height: 100vh;
+  position: relative;
+}
+
+/* 노이즈 텍스처 오버레이 — 오컬트 그레인 */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.1 0 0 0 0 0.08 0 0 0 0 0.15 0 0 0 0.05 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  opacity: 0.55;
+  mix-blend-mode: overlay;
 }
 
 body.in-app { padding: 0 !important; }
@@ -132,9 +163,11 @@ body.in-app { padding: 0 !important; }
   margin: 0 auto !important;
   border: none !important;
   box-shadow: none !important;
-  background: var(--bg) !important;
+  background: transparent !important;
   border-radius: 0 !important;
   min-height: 100vh !important;
+  position: relative;
+  z-index: 1;
 }
 
 /* 데스크톱: 넓은 컨테이너 */
@@ -150,25 +183,38 @@ body.in-app { padding: 0 !important; }
   }
 }
 
-/* 폰 프레임 장식 제거 */
 .app-container::before,
 .app-container::after {
   display: none !important;
 }
 
-/* 배경 오버레이 (다크 톤 그림자) 제거 */
-.bg-overlay {
-  display: none !important;
-}
+.bg-overlay { display: none !important; }
 
-/* 코너 버튼 (전체화면 등) 재배치 */
+/* 코너 버튼 (전체화면 등) */
 .corner-btn {
   background: var(--surface) !important;
-  color: var(--ink) !important;
+  color: var(--moon) !important;
   border: 1px solid var(--border) !important;
   box-shadow: var(--shadow-sm) !important;
 }
 .corner-btn:hover {
-  background: var(--accent-soft) !important;
-  color: var(--accent) !important;
+  background: var(--surface-hover) !important;
+  color: var(--gold-bri) !important;
+  border-color: var(--border-gold) !important;
+}
+
+/* 스크롤바 (다크) */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(212, 201, 232, 0.2) transparent;
+}
+*::-webkit-scrollbar { width: 10px; height: 10px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb { background: rgba(212, 201, 232, 0.15); border-radius: 999px; }
+*::-webkit-scrollbar-thumb:hover { background: rgba(212, 201, 232, 0.28); }
+
+/* 텍스트 선택 */
+::selection {
+  background: var(--crimson);
+  color: var(--ink);
 }
