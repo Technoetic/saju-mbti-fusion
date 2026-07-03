@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#f7efe1">
-<title>四柱鏡 · 사주경 — 미래를 엿볼 준비가 됐나</title>
+<title>사주경 — 내 미래 엿보기</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <!-- 月下夢 파스텔 치비 디자인 폰트 — 둥근 손글씨 / 부드러운 산세리프 -->
@@ -58,7 +58,7 @@
 <div id="authModal" class="auth-modal" role="dialog" aria-labelledby="authTitle" aria-modal="true" style="display:none">
   <div class="auth-card">
     <button type="button" class="auth-close" id="authClose" aria-label="닫기">×</button>
-    <h2 class="auth-title" id="authTitle">四柱鏡 · 회원가입</h2>
+    <h2 class="auth-title" id="authTitle">사주경 · 회원가입</h2>
     <div class="auth-tabs">
       <button type="button" class="auth-tab active" data-auth-mode="signup">회원가입</button>
       <button type="button" class="auth-tab" data-auth-mode="login">로그인</button>
@@ -330,8 +330,7 @@
      ═══════════════════════════════════════════════════════════ -->
 <header class="app-header" role="banner">
   <a class="brand" href="#" aria-label="사주경 홈">
-    <span class="brand-han">四柱鏡</span>
-    <span class="brand-ko">SAJUKYUNG</span>
+    <span class="brand-ko">사주경 · SAJUKYUNG</span>
   </a>
   <div class="app-header-actions">
     <button type="button" class="header-btn" id="renewalLoginBtn">로그인</button>
@@ -370,53 +369,22 @@
           <div class="interior-ceiling-glow"></div>
           <!-- 만월아씨 자리 (예약 · 나중에 img 삽입) -->
           <div class="anchor-slot"></div>
-          <!-- 창 안쪽 어렴풋 붐 마이크 (뒷 실내 힌트) -->
-          <svg class="interior-boom" viewBox="0 0 200 160" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <line x1="0" y1="10" x2="90" y2="55"/>
-            <circle cx="90" cy="55" r="3"/>
-            <line x1="90" y1="55" x2="130" y2="95"/>
-            <rect x="122" y="95" width="16" height="34" rx="2"/>
-            <line x1="122" y1="102" x2="138" y2="102" opacity="0.6"/>
-            <line x1="122" y1="108" x2="138" y2="108" opacity="0.6"/>
-            <line x1="122" y1="114" x2="138" y2="114" opacity="0.6"/>
-            <line x1="122" y1="120" x2="138" y2="120" opacity="0.6"/>
-          </svg>
         </div>
         <!-- 유리 반사 오버레이 (컨트롤룸 쪽 조명 반사) -->
         <div class="studio-glass-reflection"></div>
       </div>
     </div>
 
-    <!-- 사운드 토글 -->
-    <button type="button" class="sound-toggle" id="soundToggle" aria-pressed="false" aria-label="방송 사운드 켜기">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
-        <line x1="23" y1="9" x2="17" y2="15"/>
-        <line x1="17" y1="9" x2="23" y2="15"/>
-      </svg>
-    </button>
-
-    <!-- 하단 콘텐츠 (헤드라인 + CTA · 화면 하단 앵커) -->
+    <!-- 하단 CTA (창 아래 · 단일 진입점) -->
     <div class="hero-content">
-      <h1 class="hero-title">
-        <span data-text="미래를 엿볼 준비가">미래를 엿볼 준비가</span><br/>
-        <span data-text="됐나?">됐나?</span>
-      </h1>
-      <p class="hero-sub">오늘 밤엔 두 편이 나가. 어느 쪽부터 들을래.</p>
       <div class="hero-ctas">
-        <button type="button" class="hero-cta" data-tab="saju" aria-label="첫 손님 · 사주 · 만월아씨의 통합 풀이">
-          <span class="hero-cta-num">01 · 첫 손님</span>
+        <button type="button" class="hero-cta" data-tab="saju" aria-label="사주 · 내 미래 엿보기">
+          <span class="hero-cta-num">01</span>
           <span class="hero-cta-label">
-            <span>만월아씨의 사주</span>
+            <span class="hero-cta-primary">사주</span>
             <span class="hero-cta-arrow">→</span>
           </span>
-        </button>
-        <button type="button" class="hero-cta" data-tab="hwapae" aria-label="둘째 손님 · 꽃패">
-          <span class="hero-cta-num">02 · 둘째 손님</span>
-          <span class="hero-cta-label">
-            <span>오늘의 꽃패</span>
-            <span class="hero-cta-arrow">→</span>
-          </span>
+          <span class="hero-cta-sub">내 미래 엿보기</span>
         </button>
       </div>
     </div>
@@ -435,8 +403,8 @@
 
   <!-- 푸터 · 조용한 방송분 마감 -->
   <footer class="home-footer" role="contentinfo">
-    <p><strong>四柱鏡 · SAJUKYUNG</strong></p>
-    <p>사주 · 꽃패 · 베타 방송분</p>
+    <p><strong>SAJUKYUNG</strong></p>
+    <p>사주 · 베타 방송분</p>
   </footer>
 </main>
 
