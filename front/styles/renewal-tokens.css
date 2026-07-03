@@ -1,0 +1,174 @@
+/* ============================================================
+   renewal-tokens.css — 2026-07 UI/UX 전면 리뉴얼 팔레트
+   ============================================================
+   방향: 다크 미스틱 → 밝은 모던 톤 (타이트사주 벤치마크)
+   - 오프화이트 배경 + 담백 카드 + 딥 코럴 강조
+   - 카테고리별 파스텔 서브 컬러 (감성 자극 이모지 대체)
+   - 폰 프레임 해제 (모바일 풀스크린 · 데스크톱 넓은 그리드)
+   - main.css 뒤에 로드되어 기존 다크 팔레트를 오버라이드
+   ============================================================ */
+
+:root {
+  /* 배경 */
+  --bg:              #faf7f1;
+  --bg-solid:        #faf7f1;
+  --surface:         #ffffff;
+  --surface-2:       #f4efe4;
+  --surface-3:       #ede8db;
+
+  /* 텍스트 */
+  --ink:             #1c1f2a;
+  --ink-soft:        #5b6070;
+  --ink-dim:         #8a8f9c;
+  --ink-mute:        #b8bcc6;
+
+  /* 강조 */
+  --accent:          #e94a5f;
+  --accent-hover:    #d43a4f;
+  --accent-soft:     #ffe5ea;
+  --accent-2:        #f8b76b;
+
+  /* 카테고리 파스텔 */
+  --pastel-love:     #ffe0e5;
+  --pastel-dream:    #e5e0ff;
+  --pastel-hwapae:   #fff0d5;
+  --pastel-face:     #d9ecdf;
+  --pastel-money:    #ffe9c2;
+  --pastel-career:   #d5e5ff;
+
+  --pastel-love-ink:   #b8455c;
+  --pastel-dream-ink:  #5c4bb8;
+  --pastel-hwapae-ink: #b8863a;
+  --pastel-face-ink:   #3a7a5e;
+  --pastel-money-ink:  #a67320;
+  --pastel-career-ink: #3a5db8;
+
+  /* 라인/보더 */
+  --border:          #e8e5dc;
+  --border-soft:     #f0ede4;
+  --border-strong:   #d5cfbf;
+
+  /* 그림자 (부드러운) */
+  --shadow-sm:       0 1px 2px rgba(28, 31, 42, 0.06);
+  --shadow-md:       0 4px 12px rgba(28, 31, 42, 0.08);
+  --shadow-lg:       0 10px 32px rgba(28, 31, 42, 0.12);
+  --shadow-card:     0 2px 8px rgba(28, 31, 42, 0.06), 0 1px 2px rgba(28, 31, 42, 0.04);
+  --shadow-card-hover: 0 8px 24px rgba(28, 31, 42, 0.14), 0 2px 4px rgba(28, 31, 42, 0.08);
+
+  /* 라운드 */
+  --r-xs:  8px;
+  --r-sm:  12px;
+  --r-md:  16px;
+  --r-lg:  20px;
+  --r-xl:  28px;
+  --r-pill: 999px;
+
+  /* 폰트 스케일 */
+  --fs-caption: 11px;
+  --fs-small:   12.5px;
+  --fs-body:    14px;
+  --fs-body-lg: 15px;
+  --fs-title:   17px;
+  --fs-h3:      20px;
+  --fs-h2:      24px;
+  --fs-h1:      30px;
+  --fs-hero:    36px;
+
+  /* 폰트 패밀리 오버라이드 (모던 산세리프 중심) */
+  --font-sans: "Pretendard Variable", "Pretendard", "Noto Sans KR", -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
+  --font-serif: "Nanum Myeongjo", serif;
+
+  /* 스페이싱 (8pt 그리드) */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 20px;
+  --sp-6: 24px;
+  --sp-8: 32px;
+  --sp-10: 40px;
+  --sp-12: 48px;
+
+  /* 호환용 (기존 CSS가 참조하는 토큰들 재매핑) */
+  --bg-night:   var(--bg);
+  --bg-deep:    var(--surface-2);
+  --bg-mid:     var(--surface);
+  --milk:       var(--surface);
+  --cream:      var(--surface-2);
+  --cream-dk:   var(--surface-3);
+  --hanji-md:   var(--surface);
+  --hanji-lt:   var(--surface-2);
+  --hanji-dk:   var(--surface-3);
+  --text-main:  var(--ink);
+  --text-soft:  var(--ink-soft);
+  --text-dim:   var(--ink-dim);
+  --text-mute:  var(--ink-mute);
+  --gold:       var(--accent);
+  --gold-bri:   var(--accent-hover);
+}
+
+/* Pretendard 웹폰트 */
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css");
+
+/* ── 폰 프레임 해제 (mobile-frame.css 오버라이드) ──────────── */
+body {
+  background: var(--bg) !important;
+  background-image: none !important;
+  color: var(--ink) !important;
+  font-family: var(--font-sans) !important;
+  font-size: var(--fs-body) !important;
+  line-height: 1.55 !important;
+  letter-spacing: -0.005em !important;
+  padding: 0 !important;
+  min-height: 100vh;
+}
+
+body.in-app { padding: 0 !important; }
+
+.app-container {
+  max-width: 100% !important;
+  width: 100% !important;
+  padding: 0 !important;
+  margin: 0 auto !important;
+  border: none !important;
+  box-shadow: none !important;
+  background: var(--bg) !important;
+  border-radius: 0 !important;
+  min-height: 100vh !important;
+}
+
+/* 데스크톱: 넓은 컨테이너 */
+@media (min-width: 768px) {
+  .app-container {
+    max-width: 1200px !important;
+    padding: 0 24px !important;
+  }
+}
+@media (min-width: 1280px) {
+  .app-container {
+    max-width: 1280px !important;
+  }
+}
+
+/* 폰 프레임 장식 제거 */
+.app-container::before,
+.app-container::after {
+  display: none !important;
+}
+
+/* 배경 오버레이 (다크 톤 그림자) 제거 */
+.bg-overlay {
+  display: none !important;
+}
+
+/* 코너 버튼 (전체화면 등) 재배치 */
+.corner-btn {
+  background: var(--surface) !important;
+  color: var(--ink) !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+.corner-btn:hover {
+  background: var(--accent-soft) !important;
+  color: var(--accent) !important;
+}

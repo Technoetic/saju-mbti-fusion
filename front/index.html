@@ -11,6 +11,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Gaegu:wght@400;700&family=Nanum+Pen+Script&family=Quicksand:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;700&family=Nanum+Myeongjo:wght@400;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles/main.css">
 <link rel="stylesheet" href="styles/school-toggle.css">
+<!-- 2026-07 UI 리뉴얼: 새 팔레트/타이포/폰프레임 해제 + 홈 재설계 -->
+<link rel="stylesheet" href="styles/renewal-tokens.css">
+<link rel="stylesheet" href="styles/renewal-home.css">
 <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 <!-- 음력→양력 변환 (lunar-javascript by 6tail) -->
 <script src="https://cdn.jsdelivr.net/npm/lunar-javascript@1.6.13/lunar.js"></script>
@@ -322,6 +325,55 @@
 </section>
 
 <div class="app-container" id="appMain">
+<!-- ═══════════════════════════════════════════════════════════
+     2026-07 UI 리뉴얼 홈 (renewal-home.css/js)
+     ═══════════════════════════════════════════════════════════ -->
+<header class="app-header" role="banner">
+  <a class="brand" href="#" aria-label="월하몽 홈">
+    <span class="brand-han">月下夢</span>
+    <span class="brand-ko">월하몽</span>
+  </a>
+  <div class="app-header-actions">
+    <button type="button" class="header-btn" id="renewalLoginBtn">로그인</button>
+    <button type="button" class="header-btn header-btn-primary" id="renewalSignupBtn">시작하기</button>
+  </div>
+</header>
+
+<main id="homeMain" class="home-main">
+  <!-- 히어로 배너 -->
+  <section class="home-hero" aria-label="2026 신년운세 프로모션">
+    <div>
+      <p class="hero-eyebrow">2026 · 병오년 신년운세</p>
+      <h1 class="hero-title">올해 나 어떻게 흐를까?</h1>
+      <p class="hero-sub">병오년 12개월 리듬을 미리 짚어봐. 30초 안에 네 사주가 뽑혀.</p>
+      <button type="button" class="hero-cta">지금 내 운세 보기</button>
+    </div>
+  </section>
+
+  <!-- 카테고리 탭 -->
+  <nav class="home-cats" role="tablist" aria-label="풀이 카테고리"></nav>
+
+  <!-- 상품 카드 그리드 -->
+  <div class="home-cards-wrap">
+    <div class="home-cards" role="list" aria-label="풀이 목록"></div>
+  </div>
+
+  <!-- 리뷰 슬롯 -->
+  <section class="home-reviews" aria-label="후기">
+    <h2 class="section-title">뜨거운 후기 (준비 중)</h2>
+    <p class="home-reviews-hint">실제 이용자 후기가 곧 들어와.</p>
+  </section>
+
+  <!-- 푸터 -->
+  <footer class="home-footer" role="contentinfo">
+    <p><strong>월하몽</strong> (月下夢) · 달 아래의 꿈</p>
+    <p>사주·꿈·꽃패·관상 4 영역 종합 풀이 · 베타 무료 이용 중</p>
+  </footer>
+</main>
+
+<!-- ═══════════════════════════════════════════════════════════
+     기존 히어로 (숨김 · CSS에서 display:none)
+     ═══════════════════════════════════════════════════════════ -->
 <div class="header-ornament"></div>
 <h1>月 下 夢</h1>
 <p class="subtitle">월 하 몽 · 달 아 래 의  꿈</p>
@@ -1734,6 +1786,8 @@
 <script type="module" src="js/ui/chwiseon.js"></script>
 <script type="module" src="js/readers/tools.js"></script>
 <script type="module" src="js/ui/init.js"></script>
+<!-- 2026-07 UI 리뉴얼: 새 홈 렌더러 (WHM_CONTENTS 순회 → 상품 카드) -->
+<script src="js/ui/renewal-home.js" defer></script>
 </div><!-- /app-container -->
 
 <!-- ════════════════════════════════════════════════════════
