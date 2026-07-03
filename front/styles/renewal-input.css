@@ -274,18 +274,22 @@ body.sk-input-flow fieldset {
   body.sk-input-flow fieldset { padding: 26px 22px 22px !important; margin-bottom: 22px !important; }
 }
 
-/* 필드셋 우상단 STATUS 라벨 (콘솔 모듈 감성) */
+/* 필드셋 우상단 채널 번호 (콘솔 모듈 감성) */
+body.sk-input-flow fieldset {
+  counter-increment: sk-ch;
+}
 body.sk-input-flow fieldset::after {
-  content: "STATUS ●";
+  content: "CH · 0" counter(sk-ch);
   position: absolute;
   top: 10px;
   right: 14px;
   font-family: var(--font-mono);
   font-size: 8.5px;
   letter-spacing: 2px;
-  color: rgba(232, 196, 122, 0.35);
+  color: rgba(232, 196, 122, 0.32);
   text-transform: uppercase;
 }
+body.sk-input-flow .paper-scroll { counter-reset: sk-ch; }
 
 /* 필드셋 legend = 모듈 명패 */
 body.sk-input-flow legend {
@@ -318,6 +322,54 @@ body.sk-input-flow .row {
   align-items: stretch !important;
 }
 body.sk-input-flow .row:last-child { margin-bottom: 0 !important; }
+
+/* JS가 inline display:none으로 감춘 row · fieldset · panel 유지 */
+body.sk-input-flow .row[style*="display:none"],
+body.sk-input-flow .row[style*="display: none"],
+body.sk-input-flow fieldset[style*="display:none"],
+body.sk-input-flow fieldset[style*="display: none"],
+body.sk-input-flow .bp-panel[style*="display:none"],
+body.sk-input-flow .bp-panel[style*="display: none"],
+body.sk-input-flow [style*="display:none"],
+body.sk-input-flow [style*="display: none"] {
+  display: none !important;
+}
+
+/* 특수: 직접 입력 시·분 · 경도·시간대 등 인라인 다중 필드 row */
+body.sk-input-flow #hourManualRow,
+body.sk-input-flow #pHourManualRow,
+body.sk-input-flow .advanced-settings .row {
+  flex-direction: row !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  gap: 8px 10px !important;
+}
+body.sk-input-flow #hourManualRow > label,
+body.sk-input-flow #pHourManualRow > label,
+body.sk-input-flow .advanced-settings .row > label {
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  min-width: 60px !important;
+  font-size: 10.5px !important;
+}
+body.sk-input-flow #hourManualRow > input[type="number"],
+body.sk-input-flow #pHourManualRow > input[type="number"],
+body.sk-input-flow .advanced-settings .row > input[type="number"] {
+  flex: 0 0 auto !important;
+  width: auto !important;
+  max-width: 110px !important;
+  min-width: 80px !important;
+}
+body.sk-input-flow #hourManualRow > .hint,
+body.sk-input-flow #pHourManualRow > .hint,
+body.sk-input-flow .advanced-settings .row > .hint {
+  flex-basis: 100% !important;
+  margin: 4px 0 0 !important;
+}
+body.sk-input-flow .advanced-settings .row > select {
+  flex: 1 1 auto !important;
+  min-width: 200px !important;
+}
 
 /* label = 모노 · uppercase · amber-dim */
 body.sk-input-flow .row > label:not(.bp-mode-opt) {
@@ -498,29 +550,45 @@ body.sk-input-flow .bp-panel { margin-top: 8px; }
 /* ─── advanced-settings (details) ────────────────────── */
 body.sk-input-flow .advanced-settings {
   margin: 16px 0 0 !important;
-  padding: 12px 0 0 !important;
-  border-top: 1px dashed rgba(232, 223, 208, 0.09) !important;
+  padding: 12px 14px !important;
+  border: 1px dashed rgba(232, 223, 208, 0.12) !important;
+  border-radius: 6px !important;
+  background: rgba(0, 0, 0, 0.25) !important;
 }
 body.sk-input-flow .advanced-settings summary {
   cursor: pointer !important;
   font-family: var(--font-mono) !important;
   font-size: 11px !important;
-  letter-spacing: 3px !important;
+  letter-spacing: 2.5px !important;
   color: var(--ink-dim) !important;
-  padding: 8px 0 !important;
+  padding: 4px 0 !important;
   list-style: none !important;
   text-transform: uppercase !important;
   transition: color 0.25s ease;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  font-weight: 500;
 }
 body.sk-input-flow .advanced-settings summary:hover { color: var(--amber-bri) !important; }
-body.sk-input-flow .advanced-settings summary::-webkit-details-marker { display: none !important; }
+body.sk-input-flow .advanced-settings summary::-webkit-details-marker,
+body.sk-input-flow .advanced-settings summary::marker { display: none !important; }
 body.sk-input-flow .advanced-settings summary::before {
-  content: "▸ ";
+  content: "▸";
   color: var(--amber);
-  margin-right: 4px;
+  font-size: 10px;
   transition: transform 0.2s;
+  display: inline-block;
 }
-body.sk-input-flow .advanced-settings[open] summary::before { content: "▾ "; }
+body.sk-input-flow .advanced-settings[open] summary::before {
+  content: "▾";
+}
+body.sk-input-flow .advanced-settings[open] {
+  padding-bottom: 4px !important;
+}
+body.sk-input-flow .advanced-settings[open] .row:first-of-type {
+  margin-top: 14px !important;
+}
 
 /* ─── 서브밋 버튼 (풀 이 보 기) ───────────────────────── */
 body.sk-input-flow .big-action {
