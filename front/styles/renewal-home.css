@@ -860,41 +860,13 @@
 }
 .home-footer p + p { margin-top: 3px; opacity: 0.75; }
 
-/* ─── 하단 탭바 다크 톤 (강제 오버라이드) ─────────────── */
+/* ─── 하단 탭바 완전 제거 (홈/일지/프로필 안 씀) ────────── */
 .bottom-tabs,
-#bottomTabs {
-  background: rgba(10, 6, 8, 0.96) !important;
-  border-top: 1px solid rgba(232, 223, 208, 0.09) !important;
-  box-shadow: 0 -6px 24px rgba(0, 0, 0, 0.7) !important;
-  backdrop-filter: saturate(140%) blur(14px) !important;
-  -webkit-backdrop-filter: saturate(140%) blur(14px) !important;
-  border-radius: 0 !important;
-}
-.bottom-tab {
-  color: var(--ink-soft) !important;
-  background: transparent !important;
-  font-family: var(--font-mono) !important;
-  transition: color 0.2s ease, background 0.2s ease !important;
-}
-.bottom-tab .bt-label {
-  font-family: var(--font-mono) !important;
-  letter-spacing: 2px !important;
-  font-weight: 500 !important;
-  color: inherit !important;
-}
-.bottom-tab:hover {
-  color: var(--amber-bri) !important;
-  background: rgba(232, 196, 122, 0.06) !important;
-}
-.bottom-tab.active {
-  color: var(--amber-bri) !important;
-  background: rgba(232, 196, 122, 0.08) !important;
-}
-.bottom-tab.active::before {
-  background: var(--amber-bri) !important;
-  box-shadow: 0 0 6px var(--amber-bri) !important;
-}
-.bottom-tab .bt-icon svg { stroke: currentColor !important; }
+#bottomTabs,
+#bottomTabBar { display: none !important; }
+/* 컨테이너 하단 여유(96px) 무효 · 히어로가 뷰포트 하단까지 사용 */
+body.in-app .app-container,
+body.in-app #tabView { padding-bottom: 0 !important; }
 
 /* 상단 saju/dream/face/hwapae 탭 바 */
 .tab-bar {
