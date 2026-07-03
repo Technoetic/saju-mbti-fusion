@@ -346,100 +346,44 @@
        ═════════════════════════════════════════════════════════ -->
   <section class="home-hero hero-scene" id="heroScene" aria-label="사주경 · 미래를 엿볼 준비가 됐나">
 
-    <!-- 방송실 배경 요소 -->
-    <div class="hero-stage" aria-hidden="true">
-      <!-- 방음 폼 벽 (좌우) -->
-      <div class="stage-wall stage-wall-left"></div>
-      <div class="stage-wall stage-wall-right"></div>
-      <!-- 부스 유리 프레임 (인셋 · 방음실 창 힌트) -->
-      <div class="booth-frame"></div>
+    <!-- 방음 폼 벽 전체 (컨트롤룸에서 본 방송실 뒷벽) -->
+    <div class="stage-foam" aria-hidden="true"></div>
 
-      <!-- 붐 마이크 (상단 좌측에서 걸려내려옴 · 중앙-좌상단 향해 매달림) -->
-      <svg class="hero-boom" viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet">
-        <!-- 붐 arm 1st segment (off-screen 상단 좌측에서 내려옴) -->
-        <line class="boom-arm" x1="-20" y1="-10" x2="150" y2="70"/>
-        <!-- 조인트 -->
-        <circle class="boom-joint" cx="150" cy="70" r="6"/>
-        <!-- 붐 arm 2nd segment -->
-        <line class="boom-arm" x1="150" y1="70" x2="240" y2="150"/>
-        <!-- shock mount 서스펜션 (사각 링) -->
-        <rect class="boom-shock" x="215" y="150" width="60" height="60" rx="4"/>
-        <!-- 서스펜션 스프링 라인 -->
-        <line class="boom-spring" x1="220" y1="150" x2="245" y2="175"/>
-        <line class="boom-spring" x1="270" y1="150" x2="245" y2="175"/>
-        <line class="boom-spring" x1="220" y1="210" x2="245" y2="185"/>
-        <line class="boom-spring" x1="270" y1="210" x2="245" y2="185"/>
-        <!-- 마이크 헤드 (매달림) -->
-        <rect class="boom-mic-body" x="230" y="175" width="30" height="60" rx="4"/>
-        <!-- 마이크 그릴 -->
-        <line class="boom-mesh" x1="230" y1="185" x2="260" y2="185"/>
-        <line class="boom-mesh" x1="230" y1="192" x2="260" y2="192"/>
-        <line class="boom-mesh" x1="230" y1="199" x2="260" y2="199"/>
-        <line class="boom-mesh" x1="230" y1="206" x2="260" y2="206"/>
-        <line class="boom-mesh" x1="230" y1="213" x2="260" y2="213"/>
-        <line class="boom-mesh" x1="240" y1="175" x2="240" y2="220" opacity="0.4"/>
-        <line class="boom-mesh" x1="250" y1="175" x2="250" y2="220" opacity="0.4"/>
-        <!-- 케이블 (하단으로 늘어짐) -->
-        <path class="boom-cable" d="M 245 235 Q 240 260 248 285 Q 252 295 246 300"/>
-      </svg>
-
-      <!-- 우측 믹서 슬라이더 랙 -->
-      <svg class="hero-mixer" viewBox="0 0 120 280" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <!-- 프레임 -->
-        <rect class="mixer-frame" x="4" y="4" width="112" height="272" rx="3"/>
-        <!-- 상단 라벨 라인 -->
-        <line class="mixer-label" x1="12" y1="18" x2="108" y2="18"/>
-        <!-- 6 채널 슬라이더 -->
-        <g class="mixer-ch">
-          <line class="mixer-track" x1="20" y1="30" x2="20" y2="260"/>
-          <rect class="mixer-fader" x="15" y="120" width="10" height="14" rx="1.5"/>
-          <text class="mixer-num" x="20" y="272" text-anchor="middle">1</text>
-        </g>
-        <g class="mixer-ch">
-          <line class="mixer-track" x1="38" y1="30" x2="38" y2="260"/>
-          <rect class="mixer-fader" x="33" y="95" width="10" height="14" rx="1.5"/>
-          <text class="mixer-num" x="38" y="272" text-anchor="middle">2</text>
-        </g>
-        <g class="mixer-ch">
-          <line class="mixer-track" x1="56" y1="30" x2="56" y2="260"/>
-          <rect class="mixer-fader" x="51" y="160" width="10" height="14" rx="1.5"/>
-          <text class="mixer-num" x="56" y="272" text-anchor="middle">3</text>
-        </g>
-        <g class="mixer-ch">
-          <line class="mixer-track" x1="74" y1="30" x2="74" y2="260"/>
-          <rect class="mixer-fader" x="69" y="75" width="10" height="14" rx="1.5"/>
-          <text class="mixer-num" x="74" y="272" text-anchor="middle">4</text>
-        </g>
-        <g class="mixer-ch">
-          <line class="mixer-track" x1="92" y1="30" x2="92" y2="260"/>
-          <rect class="mixer-fader" x="87" y="200" width="10" height="14" rx="1.5"/>
-          <text class="mixer-num" x="92" y="272" text-anchor="middle">5</text>
-        </g>
-        <g class="mixer-ch">
-          <line class="mixer-track" x1="110" y1="30" x2="110" y2="260"/>
-          <rect class="mixer-fader" x="105" y="145" width="10" height="14" rx="1.5"/>
-          <text class="mixer-num" x="110" y="272" text-anchor="middle">6</text>
-        </g>
-      </svg>
-    </div>
-
-    <!-- 상단 STUDIO 라이브 태그 (헤더 밑 · 채널 라벨) -->
-    <div class="studio-tag" aria-hidden="true">
-      <span class="studio-dot"></span>
-      <span class="studio-tag-text">LIVE · STUDIO A</span>
-      <span class="studio-sep"></span>
-      <span class="studio-tag-code">SAJUKYUNG · CH01</span>
-    </div>
-
-    <!-- ON AIR 사이니지 (우상단 · 대형 · 아크릴 프레임) -->
-    <div class="on-air-panel" id="onAirSign" role="status" aria-live="polite" aria-label="방송 상태">
-      <span class="on-air-screw on-air-screw-tl" aria-hidden="true"></span>
-      <span class="on-air-screw on-air-screw-tr" aria-hidden="true"></span>
-      <span class="on-air-screw on-air-screw-bl" aria-hidden="true"></span>
-      <span class="on-air-screw on-air-screw-br" aria-hidden="true"></span>
-      <div class="on-air-glass">
+    <!-- ON AIR 전등 케이스 (창 위 중앙에 매달림) -->
+    <div class="on-air-light" id="onAirSign" role="status" aria-live="polite" aria-label="방송 상태">
+      <span class="on-air-bracket on-air-bracket-l" aria-hidden="true"></span>
+      <span class="on-air-bracket on-air-bracket-r" aria-hidden="true"></span>
+      <div class="on-air-light-panel">
         <span class="on-air-primary">ON AIR</span>
-        <span class="on-air-secondary"><span class="on-air-dot" aria-hidden="true"></span>LIVE</span>
+      </div>
+      <span class="on-air-cast" aria-hidden="true"></span>
+    </div>
+
+    <!-- 방송실 관측 창 (두꺼운 메탈 프레임 · 유리 · 안쪽) -->
+    <div class="studio-window" aria-hidden="true">
+      <div class="studio-glass">
+        <!-- 창 안쪽: 방송실 실내 (어둠 + 만월아씨 자리) -->
+        <div class="studio-interior">
+          <!-- 뒷벽 방음 폼 (창 너머) -->
+          <div class="interior-back-wall"></div>
+          <!-- 천장 조명 반사 (유리 상단 하이라이트) -->
+          <div class="interior-ceiling-glow"></div>
+          <!-- 만월아씨 자리 (예약 · 나중에 img 삽입) -->
+          <div class="anchor-slot"></div>
+          <!-- 창 안쪽 어렴풋 붐 마이크 (뒷 실내 힌트) -->
+          <svg class="interior-boom" viewBox="0 0 200 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <line x1="0" y1="10" x2="90" y2="55"/>
+            <circle cx="90" cy="55" r="3"/>
+            <line x1="90" y1="55" x2="130" y2="95"/>
+            <rect x="122" y="95" width="16" height="34" rx="2"/>
+            <line x1="122" y1="102" x2="138" y2="102" opacity="0.6"/>
+            <line x1="122" y1="108" x2="138" y2="108" opacity="0.6"/>
+            <line x1="122" y1="114" x2="138" y2="114" opacity="0.6"/>
+            <line x1="122" y1="120" x2="138" y2="120" opacity="0.6"/>
+          </svg>
+        </div>
+        <!-- 유리 반사 오버레이 (컨트롤룸 쪽 조명 반사) -->
+        <div class="studio-glass-reflection"></div>
       </div>
     </div>
 
@@ -451,9 +395,6 @@
         <line x1="17" y1="9" x2="23" y2="15"/>
       </svg>
     </button>
-
-    <!-- 중앙 어둠 자리 (만월아씨 예정) -->
-    <div class="anchor-slot" aria-hidden="true"></div>
 
     <!-- 하단 콘텐츠 (헤드라인 + CTA · 화면 하단 앵커) -->
     <div class="hero-content">

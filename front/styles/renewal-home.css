@@ -1,15 +1,12 @@
 /* ============================================================
-   renewal-home.css — 四柱鏡·사주경 (2026-07 · Pass 2)
+   renewal-home.css — 四柱鏡·사주경 (2026-07 · Pass 3)
    ============================================================
-   심야 방송실 (진짜 스튜디오)
-   - 중앙은 만월아씨 자리로 텅 비움
-   - 촛불·중앙 마이크 제거
-   - 붐 마이크 상단 좌측에서 매달림
-   - 우측 믹서 슬라이더 랙
-   - 좌우 방음 폼 벽
-   - 상단 STUDIO 태그 (채널 라벨)
-   - 우상단 ON AIR 사이니지 (대형 · 아크릴)
-   - 하단 앵커: 헤드라인 + CTA + 파형
+   컨트롤룸에서 본 방송실 · 관측 창
+   - 배경 전체 = 방음 폼 벽 (컨트롤룸 뒷벽)
+   - 중앙 = 두꺼운 메탈 창 프레임 → 유리 → 방송실 안쪽
+   - 창 안쪽 = 어둠 (만월아씨 자리 예약) + 뒷 실내 어렴풋 힌트
+   - 창 위 중앙 = 전등 케이스 스타일 ON AIR (매달림)
+   - 창 아래 = 헤드라인 + CTA + 파형
    ============================================================ */
 
 /* ─── 기존 홈 잔재 완전 숨김 ────────────────────────────── */
@@ -116,7 +113,7 @@
 }
 
 /* ============================================================
-   히어로 — 진짜 심야 방송실
+   히어로 — 컨트롤룸에서 본 방송실
    ============================================================ */
 .home-hero {
   position: relative;
@@ -127,415 +124,429 @@
   border-radius: 0;
   overflow: hidden;
   isolation: isolate;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;   /* 콘텐츠 하단 앵커 */
-  align-items: center;
   color: var(--ink);
   background:
-    /* 좌상단 붐 마이크 향 warm amber 스포트 (매달린 조명) */
-    radial-gradient(ellipse 30% 25% at 15% 10%, rgba(232, 196, 122, 0.05) 0%, transparent 65%),
-    /* 우상단 ON AIR 붉은 잔영 */
-    radial-gradient(ellipse 22% 18% at 88% 12%, rgba(201, 36, 63, 0.10) 0%, transparent 65%),
-    /* 하단 crimson 스튜디오 스포트 */
-    radial-gradient(ellipse 70% 45% at 50% 100%, rgba(74, 10, 21, 0.7) 0%, transparent 70%),
-    /* 상단 검은 뚜껑 */
-    radial-gradient(ellipse 100% 55% at 50% 0%, rgba(0, 0, 0, 0.55) 0%, transparent 60%),
-    /* 베이스 */
-    linear-gradient(180deg, #04020a 0%, #0a0608 45%, #14090d 100%);
-  box-shadow: inset 0 0 240px rgba(0, 0, 0, 0.92);
+    radial-gradient(ellipse 90% 25% at 50% 100%, rgba(74, 10, 21, 0.55) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 30% at 50% 0%, rgba(0, 0, 0, 0.5) 0%, transparent 55%),
+    linear-gradient(180deg, #05030a 0%, #0a0608 50%, #14080d 100%);
+  box-shadow: inset 0 0 220px rgba(0, 0, 0, 0.9);
 }
 @media (min-width: 768px) {
   .home-hero { min-height: calc(100vh - 64px - 72px); min-height: calc(100dvh - 64px - 72px); }
 }
-
-/* 이전 히어로 잔재 무효화 */
 .home-hero::before,
 .home-hero::after { content: none; }
 
-/* ─── 방송실 배경 스테이지 ────────────────────────────── */
-.hero-stage {
+/* ============================================================
+   방음 폼 벽 (전체 배경 · 피라미드 그리드)
+   ============================================================ */
+.stage-foam {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-color: #14080d;
+  background-image:
+    /* 하이라이트 대각 (top-left 조명 방향) */
+    linear-gradient(45deg,
+      rgba(232, 223, 208, 0.045) 25%,
+      transparent 25%,
+      transparent 75%,
+      rgba(232, 223, 208, 0.045) 75%),
+    /* 그림자 대각 (bottom-right 어둠) */
+    linear-gradient(-45deg,
+      rgba(0, 0, 0, 0.55) 25%,
+      transparent 25%,
+      transparent 75%,
+      rgba(0, 0, 0, 0.55) 75%);
+  background-size: 18px 18px;
+  background-position: 0 0, 9px 9px;
+  opacity: 0.75;
+}
+@media (min-width: 768px) {
+  .stage-foam { background-size: 24px 24px; background-position: 0 0, 12px 12px; }
+}
+@media (min-width: 1280px) {
+  .stage-foam { background-size: 30px 30px; background-position: 0 0, 15px 15px; }
+}
+/* 폼 위에 소프트 vignette (창 주변만 밝게, 가장자리 어둡게) */
+.stage-foam::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 70% 60% at 50% 45%,
+    transparent 0%,
+    rgba(0, 0, 0, 0.45) 65%,
+    rgba(0, 0, 0, 0.75) 100%);
+  pointer-events: none;
+}
+
+/* ============================================================
+   방송실 관측 창 · 두꺼운 메탈 프레임 + 유리 + 안쪽 실내
+   ============================================================ */
+.studio-window {
+  position: absolute;
+  left: 50%;
+  top: 15%;
+  transform: translateX(-50%);
+  width: 84%;
+  max-width: 780px;
+  height: 52vh;
+  min-height: 320px;
+  max-height: 540px;
+  z-index: 3;
+  padding: 10px;
+  border-radius: 22px;
+  background:
+    linear-gradient(180deg,
+      #58595e 0%,
+      #48484e 12%,
+      #3a3a40 40%,
+      #26262c 75%,
+      #16161c 100%);
+  box-shadow:
+    0 26px 60px rgba(0, 0, 0, 0.88),
+    0 12px 24px rgba(0, 0, 0, 0.65),
+    inset 0 3px 0 rgba(255, 255, 255, 0.12),
+    inset 0 -3px 0 rgba(0, 0, 0, 0.55),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+}
+@media (min-width: 768px) {
+  .studio-window {
+    top: 17%;
+    width: 68%;
+    max-width: 860px;
+    height: 56vh;
+    max-height: 620px;
+    padding: 14px;
+    border-radius: 26px;
+  }
+}
+@media (min-width: 1280px) {
+  .studio-window {
+    width: 58%;
+    max-width: 960px;
+    height: 58vh;
+    max-height: 680px;
+    padding: 16px;
+    border-radius: 30px;
+  }
+}
+
+/* 유리 안쪽 (창 유리) */
+.studio-glass {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 13px;
+  overflow: hidden;
+  background:
+    linear-gradient(180deg,
+      #0a0608 0%,
+      #05030a 50%,
+      #0a0608 100%);
+  box-shadow:
+    inset 0 0 80px rgba(0, 0, 0, 0.95),
+    inset 0 6px 14px rgba(0, 0, 0, 0.75),
+    inset 0 -4px 10px rgba(0, 0, 0, 0.6);
+}
+@media (min-width: 768px) {
+  .studio-glass { border-radius: 15px; }
+}
+@media (min-width: 1280px) {
+  .studio-glass { border-radius: 18px; }
+}
+
+/* ON AIR 전등에서 창 유리로 흘러내리는 붉은 반사 (ON 시) */
+.studio-glass::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 45%;
+  height: 20%;
+  background: radial-gradient(ellipse 100% 100% at 50% 0%,
+    rgba(255, 60, 90, 0.28) 0%,
+    rgba(201, 36, 63, 0.12) 40%,
+    transparent 75%);
+  opacity: 0;
+  transition: opacity 1.4s ease;
+  z-index: 6;
+  pointer-events: none;
+}
+.hero-scene.on-air .studio-glass::before { opacity: 1; }
+
+/* 유리 반사 오버레이 (컨트롤룸 조명 반사 · 항상) */
+.studio-glass-reflection {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  background:
+    /* Top-left 하이라이트 (강한 스포트 반사) */
+    radial-gradient(ellipse 45% 35% at 22% 12%, rgba(232, 223, 208, 0.08) 0%, transparent 55%),
+    /* 상단 얇은 밝은 스트라이프 */
+    linear-gradient(180deg, rgba(232, 223, 208, 0.04) 0%, transparent 12%),
+    /* 좌측 세로 밝은 스트라이프 */
+    linear-gradient(90deg, rgba(232, 223, 208, 0.025) 0%, transparent 8%);
+}
+
+/* 창 안쪽 실내 (방송실) */
+.studio-interior {
   position: absolute;
   inset: 0;
   z-index: 1;
-  pointer-events: none;
   overflow: hidden;
 }
 
-/* ─── 방음 폼 벽 (좌우) ───────────────────────────────── */
-.stage-wall {
+/* 창 안쪽 뒷벽 방음 폼 (더 dim) */
+.interior-back-wall {
   position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 14%;
-  pointer-events: none;
+  inset: 0;
+  background-color: #08040a;
   background-image:
-    linear-gradient(45deg, rgba(232, 223, 208, 0.035) 25%, transparent 25%),
-    linear-gradient(-45deg, rgba(232, 223, 208, 0.035) 25%, transparent 25%),
-    linear-gradient(45deg, transparent 75%, rgba(232, 223, 208, 0.025) 75%),
-    linear-gradient(-45deg, transparent 75%, rgba(232, 223, 208, 0.025) 75%);
-  background-size: 18px 18px;
-  background-position: 0 0, 0 9px, 9px -9px, -9px 0;
-  opacity: 0.6;
-}
-.stage-wall-left {
-  left: 0;
-  mask-image: linear-gradient(to right, rgba(0,0,0,0.85) 0%, transparent 100%);
-  -webkit-mask-image: linear-gradient(to right, rgba(0,0,0,0.85) 0%, transparent 100%);
-}
-.stage-wall-right {
-  right: 0;
-  mask-image: linear-gradient(to left, rgba(0,0,0,0.85) 0%, transparent 100%);
-  -webkit-mask-image: linear-gradient(to left, rgba(0,0,0,0.85) 0%, transparent 100%);
+    linear-gradient(45deg, rgba(232, 223, 208, 0.025) 25%, transparent 25%, transparent 75%, rgba(232, 223, 208, 0.025) 75%),
+    linear-gradient(-45deg, rgba(0, 0, 0, 0.55) 25%, transparent 25%, transparent 75%, rgba(0, 0, 0, 0.55) 75%);
+  background-size: 14px 14px;
+  background-position: 0 0, 7px 7px;
+  opacity: 0.5;
 }
 @media (min-width: 768px) {
-  .stage-wall { width: 12%; background-size: 22px 22px; background-position: 0 0, 0 11px, 11px -11px, -11px 0; }
+  .interior-back-wall { background-size: 18px 18px; background-position: 0 0, 9px 9px; }
 }
 
-/* ─── 부스 유리 프레임 (인셋) ────────────────────────── */
-.booth-frame {
-  position: absolute;
-  inset: 20px 16px 20px 16px;
-  border: 1px solid rgba(232, 223, 208, 0.055);
-  border-radius: 3px;
-  pointer-events: none;
-  box-shadow:
-    inset 0 0 100px rgba(0, 0, 0, 0.6),
-    inset 0 2px 0 rgba(232, 223, 208, 0.03);
-}
-@media (min-width: 768px) {
-  .booth-frame { inset: 32px 28px 32px 28px; }
-}
-
-/* ─── 붐 마이크 (상단 좌측 매달림) ────────────────────── */
-.hero-boom {
+/* 창 안 천장 조명 반사 (창 상단 warm glow) */
+.interior-ceiling-glow {
   position: absolute;
   top: 0;
   left: 0;
-  width: 260px;
-  height: 195px;
-  overflow: visible;
-  opacity: 0.55;
-  transition: opacity 1.4s ease, filter 1.4s ease;
-  filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.7));
-}
-@media (min-width: 768px) {
-  .hero-boom { width: 380px; height: 285px; }
-}
-@media (min-width: 1280px) {
-  .hero-boom { width: 460px; height: 345px; }
-}
-.hero-scene.on-air .hero-boom {
-  opacity: 0.75;
-  filter: drop-shadow(0 4px 18px rgba(201, 36, 63, 0.22)) drop-shadow(0 4px 14px rgba(0, 0, 0, 0.7));
+  right: 0;
+  height: 35%;
+  background: radial-gradient(ellipse 65% 100% at 50% 0%,
+    rgba(232, 196, 122, 0.06) 0%,
+    transparent 70%);
+  pointer-events: none;
 }
 
-/* 붐 마이크 SVG 색상 */
-.hero-boom .boom-arm       { stroke: rgba(232, 223, 208, 0.7); stroke-width: 5; stroke-linecap: round; }
-.hero-boom .boom-joint     { fill: rgba(232, 223, 208, 0.6); stroke: rgba(232, 223, 208, 0.85); stroke-width: 1.5; }
-.hero-boom .boom-shock     { fill: none; stroke: rgba(232, 223, 208, 0.55); stroke-width: 2; stroke-dasharray: 3 3; }
-.hero-boom .boom-spring    { stroke: rgba(232, 223, 208, 0.45); stroke-width: 1.2; }
-.hero-boom .boom-mic-body  { fill: rgba(232, 223, 208, 0.14); stroke: rgba(232, 223, 208, 0.85); stroke-width: 1.8; }
-.hero-boom .boom-mesh      { stroke: rgba(232, 223, 208, 0.55); stroke-width: 1; }
-.hero-boom .boom-cable     { stroke: rgba(232, 223, 208, 0.4); stroke-width: 1.5; fill: none; }
-.hero-scene.on-air .hero-boom .boom-mic-body {
-  fill: rgba(201, 36, 63, 0.10);
-  stroke: rgba(232, 196, 122, 0.85);
-  transition: fill 1.2s ease, stroke 1.2s ease;
-}
-@media (min-width: 768px) {
-  .hero-boom .boom-arm      { stroke-width: 6; }
-  .hero-boom .boom-mic-body { stroke-width: 2.2; }
-  .hero-boom .boom-mesh     { stroke-width: 1.3; }
-}
-
-/* ─── 우측 믹서 슬라이더 랙 ──────────────────────────── */
-.hero-mixer {
+/* 창 안 붐 마이크 실루엣 (뒷 실내 힌트) */
+.interior-boom {
   position: absolute;
-  right: 28px;
-  top: 50%;
-  transform: translateY(-40%);
-  width: 96px;
-  height: 224px;
-  opacity: 0.45;
+  top: 6%;
+  right: 8%;
+  width: 26%;
+  height: auto;
+  opacity: 0.35;
+  z-index: 1;
+}
+.interior-boom line { stroke: rgba(232, 223, 208, 0.55); stroke-width: 1.4; stroke-linecap: round; fill: none; }
+.interior-boom circle { fill: rgba(232, 223, 208, 0.4); }
+.interior-boom rect { fill: rgba(232, 223, 208, 0.12); stroke: rgba(232, 223, 208, 0.55); stroke-width: 1.3; }
+.hero-scene.on-air .interior-boom {
+  opacity: 0.55;
   transition: opacity 1.4s ease;
 }
-@media (min-width: 768px) {
-  .hero-mixer { right: 60px; width: 128px; height: 296px; opacity: 0.55; }
-}
-@media (min-width: 1280px) {
-  .hero-mixer { right: 96px; width: 152px; height: 348px; }
-}
-.hero-scene.on-air .hero-mixer { opacity: 0.68; }
 
-.hero-mixer .mixer-frame  { stroke: rgba(232, 223, 208, 0.4); stroke-width: 1.2; fill: none; }
-.hero-mixer .mixer-label  { stroke: rgba(232, 223, 208, 0.3); stroke-width: 0.8; }
-.hero-mixer .mixer-track  { stroke: rgba(232, 223, 208, 0.35); stroke-width: 1; }
-.hero-mixer .mixer-fader  {
-  fill: rgba(232, 223, 208, 0.75);
-  stroke: rgba(232, 223, 208, 0.9);
-  stroke-width: 0.5;
-}
-.hero-mixer .mixer-num {
-  fill: rgba(232, 223, 208, 0.5);
-  font-family: var(--font-mono);
-  font-size: 7px;
-}
-.hero-scene.on-air .hero-mixer .mixer-fader {
-  fill: var(--amber-bri);
-  stroke: var(--amber);
-  filter: drop-shadow(0 0 3px rgba(232, 196, 122, 0.6));
-  transition: fill 1.2s ease, filter 1.2s ease;
-}
-
-/* ─── 상단 STUDIO 태그 (채널 라벨) ────────────────────── */
-.studio-tag {
+/* 만월아씨 자리 (창 안 하단 중앙 · 상반신 크기 예약) */
+.anchor-slot {
   position: absolute;
-  top: 18px;
   left: 50%;
+  bottom: 0;
   transform: translateX(-50%);
-  z-index: 8;
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  padding: 6px 12px;
-  background: rgba(5, 3, 8, 0.7);
-  border: 1px solid rgba(232, 223, 208, 0.08);
-  border-radius: 2px;
-  font-family: var(--font-mono);
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 3px;
-  color: var(--ink-dim);
-  text-transform: uppercase;
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  white-space: nowrap;
-  transition: color 1s ease, border-color 1s ease;
+  width: 60%;
+  height: 82%;
+  z-index: 2;
+  /* 자리 예약만 · 지금은 어둠 스포트 */
+  background: radial-gradient(ellipse 65% 55% at 50% 45%,
+    rgba(0, 0, 0, 0.35) 0%,
+    transparent 70%);
+  pointer-events: none;
 }
-@media (min-width: 768px) {
-  .studio-tag { top: 28px; padding: 7px 14px; font-size: 11px; letter-spacing: 4px; gap: 12px; }
-}
-.studio-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #3a2028;
-  transition: background 0.5s ease, box-shadow 0.5s ease;
-}
-.studio-sep {
-  display: inline-block;
-  width: 1px;
-  height: 10px;
-  background: rgba(232, 223, 208, 0.15);
-}
-.studio-tag-code { color: var(--ink-mute); }
-.hero-scene.on-air .studio-tag {
-  color: var(--ink-soft);
-  border-color: rgba(232, 223, 208, 0.14);
-}
-.hero-scene.on-air .studio-dot {
-  background: var(--crimson-bri);
-  box-shadow: 0 0 6px var(--crimson-bri), 0 0 12px rgba(201, 36, 63, 0.6);
-  animation: studioDotPulse 2s ease-in-out infinite;
-}
-@keyframes studioDotPulse {
-  0%, 100% { opacity: 1; }
-  50%      { opacity: 0.55; }
-}
-.hero-scene.on-air .studio-tag-code { color: var(--ink-soft); }
 
 /* ============================================================
-   ON AIR 사이니지 (우상단 · 대형 · 아크릴)
+   ON AIR 전등 케이스 (창 위 중앙 매달림)
    ============================================================ */
-.on-air-panel {
+.on-air-light {
   position: absolute;
-  top: 18px;
-  right: 18px;
-  z-index: 10;
-  /* 프레임 (브러시드 메탈 그림자) */
-  padding: 4px;
-  background: linear-gradient(135deg, #1a0e14 0%, #2a1620 50%, #14080d 100%);
-  border: 1px solid rgba(232, 223, 208, 0.12);
-  border-radius: 3px;
-  box-shadow:
-    0 6px 18px rgba(0, 0, 0, 0.75),
-    inset 0 1px 0 rgba(232, 223, 208, 0.08),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.5);
-  transition: box-shadow 1.4s ease;
+  top: 6%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 148px;
+  height: 54px;
+  z-index: 8;
 }
 @media (min-width: 768px) {
-  .on-air-panel { top: 28px; right: 40px; }
+  .on-air-light { top: 8%; width: 190px; height: 66px; }
+}
+@media (min-width: 1280px) {
+  .on-air-light { top: 8.5%; width: 220px; height: 76px; }
 }
 
-/* 4모서리 스크류 (얇은 원) */
-.on-air-screw {
+/* 매다는 브라켓/볼트 (전등 위쪽) */
+.on-air-bracket {
   position: absolute;
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
-  background: rgba(232, 223, 208, 0.35);
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.6);
-  z-index: 2;
+  top: -12px;
+  width: 3px;
+  height: 14px;
+  background: linear-gradient(180deg, #4a4a52 0%, #2a2a30 100%);
+  border-radius: 1px 1px 0 0;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 2px 4px rgba(0,0,0,0.6);
 }
-.on-air-screw-tl { top: 3px; left: 3px; }
-.on-air-screw-tr { top: 3px; right: 3px; }
-.on-air-screw-bl { bottom: 3px; left: 3px; }
-.on-air-screw-br { bottom: 3px; right: 3px; }
+.on-air-bracket-l { left: 22%; }
+.on-air-bracket-r { right: 22%; }
+@media (min-width: 768px) {
+  .on-air-bracket { top: -16px; width: 4px; height: 18px; }
+}
 
-/* 유리 패널 안쪽 */
-.on-air-glass {
-  padding: 14px 22px 10px;
-  background: rgba(5, 3, 8, 0.9);
-  border-radius: 1px;
-  text-align: center;
-  min-width: 130px;
+/* 전등 본체 (아크릴 케이스) */
+.on-air-light-panel {
+  width: 100%;
+  height: 100%;
+  border-radius: 4px;
+  background: linear-gradient(180deg, #201218 0%, #100810 55%, #08040a 100%);
+  border: 2px solid rgba(232, 223, 208, 0.14);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 1.4s ease;
+  box-shadow:
+    0 8px 22px rgba(0, 0, 0, 0.75),
+    inset 0 2px 0 rgba(255, 255, 255, 0.1),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.55);
   position: relative;
   overflow: hidden;
-  transition: background 1.4s ease, box-shadow 1.4s ease;
-}
-@media (min-width: 768px) {
-  .on-air-glass { padding: 18px 28px 12px; min-width: 165px; }
 }
 
-/* 유리 얇은 반사 라인 */
-.on-air-glass::before {
+/* 케이스 상단 유리 반사 (얇은 하이라이트) */
+.on-air-light-panel::before {
   content: "";
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   height: 30%;
-  background: linear-gradient(180deg, rgba(232, 223, 208, 0.04) 0%, transparent 100%);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.06) 0%, transparent 100%);
   pointer-events: none;
 }
 
 .on-air-primary {
-  display: block;
   font-family: var(--font-serif);
-  font-size: 22px;
   font-weight: 800;
+  font-size: 20px;
   letter-spacing: 6px;
   line-height: 1;
-  color: rgba(232, 223, 208, 0.22);
+  color: rgba(232, 223, 208, 0.18);
   transition: color 1.4s ease, text-shadow 1.4s ease;
+  position: relative;
+  z-index: 2;
 }
 @media (min-width: 768px) {
-  .on-air-primary { font-size: 28px; letter-spacing: 8px; }
+  .on-air-primary { font-size: 26px; letter-spacing: 8px; }
 }
-.on-air-secondary {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  margin-top: 6px;
-  font-family: var(--font-mono);
-  font-size: 9px;
-  font-weight: 600;
-  letter-spacing: 3.5px;
-  color: rgba(232, 223, 208, 0.28);
-  text-transform: uppercase;
-  transition: color 1.4s ease;
-}
-@media (min-width: 768px) {
-  .on-air-secondary { font-size: 10px; letter-spacing: 4px; margin-top: 8px; }
-}
-.on-air-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #3a2028;
-  transition: background 0.5s ease, box-shadow 0.5s ease;
+@media (min-width: 1280px) {
+  .on-air-primary { font-size: 32px; letter-spacing: 10px; }
 }
 
-/* 점화 시퀀스 · 3번 깜빡 */
-.hero-scene.igniting .on-air-glass { animation: neonGlassFlicker 1.1s steps(9) 1; }
+/* 전등에서 창 위쪽으로 흘러내리는 붉은 캐스트 (ON 시) */
+.on-air-cast {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 200%;
+  height: 60px;
+  opacity: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse 60% 100% at 50% 0%,
+    rgba(255, 60, 90, 0.32) 0%,
+    rgba(201, 36, 63, 0.12) 45%,
+    transparent 75%);
+  transition: opacity 1.4s ease;
+}
+
+/* Ignition (3 blinks) */
+.hero-scene.igniting .on-air-light-panel { animation: neonPanelFlicker 1.1s steps(9) 1; }
 .hero-scene.igniting .on-air-primary { animation: neonTextFlicker 1.1s steps(9) 1; }
-.hero-scene.igniting .on-air-dot { animation: neonDotFlicker 1.1s steps(9) 1; }
-@keyframes neonGlassFlicker {
-  0%   { background: rgba(5, 3, 8, 0.9); box-shadow: none; }
-  11%  { background: rgba(74, 10, 21, 0.85); box-shadow: inset 0 0 32px rgba(201, 36, 63, 0.5); }
-  22%  { background: rgba(5, 3, 8, 0.9); box-shadow: none; }
-  33%  { background: rgba(74, 10, 21, 0.9); box-shadow: inset 0 0 40px rgba(201, 36, 63, 0.55); }
-  44%  { background: rgba(5, 3, 8, 0.9); box-shadow: none; }
-  55%  { background: rgba(74, 10, 21, 0.92); box-shadow: inset 0 0 46px rgba(201, 36, 63, 0.65); }
-  66%  { background: rgba(5, 3, 8, 0.9); box-shadow: none; }
-  100% { background: rgba(74, 10, 21, 0.88); box-shadow: inset 0 0 40px rgba(201, 36, 63, 0.55); }
+.hero-scene.igniting .on-air-cast { animation: neonCastFlicker 1.1s steps(9) 1; }
+.hero-scene.igniting .stage-foam { animation: sceneFlash 1.1s steps(9) 1; }
+
+@keyframes neonPanelFlicker {
+  0%   { background: linear-gradient(180deg, #201218 0%, #100810 100%); border-color: rgba(232,223,208,0.14); }
+  11%  { background: linear-gradient(180deg, #a01c38 0%, #5a0f22 100%); border-color: rgba(255,150,170,0.4); box-shadow: 0 0 40px rgba(201,36,63,0.6), inset 0 -8px 24px rgba(255,60,90,0.4); }
+  22%  { background: linear-gradient(180deg, #201218 0%, #100810 100%); border-color: rgba(232,223,208,0.14); box-shadow: none; }
+  33%  { background: linear-gradient(180deg, #a01c38 0%, #5a0f22 100%); border-color: rgba(255,150,170,0.5); box-shadow: 0 0 44px rgba(201,36,63,0.65), inset 0 -8px 26px rgba(255,60,90,0.45); }
+  44%  { background: linear-gradient(180deg, #180e14 0%, #08040a 100%); border-color: rgba(232,223,208,0.08); box-shadow: none; }
+  55%  { background: linear-gradient(180deg, #bc2444 0%, #6a1224 100%); border-color: rgba(255,180,200,0.55); box-shadow: 0 0 50px rgba(201,36,63,0.75), inset 0 -10px 28px rgba(255,60,90,0.55); }
+  66%  { background: linear-gradient(180deg, #201218 0%, #100810 100%); border-color: rgba(232,223,208,0.14); box-shadow: none; }
+  100% { background: linear-gradient(180deg, #9c1c34 0%, #6a0f22 100%); border-color: rgba(255,140,160,0.4); box-shadow: 0 0 40px rgba(201,36,63,0.6), inset 0 -10px 26px rgba(255,60,90,0.4); }
 }
 @keyframes neonTextFlicker {
-  0%   { color: rgba(232, 223, 208, 0.22); text-shadow: none; }
-  11%  { color: #ffcbd4; text-shadow: 0 0 12px rgba(255, 60, 90, 1), 0 0 24px rgba(201, 36, 63, 0.85); }
-  22%  { color: rgba(232, 223, 208, 0.22); text-shadow: none; }
-  33%  { color: #ffcbd4; text-shadow: 0 0 14px rgba(255, 60, 90, 1), 0 0 28px rgba(201, 36, 63, 0.9); }
-  44%  { color: rgba(180, 130, 150, 0.4); text-shadow: none; }
-  55%  { color: #fff0f4; text-shadow: 0 0 18px rgba(255, 80, 110, 1), 0 0 34px rgba(201, 36, 63, 0.95); }
-  66%  { color: rgba(232, 223, 208, 0.22); text-shadow: none; }
-  100% { color: #ffcbd4; text-shadow: 0 0 14px rgba(255, 60, 90, 0.9), 0 0 28px rgba(201, 36, 63, 0.85); }
+  0%   { color: rgba(232,223,208,0.18); text-shadow: none; }
+  11%  { color: #fff0f4; text-shadow: 0 0 14px rgba(255,60,90,1), 0 0 28px rgba(201,36,63,0.9); }
+  22%  { color: rgba(232,223,208,0.18); text-shadow: none; }
+  33%  { color: #fff0f4; text-shadow: 0 0 16px rgba(255,60,90,1), 0 0 30px rgba(201,36,63,0.9); }
+  44%  { color: rgba(180,130,150,0.35); text-shadow: none; }
+  55%  { color: #ffffff; text-shadow: 0 0 20px rgba(255,80,110,1), 0 0 36px rgba(201,36,63,0.95); }
+  66%  { color: rgba(232,223,208,0.18); text-shadow: none; }
+  100% { color: #fff0f4; text-shadow: 0 0 14px rgba(255,60,90,0.9), 0 0 28px rgba(201,36,63,0.85); }
 }
-@keyframes neonDotFlicker {
-  0%   { background: #3a2028; box-shadow: none; }
-  11%  { background: #ff3a5c; box-shadow: 0 0 8px #ff3a5c, 0 0 16px rgba(255, 58, 92, 0.6); }
-  22%  { background: #3a2028; box-shadow: none; }
-  33%  { background: #ff3a5c; box-shadow: 0 0 8px #ff3a5c, 0 0 16px rgba(255, 58, 92, 0.7); }
-  44%  { background: #2a1520; box-shadow: none; }
-  55%  { background: #ff5878; box-shadow: 0 0 10px #ff3a5c, 0 0 22px rgba(255, 58, 92, 0.85); }
-  66%  { background: #3a2028; box-shadow: none; }
-  100% { background: #ff3a5c; box-shadow: 0 0 8px #ff3a5c, 0 0 18px rgba(255, 58, 92, 0.75); }
+@keyframes neonCastFlicker {
+  0%   { opacity: 0; }
+  11%  { opacity: 0.7; }
+  22%  { opacity: 0; }
+  33%  { opacity: 0.8; }
+  55%  { opacity: 1; }
+  66%  { opacity: 0; }
+  100% { opacity: 1; }
 }
-
-/* 점화 완료 · ON 상태 */
-.hero-scene.on-air .on-air-panel {
-  box-shadow:
-    0 6px 22px rgba(0, 0, 0, 0.75),
-    0 0 32px rgba(201, 36, 63, 0.35),
-    inset 0 1px 0 rgba(232, 223, 208, 0.12),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.5);
-}
-.hero-scene.on-air .on-air-glass {
-  background: rgba(74, 10, 21, 0.88);
-  box-shadow: inset 0 0 44px rgba(201, 36, 63, 0.55);
-}
-.hero-scene.on-air .on-air-primary {
-  color: #ffcbd4;
-  text-shadow:
-    0 0 12px rgba(255, 60, 90, 0.95),
-    0 0 26px rgba(201, 36, 63, 0.85);
-}
-.hero-scene.on-air .on-air-secondary { color: rgba(255, 200, 210, 0.85); }
-.hero-scene.on-air .on-air-dot {
-  background: #ff3a5c;
-  box-shadow: 0 0 8px #ff3a5c, 0 0 18px rgba(255, 58, 92, 0.7);
-  animation: heartbeat 1.75s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-/* 심박 72bpm 리듬 */
-@keyframes heartbeat {
-  0%   { transform: scale(1);   box-shadow: 0 0 8px #ff3a5c, 0 0 18px rgba(255, 58, 92, 0.7); }
-  8%   { transform: scale(1.4); box-shadow: 0 0 14px #ff3a5c, 0 0 30px rgba(255, 58, 92, 0.9); }
-  16%  { transform: scale(1); }
-  22%  { transform: scale(1.25);box-shadow: 0 0 12px #ff3a5c, 0 0 24px rgba(255, 58, 92, 0.8); }
-  30%  { transform: scale(1); }
-  100% { transform: scale(1); }
-}
-
-/* 점화 순간 전체 화면 flash */
-.hero-scene.igniting .hero-stage { animation: sceneFlash 1.1s steps(9) 1; }
 @keyframes sceneFlash {
-  0%   { filter: brightness(0.85); }
-  11%  { filter: brightness(1.55) contrast(1.15); }
-  22%  { filter: brightness(0.9); }
-  33%  { filter: brightness(1.5) contrast(1.15); }
-  44%  { filter: brightness(0.85); }
-  55%  { filter: brightness(1.7) contrast(1.2); }
-  66%  { filter: brightness(0.9); }
+  0%   { filter: brightness(0.9); }
+  11%  { filter: brightness(1.4) contrast(1.12); }
+  22%  { filter: brightness(0.95); }
+  33%  { filter: brightness(1.4) contrast(1.12); }
+  44%  { filter: brightness(0.9); }
+  55%  { filter: brightness(1.55) contrast(1.15); }
+  66%  { filter: brightness(0.95); }
   100% { filter: brightness(1); }
 }
 
-/* ─── 사운드 토글 (ON AIR 패널 아래) ──────────────────── */
+/* ON state */
+.hero-scene.on-air .on-air-light-panel {
+  background: linear-gradient(180deg, #9c1c34 0%, #6a0f22 55%, #3a0912 100%);
+  border-color: rgba(255, 140, 160, 0.42);
+  box-shadow:
+    0 10px 28px rgba(0, 0, 0, 0.75),
+    0 0 44px rgba(201, 36, 63, 0.6),
+    inset 0 2px 0 rgba(255, 220, 230, 0.22),
+    inset 0 -12px 30px rgba(255, 60, 90, 0.45),
+    inset 0 0 40px rgba(255, 60, 90, 0.22);
+  animation: signBreath 3s ease-in-out infinite;
+}
+.hero-scene.on-air .on-air-primary {
+  color: #fff0f4;
+  text-shadow:
+    0 0 12px rgba(255, 60, 90, 1),
+    0 0 26px rgba(201, 36, 63, 0.9);
+  animation: textBreath 3s ease-in-out infinite;
+}
+.hero-scene.on-air .on-air-cast { opacity: 1; }
+
+/* 심박 근사 · 미세 브리딩 */
+@keyframes signBreath {
+  0%, 100% { filter: brightness(1); }
+  50%      { filter: brightness(1.15); }
+}
+@keyframes textBreath {
+  0%, 100% { text-shadow: 0 0 12px rgba(255,60,90,1), 0 0 26px rgba(201,36,63,0.9); }
+  50%      { text-shadow: 0 0 18px rgba(255,60,90,1), 0 0 36px rgba(201,36,63,0.95); }
+}
+
+/* ─── 사운드 토글 ───────────────────────────────────────── */
 .sound-toggle {
   position: absolute;
-  top: 100px;
+  top: 20px;
   right: 20px;
-  z-index: 10;
+  z-index: 12;
   width: 34px;
   height: 34px;
   padding: 0;
@@ -552,7 +563,7 @@
   -webkit-backdrop-filter: blur(6px);
 }
 @media (min-width: 768px) {
-  .sound-toggle { top: 130px; right: 42px; width: 36px; height: 36px; }
+  .sound-toggle { top: 28px; right: 40px; width: 36px; height: 36px; }
 }
 .sound-toggle:hover { color: var(--amber-bri); border-color: var(--border-amber); }
 .sound-toggle svg { width: 16px; height: 16px; }
@@ -562,51 +573,32 @@
   box-shadow: 0 0 12px rgba(232, 196, 122, 0.4);
 }
 
-/* ─── 중앙 앵커 자리 (만월아씨 예정 · 지금은 어둠) ───── */
-.anchor-slot {
-  position: absolute;
-  left: 50%;
-  top: 32%;
-  transform: translate(-50%, -50%);
-  width: 46%;
-  aspect-ratio: 3 / 5;
-  max-height: 50vh;
-  pointer-events: none;
-  /* 자리를 만들되 지금은 아무것도 그리지 않음.
-     매우 미묘한 어두운 스포트로 자리를 예약. */
-  background: radial-gradient(ellipse 60% 60% at 50% 50%, rgba(0,0,0,0.35) 0%, transparent 65%);
-  z-index: 2;
-}
-@media (min-width: 768px) {
-  .anchor-slot { top: 34%; width: 30%; }
-}
-
 /* ============================================================
-   하단 콘텐츠 — 헤드라인 + CTA (하단 앵커)
+   하단 콘텐츠 · 헤드라인 + CTA (창 아래)
    ============================================================ */
 .hero-content {
-  position: relative;
-  z-index: 4;
+  position: absolute;
+  bottom: 76px;
+  left: 0;
+  right: 0;
+  z-index: 5;
   text-align: center;
-  width: 100%;
-  max-width: 700px;
   padding: 0 20px;
-  margin: 0 auto;
-  padding-bottom: 76px; /* 파형 위 여백 */
 }
 @media (min-width: 768px) {
-  .hero-content { max-width: 900px; padding: 0 32px; padding-bottom: 92px; }
+  .hero-content { bottom: 96px; padding: 0 32px; }
 }
 @media (min-width: 1280px) {
-  .hero-content { max-width: 1080px; padding-bottom: 110px; }
+  .hero-content { bottom: 112px; }
 }
 
 .hero-title {
-  margin: 0 0 18px;
+  margin: 0 auto 14px;
+  max-width: 780px;
   font-family: var(--font-serif);
   font-weight: 800;
-  font-size: 34px;
-  line-height: 1.22;
+  font-size: 28px;
+  line-height: 1.24;
   letter-spacing: -0.015em;
   color: var(--ink);
   text-shadow:
@@ -616,20 +608,14 @@
   --ca-r: 0px;
 }
 @media (min-width: 768px) {
-  .hero-title { font-size: 66px; margin-bottom: 24px; letter-spacing: -0.02em; line-height: 1.14; }
+  .hero-title { font-size: 46px; margin-bottom: 18px; letter-spacing: -0.02em; line-height: 1.16; }
 }
 @media (min-width: 1280px) {
-  .hero-title { font-size: 84px; margin-bottom: 30px; line-height: 1.10; }
-}
-@media (min-width: 1440px) {
-  .hero-title { font-size: 96px; }
+  .hero-title { font-size: 58px; margin-bottom: 22px; line-height: 1.12; max-width: 960px; }
 }
 
 /* Chromatic aberration (burst 시) */
-.hero-title span {
-  position: relative;
-  display: inline-block;
-}
+.hero-title span { position: relative; display: inline-block; }
 .hero-title span::before,
 .hero-title span::after {
   content: attr(data-text);
@@ -651,23 +637,21 @@
 }
 .hero-scene.burst .hero-title span::before,
 .hero-scene.burst .hero-title span::after { opacity: 1; }
-.hero-scene.burst .hero-title span { --ca-r: 4px; }
+.hero-scene.burst .hero-title span { --ca-r: 3px; }
 .hero-scene.jitter .hero-title { transform: translateX(1px); }
 
 .hero-sub {
-  margin: 0 0 32px;
-  font-size: 14px;
+  margin: 0 auto 24px;
+  font-size: 13.5px;
   line-height: 1.65;
   color: var(--ink-soft);
   font-family: var(--font-sans);
-  max-width: 32ch;
-  margin-left: auto;
-  margin-right: auto;
+  max-width: 34ch;
   opacity: 0.5;
   transition: opacity 1.4s ease;
 }
 @media (min-width: 768px) {
-  .hero-sub { font-size: 16px; margin-bottom: 40px; max-width: 36ch; }
+  .hero-sub { font-size: 15px; margin-bottom: 30px; max-width: 40ch; }
 }
 .hero-scene.on-air .hero-sub { opacity: 1; }
 
@@ -675,17 +659,17 @@
 .hero-ctas {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
   align-items: stretch;
   justify-content: center;
-  max-width: 360px;
+  max-width: 320px;
   margin: 0 auto;
 }
 @media (min-width: 640px) {
-  .hero-ctas { flex-direction: row; max-width: 620px; gap: 16px; }
+  .hero-ctas { flex-direction: row; max-width: 560px; gap: 14px; }
 }
 @media (min-width: 768px) {
-  .hero-ctas { max-width: 680px; gap: 18px; }
+  .hero-ctas { max-width: 620px; gap: 16px; }
 }
 
 .hero-cta {
@@ -693,9 +677,9 @@
   position: relative;
   flex: 1;
   border: 1px solid var(--border-strong);
-  background: rgba(10, 6, 8, 0.6);
+  background: rgba(10, 6, 8, 0.65);
   color: var(--ink-soft);
-  padding: 16px 22px 14px;
+  padding: 14px 20px 12px;
   border-radius: var(--r-sm);
   font: 600 13px var(--font-sans);
   cursor: pointer;
@@ -709,7 +693,7 @@
   pointer-events: none;
 }
 @media (min-width: 768px) {
-  .hero-cta { padding: 20px 28px 18px; font-size: 14px; }
+  .hero-cta { padding: 18px 26px 16px; font-size: 14px; }
 }
 .hero-scene.on-air .hero-cta {
   opacity: 1;
@@ -732,12 +716,12 @@
   gap: 10px;
   font-family: var(--font-serif);
   font-weight: 700;
-  font-size: 17px;
+  font-size: 16px;
   color: var(--ink);
   letter-spacing: 1px;
 }
 @media (min-width: 768px) {
-  .hero-cta-label { font-size: 20px; }
+  .hero-cta-label { font-size: 18px; }
 }
 .hero-cta-arrow {
   font-family: var(--font-mono);
@@ -746,7 +730,6 @@
   transition: transform 0.35s ease, color 0.35s ease;
 }
 
-/* CTA · 사주 (amber) */
 .hero-cta[data-tab="saju"]:hover {
   background: rgba(74, 45, 12, 0.35);
   border-color: var(--border-amber);
@@ -757,7 +740,6 @@
 .hero-cta[data-tab="saju"]:hover .hero-cta-num { color: var(--amber-bri); }
 .hero-cta[data-tab="saju"]:hover .hero-cta-arrow { color: var(--amber-bri); transform: translateX(6px); }
 
-/* CTA · 꽃패 (crimson) */
 .hero-cta[data-tab="hwapae"]:hover {
   background: rgba(74, 10, 21, 0.5);
   border-color: var(--border-crimson);
@@ -771,7 +753,6 @@
 .hero-cta:active { transform: translateY(0); transition-duration: 0.08s; }
 .hero-cta:focus-visible { outline: 2px solid var(--amber-bri); outline-offset: 3px; }
 
-/* CTA 하단 sweeping light */
 .hero-cta::after {
   content: "";
   position: absolute;
@@ -790,22 +771,22 @@
   100% { left: 100%; }
 }
 
-/* ─── 하단 파형 라인 ─────────────────────────────────── */
+/* ─── 하단 파형 ────────────────────────────────────────── */
 .hero-waveform {
   position: absolute;
   left: 0;
   right: 0;
   bottom: 0;
-  height: 44px;
+  height: 40px;
   z-index: 3;
   pointer-events: none;
   opacity: 0;
   transition: opacity 1.4s ease;
 }
 @media (min-width: 768px) {
-  .hero-waveform { height: 52px; }
+  .hero-waveform { height: 50px; }
 }
-.hero-scene.on-air .hero-waveform { opacity: 0.8; }
+.hero-scene.on-air .hero-waveform { opacity: 0.7; }
 .hero-waveform svg { width: 100%; height: 100%; display: block; }
 .hero-waveform path {
   fill: none;
@@ -818,7 +799,7 @@
 .hero-static {
   position: absolute;
   inset: 0;
-  z-index: 5;
+  z-index: 15;
   pointer-events: none;
   opacity: 0;
   mix-blend-mode: screen;
@@ -827,16 +808,16 @@
   transition: opacity 0.06s ease;
 }
 .hero-scene.burst .hero-static {
-  opacity: 0.7;
+  opacity: 0.55;
   background-position: var(--static-x, 0) var(--static-y, 0);
 }
 
-/* ─── 푸터 · 조용한 저작권 라인 ───────────────────────── */
+/* ─── 푸터 · 조용한 방송분 마감 ───────────────────────── */
 .home-footer {
   position: relative;
   z-index: 5;
   padding: 20px 20px 24px;
-  background: rgba(5, 3, 10, 0.6);
+  background: rgba(5, 3, 10, 0.7);
   border-top: 1px solid rgba(232, 223, 208, 0.05);
   color: var(--ink-dim);
   font-size: 11px;
@@ -860,15 +841,14 @@
 }
 .home-footer p + p { margin-top: 3px; opacity: 0.75; }
 
-/* ─── 하단 탭바 완전 제거 (홈/일지/프로필 안 씀) ────────── */
+/* ─── 하단 탭바 완전 숨김 ─────────────────────────────── */
 .bottom-tabs,
 #bottomTabs,
 #bottomTabBar { display: none !important; }
-/* 컨테이너 하단 여유(96px) 무효 · 히어로가 뷰포트 하단까지 사용 */
 body.in-app .app-container,
 body.in-app #tabView { padding-bottom: 0 !important; }
 
-/* 상단 saju/dream/face/hwapae 탭 바 */
+/* 상단 saju/hwapae 탭바 (기능 유지 · 홈에선 숨김) */
 .tab-bar {
   background: rgba(10, 6, 8, 0.92) !important;
   border-top: 1px solid rgba(232, 223, 208, 0.09) !important;
@@ -879,17 +859,16 @@ body.in-app #tabView { padding-bottom: 0 !important; }
 .tab-btn { color: var(--ink-soft) !important; background: transparent !important; }
 .tab-btn.active { color: var(--amber-bri) !important; }
 .tab-btn.active::after { background: var(--amber-bri) !important; }
-
 @media (min-width: 768px) { .tab-bar { display: none !important; } }
 
 /* ─── prefers-reduced-motion ──────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
-  .hero-scene.igniting .on-air-glass,
+  .hero-scene.igniting .on-air-light-panel,
   .hero-scene.igniting .on-air-primary,
-  .hero-scene.igniting .on-air-dot,
-  .hero-scene.igniting .hero-stage,
-  .hero-scene.on-air .on-air-dot,
-  .hero-scene.on-air .studio-dot,
+  .hero-scene.igniting .on-air-cast,
+  .hero-scene.igniting .stage-foam,
+  .hero-scene.on-air .on-air-light-panel,
+  .hero-scene.on-air .on-air-primary,
   .hero-scene.on-air .hero-cta::after {
     animation: none !important;
   }
