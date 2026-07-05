@@ -271,20 +271,73 @@
   transition: opacity 1.4s ease;
 }
 
-/* 만월아씨 자리 (창 안 하단 중앙 · 상반신 크기 예약) */
+/* ============================================================
+   만월아씨 앵커 (창 안 · 부스 안에서 대본 읽는 중)
+   창 유리 뒤로 그녀가 보이는 관측 시점
+   ============================================================ */
 .anchor-slot {
   position: absolute;
-  left: 50%;
-  bottom: 0;
-  transform: translateX(-50%);
-  width: 60%;
-  height: 82%;
+  inset: 0;
   z-index: 2;
-  /* 자리 예약만 · 지금은 어둠 스포트 */
-  background: radial-gradient(ellipse 65% 55% at 50% 45%,
-    rgba(0, 0, 0, 0.35) 0%,
-    transparent 70%);
+  overflow: hidden;
   pointer-events: none;
+}
+
+.anchor-portrait {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 20%; /* 얼굴·헤드폰·마이크 유지, 아래 믹서는 크롭 */
+  /* OFF AIR — 방송실 어둠 속에서 대기 · 유리 너머 그림자 톤 */
+  filter: brightness(0.62) contrast(1.08) saturate(0.82);
+  transition: filter 1.6s ease-out;
+  will-change: filter;
+  user-select: none;
+  -webkit-user-drag: none;
+  pointer-events: none;
+}
+
+/* ON AIR 점화 → 만월아씨 조명 살아남 (창 너머 방송실이 켜지는 순간) */
+.hero-scene.on-air .anchor-portrait {
+  filter: brightness(0.94) contrast(1.05) saturate(0.98);
+}
+
+/* 지직 스파이크 순간 · 신호 불안정 · 명도 튐 + 미세 흔들 */
+.hero-scene.burst .anchor-portrait {
+  filter: brightness(1.1) contrast(1.14) saturate(1.05);
+  transition: filter 60ms ease-out;
+}
+.hero-scene.jitter .anchor-portrait {
+  transform: translate(0.6px, -0.4px);
+}
+
+/* 유리 너머 · 창 하단으로 갈수록 살짝 어두워짐 (거리감) */
+.anchor-slot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  background:
+    /* 하단 짙어지는 그림자 (책상 밑 어둠) */
+    linear-gradient(180deg, transparent 55%, rgba(0, 0, 0, 0.32) 100%),
+    /* 좌우 vignette (창 프레임 안쪽 그림자) */
+    radial-gradient(ellipse 90% 100% at 50% 45%, transparent 55%, rgba(0, 0, 0, 0.28) 100%);
+}
+
+/* 접근성 · 모션 최소화 사용자에겐 정적 톤으로 즉시 표시 */
+@media (prefers-reduced-motion: reduce) {
+  .anchor-portrait {
+    transition: none;
+    filter: brightness(0.9) contrast(1.05) saturate(0.95);
+  }
+  .hero-scene.burst .anchor-portrait,
+  .hero-scene.jitter .anchor-portrait {
+    filter: brightness(0.9) contrast(1.05) saturate(0.95);
+    transform: none;
+  }
 }
 
 /* ============================================================
