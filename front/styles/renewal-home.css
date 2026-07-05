@@ -111,13 +111,12 @@
 .studio-window {
   position: absolute;
   left: 50%;
-  top: 14%;
+  top: 10%;
   transform: translateX(-50%);
-  width: 84%;
-  max-width: 780px;
-  height: 46vh;
-  min-height: 300px;
-  max-height: 460px;
+  /* 세로 관측창 · 만월아씨(9:16 원본) 거의 온전히 담기게 9:14 종횡비 */
+  aspect-ratio: 9 / 14;
+  height: min(64dvh, 540px);
+  max-width: 92vw;
   z-index: 3;
   padding: 10px;
   border-radius: 22px;
@@ -137,21 +136,16 @@
 }
 @media (min-width: 768px) {
   .studio-window {
-    top: 15%;
-    width: 66%;
-    max-width: 820px;
-    height: 50vh;
-    max-height: 560px;
+    top: 11%;
+    height: min(66dvh, 620px);
     padding: 14px;
     border-radius: 26px;
   }
 }
 @media (min-width: 1280px) {
   .studio-window {
-    width: 56%;
-    max-width: 920px;
-    height: 54vh;
-    max-height: 620px;
+    top: 11%;
+    height: min(70dvh, 680px);
     padding: 16px;
     border-radius: 30px;
   }
@@ -289,7 +283,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: 50% 20%; /* 얼굴·헤드폰·마이크 유지, 아래 믹서는 크롭 */
+  object-position: 50% 45%; /* 얼굴·헤드폰·대본·마이크·믹서·촛불 균형 유지 */
   /* OFF AIR — 방송실 어둠 속에서 대기 · 유리 너머 그림자 톤 */
   filter: brightness(0.62) contrast(1.08) saturate(0.82);
   transition: filter 1.6s ease-out;
