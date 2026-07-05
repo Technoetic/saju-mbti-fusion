@@ -111,11 +111,12 @@
 .studio-window {
   position: absolute;
   left: 50%;
-  top: 10%;
+  top: 14%;
   transform: translateX(-50%);
   /* 세로 관측창 · 만월아씨(9:16 원본) 거의 온전히 담기게 9:14 종횡비 */
+  /* top·height는 ON AIR 전등(위)과 CTA(아래) 겹침 방지값으로 튜닝 */
   aspect-ratio: 9 / 14;
-  height: min(64dvh, 540px);
+  height: min(58dvh, 490px);
   max-width: 92vw;
   z-index: 3;
   padding: 10px;
@@ -136,16 +137,16 @@
 }
 @media (min-width: 768px) {
   .studio-window {
-    top: 11%;
-    height: min(66dvh, 620px);
+    top: 14%;
+    height: min(60dvh, 570px);
     padding: 14px;
     border-radius: 26px;
   }
 }
 @media (min-width: 1280px) {
   .studio-window {
-    top: 11%;
-    height: min(70dvh, 680px);
+    top: 17%;
+    height: min(58dvh, 600px);
     padding: 16px;
     border-radius: 30px;
   }
@@ -549,7 +550,7 @@
    ============================================================ */
 .hero-content {
   position: absolute;
-  bottom: 36px;
+  bottom: 24px;
   left: 0;
   right: 0;
   z-index: 5;
@@ -557,10 +558,10 @@
   padding: 0 20px;
 }
 @media (min-width: 768px) {
-  .hero-content { bottom: 56px; padding: 0 32px; }
+  .hero-content { bottom: 32px; padding: 0 32px; }
 }
 @media (min-width: 1280px) {
-  .hero-content { bottom: 72px; }
+  .hero-content { bottom: 40px; }
 }
 
 /* Chromatic aberration용 span 자리 (헤드라인 없어도 파형·burst 남김) */
