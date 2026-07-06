@@ -491,6 +491,14 @@ body.sk-input-flow .hint {
 body.sk-input-flow .hint b,
 body.sk-input-flow .hint strong { color: var(--amber-bri) !important; }
 
+/* 이름 글자 · 획수 표시 · 붉은색 대신 촛불 앰버 (동양권 이름 붉은색 미신 회피) */
+body.sk-input-flow .hanja-cell .hanja-han b,
+body.sk-input-flow .hanja-cell .content-hanja-han b,
+body.sk-input-flow .stroke-row b,
+body.sk-input-flow .stroke-sum b {
+  color: var(--amber-bri) !important;
+}
+
 /* stroke-total (한자 획수 표시) */
 body.sk-input-flow .stroke-total {
   padding: 10px 14px !important;
