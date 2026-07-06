@@ -375,11 +375,11 @@
           <div class="interior-back-wall"></div>
           <!-- 천장 조명 반사 (유리 상단 하이라이트) -->
           <div class="interior-ceiling-glow"></div>
-          <!-- 만월아씨 (창 안 · 정재생=video · 역재생=canvas 프레임 캐시) -->
+          <!-- 만월아씨 (창 안 · 두 네이티브 비디오 스왑으로 진짜 핑퐁) -->
           <div class="anchor-slot">
             <video
-              class="anchor-portrait anchor-video"
-              id="anchorPortraitVideo"
+              class="anchor-portrait anchor-video anchor-video-fwd"
+              id="anchorVideoFwd"
               src="./media/characters/manwol_broadcast.mp4"
               poster="./media/characters/manwol_broadcast.png"
               autoplay
@@ -390,11 +390,17 @@
               disableremoteplayback
               aria-label="만월아씨 · 심야편 방송실"
             ></video>
-            <canvas
-              class="anchor-portrait anchor-canvas"
-              id="anchorPortraitCanvas"
+            <video
+              class="anchor-portrait anchor-video anchor-video-rev"
+              id="anchorVideoRev"
+              src="./media/characters/manwol_broadcast_reverse.mp4"
+              muted
+              playsinline
+              preload="auto"
+              disablepictureinpicture
+              disableremoteplayback
               aria-hidden="true"
-            ></canvas>
+            ></video>
           </div>
         </div>
         <!-- 유리 반사 오버레이 (컨트롤룸 쪽 조명 반사) -->

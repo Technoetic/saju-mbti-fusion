@@ -20,8 +20,8 @@
   const scene         = document.getElementById('heroScene');
   const onAirSign     = document.getElementById('onAirSign');
   const soundToggle   = document.getElementById('soundToggle');
-  const anchorVideo   = document.getElementById('anchorPortraitVideo');
-  const anchorCanvas  = document.getElementById('anchorPortraitCanvas');
+  const anchorFwd     = document.getElementById('anchorVideoFwd');
+  const anchorRev     = document.getElementById('anchorVideoRev');
 
   if (!scene) {
     console.warn('[사주경] hero scene 없음 — 이전 홈 렌더러 무시');
@@ -36,174 +36,60 @@
   };
 
   // ============================================================
-  // 0) 만월아씨 비디오 · 진짜 핑퐁 (정→역→정→역 …)
+  // 0) 만월아씨 비디오 · 두 네이티브 비디오 스왑 핑퐁
   // ============================================================
-  //  전략: 브라우저 비디오 역재생 seek 은 신뢰 X → 정재생 첫 사이클에
-  //        프레임을 offscreen canvas 에 캐시 → 역재생 시엔 캐시에서 그림.
+  //  전략: 역재생 영상을 ffmpeg 로 미리 만들어서 native <video> 로 재생.
+  //        정·역재생 둘 다 HW 가속 · 원본 해상도 · 완벽한 프레임 밀도.
   //
   //  Cycle:
-  //   1) 최초 <video> 정재생 (rate 0.7) · requestVideoFrameCallback 로
-  //      매 프레임 offscreen canvas 에 draw → ImageBitmap 배열에 push
-  //   2) ended → video 숨김 / canvas 표시 → 캐시 배열 뒤에서 앞으로 draw
-  //      실시간 rate 0.7 유지 (mediaTime 기반 스텝)
-  //   3) 캐시 앞쪽 도달 → canvas 숨김 / video 표시 → video.currentTime=0 · play
-  //   4) 두 번째 이후 ended → 캐시 이미 완성 → 즉시 canvas 역재생
-  //
-  //  Memory 예산: 5초 · 24fps 캡처 · 320×568 = 120 frames × ~730KB = ~85MB
-  //   → 실제로는 브라우저가 GPU 텍스처로 관리해서 시스템 RAM 부담 낮음
-  if (anchorVideo && anchorCanvas) {
+  //   1) fwd 비디오 재생 (rate 0.7) · rev 는 preload 대기
+  //   2) fwd.ended → opacity 즉시 스왑 (fwd=0, rev=1) · rev.play(0)
+  //      두 비디오의 스왑 프레임이 동일 (fwd 마지막 = rev 첫 프레임) → 이음새 0
+  //   3) rev.ended → opacity 즉시 스왑 (rev=0, fwd=1) · fwd.currentTime=0 · play()
+  //   4) 무한 반복
+  if (anchorFwd && anchorRev) {
     if (state.reduced) {
-      anchorVideo.removeAttribute('autoplay');
-      anchorVideo.pause();
+      [anchorFwd, anchorRev].forEach(v => { v.removeAttribute('autoplay'); v.pause(); });
     } else {
       const RATE = 0.7;
-      const CAP_W = 480;                              // 320 → 480 · 화질 상향
-      const CAP_H = Math.round(CAP_W * 1916 / 1080); // 원본 비율 = 852
-      const CAP_INTERVAL_S = 1 / 30;                  // 24 → 30fps · 프레임 밀도 상향
 
-      anchorCanvas.width  = CAP_W;
-      anchorCanvas.height = CAP_H;
-      const cctx = anchorCanvas.getContext('2d', { alpha: false, willReadFrequently: false });
-
-      // 오프스크린 캡처 캔버스 (video → bitmap 변환용)
-      const capCanvas = document.createElement('canvas');
-      capCanvas.width  = CAP_W;
-      capCanvas.height = CAP_H;
-      const capCtx = capCanvas.getContext('2d', { alpha: false });
-
-      const frames = []; // { t: mediaTime, bmp: ImageBitmap }[]
-      let captured = false;
-      let capturing = false;
-      let inReverse = false;
-      let reverseRAF = null;
-      let lastCapTime = -1;
-
-      const applyRate = () => { try { anchorVideo.playbackRate = RATE; } catch (_) {} };
-
-      // 프레임 캡처 (requestVideoFrameCallback 기반)
-      function startCapture() {
-        if (captured || capturing) return;
-        if (!('requestVideoFrameCallback' in anchorVideo)) {
-          // 폴백 · setInterval 캡처
-          const iv = setInterval(async () => {
-            if (captured || anchorVideo.ended) { clearInterval(iv); return; }
-            if (anchorVideo.currentTime - lastCapTime >= CAP_INTERVAL_S) {
-              await pushFrame(anchorVideo.currentTime);
-            }
-          }, 1000 / 30);
-          return;
-        }
-        capturing = true;
-        const onFrame = async (_now, meta) => {
-          if (captured) return;
-          const t = meta.mediaTime;
-          if (t - lastCapTime >= CAP_INTERVAL_S) {
-            lastCapTime = t;
-            await pushFrame(t);
-          }
-          if (!captured && !anchorVideo.ended) {
-            anchorVideo.requestVideoFrameCallback(onFrame);
-          }
-        };
-        anchorVideo.requestVideoFrameCallback(onFrame);
-      }
-
-      async function pushFrame(t) {
-        try {
-          capCtx.drawImage(anchorVideo, 0, 0, CAP_W, CAP_H);
-          const bmp = await createImageBitmap(capCanvas);
-          frames.push({ t, bmp });
-        } catch (_) {}
-      }
-
-      // 역재생: 캐시 뒤→앞으로 · rate 0.7 유지
-      function playReverse() {
-        if (inReverse || frames.length < 2) return;
-        inReverse = true;
-        // 표시 전환
-        anchorCanvas.style.opacity = '1';
-        anchorVideo.style.opacity  = '0';
-        try { anchorVideo.pause(); } catch (_) {}
-
-        // 마지막 프레임 → 첫 프레임까지 실시간 mediaTime 기반 재생
-        const totalDur = frames[frames.length - 1].t - frames[0].t; // 캡처된 총 mediaTime
-        const startWall = performance.now();
-
-        const step = (now) => {
-          if (!inReverse) return;
-          // 경과 실시간(ms) 을 mediaTime 으로 환산 (rate 0.7)
-          const elapsedMedia = ((now - startWall) / 1000) * RATE;
-          const targetMedia = Math.max(frames[0].t, frames[frames.length - 1].t - elapsedMedia);
-
-          // 가장 가까운 프레임 찾기 (역방향 bisect)
-          // frames는 t 오름차순 정렬 (mediaTime 오름차순)
-          let lo = 0, hi = frames.length - 1;
-          while (lo < hi) {
-            const mid = (lo + hi) >> 1;
-            if (frames[mid].t < targetMedia) lo = mid + 1;
-            else hi = mid;
-          }
-          const idx = Math.max(0, Math.min(frames.length - 1, lo));
-          cctx.drawImage(frames[idx].bmp, 0, 0, CAP_W, CAP_H);
-
-          if (idx <= 0) {
-            // 역재생 완료 → 정재생 재개
-            inReverse = false;
-            reverseRAF = null;
-            resumeForward();
-            return;
-          }
-          reverseRAF = requestAnimationFrame(step);
-        };
-        // 첫 프레임 즉시 draw (마지막 index)
-        cctx.drawImage(frames[frames.length - 1].bmp, 0, 0, CAP_W, CAP_H);
-        reverseRAF = requestAnimationFrame(step);
-      }
-
-      function resumeForward() {
-        // canvas → video 전환
-        try { anchorVideo.currentTime = 0; } catch (_) {}
+      [anchorFwd, anchorRev].forEach(v => {
+        const applyRate = () => { try { v.playbackRate = RATE; } catch (_) {} };
+        v.addEventListener('loadedmetadata', applyRate);
+        v.addEventListener('play', applyRate);
         applyRate();
-        const p = anchorVideo.play();
-        if (p && p.catch) p.catch(() => {});
-        // 페이드 없이 즉시 스왑 (같은 프레임에서 전환이라 시각 불연속 없음)
-        anchorVideo.style.opacity = '1';
-        anchorCanvas.style.opacity = '0';
-      }
-
-      anchorVideo.addEventListener('loadedmetadata', applyRate);
-      anchorVideo.addEventListener('play', () => { if (!inReverse) applyRate(); });
-      anchorVideo.addEventListener('playing', startCapture);
-      anchorVideo.addEventListener('ended', () => {
-        // 캡처 완료 마킹
-        if (!captured && frames.length > 0) captured = true;
-        capturing = false;
-        if (frames.length >= 2) {
-          playReverse();
-        } else {
-          // 캡처 실패 · 그냥 재시작
-          try { anchorVideo.currentTime = 0; } catch (_) {}
-          anchorVideo.play().catch(() => {});
-        }
       });
 
-      // 자동재생 정책 fallback
+      // fwd 끝 → rev 로 스왑
+      anchorFwd.addEventListener('ended', () => {
+        try { anchorRev.currentTime = 0; } catch (_) {}
+        try { anchorRev.playbackRate = RATE; } catch (_) {}
+        anchorRev.play().catch(() => {});
+        // 즉시 스왑 (같은 프레임이라 시각 단절 없음)
+        anchorRev.style.opacity = '1';
+        anchorFwd.style.opacity = '0';
+        try { anchorFwd.pause(); } catch (_) {}
+      });
+
+      // rev 끝 → fwd 로 스왑
+      anchorRev.addEventListener('ended', () => {
+        try { anchorFwd.currentTime = 0; } catch (_) {}
+        try { anchorFwd.playbackRate = RATE; } catch (_) {}
+        anchorFwd.play().catch(() => {});
+        anchorFwd.style.opacity = '1';
+        anchorRev.style.opacity = '0';
+        try { anchorRev.pause(); } catch (_) {}
+      });
+
+      // 자동재생 정책 fallback (fwd만 · rev는 스왑 시 유저 인터랙션 발생 후)
       const kickPlay = () => {
-        anchorVideo.play().catch(() => {});
+        anchorFwd.play().catch(() => {});
         document.removeEventListener('pointerdown', kickPlay);
         document.removeEventListener('keydown', kickPlay);
       };
-      anchorVideo.play().catch(() => {
+      anchorFwd.play().catch(() => {
         document.addEventListener('pointerdown', kickPlay, { once: true });
         document.addEventListener('keydown', kickPlay, { once: true });
-      });
-      applyRate();
-
-      document.addEventListener('visibilitychange', () => {
-        if (document.hidden) {
-          if (reverseRAF) { cancelAnimationFrame(reverseRAF); reverseRAF = null; }
-          inReverse = false;
-        }
       });
     }
   }
