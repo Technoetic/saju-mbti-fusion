@@ -37,10 +37,10 @@
   // ============================================================
   // 0) 만월아씨 비디오 · 핑퐁 루프 (재생 → 역재생 → 재생 …)
   // ============================================================
-  //  - 이음새 문제 해결: 매 방향 전환이 "같은 프레임"에서 일어남
   //  - 정재생: 브라우저 native (playbackRate 0.7 · HW 가속)
-  //  - 역재생: RAF로 currentTime 을 뒤로 감음 (HTML5 negative rate 불안정 회피)
-  //  - loop attribute 없음 (없어야 ended 이벤트 발생 · 방향 전환 트리거)
+  //  - 역재생: seeked 이벤트 대기하며 24fps 로 currentTime 감기
+  //     └ seeked 대기 없이 rapid RAF 로 하면 프레임 렌더 못 따라가서 얼어붙음
+  //  - 방향 전환은 항상 "같은 프레임"에서 → 이음새 0
   //  - prefers-reduced-motion 존중: 정지 프레임(poster)만 노출
   if (anchorVideo) {
     if (state.reduced) {
@@ -48,43 +48,61 @@
       anchorVideo.pause();
     } else {
       const RATE = 0.7;
-      const REV_EPS = 0.02; // 역재생 종료 판정 여유
-      let reverseRAF = null;
-      let reverseLast = 0;
+      const REV_FPS = 24;                        // 역재생 프레임레이트
+      const REV_STEP = (1 / REV_FPS) * RATE;      // 프레임당 currentTime 감소량 (초)
+      const REV_DELAY = 1000 / REV_FPS;           // 프레임당 실시간 대기 (ms)
+      const REV_EPS = REV_STEP + 0.005;
+      let stopFlag = false;
+      let reverseRunning = false;
 
       const applyRate = () => { try { anchorVideo.playbackRate = RATE; } catch (_) {} };
 
-      function stopReverse() {
-        if (reverseRAF) { cancelAnimationFrame(reverseRAF); reverseRAF = null; }
+      // seek 완료를 기다린다 (안 기다리면 렌더 못 따라감 → 얼어붙음)
+      function awaitSeeked(v, targetTime, safetyMs = 220) {
+        return new Promise((resolve) => {
+          let done = false;
+          const finish = () => {
+            if (done) return;
+            done = true;
+            v.removeEventListener('seeked', finish);
+            resolve();
+          };
+          v.addEventListener('seeked', finish);
+          try { v.currentTime = targetTime; } catch (_) { finish(); return; }
+          setTimeout(finish, safetyMs);
+        });
       }
 
-      function startReverse() {
-        stopReverse();
+      async function playReverse() {
+        if (reverseRunning) return;
+        reverseRunning = true;
+        stopFlag = false;
         try { anchorVideo.pause(); } catch (_) {}
-        reverseLast = performance.now();
-        const step = (now) => {
-          const dt = Math.min(0.05, (now - reverseLast) / 1000); // dt 캡 (탭 백그라운드 후 튐 방지)
-          reverseLast = now;
-          const next = anchorVideo.currentTime - dt * RATE;
-          if (next <= REV_EPS) {
-            anchorVideo.currentTime = 0;
-            reverseRAF = null;
-            applyRate();
-            anchorVideo.play().catch(() => {});
-            return;
+
+        while (!stopFlag && anchorVideo.currentTime > REV_EPS) {
+          const t0 = performance.now();
+          const target = Math.max(0, anchorVideo.currentTime - REV_STEP);
+          await awaitSeeked(anchorVideo, target);
+          if (stopFlag) { reverseRunning = false; return; }
+          const elapsed = performance.now() - t0;
+          if (elapsed < REV_DELAY) {
+            await new Promise(r => setTimeout(r, REV_DELAY - elapsed));
           }
-          try { anchorVideo.currentTime = next; } catch (_) {}
-          reverseRAF = requestAnimationFrame(step);
-        };
-        reverseRAF = requestAnimationFrame(step);
+        }
+        reverseRunning = false;
+        if (stopFlag) return;
+
+        // 역재생 완료 → 처음으로 스냅 + 정재생 재개
+        try { anchorVideo.currentTime = 0; } catch (_) {}
+        applyRate();
+        anchorVideo.play().catch(() => {});
       }
 
-      // ended = 정재생 완료 → 즉시 역재생 시작
-      anchorVideo.addEventListener('ended', startReverse);
+      anchorVideo.addEventListener('ended', playReverse);
       anchorVideo.addEventListener('loadedmetadata', applyRate);
-      anchorVideo.addEventListener('play', applyRate);
+      anchorVideo.addEventListener('play', () => { if (!reverseRunning) applyRate(); });
 
-      // 자동재생 정책 fallback — 첫 인터랙션 시 재시도
+      // 자동재생 정책 fallback
       const kickPlay = () => {
         anchorVideo.play().catch(() => {});
         document.removeEventListener('pointerdown', kickPlay);
@@ -96,15 +114,15 @@
       });
       applyRate();
 
-      // 탭 백그라운드 → 포그라운드 복귀 시 역재생 상태면 재개
+      // 탭 백그라운드 → 포그라운드 복귀
       document.addEventListener('visibilitychange', () => {
         if (document.hidden) {
-          stopReverse();
+          stopFlag = true;
         } else {
-          // 재개 시엔 상태 판단: 현재 위치가 0 근처면 정재생, 아니면 역재생 계속
           if (anchorVideo.paused && anchorVideo.currentTime > REV_EPS) {
-            startReverse();
+            playReverse();
           } else if (anchorVideo.paused) {
+            applyRate();
             anchorVideo.play().catch(() => {});
           }
         }
