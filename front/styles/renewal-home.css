@@ -286,8 +286,8 @@
   object-fit: cover;
   object-position: 50% 45%; /* 얼굴·헤드폰·대본·마이크·믹서·촛불 균형 유지 */
 
-  /* 크로스페이드 준비 · 두 비디오가 서로 겹쳐서 이음새 감춤 */
-  transition: opacity 900ms ease-in-out, filter 1.6s ease-out;
+  /* video ↔ canvas 스왑은 동일 프레임에서 즉시 (opacity transition 없음) */
+  transition: filter 1.6s ease-out;
   /* OFF AIR — 방송실 어둠 속에서 대기 · 유리 너머 그림자 톤 */
   filter: brightness(0.62) contrast(1.08) saturate(0.82);
   will-change: filter, opacity;

@@ -57,9 +57,9 @@
       anchorVideo.pause();
     } else {
       const RATE = 0.7;
-      const CAP_W = 320;
-      const CAP_H = Math.round(CAP_W * 1916 / 1080); // 원본 비율 유지 = 568
-      const CAP_INTERVAL_S = 1 / 24; // 24fps 캡처
+      const CAP_W = 480;                              // 320 → 480 · 화질 상향
+      const CAP_H = Math.round(CAP_W * 1916 / 1080); // 원본 비율 = 852
+      const CAP_INTERVAL_S = 1 / 30;                  // 24 → 30fps · 프레임 밀도 상향
 
       anchorCanvas.width  = CAP_W;
       anchorCanvas.height = CAP_H;
