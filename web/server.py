@@ -1220,7 +1220,6 @@ class PersonalityAPIServer:
         self.app.post("/api/llm/chat")(self.post_llm_chat)
         self.app.post("/api/manwol/reading")(self.post_manwol_reading)
         self.app.post("/api/hwapae/reading")(self.post_hwapae_reading)
-        self.app.post("/api/saju/webtoon")(self.post_saju_webtoon)
         self.app.post("/api/face/reading")(self.post_face_reading)
         self.app.post("/api/palm/reading")(self.post_palm_reading)
         self.app.get("/api/palm/diagnostics")(self.get_palm_diagnostics)
@@ -2215,21 +2214,6 @@ class PersonalityAPIServer:
                 result["text"] = _sanitize_foreign_hallucination(result["text"])
                 result["text"] = _sanitize_korean_grammar_dupes(result["text"])
             return result
-        except Exception as e:
-            raise HTTPException(500, str(e))
-
-    async def post_saju_webtoon(self, req: Request) -> dict[str, Any]:
-        """정통 사주 풀이 텍스트로부터 nano-banana 웹툰 5장 생성."""
-        try:
-            body = await req.json()
-            reading = (body or {}).get("reading", "").strip()
-            if not reading or len(reading) < 50:
-                raise HTTPException(400, "reading text required (min 50 chars)")
-            from engine.divination.saju_webtoon import generate_webtoon_images
-            images = await asyncio.to_thread(generate_webtoon_images, reading)
-            return {"images": images, "count": len(images)}
-        except HTTPException:
-            raise
         except Exception as e:
             raise HTTPException(500, str(e))
 
