@@ -73,54 +73,6 @@
     url('../media/bg/hero_room.jpg') center center / cover no-repeat,
     #0a0508;
 }
-/* 넓은 뷰포트 · 원본(736×1308 세로형) 아스펙트 유지 · 뷰포트 높이에 맞춰 세로 밴드로 표시
-   원본 그대로면 카드는 고정 크기인데 배경만 가로로 늘어나서 케이블이 3.5x 스트레치 →
-   카드와 배경 스케일이 따로 놀았음. auto 100% 로 세로 아스펙트 유지하면
-   카드가 앉는 painterly 벽이 자연 폭으로 유지되고 양옆은 어둠으로 fade,
-   뷰포트 리사이즈 시 카드·배경이 함께 스케일된다. */
-@media (min-width: 900px) {
-  .stage-foam {
-    background:
-      /* 선명 세로 밴드 (원본 아스펙트 유지) */
-      url('../media/bg/hero_room.jpg') center bottom / auto 100% no-repeat,
-      #0a0508;
-  }
-  /* ::before 를 블러 앰비언트 백드롭으로 재활용 (스캔라인은 ::after 로 이동)
-     같은 이미지 cover · 블러+어둡게 처리해서 뷰포트 좌우 검은 공간을 벽 텍스처로 확장 ·
-     inset: -80px 로 뷰포트 밖까지 넓혀서 블러 엣지 새어나오지 않게 */
-  .stage-foam::before {
-    inset: -80px;
-    background: url('../media/bg/hero_room.jpg') center center / cover no-repeat;
-    filter: blur(56px) brightness(0.42) saturate(0.85);
-    mix-blend-mode: normal;
-    opacity: 1;
-    z-index: -1;
-  }
-  /* 넓은 뷰포트 전용 vignette + 세로 밴드↔블러 백드롭 부드럽게 blend + 스캔라인 */
-  .stage-foam::after {
-    background:
-      /* 스캔라인 (::before 재활용으로 옮겨옴) */
-      repeating-linear-gradient(0deg,
-        transparent 0px 2px,
-        rgba(0, 0, 0, 0.055) 2px 3px),
-      /* 세로 밴드 좌우 엣지 소프트 blend · 밴드→블러 전환 자연스럽게 */
-      linear-gradient(90deg,
-        rgba(6, 4, 8, 0.35) 0%,
-        rgba(6, 4, 8, 0.15) 15%,
-        transparent 28%,
-        transparent 72%,
-        rgba(6, 4, 8, 0.15) 85%,
-        rgba(6, 4, 8, 0.35) 100%),
-      /* ON AIR 붉은 반사 (기존) */
-      radial-gradient(ellipse 55% 20% at 50% 0%, rgba(180, 20, 40, 0.32) 0%, transparent 60%),
-      /* 4모서리 vignette */
-      radial-gradient(ellipse 100% 90% at 50% 50%, transparent 55%, rgba(0, 0, 0, 0.55) 100%),
-      /* 미세 필름 그레인 */
-      repeating-linear-gradient(45deg,
-        rgba(255, 255, 255, 0.014) 0px 1px,
-        transparent 1px 3px);
-  }
-}
 /* 배경 위 · vignette + 다크닝 (텍스트·서류 대비 확보) */
 .stage-foam::after {
   content: "";
@@ -156,6 +108,23 @@
   z-index: 1;
   mix-blend-mode: multiply;
   opacity: 0.5;
+}
+
+/* 넓은 뷰포트 · 원본(736×1308 세로형) 아스펙트 유지 세로 밴드 + 좌우 블러 앰비언트 백드롭
+   원본 그대로 cover 로 깔면 카드는 고정 크기인데 배경만 가로로 늘어나서
+   케이블이 3.5x 스트레치 → 카드↔배경 스케일이 따로 놀았음.
+   auto 100% 로 아스펙트 유지한 sharp 밴드를 중앙 · 뷰포트 남는 좌우엔 프리블러 에셋
+   (hero_room_blur.jpg · downscale/upscale + 42% brightness) 을 cover 로 깔아
+   벽 텍스처가 뷰포트 끝까지 자연스럽게 확장. CSS filter 없이 bg 레이어 스택만으로 처리. */
+@media (min-width: 900px) {
+  .stage-foam {
+    background:
+      /* 선명 세로 밴드 (원본 아스펙트 유지 · 상단 topmost) */
+      url('../media/bg/hero_room.jpg') center bottom / auto 100% no-repeat,
+      /* 블러 앰비언트 백드롭 · 뷰포트 전체 cover · 좌우 벽 텍스처 확장 */
+      url('../media/bg/hero_room_blur.jpg') center center / cover no-repeat,
+      #0a0508;
+  }
 }
 
 /* ============================================================
