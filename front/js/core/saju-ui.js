@@ -778,73 +778,81 @@ function performCalculation() {
 }
 
 /**
- * 현재 lastSajuResult로 AI에 자연어 풀이를 요청
+ * 만월아씨 통합 서사 페이로드 구성 · 결정론 데이터만 담아 백엔드로 전달.
+ */
+function buildManwolPayload(concern) {
+  if (!lastSajuResult) return null;
+  const payload = {
+    saju: {
+      pillars: lastSajuResult.pillars,
+      day_master: lastSajuResult.pillars?.day?.gan_han || lastSajuResult.pillars?.day?.gan,
+      wuxing_dist: lastSajuResult.wuxing_dist || lastSajuResult.wuxingDist,
+      luck_cycle: lastSajuResult.luck_cycle || lastSajuResult.luckCycle,
+      strength: lastSajuResult.strength || lastSajuResult.sinKang,
+      gyeokguk: lastSajuResult.gyeokguk,
+      gender: lastSajuResult.gender,
+    },
+    name_analysis: lastSajuResult.nameAnalysis
+      ? {
+          surname: lastSajuResult.name?.surname || '',
+          givenName: lastSajuResult.name?.givenName || '',
+          음오행분석: lastSajuResult.nameAnalysis?.음오행분석,
+          오격: lastSajuResult.nameAnalysis?.오격,
+        }
+      : null,
+    life_context: lastSajuResult.lifeContext || null,
+    concern: concern || null,
+    gender: lastSajuResult.gender,
+  };
+  // 종합 옵션 (관상 사진·꿈·자미·타로) — 사용자가 입력했을 때만
+  const dreamEl = document.getElementById('dreamText');
+  if (dreamEl && dreamEl.value && dreamEl.value.trim()) {
+    payload.dream_text = dreamEl.value.trim();
+  }
+  return payload;
+}
+
+/**
+ * 현재 lastSajuResult 로 만월아씨 통합 서사를 호출.
+ * 웹툰 렌더러 대체 · /api/manwol/reading 스트리밍 → 심야 방송실 톤 산문 카드.
  */
 async function triggerAICall() {
   if (!lastSajuResult) return;
-  const model = document.getElementById('aiModel').value;
-  const concern = document.getElementById('userConcern').value.trim();
-  let prompt;
-  let titleSuffix;
-
-  if (lastSajuResult.mode && lastSajuResult.mode !== 'personal' && lastSajuResult.partnerResult) {
-  // 궁합 분석
-  prompt = buildCompatPrompt(lastSajuResult, lastSajuResult.partnerResult, lastSajuResult.mode, concern);
-  titleSuffix = MODE_LABEL[lastSajuResult.mode] || '궁합';
-  } else {
-  // 개인 분석
-  const a = analyzeSaju(lastSajuResult);
-  const dw = calculateDaewoon(lastSajuResult);
-  const interp = generateInterpretation(lastSajuResult, a, dw);
-  prompt = buildSajuPrompt(lastSajuResult, a, dw, interp,
-  lastSajuResult.nameAnalysis, lastSajuResult.name, concern, lastSajuResult.lifeContext);
-  titleSuffix = '이야기';
-  }
+  const concern = (document.getElementById('userConcern')?.value || '').trim();
 
   const 호칭 = (lastSajuResult.name && (lastSajuResult.name.surname || lastSajuResult.name.givenName))
-  ? `${lastSajuResult.name.surname}${lastSajuResult.name.givenName}님`
-  : '';
+    ? `${lastSajuResult.name.surname}${lastSajuResult.name.givenName}`
+    : '';
+  const title = (호칭 ? 호칭 + ' · ' : '') + '심야 사연 풀이';
+
   const out = document.getElementById('claudeResult');
-  // 정통 사주 본 결과는 처음부터 웹툰 모드. streaming 본문은 사용자에게
-  // 노출하지 않고 로딩 상태만 유지 → 풀이 완성 후 단번에 웹툰으로 펼침.
   out.innerHTML = `
-  <div class="claude-output claude-loading webtoon-loading">
-    <div class="webtoon-loading-inner">
-      <div class="webtoon-loading-emblem">月</div>
-      <div class="webtoon-loading-title">${호칭 ? 호칭 + '의 ' : ''}사주 이야기</div>
-      <div class="webtoon-loading-sub">만월 아씨가 그대의 사주를 이야기로 풀고 있어요 ⋯</div>
-      <small style="opacity:0.55">(${model})</small>
+    <div class="claude-output manwol-loading">
+      <div class="manwol-loading-inner">
+        <div class="manwol-loading-sign">ON AIR</div>
+        <div class="manwol-loading-title">${title}</div>
+        <div class="manwol-loading-sub">만월아씨가 사연을 짚는 중.</div>
+      </div>
     </div>
-  </div>
   `;
 
-  try {
-  let full = '';
-  // 정통 사주 풀이는 모델 선택과 무관하게 Sonnet 4.6 고정
-  const sajuModel = 'anthropic/claude-sonnet-4.6';
-  // streaming 콜백에서는 실시간 텍스트를 그리지 않는다 — 로딩 화면만 유지.
-  await callFreeAI(sajuModel, prompt, (chunk, txt) => { full = txt; });
-  if (!full || !full.trim()) full = await callFreeAI(sajuModel, prompt);
-  if (!full || !full.trim()) {
-  throw new Error('AI 응답이 비어 있습니다. 잠시 후 다시 시도하거나 다른 모델을 골라보세요.');
-  }
-  // 완성된 본문 → 웹툰 5장으로 펼침
-  out.querySelector('.claude-output').classList.remove('claude-loading');
-  try {
-  const { renderWebtoonReading } = await import('../ui/webtoon-renderer.js');
-  const title = (호칭 ? 호칭 + '의 ' : '') + '사주 이야기';
-  renderWebtoonReading(out.querySelector('.claude-output'), full, { title });
-  } catch (_) {
-  // 모듈 로드 실패 시 폴백 — 단순 줄글
-  out.querySelector('.claude-output').innerHTML = simpleMarkdown(full);
-  }
-  } catch (err) {
-  out.querySelector('.claude-output').classList.remove('claude-loading');
-  out.querySelector('.claude-output').innerHTML =
-  `<pre style="color:red">${(err.message || err).replace(/</g,'&lt;')}</pre>
-  <p class="hint">무료 서버가 잠시 응답이 없네요. 모델을 바꿔서 다시 시도해보세요.</p>`;
+  const payload = buildManwolPayload(concern);
+  if (!payload) {
+    out.querySelector('.claude-output').innerHTML =
+      `<p class="manwol-error">사주 계산이 안 됐어. 다시 입력해봐.</p>`;
+    return;
   }
 
+  try {
+    const { renderManwolReading } = await import('../ui/manwol-renderer.js');
+    // 로딩 클래스 제거 후 렌더러가 카드 뼈대 구성
+    const box = out.querySelector('.claude-output');
+    box.classList.remove('manwol-loading');
+    await renderManwolReading(box, payload, { title });
+  } catch (err) {
+    out.querySelector('.claude-output').innerHTML =
+      `<p class="manwol-error">사연 풀이 도중 신호가 끊겼어. (${(err.message || err).toString().replace(/</g, '&lt;')})</p>`;
+  }
 }
 
 // [풀이 보기] — 입력 화면에서 클릭 시 사주 계산 + 결과 화면 전환 + AI 자동 호출

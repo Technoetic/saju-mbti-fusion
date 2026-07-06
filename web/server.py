@@ -480,6 +480,27 @@ class LLMChatRequest(BaseModel):
     max_tokens: int = 4096
 
 
+class ManwolReadingRequest(BaseModel):
+    """만월아씨 통합 서사 요청 — 사주 + 이름 + 관상/꿈/자미/타로/생활/고민.
+
+    페이로드는 모두 optional. 있는 도메인만 만월아씨 서사에 자연 융합.
+    시스템 프롬프트는 서버 고정 (클라이언트 override 불가).
+    """
+
+    saju: dict[str, Any] | None = None
+    name_analysis: dict[str, Any] | None = None
+    life_context: dict[str, Any] | None = None
+    concern: str | None = None
+    dream_text: str | None = None
+    face_metrics: dict[str, Any] | None = None
+    ziwei_summary: str | None = None
+    tarot_cards: list[dict[str, Any]] | None = None
+    gender: str | None = None
+    age: int | None = None
+    stream: bool = True
+    max_tokens: int = 4096
+
+
 class HwapaeCard(BaseModel):
     """추첨된 화패 카드 한 장."""
 
@@ -1197,6 +1218,7 @@ class PersonalityAPIServer:
         self.app.post("/api/saju/ask")(self.post_saju_ask)
         self.app.post("/api/translate")(self.post_translate)
         self.app.post("/api/llm/chat")(self.post_llm_chat)
+        self.app.post("/api/manwol/reading")(self.post_manwol_reading)
         self.app.post("/api/hwapae/reading")(self.post_hwapae_reading)
         self.app.post("/api/saju/webtoon")(self.post_saju_webtoon)
         self.app.post("/api/face/reading")(self.post_face_reading)
@@ -2095,6 +2117,67 @@ class PersonalityAPIServer:
                     messages=[
                         {"role": "system", "content": system},
                         {"role": "user", "content": req.prompt},
+                    ],
+                    stream=True,
+                )
+                for chunk in stream:
+                    try:
+                        delta = chunk.choices[0].delta
+                        piece = getattr(delta, "content", None) or ""
+                        if piece:
+                            yield piece
+                    except Exception:
+                        continue
+            except Exception as e:
+                yield f"\n\n[스트리밍 오류: {e}]"
+
+        return StreamingResponse(_gen(), media_type="text/plain; charset=utf-8")
+
+    async def post_manwol_reading(self, req: ManwolReadingRequest) -> Any:
+        """만월아씨 통합 서사 — 사주 + 이름 + 관상/꿈/자미/타로/생활/고민 → 심야 방송 반말 산문.
+
+        시스템 프롬프트는 서버 고정 (engine/divination/manwol_reading.MANWOL_SYSTEM).
+        결정론 페이로드를 build_manwol_user_prompt 로 자연 문장으로 구조화 후 LLM 스트리밍.
+        """
+        from fastapi.responses import StreamingResponse
+        from engine.llm_sync import bizrouter_client
+        from engine.divination.manwol_reading import (
+            MANWOL_SYSTEM,
+            build_manwol_user_prompt,
+        )
+
+        payload = req.model_dump()
+        user_prompt = build_manwol_user_prompt(payload)
+        bizrouter_model = os.environ.get(
+            "BIZROUTER_MODEL", "google/gemini-2.5-flash-lite"
+        )
+        client = bizrouter_client()
+
+        if not req.stream:
+            try:
+                resp = await asyncio.to_thread(
+                    client.chat.completions.create,
+                    model=bizrouter_model,
+                    max_tokens=req.max_tokens,
+                    messages=[
+                        {"role": "system", "content": MANWOL_SYSTEM},
+                        {"role": "user", "content": user_prompt},
+                    ],
+                )
+                content = resp.choices[0].message.content or ""
+                return {"text": content}
+            except Exception as e:
+                raise HTTPException(500, str(e))
+
+        async def _gen():
+            try:
+                stream = await asyncio.to_thread(
+                    client.chat.completions.create,
+                    model=bizrouter_model,
+                    max_tokens=req.max_tokens,
+                    messages=[
+                        {"role": "system", "content": MANWOL_SYSTEM},
+                        {"role": "user", "content": user_prompt},
                     ],
                     stream=True,
                 )
