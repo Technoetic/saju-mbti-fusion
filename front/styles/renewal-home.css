@@ -55,7 +55,6 @@
 @media (min-width: 768px) {
   .home-hero { min-height: calc(100vh - 72px); min-height: calc(100dvh - 72px); }
 }
-.home-hero::after { content: none; }
 /* 붉은 앰비언트 glow · 상단 ON AIR + 하단 pool + 좌우 warm 대칭 · 느린 브리딩 애니메이션 */
 .home-hero::before {
   content: "";
@@ -64,20 +63,36 @@
   pointer-events: none;
   z-index: 1;
   background:
-    radial-gradient(ellipse 40% 12% at 50% 5%, rgba(200, 40, 55, 0.32) 0%, transparent 62%),
-    radial-gradient(ellipse 44% 13% at 50% 94%, rgba(200, 42, 52, 0.38) 0%, transparent 70%),
-    radial-gradient(ellipse 30% 22% at 18% 48%, rgba(150, 34, 42, 0.22) 0%, transparent 62%),
-    radial-gradient(ellipse 30% 22% at 82% 48%, rgba(150, 34, 42, 0.22) 0%, transparent 62%);
+    radial-gradient(ellipse 40% 12% at 50% 5%, rgba(210, 45, 60, 0.5) 0%, transparent 62%),
+    radial-gradient(ellipse 46% 14% at 50% 94%, rgba(210, 45, 60, 0.55) 0%, transparent 70%),
+    radial-gradient(ellipse 32% 24% at 15% 48%, rgba(165, 38, 48, 0.32) 0%, transparent 62%),
+    radial-gradient(ellipse 32% 24% at 85% 48%, rgba(165, 38, 48, 0.32) 0%, transparent 62%);
   mix-blend-mode: screen;
-  animation: redAmbientBreathe 11s ease-in-out infinite;
+  animation: redAmbientBreathe 9s ease-in-out infinite;
   will-change: opacity, transform;
 }
 @keyframes redAmbientBreathe {
-  0%, 100% { opacity: 0.82; transform: translateY(-0.4%) scale(1); }
-  50%      { opacity: 1.08; transform: translateY(0.6%)  scale(1.025); }
+  0%, 100% { opacity: 0.55; transform: translateY(-1.2%) scale(0.97); }
+  50%      { opacity: 1.05; transform: translateY(1.2%)  scale(1.05); }
+}
+/* 케이블 애니메이션 레이어 · 별도 pseudo 에서 slow drift + subtle bob */
+.home-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+  background: url('../media/bg/floor_cables.svg') center 92% / 108% auto no-repeat;
+  animation: cablesDrift 16s ease-in-out infinite;
+  will-change: transform;
+}
+@keyframes cablesDrift {
+  0%, 100% { transform: translateX(-1.8%) translateY(0.5%); }
+  50%      { transform: translateX(1.8%)  translateY(-0.5%); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .home-hero::before { animation: none; opacity: 0.95; }
+  .home-hero::before { animation: none; opacity: 0.9; }
+  .home-hero::after  { animation: none; transform: none; }
 }
 
 /* ============================================================
@@ -103,7 +118,6 @@
   z-index: 0;
   pointer-events: none;
   background:
-    url('../media/bg/floor_cables.svg') center 92% / 108% auto no-repeat,
     radial-gradient(ellipse 48% 15% at 50% 94%, rgba(190, 38, 48, 0.6) 0%, rgba(110, 18, 26, 0.28) 42%, transparent 72%),
     linear-gradient(0deg, rgba(10, 3, 8, 0.55) 0%, transparent 22%),
     radial-gradient(ellipse 38% 30% at 20% 50%, rgba(85, 22, 28, 0.22) 0%, transparent 62%),
