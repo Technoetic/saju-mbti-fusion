@@ -82,22 +82,22 @@
   pointer-events: none;
   background:
     url('../media/bg/floor_cables.svg') center 92% / 108% auto no-repeat,
-    radial-gradient(ellipse 65% 22% at 50% 92%, rgba(200, 45, 55, 0.55) 0%, rgba(120, 22, 32, 0.3) 40%, transparent 72%),
-    linear-gradient(0deg, rgba(28, 6, 12, 0.42) 0%, transparent 26%),
-    radial-gradient(ellipse 42% 32% at 20% 38%, rgba(100, 30, 34, 0.38) 0%, transparent 66%),
-    radial-gradient(ellipse 38% 30% at 82% 55%, rgba(92, 24, 32, 0.35) 0%, transparent 66%),
-    radial-gradient(ellipse 38% 40% at 50% 32%, rgba(4, 3, 6, 0.5) 0%, transparent 72%),
-    radial-gradient(ellipse 62% 20% at 50% 5%, rgba(195, 42, 52, 0.45) 0%, transparent 62%),
+    radial-gradient(ellipse 48% 15% at 50% 94%, rgba(190, 38, 48, 0.6) 0%, rgba(110, 18, 26, 0.28) 42%, transparent 72%),
+    linear-gradient(0deg, rgba(10, 3, 8, 0.55) 0%, transparent 22%),
+    radial-gradient(ellipse 40% 30% at 22% 45%, rgba(85, 22, 28, 0.24) 0%, transparent 62%),
+    radial-gradient(ellipse 36% 28% at 80% 58%, rgba(80, 20, 26, 0.22) 0%, transparent 62%),
+    radial-gradient(ellipse 42% 45% at 50% 32%, rgba(2, 2, 4, 0.7) 0%, transparent 72%),
+    radial-gradient(ellipse 45% 14% at 50% 3%, rgba(180, 32, 44, 0.44) 0%, transparent 62%),
     url('../media/bg/wall_paint.svg') center center / cover no-repeat,
     linear-gradient(180deg,
-      #0d0d15 0%,
-      #14101c 22%,
-      #1e1220 42%,
-      #2a141c 60%,
-      #38141c 76%,
-      #260a12 91%,
-      #0a0508 100%),
-    #0a0508;
+      #08070c 0%,
+      #0d0c14 22%,
+      #100e18 45%,
+      #16101c 62%,
+      #1c1220 78%,
+      #180a14 91%,
+      #05030a 100%),
+    #05030a;
 }
 /* 배경 위 · vignette + 다크닝 (텍스트·서류 대비 확보) */
 .stage-foam::after {
