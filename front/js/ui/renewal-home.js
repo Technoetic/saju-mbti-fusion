@@ -20,6 +20,7 @@
   const scene         = document.getElementById('heroScene');
   const onAirSign     = document.getElementById('onAirSign');
   const soundToggle   = document.getElementById('soundToggle');
+  const anchorVideo   = document.getElementById('anchorPortraitVideo');
 
   if (!scene) {
     console.warn('[사주경] hero scene 없음 — 이전 홈 렌더러 무시');
@@ -32,6 +33,40 @@
     audio: null,
     reduced: !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches),
   };
+
+  // ============================================================
+  // 0) 만월아씨 비디오 · 재생속도·시임리스 루프 세팅
+  // ============================================================
+  //  - playbackRate 0.7  : 원본보다 느리게, 부드러운 낭독 페이스
+  //  - loop attribute    : 브라우저 네이티브 루프
+  //  - "ended" 백업 트리거 : loop 미지원·자동재생 정책 회피
+  //  - 시작지점 0 로 스냅  : 매 루프 이음새 최소화
+  if (anchorVideo) {
+    // 접근성: 모션 최소화 사용자에겐 정지 프레임(poster)만 노출
+    if (state.reduced) {
+      anchorVideo.removeAttribute('autoplay');
+      anchorVideo.pause();
+    } else {
+      const applyRate = () => { try { anchorVideo.playbackRate = 0.7; } catch (_) {} };
+      // 메타 로드 후 · 재생 시작 후 · ended 백업까지 반복 적용 (브라우저별 편차 흡수)
+      anchorVideo.addEventListener('loadedmetadata', applyRate);
+      anchorVideo.addEventListener('play', applyRate);
+      anchorVideo.addEventListener('ended', () => {
+        try { anchorVideo.currentTime = 0; anchorVideo.play(); } catch (_) {}
+      });
+      // 자동재생 정책 fallback — 사용자 첫 인터랙션 시 재생 재시도
+      const kickPlay = () => {
+        anchorVideo.play().catch(() => {});
+        document.removeEventListener('pointerdown', kickPlay);
+        document.removeEventListener('keydown', kickPlay);
+      };
+      anchorVideo.play().catch(() => {
+        document.addEventListener('pointerdown', kickPlay, { once: true });
+        document.addEventListener('keydown', kickPlay, { once: true });
+      });
+      applyRate();
+    }
+  }
 
   // ============================================================
   // 1) ON AIR 점화 시퀀스 (β · 도착 3.2초 뒤 자동)

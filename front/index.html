@@ -375,16 +375,22 @@
           <div class="interior-back-wall"></div>
           <!-- 천장 조명 반사 (유리 상단 하이라이트) -->
           <div class="interior-ceiling-glow"></div>
-          <!-- 만월아씨 (창 안 · 부스에서 대본 읽는 중) -->
+          <!-- 만월아씨 (창 안 · 부스에서 대본 읽는 중 · 비디오 루프) -->
           <div class="anchor-slot">
-            <img
+            <video
               class="anchor-portrait"
-              src="./media/characters/manwol_broadcast.png"
-              alt="만월아씨 · 심야편 방송실"
-              loading="eager"
-              decoding="async"
-              draggable="false"
-            >
+              id="anchorPortraitVideo"
+              src="./media/characters/manwol_broadcast.mp4"
+              poster="./media/characters/manwol_broadcast.png"
+              autoplay
+              loop
+              muted
+              playsinline
+              preload="auto"
+              disablepictureinpicture
+              disableremoteplayback
+              aria-label="만월아씨 · 심야편 방송실"
+            ></video>
           </div>
         </div>
         <!-- 유리 반사 오버레이 (컨트롤룸 쪽 조명 반사) -->
