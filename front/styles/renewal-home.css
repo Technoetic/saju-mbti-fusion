@@ -73,24 +73,30 @@
     url('../media/bg/hero_room.jpg') center center / cover no-repeat,
     #0a0508;
 }
-/* 넓은 뷰포트 · 원본 이미지 유지하되 하단 밴드 매핑 · TV 하단 엣지는 ::after 상단 페이드로 지움
-   원본 세로 68~100% (TV 하단선~바닥 케이블+붉은 반사) 를 뷰포트에 매핑 ·
-   심야 방송실 원본 분위기(케이블·붉은 톤·painterly depth) 보존 */
+/* 넓은 뷰포트 · 원본(736×1308 세로형) 아스펙트 유지 · 뷰포트 높이에 맞춰 세로 밴드로 표시
+   원본 그대로면 카드는 고정 크기인데 배경만 가로로 늘어나서 케이블이 3.5x 스트레치 →
+   카드와 배경 스케일이 따로 놀았음. auto 100% 로 세로 아스펙트 유지하면
+   카드가 앉는 painterly 벽이 자연 폭으로 유지되고 양옆은 어둠으로 fade,
+   뷰포트 리사이즈 시 카드·배경이 함께 스케일된다. */
 @media (min-width: 900px) {
   .stage-foam {
     background:
-      url('../media/bg/hero_room.jpg') center bottom / cover no-repeat,
+      url('../media/bg/hero_room.jpg') center bottom / auto 100% no-repeat,
+      /* 사이드 앰비언트 · 이미지 좌우 어둠으로 페이드 */
+      radial-gradient(ellipse 60% 100% at 50% 60%, rgba(60, 15, 22, 0.55) 0%, rgba(20, 6, 10, 0.85) 55%, #0a0508 80%),
       #0a0508;
   }
-  /* 상단 다크닝 · TV 하단 엣지 잔영을 검은 페이드로 흡수 */
+  /* 넓은 뷰포트 전용 vignette + 세로 밴드 좌우 페이드 (경계 부드럽게) */
   .stage-foam::after {
     background:
-      /* NEW · 상단 강한 다크닝 (TV 잔영 흡수) */
-      linear-gradient(180deg,
-        rgba(6, 4, 8, 0.92) 0%,
-        rgba(6, 4, 8, 0.72) 12%,
-        rgba(6, 4, 8, 0.35) 25%,
-        transparent 42%),
+      /* 이미지 좌우 엣지 부드럽게 blend · 딱딱한 세로 경계 흡수 */
+      linear-gradient(90deg,
+        rgba(6, 4, 8, 0.9) 0%,
+        rgba(6, 4, 8, 0.45) 18%,
+        transparent 32%,
+        transparent 68%,
+        rgba(6, 4, 8, 0.45) 82%,
+        rgba(6, 4, 8, 0.9) 100%),
       /* ON AIR 붉은 반사 (기존) */
       radial-gradient(ellipse 55% 20% at 50% 0%, rgba(180, 20, 40, 0.32) 0%, transparent 60%),
       /* 4모서리 vignette */
