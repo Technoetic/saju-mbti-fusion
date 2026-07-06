@@ -35,26 +35,56 @@
   };
 
   // ============================================================
-  // 0) 만월아씨 비디오 · 재생속도·시임리스 루프 세팅
+  // 0) 만월아씨 비디오 · 핑퐁 루프 (재생 → 역재생 → 재생 …)
   // ============================================================
-  //  - playbackRate 0.7  : 원본보다 느리게, 부드러운 낭독 페이스
-  //  - loop attribute    : 브라우저 네이티브 루프
-  //  - "ended" 백업 트리거 : loop 미지원·자동재생 정책 회피
-  //  - 시작지점 0 로 스냅  : 매 루프 이음새 최소화
+  //  - 이음새 문제 해결: 매 방향 전환이 "같은 프레임"에서 일어남
+  //  - 정재생: 브라우저 native (playbackRate 0.7 · HW 가속)
+  //  - 역재생: RAF로 currentTime 을 뒤로 감음 (HTML5 negative rate 불안정 회피)
+  //  - loop attribute 없음 (없어야 ended 이벤트 발생 · 방향 전환 트리거)
+  //  - prefers-reduced-motion 존중: 정지 프레임(poster)만 노출
   if (anchorVideo) {
-    // 접근성: 모션 최소화 사용자에겐 정지 프레임(poster)만 노출
     if (state.reduced) {
       anchorVideo.removeAttribute('autoplay');
       anchorVideo.pause();
     } else {
-      const applyRate = () => { try { anchorVideo.playbackRate = 0.7; } catch (_) {} };
-      // 메타 로드 후 · 재생 시작 후 · ended 백업까지 반복 적용 (브라우저별 편차 흡수)
+      const RATE = 0.7;
+      const REV_EPS = 0.02; // 역재생 종료 판정 여유
+      let reverseRAF = null;
+      let reverseLast = 0;
+
+      const applyRate = () => { try { anchorVideo.playbackRate = RATE; } catch (_) {} };
+
+      function stopReverse() {
+        if (reverseRAF) { cancelAnimationFrame(reverseRAF); reverseRAF = null; }
+      }
+
+      function startReverse() {
+        stopReverse();
+        try { anchorVideo.pause(); } catch (_) {}
+        reverseLast = performance.now();
+        const step = (now) => {
+          const dt = Math.min(0.05, (now - reverseLast) / 1000); // dt 캡 (탭 백그라운드 후 튐 방지)
+          reverseLast = now;
+          const next = anchorVideo.currentTime - dt * RATE;
+          if (next <= REV_EPS) {
+            anchorVideo.currentTime = 0;
+            reverseRAF = null;
+            applyRate();
+            anchorVideo.play().catch(() => {});
+            return;
+          }
+          try { anchorVideo.currentTime = next; } catch (_) {}
+          reverseRAF = requestAnimationFrame(step);
+        };
+        reverseRAF = requestAnimationFrame(step);
+      }
+
+      // ended = 정재생 완료 → 즉시 역재생 시작
+      anchorVideo.addEventListener('ended', startReverse);
       anchorVideo.addEventListener('loadedmetadata', applyRate);
       anchorVideo.addEventListener('play', applyRate);
-      anchorVideo.addEventListener('ended', () => {
-        try { anchorVideo.currentTime = 0; anchorVideo.play(); } catch (_) {}
-      });
-      // 자동재생 정책 fallback — 사용자 첫 인터랙션 시 재생 재시도
+
+      // 자동재생 정책 fallback — 첫 인터랙션 시 재시도
       const kickPlay = () => {
         anchorVideo.play().catch(() => {});
         document.removeEventListener('pointerdown', kickPlay);
@@ -65,6 +95,20 @@
         document.addEventListener('keydown', kickPlay, { once: true });
       });
       applyRate();
+
+      // 탭 백그라운드 → 포그라운드 복귀 시 역재생 상태면 재개
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+          stopReverse();
+        } else {
+          // 재개 시엔 상태 판단: 현재 위치가 0 근처면 정재생, 아니면 역재생 계속
+          if (anchorVideo.paused && anchorVideo.currentTime > REV_EPS) {
+            startReverse();
+          } else if (anchorVideo.paused) {
+            anchorVideo.play().catch(() => {});
+          }
+        }
+      });
     }
   }
 
