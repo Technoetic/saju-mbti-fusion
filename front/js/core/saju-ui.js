@@ -868,30 +868,8 @@ document.getElementById('goResultBtn').addEventListener('click', async () => {
   name: document.getElementById('fullName')?.value || '',
   ilju: null, keyMessage: null,
   });
-  // 종합검진 (자미두수·관상·꿈·타로) — 사주 LLM과 병렬로 즉시 시작
-  try {
-    if (typeof window.runComprehensiveReadings === 'function' && lastSajuResult) {
-      const ctx = {
-        name: (lastSajuResult.name && (lastSajuResult.name.surname || '') + (lastSajuResult.name.givenName || '')) || '',
-        surname: lastSajuResult.name?.surname || '',
-        givenName: lastSajuResult.name?.givenName || '',
-        gender: lastSajuResult.gender || document.getElementById('gender')?.value || 'M',
-        year: lastSajuResult.year || +document.getElementById('year')?.value,
-        month: lastSajuResult.month || +document.getElementById('month')?.value,
-        day: lastSajuResult.day || +document.getElementById('day')?.value,
-        hourBranch: lastSajuResult.hourBranch || document.getElementById('hourBranch')?.value,
-        // 자미두수 결정론 명반용 정수 시각(0~23) — #hour hidden(직접입력/대표시각) 우선, 없으면 정오
-        birthHour: (() => {
-          const h = parseInt(document.getElementById('hour')?.value, 10);
-          if (!Number.isNaN(h) && h >= 0 && h <= 23) return h;
-          const opt = document.getElementById('hourBranch')?.selectedOptions?.[0];
-          const dh = opt ? parseInt(opt.getAttribute('data-hour'), 10) : NaN;
-          return (!Number.isNaN(dh)) ? dh : 12;
-        })(),
-      };
-      window.runComprehensiveReadings(ctx); // fire-and-forget, 사주와 병렬 진행
-    }
-  } catch (e) { console.warn('[종합검진] 호출 실패:', e); }
+  // 종합검진 개별 카드(자미·관상·꿈·타로) 폐기 — 만월아씨 통합 서사에 흡수됨.
+  // 필요 시 데이터는 buildManwolPayload 에서 직접 실어 백엔드로 전달.
   // AI 풀이 자동 시작
   await triggerAICall();
 });

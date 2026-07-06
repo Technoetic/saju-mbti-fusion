@@ -15,6 +15,7 @@
 <link rel="stylesheet" href="styles/renewal-tokens.css">
 <link rel="stylesheet" href="styles/renewal-home.css">
 <link rel="stylesheet" href="styles/renewal-input.css">
+<link rel="stylesheet" href="styles/manwol.css">
 <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 <!-- 음력→양력 변환 (lunar-javascript by 6tail) -->
 <script src="https://cdn.jsdelivr.net/npm/lunar-javascript@1.6.13/lunar.js"></script>
@@ -923,11 +924,7 @@
 <div class="big-action">
   <button id="goResultBtn">풀 이 보 기</button>
   <div class="hint" style="margin-top:14px">
-  별빛 아래 풀이를 받기까지 수십 초가 걸릴 수 있습니다.
-  <br>
-  <select id="aiModel" style="margin-top:8px">
-  <option value="" selected>Gemini 2.5 Flash Lite (기본 · 무료)</option>
-  </select>
+  만월아씨가 사연을 짚어주기까지 수십 초 걸린다.
   </div>
 </div>
 
@@ -938,14 +935,23 @@
   <div class="back-bar">
   <button id="backToInputBtn">← 다시 입력</button>
   </div>
+
+  <!-- ────────── 만월아씨 통합 서사 (hero) ────────── -->
   <div id="claudeResult"></div>
-  <div id="result"></div>
 
-  <!-- ────────── 종합검진 결과 (자미두수·관상·꿈·타로) ────────── -->
-  <div id="comprehensiveResults"></div>
+  <!-- ────────── 결정론 사주 분석표 (접기) ────────── -->
+  <details class="post-result-details">
+    <summary>◇ 사주 결정론 자료 · 4기둥 · 오행 · 대운 · 이름 오격</summary>
+    <div id="result"></div>
+  </details>
 
-  <!-- ────────── 결과 후 추가 입력 (MBTI · 고민) ────────── -->
-  <div id="afterResultCard" class="after-card">
+  <!-- ────────── 종합검진 (폐기 · DOM 보존) ────────── -->
+  <div id="comprehensiveResults" hidden aria-hidden="true"></div>
+
+  <!-- ────────── 결과 후 추가 입력 (MBTI · 고민 · 접기) ────────── -->
+  <details class="post-result-details">
+    <summary>◇ 더 자세히 풀어보기 · 성격(MBTI)과 지금의 고민 반영</summary>
+    <div id="afterResultCard" class="after-card">
   <h3 class="after-card-title">더 자세히 풀어드릴까요?</h3>
   <p class="after-card-lead">
   사주에서는 이런 성향으로 보이는데, 실제 성격(MBTI)과 지금의 고민을 알려주시면 그에 맞춰 더 깊이 풀어드립니다.
@@ -1003,6 +1009,7 @@
   </div>
   </div>
   </div>
+  </details>
 
   <!-- 다음 풀이 추천 (릴레이 풀이 시스템) -->
   <div class="next-card" data-from="saju">
