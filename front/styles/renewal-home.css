@@ -81,22 +81,36 @@
 @media (min-width: 900px) {
   .stage-foam {
     background:
+      /* 선명 세로 밴드 (원본 아스펙트 유지) */
       url('../media/bg/hero_room.jpg') center bottom / auto 100% no-repeat,
-      /* 사이드 앰비언트 · 이미지 좌우 어둠으로 페이드 */
-      radial-gradient(ellipse 60% 100% at 50% 60%, rgba(60, 15, 22, 0.55) 0%, rgba(20, 6, 10, 0.85) 55%, #0a0508 80%),
       #0a0508;
   }
-  /* 넓은 뷰포트 전용 vignette + 세로 밴드 좌우 페이드 (경계 부드럽게) */
+  /* ::before 를 블러 앰비언트 백드롭으로 재활용 (스캔라인은 ::after 로 이동)
+     같은 이미지 cover · 블러+어둡게 처리해서 뷰포트 좌우 검은 공간을 벽 텍스처로 확장 ·
+     inset: -80px 로 뷰포트 밖까지 넓혀서 블러 엣지 새어나오지 않게 */
+  .stage-foam::before {
+    inset: -80px;
+    background: url('../media/bg/hero_room.jpg') center center / cover no-repeat;
+    filter: blur(56px) brightness(0.42) saturate(0.85);
+    mix-blend-mode: normal;
+    opacity: 1;
+    z-index: -1;
+  }
+  /* 넓은 뷰포트 전용 vignette + 세로 밴드↔블러 백드롭 부드럽게 blend + 스캔라인 */
   .stage-foam::after {
     background:
-      /* 이미지 좌우 엣지 부드럽게 blend · 딱딱한 세로 경계 흡수 */
+      /* 스캔라인 (::before 재활용으로 옮겨옴) */
+      repeating-linear-gradient(0deg,
+        transparent 0px 2px,
+        rgba(0, 0, 0, 0.055) 2px 3px),
+      /* 세로 밴드 좌우 엣지 소프트 blend · 밴드→블러 전환 자연스럽게 */
       linear-gradient(90deg,
-        rgba(6, 4, 8, 0.9) 0%,
-        rgba(6, 4, 8, 0.45) 18%,
-        transparent 32%,
-        transparent 68%,
-        rgba(6, 4, 8, 0.45) 82%,
-        rgba(6, 4, 8, 0.9) 100%),
+        rgba(6, 4, 8, 0.35) 0%,
+        rgba(6, 4, 8, 0.15) 15%,
+        transparent 28%,
+        transparent 72%,
+        rgba(6, 4, 8, 0.15) 85%,
+        rgba(6, 4, 8, 0.35) 100%),
       /* ON AIR 붉은 반사 (기존) */
       radial-gradient(ellipse 55% 20% at 50% 0%, rgba(180, 20, 40, 0.32) 0%, transparent 60%),
       /* 4모서리 vignette */
