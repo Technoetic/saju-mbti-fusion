@@ -20,7 +20,8 @@
   const scene         = document.getElementById('heroScene');
   const onAirSign     = document.getElementById('onAirSign');
   const soundToggle   = document.getElementById('soundToggle');
-  const anchorVideo   = document.getElementById('anchorPortraitVideo');
+  const anchorVideoA  = document.getElementById('anchorVideoA');
+  const anchorVideoB  = document.getElementById('anchorVideoB');
 
   if (!scene) {
     console.warn('[사주경] hero scene 없음 — 이전 홈 렌더러 무시');
@@ -35,98 +36,76 @@
   };
 
   // ============================================================
-  // 0) 만월아씨 비디오 · 핑퐁 루프 (재생 → 역재생 → 재생 …)
+  // 0) 만월아씨 비디오 · 크로스페이드 루프 (이음새 감춤)
   // ============================================================
-  //  - 정재생: 브라우저 native (playbackRate 0.7 · HW 가속)
-  //  - 역재생: seeked 이벤트 대기하며 24fps 로 currentTime 감기
-  //     └ seeked 대기 없이 rapid RAF 로 하면 프레임 렌더 못 따라가서 얼어붙음
-  //  - 방향 전환은 항상 "같은 프레임"에서 → 이음새 0
-  //  - prefers-reduced-motion 존중: 정지 프레임(poster)만 노출
-  if (anchorVideo) {
+  //  - 두 비디오 (A/B) 겹쳐놓고 A 재생, B 대기
+  //  - A 가 끝나기 CROSSFADE_MS 전 → B 를 0초부터 시작 + opacity 페이드
+  //  - 이음새 순간이 fade 뒤로 숨겨져서 시각적으로 매끄러움
+  //  - 브라우저 native loop 를 각 비디오에 걸어서 fallback 유지
+  //  - 진짜 역재생(핑퐁)은 브라우저 비디오 디코더 제약(MP4 keyframe 간격) 상
+  //    프레임 렌더가 못 따라가서 얼어붙음 → 크로스페이드로 우회
+  if (anchorVideoA && anchorVideoB) {
     if (state.reduced) {
-      anchorVideo.removeAttribute('autoplay');
-      anchorVideo.pause();
+      [anchorVideoA, anchorVideoB].forEach(v => { v.removeAttribute('autoplay'); v.pause(); });
     } else {
       const RATE = 0.7;
-      const REV_FPS = 24;                        // 역재생 프레임레이트
-      const REV_STEP = (1 / REV_FPS) * RATE;      // 프레임당 currentTime 감소량 (초)
-      const REV_DELAY = 1000 / REV_FPS;           // 프레임당 실시간 대기 (ms)
-      const REV_EPS = REV_STEP + 0.005;
-      let stopFlag = false;
-      let reverseRunning = false;
+      const CROSSFADE_MS = 900;   // CSS transition duration과 매칭
+      const CROSSFADE_LEAD_MS = 1000; // fade 시작 시점 (끝나기 이만큼 전)
 
-      const applyRate = () => { try { anchorVideo.playbackRate = RATE; } catch (_) {} };
-
-      // seek 완료를 기다린다 (안 기다리면 렌더 못 따라감 → 얼어붙음)
-      function awaitSeeked(v, targetTime, safetyMs = 220) {
-        return new Promise((resolve) => {
-          let done = false;
-          const finish = () => {
-            if (done) return;
-            done = true;
-            v.removeEventListener('seeked', finish);
-            resolve();
-          };
-          v.addEventListener('seeked', finish);
-          try { v.currentTime = targetTime; } catch (_) { finish(); return; }
-          setTimeout(finish, safetyMs);
-        });
-      }
-
-      async function playReverse() {
-        if (reverseRunning) return;
-        reverseRunning = true;
-        stopFlag = false;
-        try { anchorVideo.pause(); } catch (_) {}
-
-        while (!stopFlag && anchorVideo.currentTime > REV_EPS) {
-          const t0 = performance.now();
-          const target = Math.max(0, anchorVideo.currentTime - REV_STEP);
-          await awaitSeeked(anchorVideo, target);
-          if (stopFlag) { reverseRunning = false; return; }
-          const elapsed = performance.now() - t0;
-          if (elapsed < REV_DELAY) {
-            await new Promise(r => setTimeout(r, REV_DELAY - elapsed));
-          }
-        }
-        reverseRunning = false;
-        if (stopFlag) return;
-
-        // 역재생 완료 → 처음으로 스냅 + 정재생 재개
-        try { anchorVideo.currentTime = 0; } catch (_) {}
+      [anchorVideoA, anchorVideoB].forEach(v => {
+        const applyRate = () => { try { v.playbackRate = RATE; } catch (_) {} };
+        v.addEventListener('loadedmetadata', applyRate);
+        v.addEventListener('play', applyRate);
         applyRate();
-        anchorVideo.play().catch(() => {});
-      }
+      });
 
-      anchorVideo.addEventListener('ended', playReverse);
-      anchorVideo.addEventListener('loadedmetadata', applyRate);
-      anchorVideo.addEventListener('play', () => { if (!reverseRunning) applyRate(); });
+      let active = anchorVideoA;
+      let other  = anchorVideoB;
+      let crossfading = false;
 
-      // 자동재생 정책 fallback
+      // 자동재생 정책 fallback (A만)
       const kickPlay = () => {
-        anchorVideo.play().catch(() => {});
+        anchorVideoA.play().catch(() => {});
         document.removeEventListener('pointerdown', kickPlay);
         document.removeEventListener('keydown', kickPlay);
       };
-      anchorVideo.play().catch(() => {
+      anchorVideoA.play().catch(() => {
         document.addEventListener('pointerdown', kickPlay, { once: true });
         document.addEventListener('keydown', kickPlay, { once: true });
       });
-      applyRate();
 
-      // 탭 백그라운드 → 포그라운드 복귀
-      document.addEventListener('visibilitychange', () => {
+      function tick() {
         if (document.hidden) {
-          stopFlag = true;
-        } else {
-          if (anchorVideo.paused && anchorVideo.currentTime > REV_EPS) {
-            playReverse();
-          } else if (anchorVideo.paused) {
-            applyRate();
-            anchorVideo.play().catch(() => {});
+          requestAnimationFrame(tick);
+          return;
+        }
+        const dur = active.duration;
+        if (!crossfading && dur && !isNaN(dur)) {
+          const remainingRealMs = ((dur - active.currentTime) / RATE) * 1000;
+          if (remainingRealMs > 0 && remainingRealMs <= CROSSFADE_LEAD_MS) {
+            crossfading = true;
+            // 대기 비디오 0초부터 시작
+            try { other.currentTime = 0; } catch (_) {}
+            try { other.playbackRate = RATE; } catch (_) {}
+            other.play().catch(() => {});
+            // 크로스페이드 (CSS opacity transition)
+            active.style.opacity = '0';
+            other.style.opacity  = '1';
+            // 페이드 완료 후 active/other 스왑
+            setTimeout(() => {
+              // 이전 active는 loop attribute로 알아서 0으로 돌아가지만, 명시 스탠바이
+              const prev = active;
+              active = other;
+              other = prev;
+              // 스탠바이 (아직 재생은 계속 · loop attribute 로 반복 · 다음 fade 대기)
+              // 다음 사이클에서 other로서 currentTime 0 재세팅됨
+              crossfading = false;
+            }, CROSSFADE_MS);
           }
         }
-      });
+        requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
     }
   }
 

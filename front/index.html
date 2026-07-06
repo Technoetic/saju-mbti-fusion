@@ -375,20 +375,33 @@
           <div class="interior-back-wall"></div>
           <!-- 천장 조명 반사 (유리 상단 하이라이트) -->
           <div class="interior-ceiling-glow"></div>
-          <!-- 만월아씨 (창 안 · 부스에서 대본 읽는 중 · 비디오 루프) -->
+          <!-- 만월아씨 (창 안 · 두 비디오 크로스페이드로 이음새 감춤) -->
           <div class="anchor-slot">
             <video
-              class="anchor-portrait"
-              id="anchorPortraitVideo"
+              class="anchor-portrait anchor-video anchor-video-a"
+              id="anchorVideoA"
               src="./media/characters/manwol_broadcast.mp4"
               poster="./media/characters/manwol_broadcast.png"
               autoplay
+              loop
               muted
               playsinline
               preload="auto"
               disablepictureinpicture
               disableremoteplayback
               aria-label="만월아씨 · 심야편 방송실"
+            ></video>
+            <video
+              class="anchor-portrait anchor-video anchor-video-b"
+              id="anchorVideoB"
+              src="./media/characters/manwol_broadcast.mp4"
+              loop
+              muted
+              playsinline
+              preload="auto"
+              disablepictureinpicture
+              disableremoteplayback
+              aria-hidden="true"
             ></video>
           </div>
         </div>

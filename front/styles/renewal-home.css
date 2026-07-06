@@ -285,10 +285,12 @@
   height: 100%;
   object-fit: cover;
   object-position: 50% 45%; /* 얼굴·헤드폰·대본·마이크·믹서·촛불 균형 유지 */
+
+  /* 크로스페이드 준비 · 두 비디오가 서로 겹쳐서 이음새 감춤 */
+  transition: opacity 900ms ease-in-out, filter 1.6s ease-out;
   /* OFF AIR — 방송실 어둠 속에서 대기 · 유리 너머 그림자 톤 */
   filter: brightness(0.62) contrast(1.08) saturate(0.82);
-  transition: filter 1.6s ease-out;
-  will-change: filter;
+  will-change: filter, opacity;
   user-select: none;
   -webkit-user-drag: none;
   pointer-events: none;
@@ -300,6 +302,9 @@
 }
 
 /* (지직 burst·jitter 제거 · 정신 사나움 사용자 명시) */
+
+/* 두 번째 비디오는 처음엔 숨김 · 크로스페이드 시 opacity JS 로 전환 */
+.anchor-video-b { opacity: 0; }
 
 /* 유리 너머 · 창 하단으로 갈수록 살짝 어두워짐 (거리감) */
 .anchor-slot::after {
