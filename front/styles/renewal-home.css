@@ -73,6 +73,14 @@
     url('../media/bg/hero_room.jpg') center center / cover no-repeat,
     #0a0508;
 }
+/* 넓은 뷰포트 · CRT TV 프레임 크롭 · 벽·바닥 밴드만 노출
+   원본 이미지 세로 71~100% 구간(바닥+케이블)만 뷰포트에 매핑 */
+@media (min-width: 900px) {
+  .stage-foam {
+    background-position: 50% 100%;
+    background-size: auto 380%;
+  }
+}
 /* 배경 위 · vignette + 다크닝 (텍스트·서류 대비 확보) */
 .stage-foam::after {
   content: "";
