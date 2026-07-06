@@ -569,7 +569,7 @@
    ============================================================ */
 .hero-content {
   position: absolute;
-  bottom: 24px;
+  bottom: 10px;
   left: 0;
   right: 0;
   z-index: 5;
@@ -577,10 +577,10 @@
   padding: 0 20px;
 }
 @media (min-width: 768px) {
-  .hero-content { bottom: 32px; padding: 0 32px; }
+  .hero-content { bottom: 14px; padding: 0 32px; }
 }
 @media (min-width: 1280px) {
-  .hero-content { bottom: 40px; }
+  .hero-content { bottom: 18px; }
 }
 
 
@@ -600,8 +600,8 @@
 .paper-stack-cta {
   position: relative;
   width: 100%;
-  max-width: 380px;
-  aspect-ratio: 19 / 11;
+  max-width: 320px;         /* 380 → 320 · 크기 축소 (영상 안 가리게) */
+  aspect-ratio: 12 / 5;     /* 19/11=1.73 → 12/5=2.4 · 훨씬 얇게 */
   margin: 0 auto;
   border: none;
   background: transparent;
@@ -611,6 +611,9 @@
   pointer-events: none;
   transition: opacity 1.4s ease;
   perspective: 1200px;
+}
+@media (min-width: 768px) {
+  .paper-stack-cta { max-width: 360px; }
 }
 .hero-scene.on-air .paper-stack-cta {
   opacity: 1;
@@ -622,108 +625,162 @@
   outline-offset: 4px;
 }
 
-/* 종이 공통 */
+/* 종이 공통 · 완전히 낡음 · 세피아 톤 + 얼룩 + 주름 + 찢긴 모서리 */
 .paper {
   position: absolute;
   inset: 0;
-  border-radius: 3px;
+  border-radius: 2px;
+  /* 찢긴/구겨진 모서리 (irregular polygon) */
+  clip-path: polygon(
+    1.2% 3%, 4% 0.8%, 12% 2.2%, 22% 0.4%, 34% 1.6%, 48% 0.2%, 62% 1.8%, 74% 0.6%,
+    86% 2.4%, 94% 0.8%, 98.5% 4%,
+    99% 22%, 99.6% 45%, 98.8% 68%, 99.7% 88%, 98% 96%,
+    94% 99.4%, 84% 98%, 72% 99.6%, 58% 98.4%, 44% 99.7%, 30% 98.2%, 18% 99.5%,
+    6% 98.6%, 1.5% 96.5%,
+    0.4% 78%, 1% 55%, 0.3% 32%, 1.2% 14%
+  );
   box-shadow:
-    0 4px 12px rgba(0, 0, 0, 0.55),
-    0 1px 3px rgba(0, 0, 0, 0.35);
+    0 4px 12px rgba(0, 0, 0, 0.65),
+    0 1px 3px rgba(0, 0, 0, 0.4);
   transition: transform 520ms cubic-bezier(.2, .9, .3, 1),
               box-shadow 400ms ease;
   transform-origin: 50% 90%;
-  overflow: hidden;
   will-change: transform;
 }
-/* 아주 미세한 종이 결 (수평 그레인) */
+/* ::before = 얼룩·주름·번짐 오버레이 (multiply 로 어둡게) */
 .paper::before {
   content: "";
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(180deg, rgba(255,255,255,0.06) 0%, transparent 24%, rgba(0,0,0,0.05) 100%),
-    repeating-linear-gradient(90deg,
-      rgba(120, 90, 50, 0.02) 0px,
-      rgba(120, 90, 50, 0.02) 1px,
-      transparent 1px,
-      transparent 3px);
+    /* 커피 얼룩 우상단 */
+    radial-gradient(circle at 84% 18%, rgba(60, 30, 5, 0.32) 0%, rgba(60, 30, 5, 0.15) 5%, transparent 11%),
+    /* 얼룩 좌하단 (작은 물방울) */
+    radial-gradient(circle at 12% 78%, rgba(70, 40, 10, 0.22) 0%, transparent 6%),
+    /* 손자국 얼룩 우하단 */
+    radial-gradient(ellipse 18% 12% at 74% 85%, rgba(50, 25, 5, 0.18) 0%, transparent 60%),
+    /* 모서리 갈변 (4방향) */
+    radial-gradient(ellipse 60% 40% at 0% 0%, rgba(90, 50, 15, 0.35) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 40% at 100% 0%, rgba(90, 50, 15, 0.32) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 40% at 0% 100%, rgba(80, 45, 12, 0.38) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 40% at 100% 100%, rgba(80, 45, 12, 0.35) 0%, transparent 55%),
+    /* 사선 접힘 자국 */
+    linear-gradient(72deg, transparent 45%, rgba(50, 25, 5, 0.14) 46%, rgba(50, 25, 5, 0.1) 47%, transparent 48%),
+    /* 세로 주름들 */
+    repeating-linear-gradient(94deg,
+      transparent 0px,
+      transparent 22px,
+      rgba(60, 30, 10, 0.05) 22px,
+      rgba(60, 30, 10, 0.05) 23px),
+    /* 가로 주름들 (더 촘촘히) */
+    repeating-linear-gradient(178deg,
+      transparent 0px,
+      transparent 8px,
+      rgba(60, 30, 10, 0.035) 8px,
+      rgba(60, 30, 10, 0.035) 9px),
+    /* 미세 노이즈 */
+    repeating-linear-gradient(45deg,
+      rgba(50, 25, 5, 0.03) 0px 1px,
+      transparent 1px 3px);
+  mix-blend-mode: multiply;
   pointer-events: none;
 }
+/* ::after = 하이라이트 (약간 광택) + 잉크 번짐 */
+.paper::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    /* 위쪽 살짝 밝은 하이라이트 */
+    linear-gradient(180deg, rgba(255, 240, 200, 0.08) 0%, transparent 25%),
+    /* 하단 어둠 (그림자 진 느낌) */
+    linear-gradient(0deg, rgba(0, 0, 0, 0.14) 0%, transparent 22%);
+  pointer-events: none;
+  z-index: 1;
+}
 
-/* 뒤 종이들 · 각도·오프셋 다르게 · 톤도 미묘하게 다름 */
+/* 뒤 종이들 · 각도·오프셋 다르게 · 톤도 미묘하게 다름 · 심하게 세피아 */
 .paper-back-4 {
-  background: linear-gradient(180deg, #c1af7f 0%, #b39f6a 100%);
-  transform: rotate(-4.5deg) translate(-8px, 5px);
+  background: linear-gradient(160deg, #a68e5c 0%, #8f764a 60%, #7a6338 100%);
+  transform: rotate(-5.5deg) translate(-11px, 7px);
   z-index: 1;
 }
 .paper-back-3 {
-  background: linear-gradient(180deg, #ccbb87 0%, #beac71 100%);
-  transform: rotate(3deg) translate(6px, -2px);
+  background: linear-gradient(155deg, #b39962 0%, #9c8352 60%, #856c3f 100%);
+  transform: rotate(3.8deg) translate(9px, -3px);
   z-index: 2;
 }
 .paper-back-2 {
-  background: linear-gradient(180deg, #d6c592 0%, #c9b77b 100%);
-  transform: rotate(-1.6deg) translate(-3px, 2px);
+  background: linear-gradient(150deg, #b8a066 0%, #a08956 60%, #897149 100%);
+  transform: rotate(-2deg) translate(-4px, 3px);
   z-index: 3;
 }
 
-/* 맨 위 종이 · 실제 텍스트 담김 */
+/* 맨 위 종이 · 실제 텍스트 담김 · 가장 밝은 세피아 */
 .paper-top {
-  background: linear-gradient(180deg, #e6d5a4 0%, #d8c58c 100%);
-  transform: rotate(0.6deg);
+  background: linear-gradient(160deg, #d0b783 0%, #bda06a 50%, #a68a55 100%);
+  transform: rotate(0.8deg);
   z-index: 4;
   display: flex;
   flex-direction: column;
-  padding: 14px 20px 12px;
+  padding: 10px 18px 8px;
   color: #241708;
   font-family: var(--font-serif, 'Times New Roman', serif);
   text-align: left;
 }
 @media (min-width: 768px) {
-  .paper-top { padding: 18px 26px 16px; }
+  .paper-top { padding: 12px 22px 10px; }
 }
+/* 상단 종이 텍스트를 얼룩보다 위로 (::before/::after 는 pseudo 라 z 조정 어려움) */
+.paper-top > * { position: relative; z-index: 2; }
 
 .paper-slug {
   font-family: var(--font-mono, monospace);
-  font-size: 10px;
-  letter-spacing: 4px;
-  color: #6a4f2c;
+  font-size: 9px;
+  letter-spacing: 3.5px;
+  color: #52381c;  /* 잉크 바랜 톤 */
   text-transform: uppercase;
-  padding-bottom: 6px;
-  border-bottom: 1px solid rgba(120, 90, 50, 0.35);
+  padding-bottom: 4px;
+  border-bottom: 1px dashed rgba(70, 40, 10, 0.4);
+  opacity: 0.85;
 }
 @media (min-width: 768px) {
-  .paper-slug { font-size: 11px; letter-spacing: 5px; padding-bottom: 8px; }
+  .paper-slug { font-size: 10px; letter-spacing: 4.5px; padding-bottom: 6px; }
 }
 
 .paper-headline {
   font-family: var(--font-serif, serif);
   font-weight: 700;
-  font-size: 30px;
-  letter-spacing: 4px;
-  color: #14090a;
+  font-size: 24px;
+  letter-spacing: 3px;
+  color: #1a0e05;  /* 진한 잉크지만 검정 아님 */
   text-align: center;
-  margin-top: 10px;
+  margin-top: 4px;
   line-height: 1;
-  text-shadow: 0 1px 0 rgba(255, 240, 200, 0.35);
+  /* 타자기 잉크 · 미세 dbl print · 번짐 */
+  text-shadow:
+    0 0 0.5px rgba(30, 15, 5, 0.9),
+    0.4px 0 0 rgba(30, 15, 5, 0.4),
+    -0.4px 0 0 rgba(30, 15, 5, 0.4);
+  opacity: 0.88;
 }
 @media (min-width: 768px) {
-  .paper-headline { font-size: 38px; letter-spacing: 6px; margin-top: 14px; }
+  .paper-headline { font-size: 30px; letter-spacing: 5px; margin-top: 6px; }
 }
 
 .paper-divider {
   height: 1px;
-  margin: 10px 8px 8px;
+  margin: 4px 4px 4px;
   background:
     repeating-linear-gradient(90deg,
-      rgba(120, 90, 50, 0.5) 0px,
-      rgba(120, 90, 50, 0.5) 4px,
-      transparent 4px,
-      transparent 8px);
+      rgba(70, 40, 10, 0.55) 0px,
+      rgba(70, 40, 10, 0.55) 3px,
+      transparent 3px,
+      transparent 7px);
+  opacity: 0.75;
 }
 @media (min-width: 768px) {
-  .paper-divider { margin: 14px 12px 10px; }
+  .paper-divider { margin: 6px 6px 4px; }
 }
 
 .paper-action {
@@ -731,26 +788,28 @@
   align-items: center;
   justify-content: space-between;
   margin-top: auto;
-  padding: 0 4px;
+  padding: 0 2px;
 }
 .paper-action-label {
   font-family: var(--font-serif, serif);
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 500;
-  letter-spacing: 3px;
-  color: #3a2612;
+  letter-spacing: 2.5px;
+  color: #4a2f18;
+  opacity: 0.9;
 }
 @media (min-width: 768px) {
-  .paper-action-label { font-size: 16px; letter-spacing: 4px; }
+  .paper-action-label { font-size: 14px; letter-spacing: 3.5px; }
 }
 .paper-arrow {
   font-family: var(--font-mono, monospace);
-  font-size: 20px;
-  color: #3a2612;
+  font-size: 17px;
+  color: #4a2f18;
+  opacity: 0.85;
   transition: transform 320ms cubic-bezier(.2, .9, .3, 1);
 }
 @media (min-width: 768px) {
-  .paper-arrow { font-size: 24px; }
+  .paper-arrow { font-size: 20px; }
 }
 
 /* Idle · 뒤 종이들이 아주 미세하게 흔들림 (책상 위 종이 결) */
@@ -758,16 +817,16 @@
 .hero-scene.on-air .paper-back-3 { animation: paperIdle3 5.8s ease-in-out infinite; }
 .hero-scene.on-air .paper-back-2 { animation: paperIdle2 6.1s ease-in-out infinite; }
 @keyframes paperIdle4 {
-  0%, 100% { transform: rotate(-4.5deg) translate(-8px, 5px); }
-  50%      { transform: rotate(-4deg)   translate(-7px, 4px); }
+  0%, 100% { transform: rotate(-5.5deg) translate(-11px, 7px); }
+  50%      { transform: rotate(-5deg)   translate(-10px, 6px); }
 }
 @keyframes paperIdle3 {
-  0%, 100% { transform: rotate(3deg)   translate(6px, -2px); }
-  50%      { transform: rotate(3.4deg) translate(6.5px, -2.8px); }
+  0%, 100% { transform: rotate(3.8deg) translate(9px, -3px); }
+  50%      { transform: rotate(4.2deg) translate(9.5px, -3.8px); }
 }
 @keyframes paperIdle2 {
-  0%, 100% { transform: rotate(-1.6deg) translate(-3px, 2px); }
-  50%      { transform: rotate(-1.3deg) translate(-2.5px, 1.5px); }
+  0%, 100% { transform: rotate(-2deg)   translate(-4px, 3px); }
+  50%      { transform: rotate(-1.7deg) translate(-3.5px, 2.5px); }
 }
 
 /* Hover · 서류들 팔랑거리며 부채꼴로 벌어짐 */
@@ -787,31 +846,31 @@
   animation: paperFlutter2 1.7s ease-in-out infinite;
 }
 .paper-stack-cta:hover .paper-top {
-  transform: rotate(1.4deg) translateY(-5px);
+  transform: rotate(1.6deg) translateY(-4px);
   box-shadow:
-    0 14px 30px rgba(0, 0, 0, 0.65),
-    0 4px 8px rgba(0, 0, 0, 0.4);
+    0 14px 30px rgba(0, 0, 0, 0.7),
+    0 4px 8px rgba(0, 0, 0, 0.45);
 }
 .paper-stack-cta:hover .paper-arrow,
 .paper-stack-cta:focus-visible .paper-arrow {
-  transform: translateX(6px);
+  transform: translateX(5px);
 }
 .paper-stack-cta:active .paper-top {
-  transform: rotate(0.9deg) translateY(-2px);
+  transform: rotate(1.1deg) translateY(-2px);
   transition-duration: 100ms;
 }
 
 @keyframes paperFlutter4 {
-  0%, 100% { transform: rotate(-13deg) translate(-22px, 7px); }
-  50%      { transform: rotate(-10deg) translate(-18px, 4px); }
+  0%, 100% { transform: rotate(-16deg) translate(-26px, 8px); }
+  50%      { transform: rotate(-13deg) translate(-22px, 5px); }
 }
 @keyframes paperFlutter3 {
-  0%, 100% { transform: rotate(9deg)  translate(16px, -5px); }
-  50%      { transform: rotate(6deg)  translate(12px, -2px); }
+  0%, 100% { transform: rotate(11deg) translate(20px, -6px); }
+  50%      { transform: rotate(8deg)  translate(16px, -3px); }
 }
 @keyframes paperFlutter2 {
-  0%, 100% { transform: rotate(-4deg) translate(-7px, -1px); }
-  50%      { transform: rotate(-2deg) translate(-4px, 0px);  }
+  0%, 100% { transform: rotate(-5deg) translate(-9px, -2px); }
+  50%      { transform: rotate(-3deg) translate(-6px, 0px);  }
 }
 
 /* 접근성 · 모션 최소화 */
