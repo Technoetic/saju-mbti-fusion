@@ -2147,8 +2147,10 @@ class PersonalityAPIServer:
 
         payload = req.model_dump()
         user_prompt = build_manwol_user_prompt(payload)
+        # 만월아씨 서사는 톤·통합력이 중요 → 이전 사주 웹툰이 사용하던 Sonnet 4.6 고정.
+        # 환경변수 override 로 다운그레이드 가능.
         bizrouter_model = os.environ.get(
-            "BIZROUTER_MODEL", "google/gemini-2.5-flash-lite"
+            "MANWOL_MODEL", "anthropic/claude-sonnet-4.6"
         )
         client = bizrouter_client()
 

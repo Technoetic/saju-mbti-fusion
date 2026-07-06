@@ -779,32 +779,85 @@ function performCalculation() {
 
 /**
  * 만월아씨 통합 서사 페이로드 구성 · 결정론 데이터만 담아 백엔드로 전달.
+ *
+ * lastSajuResult 는 원본 사주 (pillars stem 이 정수 인덱스).
+ * analyzeSaju/calculateDaewoon 결과를 파생해서 한자로 정규화한 뒤 전달한다.
  */
 function buildManwolPayload(concern) {
   if (!lastSajuResult) return null;
+  const r = lastSajuResult;
+
+  // 파생 계산 · 실패해도 최소 페이로드는 보내지도록 try/catch
+  let a = null;
+  let dw = null;
+  try { a = analyzeSaju(r); } catch (e) { console.warn('[manwol] analyzeSaju 실패:', e); }
+  try { dw = calculateDaewoon(r); } catch (e) { console.warn('[manwol] calculateDaewoon 실패:', e); }
+
+  const chz = (typeof 천간_한자 !== 'undefined' && 천간_한자) || ['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
+  const brz = (typeof 지지_한자 !== 'undefined' && 지지_한자) || ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
+  const ELEMENT_KO = ['木','火','土','金','水'];
+
+  // pillar 정규화 · stem/branch 정수 → gan/ji 한자
+  function normPillar(p) {
+    if (!p) return null;
+    return {
+      gan_han: p.stem != null ? chz[p.stem] : (p.gan_han || p.gan || ''),
+      ji_han: p.branch != null ? brz[p.branch] : (p.ji_han || p.ji || ''),
+      gan: p.stem != null ? chz[p.stem] : (p.gan || ''),
+      ji: p.branch != null ? brz[p.branch] : (p.ji || ''),
+    };
+  }
+  const pillarsNorm = r.pillars ? {
+    year:  normPillar(r.pillars.year),
+    month: normPillar(r.pillars.month),
+    day:   normPillar(r.pillars.day),
+    hour:  normPillar(r.pillars.time || r.pillars.hour),
+  } : null;
+  const dayMaster = pillarsNorm?.day?.gan_han || '';
+
+  // 오행 분포 · 인덱스 배열 → {木, 火, 土, 金, 水} 딕셔너리
+  let wuxingDist = null;
+  if (a && a.오행 && Array.isArray(a.오행.가중)) {
+    wuxingDist = {};
+    a.오행.가중.forEach((v, i) => { wuxingDist[ELEMENT_KO[i]] = +(+v).toFixed(2); });
+  }
+
+  // 대운 · [{stem, branch, startAge, sipsung}...] → [{age, gan_han, ji_han}...]
+  let luckCycle = null;
+  if (dw && Array.isArray(dw.daewoon)) {
+    luckCycle = dw.daewoon.map(d => ({
+      age: d.startAge != null ? Math.floor(d.startAge) : null,
+      gan_han: d.stem != null ? chz[d.stem] : '',
+      ji_han: d.branch != null ? brz[d.branch] : '',
+    }));
+  }
+
+  const strength = a && a.신강신약 ? { grade: a.신강신약.등급, ratio: a.신강신약.비율 } : null;
+  const gyeokguk = a && a.격국 ? { name: a.격국.명 } : null;
+
   const payload = {
     saju: {
-      pillars: lastSajuResult.pillars,
-      day_master: lastSajuResult.pillars?.day?.gan_han || lastSajuResult.pillars?.day?.gan,
-      wuxing_dist: lastSajuResult.wuxing_dist || lastSajuResult.wuxingDist,
-      luck_cycle: lastSajuResult.luck_cycle || lastSajuResult.luckCycle,
-      strength: lastSajuResult.strength || lastSajuResult.sinKang,
-      gyeokguk: lastSajuResult.gyeokguk,
-      gender: lastSajuResult.gender,
+      pillars: pillarsNorm,
+      day_master: dayMaster,
+      wuxing_dist: wuxingDist,
+      luck_cycle: luckCycle,
+      strength,
+      gyeokguk,
+      gender: r.gender,
     },
-    name_analysis: lastSajuResult.nameAnalysis
+    name_analysis: r.nameAnalysis
       ? {
-          surname: lastSajuResult.name?.surname || '',
-          givenName: lastSajuResult.name?.givenName || '',
-          음오행분석: lastSajuResult.nameAnalysis?.음오행분석,
-          오격: lastSajuResult.nameAnalysis?.오격,
+          surname: r.name?.surname || '',
+          givenName: r.name?.givenName || '',
+          음오행분석: r.nameAnalysis?.음오행분석,
+          오격: r.nameAnalysis?.오격,
         }
       : null,
-    life_context: lastSajuResult.lifeContext || null,
+    life_context: r.lifeContext || null,
     concern: concern || null,
-    gender: lastSajuResult.gender,
+    gender: r.gender,
   };
-  // 종합 옵션 (관상 사진·꿈·자미·타로) — 사용자가 입력했을 때만
+  // 종합 옵션 (꿈 원문 · 사용자가 입력했을 때만)
   const dreamEl = document.getElementById('dreamText');
   if (dreamEl && dreamEl.value && dreamEl.value.trim()) {
     payload.dream_text = dreamEl.value.trim();
