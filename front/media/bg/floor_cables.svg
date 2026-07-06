@@ -1,17 +1,31 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 340" preserveAspectRatio="xMidYMax slice">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 380" preserveAspectRatio="xMidYMax slice">
   <defs>
-    <filter id="soft" x="-5%" y="-5%" width="110%" height="110%">
-      <feGaussianBlur stdDeviation="0.6"/>
+    <filter id="soft" x="-2%" y="-2%" width="104%" height="104%">
+      <feGaussianBlur stdDeviation="0.8"/>
     </filter>
   </defs>
   <g fill="none" stroke-linecap="round" filter="url(#soft)">
-    <path d="M -60 160 Q 180 100 380 150 T 720 130 T 1080 170 T 1260 145"
-          stroke="rgba(6,3,5,0.85)" stroke-width="7"/>
-    <path d="M -40 215 Q 240 165 460 205 T 800 200 T 1120 180 T 1260 215"
-          stroke="rgba(8,4,6,0.75)" stroke-width="5.5"/>
-    <path d="M -60 265 Q 220 235 420 255 T 780 265 T 1060 250 T 1260 265"
-          stroke="rgba(6,3,5,0.7)" stroke-width="4.5"/>
-    <path d="M -30 305 Q 260 285 480 300 T 840 305 T 1120 295 T 1260 305"
-          stroke="rgba(4,2,4,0.6)" stroke-width="3.5"/>
+    <path d="M -120 130 C 150 80, 340 210, 520 150 S 820 100, 1020 180 S 1240 240, 1520 165"
+          stroke="#040308" stroke-width="10" stroke-opacity="0.92"/>
+    <path d="M 560 155 C 640 175, 645 265, 720 250 S 815 200, 850 190"
+          stroke="#040308" stroke-width="8.5" stroke-opacity="0.85"/>
+    <path d="M -80 215 C 160 195, 400 280, 620 230 S 920 205, 1120 250 S 1360 230, 1520 240"
+          stroke="#050308" stroke-width="7" stroke-opacity="0.8"/>
+    <path d="M 280 240 C 340 260, 370 300, 460 285 S 560 260, 590 250"
+          stroke="#050308" stroke-width="5.5" stroke-opacity="0.7"/>
+    <path d="M -60 285 Q 200 260, 430 292 T 800 285 T 1520 290"
+          stroke="#060408" stroke-width="5" stroke-opacity="0.7"/>
+    <path d="M 120 335 Q 420 320, 720 335 T 1320 340"
+          stroke="#050308" stroke-width="3.8" stroke-opacity="0.55"/>
+    <path d="M 900 320 C 950 315, 970 345, 1020 342 S 1100 330, 1140 335"
+          stroke="#050308" stroke-width="3.2" stroke-opacity="0.5"/>
+  </g>
+  <g fill="none" stroke-linecap="round">
+    <path d="M -120 128 C 150 78, 340 208, 520 148 S 820 98, 1020 178 S 1240 238, 1520 163"
+          stroke="#c8323e" stroke-width="1.7" stroke-opacity="0.55"/>
+    <path d="M -80 213 C 160 193, 400 278, 620 228 S 920 203, 1120 248 S 1360 228, 1520 238"
+          stroke="#b02832" stroke-width="1.2" stroke-opacity="0.45"/>
+    <path d="M -60 283 Q 200 258, 430 290 T 800 283 T 1520 288"
+          stroke="#902028" stroke-width="0.9" stroke-opacity="0.4"/>
   </g>
 </svg>

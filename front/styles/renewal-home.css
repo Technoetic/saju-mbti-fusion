@@ -65,39 +65,37 @@
    - 우리 스튜디오 창이 중앙에 얹혀서 원본 이미지의 TV 자리 자연 대체
    ============================================================ */
 /* 방송실 무드 · pure CSS + SVG 자체 제작 (외부 참조 이미지 사용 없음)
-   레이어 스택:
-   1. 케이블 SVG (바닥 실루엣) — 자체 제작
-   2. 바닥 붉은 pool (radial)
-   3. 벽 painterly hotspots (radial 3~4개 · 유기적 warm/dark patch)
-   4. 중앙 카드 뒷 어둠 (radial · 카드 대비 확보)
-   5. 상단 ON AIR glow bleed (radial)
-   6. 베이스 벽 세로 그라디언트 (상단 dark charcoal → 하단 crimson) */
+   레이어 스택 (위→아래):
+   1. 바닥 케이블 SVG (유기적 곡선 + 붉은 rim light)
+   2. 바닥 붉은 pool (radial · 하단 집중)
+   3. 바닥↔벽 지평선 다크닝
+   4. 벽 warm 좌상단 (radial 유기 패치)
+   5. 벽 warm 우중앙 (radial 유기 패치)
+   6. 카드 뒤 어둠 (radial · 대비 확보)
+   7. 상단 ON AIR bleed
+   8. 페인터리 벽 노이즈 SVG (feTurbulence · bleed/strokes/warm/grain 4 필터 컴포짓)
+   9. 베이스 벽 세로 그라디언트 (charcoal → crimson) */
 .stage-foam {
   position: absolute;
   inset: 0;
   z-index: 0;
   pointer-events: none;
   background:
-    /* 바닥 케이블 · SVG 자체 제작 */
-    url('../media/bg/floor_cables.svg') center bottom / 100% auto no-repeat,
-    /* 바닥 붉은 pool · 하단 중앙에 집중 */
-    radial-gradient(ellipse 65% 22% at 50% 92%, rgba(190, 40, 55, 0.5) 0%, rgba(110, 20, 30, 0.3) 40%, transparent 72%),
-    /* 벽 유기적 warm 패치 · 좌측 상단 */
-    radial-gradient(ellipse 42% 32% at 22% 38%, rgba(95, 26, 32, 0.36) 0%, transparent 68%),
-    /* 벽 유기적 warm 패치 · 우측 중앙 */
-    radial-gradient(ellipse 38% 30% at 80% 55%, rgba(90, 22, 30, 0.32) 0%, transparent 68%),
-    /* 상단 ON AIR bleed */
-    radial-gradient(ellipse 65% 22% at 50% 5%, rgba(180, 35, 45, 0.42) 0%, transparent 62%),
-    /* 중앙 카드 뒷 어둠 · 카드 대비 확보 */
-    radial-gradient(ellipse 38% 42% at 50% 34%, rgba(6, 4, 8, 0.5) 0%, transparent 72%),
-    /* 베이스 벽 · 상단 charcoal → 하단 crimson */
+    url('../media/bg/floor_cables.svg') center 92% / 108% auto no-repeat,
+    radial-gradient(ellipse 65% 22% at 50% 92%, rgba(200, 45, 55, 0.55) 0%, rgba(120, 22, 32, 0.3) 40%, transparent 72%),
+    linear-gradient(0deg, rgba(28, 6, 12, 0.42) 0%, transparent 26%),
+    radial-gradient(ellipse 42% 32% at 20% 38%, rgba(100, 30, 34, 0.38) 0%, transparent 66%),
+    radial-gradient(ellipse 38% 30% at 82% 55%, rgba(92, 24, 32, 0.35) 0%, transparent 66%),
+    radial-gradient(ellipse 38% 40% at 50% 32%, rgba(4, 3, 6, 0.5) 0%, transparent 72%),
+    radial-gradient(ellipse 62% 20% at 50% 5%, rgba(195, 42, 52, 0.45) 0%, transparent 62%),
+    url('../media/bg/wall_paint.svg') center center / cover no-repeat,
     linear-gradient(180deg,
-      #10101a 0%,
-      #171020 22%,
-      #221624 45%,
-      #331824 66%,
-      #451820 80%,
-      #260c14 93%,
+      #0d0d15 0%,
+      #14101c 22%,
+      #1e1220 42%,
+      #2a141c 60%,
+      #38141c 76%,
+      #260a12 91%,
       #0a0508 100%),
     #0a0508;
 }
