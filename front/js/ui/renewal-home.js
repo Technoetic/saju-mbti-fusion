@@ -20,8 +20,8 @@
   const scene         = document.getElementById('heroScene');
   const onAirSign     = document.getElementById('onAirSign');
   const soundToggle   = document.getElementById('soundToggle');
-  const anchorVideoA  = document.getElementById('anchorVideoA');
-  const anchorVideoB  = document.getElementById('anchorVideoB');
+  const anchorVideo   = document.getElementById('anchorPortraitVideo');
+  const anchorCanvas  = document.getElementById('anchorPortraitCanvas');
 
   if (!scene) {
     console.warn('[사주경] hero scene 없음 — 이전 홈 렌더러 무시');
@@ -36,76 +36,175 @@
   };
 
   // ============================================================
-  // 0) 만월아씨 비디오 · 크로스페이드 루프 (이음새 감춤)
+  // 0) 만월아씨 비디오 · 진짜 핑퐁 (정→역→정→역 …)
   // ============================================================
-  //  - 두 비디오 (A/B) 겹쳐놓고 A 재생, B 대기
-  //  - A 가 끝나기 CROSSFADE_MS 전 → B 를 0초부터 시작 + opacity 페이드
-  //  - 이음새 순간이 fade 뒤로 숨겨져서 시각적으로 매끄러움
-  //  - 브라우저 native loop 를 각 비디오에 걸어서 fallback 유지
-  //  - 진짜 역재생(핑퐁)은 브라우저 비디오 디코더 제약(MP4 keyframe 간격) 상
-  //    프레임 렌더가 못 따라가서 얼어붙음 → 크로스페이드로 우회
-  if (anchorVideoA && anchorVideoB) {
+  //  전략: 브라우저 비디오 역재생 seek 은 신뢰 X → 정재생 첫 사이클에
+  //        프레임을 offscreen canvas 에 캐시 → 역재생 시엔 캐시에서 그림.
+  //
+  //  Cycle:
+  //   1) 최초 <video> 정재생 (rate 0.7) · requestVideoFrameCallback 로
+  //      매 프레임 offscreen canvas 에 draw → ImageBitmap 배열에 push
+  //   2) ended → video 숨김 / canvas 표시 → 캐시 배열 뒤에서 앞으로 draw
+  //      실시간 rate 0.7 유지 (mediaTime 기반 스텝)
+  //   3) 캐시 앞쪽 도달 → canvas 숨김 / video 표시 → video.currentTime=0 · play
+  //   4) 두 번째 이후 ended → 캐시 이미 완성 → 즉시 canvas 역재생
+  //
+  //  Memory 예산: 5초 · 24fps 캡처 · 320×568 = 120 frames × ~730KB = ~85MB
+  //   → 실제로는 브라우저가 GPU 텍스처로 관리해서 시스템 RAM 부담 낮음
+  if (anchorVideo && anchorCanvas) {
     if (state.reduced) {
-      [anchorVideoA, anchorVideoB].forEach(v => { v.removeAttribute('autoplay'); v.pause(); });
+      anchorVideo.removeAttribute('autoplay');
+      anchorVideo.pause();
     } else {
       const RATE = 0.7;
-      const CROSSFADE_MS = 900;   // CSS transition duration과 매칭
-      const CROSSFADE_LEAD_MS = 1000; // fade 시작 시점 (끝나기 이만큼 전)
+      const CAP_W = 320;
+      const CAP_H = Math.round(CAP_W * 1916 / 1080); // 원본 비율 유지 = 568
+      const CAP_INTERVAL_S = 1 / 24; // 24fps 캡처
 
-      [anchorVideoA, anchorVideoB].forEach(v => {
-        const applyRate = () => { try { v.playbackRate = RATE; } catch (_) {} };
-        v.addEventListener('loadedmetadata', applyRate);
-        v.addEventListener('play', applyRate);
+      anchorCanvas.width  = CAP_W;
+      anchorCanvas.height = CAP_H;
+      const cctx = anchorCanvas.getContext('2d', { alpha: false, willReadFrequently: false });
+
+      // 오프스크린 캡처 캔버스 (video → bitmap 변환용)
+      const capCanvas = document.createElement('canvas');
+      capCanvas.width  = CAP_W;
+      capCanvas.height = CAP_H;
+      const capCtx = capCanvas.getContext('2d', { alpha: false });
+
+      const frames = []; // { t: mediaTime, bmp: ImageBitmap }[]
+      let captured = false;
+      let capturing = false;
+      let inReverse = false;
+      let reverseRAF = null;
+      let lastCapTime = -1;
+
+      const applyRate = () => { try { anchorVideo.playbackRate = RATE; } catch (_) {} };
+
+      // 프레임 캡처 (requestVideoFrameCallback 기반)
+      function startCapture() {
+        if (captured || capturing) return;
+        if (!('requestVideoFrameCallback' in anchorVideo)) {
+          // 폴백 · setInterval 캡처
+          const iv = setInterval(async () => {
+            if (captured || anchorVideo.ended) { clearInterval(iv); return; }
+            if (anchorVideo.currentTime - lastCapTime >= CAP_INTERVAL_S) {
+              await pushFrame(anchorVideo.currentTime);
+            }
+          }, 1000 / 30);
+          return;
+        }
+        capturing = true;
+        const onFrame = async (_now, meta) => {
+          if (captured) return;
+          const t = meta.mediaTime;
+          if (t - lastCapTime >= CAP_INTERVAL_S) {
+            lastCapTime = t;
+            await pushFrame(t);
+          }
+          if (!captured && !anchorVideo.ended) {
+            anchorVideo.requestVideoFrameCallback(onFrame);
+          }
+        };
+        anchorVideo.requestVideoFrameCallback(onFrame);
+      }
+
+      async function pushFrame(t) {
+        try {
+          capCtx.drawImage(anchorVideo, 0, 0, CAP_W, CAP_H);
+          const bmp = await createImageBitmap(capCanvas);
+          frames.push({ t, bmp });
+        } catch (_) {}
+      }
+
+      // 역재생: 캐시 뒤→앞으로 · rate 0.7 유지
+      function playReverse() {
+        if (inReverse || frames.length < 2) return;
+        inReverse = true;
+        // 표시 전환
+        anchorCanvas.style.opacity = '1';
+        anchorVideo.style.opacity  = '0';
+        try { anchorVideo.pause(); } catch (_) {}
+
+        // 마지막 프레임 → 첫 프레임까지 실시간 mediaTime 기반 재생
+        const totalDur = frames[frames.length - 1].t - frames[0].t; // 캡처된 총 mediaTime
+        const startWall = performance.now();
+
+        const step = (now) => {
+          if (!inReverse) return;
+          // 경과 실시간(ms) 을 mediaTime 으로 환산 (rate 0.7)
+          const elapsedMedia = ((now - startWall) / 1000) * RATE;
+          const targetMedia = Math.max(frames[0].t, frames[frames.length - 1].t - elapsedMedia);
+
+          // 가장 가까운 프레임 찾기 (역방향 bisect)
+          // frames는 t 오름차순 정렬 (mediaTime 오름차순)
+          let lo = 0, hi = frames.length - 1;
+          while (lo < hi) {
+            const mid = (lo + hi) >> 1;
+            if (frames[mid].t < targetMedia) lo = mid + 1;
+            else hi = mid;
+          }
+          const idx = Math.max(0, Math.min(frames.length - 1, lo));
+          cctx.drawImage(frames[idx].bmp, 0, 0, CAP_W, CAP_H);
+
+          if (idx <= 0) {
+            // 역재생 완료 → 정재생 재개
+            inReverse = false;
+            reverseRAF = null;
+            resumeForward();
+            return;
+          }
+          reverseRAF = requestAnimationFrame(step);
+        };
+        // 첫 프레임 즉시 draw (마지막 index)
+        cctx.drawImage(frames[frames.length - 1].bmp, 0, 0, CAP_W, CAP_H);
+        reverseRAF = requestAnimationFrame(step);
+      }
+
+      function resumeForward() {
+        // canvas → video 전환
+        try { anchorVideo.currentTime = 0; } catch (_) {}
         applyRate();
+        const p = anchorVideo.play();
+        if (p && p.catch) p.catch(() => {});
+        // 페이드 없이 즉시 스왑 (같은 프레임에서 전환이라 시각 불연속 없음)
+        anchorVideo.style.opacity = '1';
+        anchorCanvas.style.opacity = '0';
+      }
+
+      anchorVideo.addEventListener('loadedmetadata', applyRate);
+      anchorVideo.addEventListener('play', () => { if (!inReverse) applyRate(); });
+      anchorVideo.addEventListener('playing', startCapture);
+      anchorVideo.addEventListener('ended', () => {
+        // 캡처 완료 마킹
+        if (!captured && frames.length > 0) captured = true;
+        capturing = false;
+        if (frames.length >= 2) {
+          playReverse();
+        } else {
+          // 캡처 실패 · 그냥 재시작
+          try { anchorVideo.currentTime = 0; } catch (_) {}
+          anchorVideo.play().catch(() => {});
+        }
       });
 
-      let active = anchorVideoA;
-      let other  = anchorVideoB;
-      let crossfading = false;
-
-      // 자동재생 정책 fallback (A만)
+      // 자동재생 정책 fallback
       const kickPlay = () => {
-        anchorVideoA.play().catch(() => {});
+        anchorVideo.play().catch(() => {});
         document.removeEventListener('pointerdown', kickPlay);
         document.removeEventListener('keydown', kickPlay);
       };
-      anchorVideoA.play().catch(() => {
+      anchorVideo.play().catch(() => {
         document.addEventListener('pointerdown', kickPlay, { once: true });
         document.addEventListener('keydown', kickPlay, { once: true });
       });
+      applyRate();
 
-      function tick() {
+      document.addEventListener('visibilitychange', () => {
         if (document.hidden) {
-          requestAnimationFrame(tick);
-          return;
+          if (reverseRAF) { cancelAnimationFrame(reverseRAF); reverseRAF = null; }
+          inReverse = false;
         }
-        const dur = active.duration;
-        if (!crossfading && dur && !isNaN(dur)) {
-          const remainingRealMs = ((dur - active.currentTime) / RATE) * 1000;
-          if (remainingRealMs > 0 && remainingRealMs <= CROSSFADE_LEAD_MS) {
-            crossfading = true;
-            // 대기 비디오 0초부터 시작
-            try { other.currentTime = 0; } catch (_) {}
-            try { other.playbackRate = RATE; } catch (_) {}
-            other.play().catch(() => {});
-            // 크로스페이드 (CSS opacity transition)
-            active.style.opacity = '0';
-            other.style.opacity  = '1';
-            // 페이드 완료 후 active/other 스왑
-            setTimeout(() => {
-              // 이전 active는 loop attribute로 알아서 0으로 돌아가지만, 명시 스탠바이
-              const prev = active;
-              active = other;
-              other = prev;
-              // 스탠바이 (아직 재생은 계속 · loop attribute 로 반복 · 다음 fade 대기)
-              // 다음 사이클에서 other로서 currentTime 0 재세팅됨
-              crossfading = false;
-            }, CROSSFADE_MS);
-          }
-        }
-        requestAnimationFrame(tick);
-      }
-      requestAnimationFrame(tick);
+      });
     }
   }
 

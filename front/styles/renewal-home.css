@@ -303,8 +303,10 @@
 
 /* (지직 burst·jitter 제거 · 정신 사나움 사용자 명시) */
 
-/* 두 번째 비디오는 처음엔 숨김 · 크로스페이드 시 opacity JS 로 전환 */
-.anchor-video-b { opacity: 0; }
+/* 역재생 캐시 canvas · 정재생 중엔 숨김 · 역재생 시 opacity JS 전환 */
+.anchor-canvas { opacity: 0; }
+/* 정재생 중인 video 는 항상 표시 (opacity 1 · 기본) */
+/* 역재생 진입 시: canvas opacity=1, video opacity=0 (JS 제어) */
 
 /* 유리 너머 · 창 하단으로 갈수록 살짝 어두워짐 (거리감) */
 .anchor-slot::after {
