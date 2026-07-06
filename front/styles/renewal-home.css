@@ -436,31 +436,33 @@
   transition: opacity 1.4s ease;
 }
 
-/* Ignition (3 blinks) */
+/* Ignition (3 blinks) — 네온 튜브 점화 시퀀스 */
 .hero-scene.igniting .on-air-light-panel { animation: neonPanelFlicker 1.1s steps(9) 1; }
 .hero-scene.igniting .on-air-primary { animation: neonTextFlicker 1.1s steps(9) 1; }
 .hero-scene.igniting .on-air-cast { animation: neonCastFlicker 1.1s steps(9) 1; }
 .hero-scene.igniting .stage-foam { animation: sceneFlash 1.1s steps(9) 1; }
 
+/* 판넬은 계속 어두운 사인보드 · 튜브 켜지면 주변으로 붉은 bloom만 새어나옴 */
 @keyframes neonPanelFlicker {
-  0%   { background: linear-gradient(180deg, #201218 0%, #100810 100%); border-color: rgba(232,223,208,0.14); }
-  11%  { background: linear-gradient(180deg, #a01c38 0%, #5a0f22 100%); border-color: rgba(255,150,170,0.4); box-shadow: 0 0 40px rgba(201,36,63,0.6), inset 0 -8px 24px rgba(255,60,90,0.4); }
+  0%   { background: linear-gradient(180deg, #201218 0%, #100810 100%); border-color: rgba(232,223,208,0.14); box-shadow: none; }
+  11%  { background: linear-gradient(180deg, #0d0509 0%, #05020a 100%); border-color: rgba(255,90,120,0.34); box-shadow: 0 0 44px rgba(255,30,60,0.55), inset 0 0 34px rgba(255,20,50,0.16); }
   22%  { background: linear-gradient(180deg, #201218 0%, #100810 100%); border-color: rgba(232,223,208,0.14); box-shadow: none; }
-  33%  { background: linear-gradient(180deg, #a01c38 0%, #5a0f22 100%); border-color: rgba(255,150,170,0.5); box-shadow: 0 0 44px rgba(201,36,63,0.65), inset 0 -8px 26px rgba(255,60,90,0.45); }
+  33%  { background: linear-gradient(180deg, #0d0509 0%, #05020a 100%); border-color: rgba(255,100,130,0.4); box-shadow: 0 0 50px rgba(255,30,60,0.62), inset 0 0 38px rgba(255,20,50,0.18); }
   44%  { background: linear-gradient(180deg, #180e14 0%, #08040a 100%); border-color: rgba(232,223,208,0.08); box-shadow: none; }
-  55%  { background: linear-gradient(180deg, #bc2444 0%, #6a1224 100%); border-color: rgba(255,180,200,0.55); box-shadow: 0 0 50px rgba(201,36,63,0.75), inset 0 -10px 28px rgba(255,60,90,0.55); }
+  55%  { background: linear-gradient(180deg, #0d0509 0%, #05020a 100%); border-color: rgba(255,120,150,0.48); box-shadow: 0 0 58px rgba(255,30,60,0.74), inset 0 0 44px rgba(255,20,50,0.22); }
   66%  { background: linear-gradient(180deg, #201218 0%, #100810 100%); border-color: rgba(232,223,208,0.14); box-shadow: none; }
-  100% { background: linear-gradient(180deg, #9c1c34 0%, #6a0f22 100%); border-color: rgba(255,140,160,0.4); box-shadow: 0 0 40px rgba(201,36,63,0.6), inset 0 -10px 26px rgba(255,60,90,0.4); }
+  100% { background: linear-gradient(180deg, #0d0509 0%, #05020a 100%); border-color: rgba(255,100,130,0.4); box-shadow: 0 0 50px rgba(255,30,60,0.6), inset 0 0 38px rgba(255,20,50,0.18); }
 }
+/* 튜브 자체 · 다층 text-shadow로 코어(흰빛)→튜브(붉음)→헤일로(진홍) 층 만듦 */
 @keyframes neonTextFlicker {
-  0%   { color: rgba(232,223,208,0.18); text-shadow: none; }
-  11%  { color: #fff0f4; text-shadow: 0 0 14px rgba(255,60,90,1), 0 0 28px rgba(201,36,63,0.9); }
-  22%  { color: rgba(232,223,208,0.18); text-shadow: none; }
-  33%  { color: #fff0f4; text-shadow: 0 0 16px rgba(255,60,90,1), 0 0 30px rgba(201,36,63,0.9); }
-  44%  { color: rgba(180,130,150,0.35); text-shadow: none; }
-  55%  { color: #ffffff; text-shadow: 0 0 20px rgba(255,80,110,1), 0 0 36px rgba(201,36,63,0.95); }
-  66%  { color: rgba(232,223,208,0.18); text-shadow: none; }
-  100% { color: #fff0f4; text-shadow: 0 0 14px rgba(255,60,90,0.9), 0 0 28px rgba(201,36,63,0.85); }
+  0%   { color: rgba(232,223,208,0.16); text-shadow: none; }
+  11%  { color: #ffeaee; text-shadow: 0 0 2px #fff, 0 0 6px #ffb0bc, 0 0 14px #ff2a44, 0 0 30px #ff0033, 0 0 55px rgba(255,0,51,0.85); }
+  22%  { color: rgba(232,223,208,0.16); text-shadow: none; }
+  33%  { color: #ffeaee; text-shadow: 0 0 2px #fff, 0 0 8px #ffb0bc, 0 0 18px #ff2a44, 0 0 36px #ff0033, 0 0 62px rgba(255,0,51,0.9); }
+  44%  { color: rgba(200,140,160,0.24); text-shadow: none; }
+  55%  { color: #ffffff; text-shadow: 0 0 3px #fff, 0 0 10px #ffb0bc, 0 0 22px #ff2a44, 0 0 44px #ff0033, 0 0 78px rgba(255,0,51,1); }
+  66%  { color: rgba(232,223,208,0.16); text-shadow: none; }
+  100% { color: #ffeaee; text-shadow: 0 0 2px #fff, 0 0 6px #ffb0bc, 0 0 14px #ff2a44, 0 0 30px #ff0033, 0 0 55px rgba(255,0,51,0.85); }
 }
 @keyframes neonCastFlicker {
   0%   { opacity: 0; }
@@ -482,35 +484,67 @@
   100% { filter: brightness(1); }
 }
 
-/* ON state */
+/* ON state — 사인판은 어둡게 유지 · 튜브만 발광 · 주변으로 붉은 bloom */
 .hero-scene.on-air .on-air-light-panel {
-  background: linear-gradient(180deg, #9c1c34 0%, #6a0f22 55%, #3a0912 100%);
-  border-color: rgba(255, 140, 160, 0.42);
+  background: linear-gradient(180deg, #0d0509 0%, #05020a 55%, #030106 100%);
+  border-color: rgba(255, 100, 130, 0.36);
   box-shadow:
-    0 10px 28px rgba(0, 0, 0, 0.75),
-    0 0 44px rgba(201, 36, 63, 0.6),
-    inset 0 2px 0 rgba(255, 220, 230, 0.22),
-    inset 0 -12px 30px rgba(255, 60, 90, 0.45),
-    inset 0 0 40px rgba(255, 60, 90, 0.22);
-  animation: signBreath 3s ease-in-out infinite;
+    0 10px 28px rgba(0, 0, 0, 0.85),
+    0 0 52px rgba(255, 30, 60, 0.6),
+    0 0 96px rgba(255, 0, 40, 0.35),
+    inset 0 2px 0 rgba(255, 220, 230, 0.14),
+    inset 0 0 42px rgba(255, 20, 50, 0.2);
+  animation: signBreath 3.2s ease-in-out infinite;
 }
+/* 네온 튜브 발광 · 5층 text-shadow (핵→튜브체→튜브 아우터→헤일로 근거리→헤일로 원거리) */
 .hero-scene.on-air .on-air-primary {
-  color: #fff0f4;
+  color: #ffeaee;
   text-shadow:
-    0 0 12px rgba(255, 60, 90, 1),
-    0 0 26px rgba(201, 36, 63, 0.9);
-  animation: textBreath 3s ease-in-out infinite;
+    0 0 2px #ffffff,
+    0 0 6px #ffb0bc,
+    0 0 14px #ff2a44,
+    0 0 30px #ff0033,
+    0 0 55px rgba(255, 0, 51, 0.85);
+  animation: textBreath 3.2s ease-in-out infinite;
 }
 .hero-scene.on-air .on-air-cast { opacity: 1; }
 
-/* 심박 근사 · 미세 브리딩 */
+/* 심박 근사 · 미세 브리딩 (튜브가 살아있는 느낌) */
 @keyframes signBreath {
-  0%, 100% { filter: brightness(1); }
-  50%      { filter: brightness(1.15); }
+  0%, 100% {
+    box-shadow:
+      0 10px 28px rgba(0, 0, 0, 0.85),
+      0 0 52px rgba(255, 30, 60, 0.6),
+      0 0 96px rgba(255, 0, 40, 0.35),
+      inset 0 2px 0 rgba(255, 220, 230, 0.14),
+      inset 0 0 42px rgba(255, 20, 50, 0.2);
+  }
+  50% {
+    box-shadow:
+      0 10px 28px rgba(0, 0, 0, 0.85),
+      0 0 64px rgba(255, 30, 60, 0.72),
+      0 0 118px rgba(255, 0, 40, 0.45),
+      inset 0 2px 0 rgba(255, 220, 230, 0.18),
+      inset 0 0 52px rgba(255, 20, 50, 0.26);
+  }
 }
 @keyframes textBreath {
-  0%, 100% { text-shadow: 0 0 12px rgba(255,60,90,1), 0 0 26px rgba(201,36,63,0.9); }
-  50%      { text-shadow: 0 0 18px rgba(255,60,90,1), 0 0 36px rgba(201,36,63,0.95); }
+  0%, 100% {
+    text-shadow:
+      0 0 2px #ffffff,
+      0 0 6px #ffb0bc,
+      0 0 14px #ff2a44,
+      0 0 30px #ff0033,
+      0 0 55px rgba(255, 0, 51, 0.85);
+  }
+  50% {
+    text-shadow:
+      0 0 3px #ffffff,
+      0 0 9px #ffb0bc,
+      0 0 20px #ff2a44,
+      0 0 42px #ff0033,
+      0 0 78px rgba(255, 0, 51, 1);
+  }
 }
 
 /* ─── 사운드 토글 ───────────────────────────────────────── */
