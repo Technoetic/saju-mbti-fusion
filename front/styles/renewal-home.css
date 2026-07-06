@@ -64,33 +64,42 @@
    - 하단으로 갈수록 붉게 물듬 (바닥 반사)
    - 우리 스튜디오 창이 중앙에 얹혀서 원본 이미지의 TV 자리 자연 대체
    ============================================================ */
+/* 방송실 무드 · pure CSS + SVG 자체 제작 (외부 참조 이미지 사용 없음)
+   레이어 스택:
+   1. 케이블 SVG (바닥 실루엣) — 자체 제작
+   2. 바닥 붉은 pool (radial)
+   3. 벽 painterly hotspots (radial 3~4개 · 유기적 warm/dark patch)
+   4. 중앙 카드 뒷 어둠 (radial · 카드 대비 확보)
+   5. 상단 ON AIR glow bleed (radial)
+   6. 베이스 벽 세로 그라디언트 (상단 dark charcoal → 하단 crimson) */
 .stage-foam {
   position: absolute;
   inset: 0;
   z-index: 0;
   pointer-events: none;
   background:
-    url('../media/bg/hero_room.jpg') center center / cover no-repeat,
+    /* 바닥 케이블 · SVG 자체 제작 */
+    url('../media/bg/floor_cables.svg') center bottom / 100% auto no-repeat,
+    /* 바닥 붉은 pool · 하단 중앙에 집중 */
+    radial-gradient(ellipse 65% 22% at 50% 92%, rgba(190, 40, 55, 0.5) 0%, rgba(110, 20, 30, 0.3) 40%, transparent 72%),
+    /* 벽 유기적 warm 패치 · 좌측 상단 */
+    radial-gradient(ellipse 42% 32% at 22% 38%, rgba(95, 26, 32, 0.36) 0%, transparent 68%),
+    /* 벽 유기적 warm 패치 · 우측 중앙 */
+    radial-gradient(ellipse 38% 30% at 80% 55%, rgba(90, 22, 30, 0.32) 0%, transparent 68%),
+    /* 상단 ON AIR bleed */
+    radial-gradient(ellipse 65% 22% at 50% 5%, rgba(180, 35, 45, 0.42) 0%, transparent 62%),
+    /* 중앙 카드 뒷 어둠 · 카드 대비 확보 */
+    radial-gradient(ellipse 38% 42% at 50% 34%, rgba(6, 4, 8, 0.5) 0%, transparent 72%),
+    /* 베이스 벽 · 상단 charcoal → 하단 crimson */
+    linear-gradient(180deg,
+      #10101a 0%,
+      #171020 22%,
+      #221624 45%,
+      #331824 66%,
+      #451820 80%,
+      #260c14 93%,
+      #0a0508 100%),
     #0a0508;
-}
-/* 넓은 뷰포트 · 스테이지를 중앙 900px 컬럼으로 고정 · 좁은 뷰포트와 똑같은 cover 매핑
-   → 컴포지션(카드·벽·바닥·케이블 비율) 어느 뷰포트에서든 동일 · 좌우는 방 밖 어둠(home-hero 블러 앰비언트) */
-@media (min-width: 900px) {
-  .stage-foam {
-    left: 50%;
-    right: auto;
-    transform: translateX(-50%);
-    width: min(900px, 100%);
-    background:
-      url('../media/bg/hero_room.jpg') center bottom / cover no-repeat,
-      #0a0508;
-  }
-  /* 넓은 뷰포트 사이드 · home-hero 자체에 블러 백드롭 깔아서 방 밖 어둠·벽 텍스처 확장 */
-  .home-hero {
-    background:
-      url('../media/bg/hero_room_blur.jpg') center center / cover no-repeat,
-      #0a0508;
-  }
 }
 /* 배경 위 · vignette + 다크닝 (텍스트·서류 대비 확보) */
 .stage-foam::after {
