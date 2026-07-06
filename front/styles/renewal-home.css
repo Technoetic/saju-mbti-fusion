@@ -73,6 +73,25 @@
     url('../media/bg/hero_room.jpg') center center / cover no-repeat,
     #0a0508;
 }
+/* 넓은 뷰포트 · 스테이지를 중앙 900px 컬럼으로 고정 · 좁은 뷰포트와 똑같은 cover 매핑
+   → 컴포지션(카드·벽·바닥·케이블 비율) 어느 뷰포트에서든 동일 · 좌우는 방 밖 어둠(home-hero 블러 앰비언트) */
+@media (min-width: 900px) {
+  .stage-foam {
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+    width: min(900px, 100%);
+    background:
+      url('../media/bg/hero_room.jpg') center bottom / cover no-repeat,
+      #0a0508;
+  }
+  /* 넓은 뷰포트 사이드 · home-hero 자체에 블러 백드롭 깔아서 방 밖 어둠·벽 텍스처 확장 */
+  .home-hero {
+    background:
+      url('../media/bg/hero_room_blur.jpg') center center / cover no-repeat,
+      #0a0508;
+  }
+}
 /* 배경 위 · vignette + 다크닝 (텍스트·서류 대비 확보) */
 .stage-foam::after {
   content: "";
@@ -110,22 +129,6 @@
   opacity: 0.5;
 }
 
-/* 넓은 뷰포트 · 원본(736×1308 세로형) 아스펙트 유지 세로 밴드 + 좌우 블러 앰비언트 백드롭
-   원본 그대로 cover 로 깔면 카드는 고정 크기인데 배경만 가로로 늘어나서
-   케이블이 3.5x 스트레치 → 카드↔배경 스케일이 따로 놀았음.
-   auto 100% 로 아스펙트 유지한 sharp 밴드를 중앙 · 뷰포트 남는 좌우엔 프리블러 에셋
-   (hero_room_blur.jpg · downscale/upscale + 42% brightness) 을 cover 로 깔아
-   벽 텍스처가 뷰포트 끝까지 자연스럽게 확장. CSS filter 없이 bg 레이어 스택만으로 처리. */
-@media (min-width: 900px) {
-  .stage-foam {
-    background:
-      /* 선명 세로 밴드 (원본 아스펙트 유지 · 상단 topmost) */
-      url('../media/bg/hero_room.jpg') center bottom / auto 100% no-repeat,
-      /* 블러 앰비언트 백드롭 · 뷰포트 전체 cover · 좌우 벽 텍스처 확장 */
-      url('../media/bg/hero_room_blur.jpg') center center / cover no-repeat,
-      #0a0508;
-  }
-}
 
 /* ============================================================
    방송실 관측 창 · 두꺼운 메탈 프레임 + 유리 + 안쪽 실내
