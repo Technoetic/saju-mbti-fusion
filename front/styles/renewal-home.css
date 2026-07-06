@@ -73,14 +73,32 @@
     url('../media/bg/hero_room.jpg') center center / cover no-repeat,
     #0a0508;
 }
-/* 넓은 뷰포트 · TV·안테나·케이블 제거된 벽 크롭 이미지로 교체
-   원본이 세로 0.56 종횡비라 넓은 화면에서 cover 시 TV 프레임 노출됨 ·
-   사전 크롭한 hero_wall.jpg(1.68 종횡비)로 벽+바닥 라인만 렌더 */
+/* 넓은 뷰포트 · 원본 이미지 유지하되 하단 밴드 매핑 · TV 하단 엣지는 ::after 상단 페이드로 지움
+   원본 세로 68~100% (TV 하단선~바닥 케이블+붉은 반사) 를 뷰포트에 매핑 ·
+   심야 방송실 원본 분위기(케이블·붉은 톤·painterly depth) 보존 */
 @media (min-width: 900px) {
   .stage-foam {
     background:
-      url('../media/bg/hero_wall.jpg') center bottom / cover no-repeat,
+      url('../media/bg/hero_room.jpg') center bottom / cover no-repeat,
       #0a0508;
+  }
+  /* 상단 다크닝 · TV 하단 엣지 잔영을 검은 페이드로 흡수 */
+  .stage-foam::after {
+    background:
+      /* NEW · 상단 강한 다크닝 (TV 잔영 흡수) */
+      linear-gradient(180deg,
+        rgba(6, 4, 8, 0.92) 0%,
+        rgba(6, 4, 8, 0.72) 12%,
+        rgba(6, 4, 8, 0.35) 25%,
+        transparent 42%),
+      /* ON AIR 붉은 반사 (기존) */
+      radial-gradient(ellipse 55% 20% at 50% 0%, rgba(180, 20, 40, 0.32) 0%, transparent 60%),
+      /* 4모서리 vignette */
+      radial-gradient(ellipse 100% 90% at 50% 50%, transparent 55%, rgba(0, 0, 0, 0.55) 100%),
+      /* 미세 필름 그레인 */
+      repeating-linear-gradient(45deg,
+        rgba(255, 255, 255, 0.014) 0px 1px,
+        transparent 1px 3px);
   }
 }
 /* 배경 위 · vignette + 다크닝 (텍스트·서류 대비 확보) */
