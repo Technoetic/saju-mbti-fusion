@@ -73,12 +73,14 @@
     url('../media/bg/hero_room.jpg') center center / cover no-repeat,
     #0a0508;
 }
-/* 넓은 뷰포트 · CRT TV 프레임 크롭 · 벽·바닥 밴드만 노출
-   원본 이미지 세로 71~100% 구간(바닥+케이블)만 뷰포트에 매핑 */
+/* 넓은 뷰포트 · TV·안테나·케이블 제거된 벽 크롭 이미지로 교체
+   원본이 세로 0.56 종횡비라 넓은 화면에서 cover 시 TV 프레임 노출됨 ·
+   사전 크롭한 hero_wall.jpg(1.68 종횡비)로 벽+바닥 라인만 렌더 */
 @media (min-width: 900px) {
   .stage-foam {
-    background-position: 50% 100%;
-    background-size: auto 380%;
+    background:
+      url('../media/bg/hero_wall.jpg') center bottom / cover no-repeat,
+      #0a0508;
   }
 }
 /* 배경 위 · vignette + 다크닝 (텍스트·서류 대비 확보) */
