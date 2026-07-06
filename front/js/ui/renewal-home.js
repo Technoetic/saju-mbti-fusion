@@ -3,10 +3,12 @@
    ============================================================
    히어로 인터랙션:
    - ON AIR 자동 점화 (β · 도착 3.2초 뒤 티틱)
-   - 오실로스코프 파형 (문장 진행 · 소강 리듬 시뮬)
-   - 간헐 지직 노이즈 (0.7~2.2초 랜덤, 100~320ms 지속)
-   - Web Audio 프로그래매틱 사운드 (핑크 hiss + 티틱 + static)
+   - Web Audio 프로그래매틱 사운드 (핑크 hiss + 티틱)
    - CTA → 기존 tab-bar 재사용 (결정론 엔진 손대지 않음)
+
+   제거 (2026-07-06 · 사용자 명시 "정신 사나움"):
+   - 하단 오실로스코프 파형
+   - 간헐 지직 노이즈 burst / jitter
    ============================================================ */
 (function () {
   'use strict';
@@ -14,17 +16,10 @@
   // ── 타이밍 상수 ─────────────────────────────────────────
   const IGNITE_DELAY  = 3200;      // 첫 티틱까지 대기
   const IGNITE_DUR    = 1100;      // 점화 애니 duration (CSS 매칭)
-  const BURST_MIN     = 700;       // static burst 간격 최소
-  const BURST_MAX     = 2200;      // static burst 간격 최대
-  const BURST_DUR_MIN = 100;
-  const BURST_DUR_MAX = 320;
-  const JITTER_PROB   = 0.28;      // burst 시 헤드라인 흔들림 확률
 
   const scene         = document.getElementById('heroScene');
   const onAirSign     = document.getElementById('onAirSign');
   const soundToggle   = document.getElementById('soundToggle');
-  const waveformPath  = document.getElementById('waveformPath');
-  const staticOverlay = scene ? scene.querySelector('.hero-static') : null;
 
   if (!scene) {
     console.warn('[사주경] hero scene 없음 — 이전 홈 렌더러 무시');
@@ -34,8 +29,6 @@
 
   const state = {
     ignited: false,
-    burstTimer: null,
-    rafId: null,
     audio: null,
     reduced: !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches),
   };
@@ -53,82 +46,7 @@
     setTimeout(() => {
       scene.classList.remove('igniting');
       scene.classList.add('on-air');
-      startWaveform();
-      scheduleBurst();
     }, IGNITE_DUR);
-  }
-
-  // ============================================================
-  // 2) 오실로스코프 파형 (문장 진행·소강 리듬)
-  // ============================================================
-  function startWaveform() {
-    if (!waveformPath || state.reduced) return;
-    const W = 1200, H = 52, MID = 26;
-    const N = 220;
-    let t = 0;
-
-    const rand = (i, k) =>
-      Math.sin(i * 0.073 + k * 1.31) * 0.5 +
-      Math.sin(i * 0.317 + k * 2.71) * 0.35 +
-      Math.sin(i * 1.24 + k * 5.09) * 0.15;
-
-    function draw() {
-      // 문장 리듬: 크게 상승하다 짧게 침묵, 다시 상승
-      const rhythm  = 0.5 + 0.5 * Math.sin(t * 0.019);
-      const pause   = Math.max(0, Math.sin(t * 0.0085) - 0.35);
-      const gate    = Math.pow(rhythm, 1.8) * (1 - pause * 1.6);
-      const activity = Math.max(0, Math.min(1, gate));
-
-      // 신호가 이따금 뚝 끊김 (2% 확률로 짧은 flat)
-      const cut = Math.random() < 0.02;
-
-      let d = `M 0 ${MID}`;
-      for (let i = 1; i <= N; i++) {
-        const x = (i / N) * W;
-        if (cut && i > N * 0.3 && i < N * 0.6) {
-          d += ` L ${x.toFixed(1)} ${MID}`;
-          continue;
-        }
-        const low  = Math.sin(i * 0.29 + t * 0.14) * 6;
-        const mid  = Math.sin(i * 0.83 + t * 0.28) * 4;
-        const hi   = Math.sin(i * 2.31 + t * 0.57) * 2;
-        const noise = (rand(i, t * 0.028)) * 3.5;
-        const y = MID + (low + mid + hi + noise) * activity;
-        d += ` L ${x.toFixed(1)} ${y.toFixed(2)}`;
-      }
-      waveformPath.setAttribute('d', d);
-      t += 1;
-      state.rafId = requestAnimationFrame(draw);
-    }
-    draw();
-  }
-
-  // ============================================================
-  // 3) 지직 노이즈 · 간헐 스파이크
-  // ============================================================
-  function scheduleBurst() {
-    if (state.reduced) return;
-    const gap = BURST_MIN + Math.random() * (BURST_MAX - BURST_MIN);
-    state.burstTimer = setTimeout(fireBurst, gap);
-  }
-
-  function fireBurst() {
-    if (!scene.classList.contains('on-air')) return;
-
-    if (staticOverlay) {
-      staticOverlay.style.setProperty('--static-x', `${Math.floor(Math.random() * 400)}px`);
-      staticOverlay.style.setProperty('--static-y', `${Math.floor(Math.random() * 400)}px`);
-    }
-    scene.classList.add('burst');
-    if (Math.random() < JITTER_PROB) scene.classList.add('jitter');
-
-    const dur = BURST_DUR_MIN + Math.random() * (BURST_DUR_MAX - BURST_DUR_MIN);
-    if (state.audio && state.audio.on) playStatic(dur / 1000);
-
-    setTimeout(() => {
-      scene.classList.remove('burst', 'jitter');
-      scheduleBurst();
-    }, dur);
   }
 
   // ============================================================
@@ -218,33 +136,6 @@
     src.start(now);
   }
 
-  function playStatic(dur) {
-    if (!state.audio) return;
-    const { ctx, master } = state.audio;
-    const now = ctx.currentTime;
-
-    const size = Math.max(1, Math.floor(ctx.sampleRate * dur));
-    const buf = ctx.createBuffer(1, size, ctx.sampleRate);
-    const data = buf.getChannelData(0);
-    for (let i = 0; i < size; i++) {
-      const env = 1 - i / size;
-      data[i] = (Math.random() * 2 - 1) * env * 0.6;
-    }
-
-    const src = ctx.createBufferSource();
-    src.buffer = buf;
-
-    const hp = ctx.createBiquadFilter();
-    hp.type = 'highpass';
-    hp.frequency.value = 900;
-
-    const g = ctx.createGain();
-    g.gain.value = 0.55;
-
-    src.connect(hp).connect(g).connect(master);
-    src.start(now);
-  }
-
   function fadeMaster(from, to, dur) {
     if (!state.audio) return;
     const { ctx, master } = state.audio;
@@ -323,7 +214,7 @@
   }
 
   scene.addEventListener('click', (e) => {
-    const cta = e.target.closest('.hero-cta');
+    const cta = e.target.closest('[data-tab]');
     if (!cta) return;
     if (!scene.classList.contains('on-air')) return;
 
@@ -340,18 +231,6 @@
     backBtn.addEventListener('click', exitInputFlow);
   }
 
-  // ============================================================
-  // 7) 페이지 가시성 · 탭 비활성 시 애니 정지 (배터리 절약)
-  // ============================================================
-  document.addEventListener('visibilitychange', () => {
-    if (document.hidden) {
-      if (state.rafId) { cancelAnimationFrame(state.rafId); state.rafId = null; }
-      if (state.burstTimer) { clearTimeout(state.burstTimer); state.burstTimer = null; }
-    } else if (scene.classList.contains('on-air')) {
-      if (!state.rafId) startWaveform();
-      if (!state.burstTimer) scheduleBurst();
-    }
-  });
 
   // ============================================================
   // 8) 시작 — β 시퀀스 예약
