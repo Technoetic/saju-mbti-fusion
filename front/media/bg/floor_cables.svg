@@ -5,27 +5,25 @@
     </filter>
   </defs>
   <g fill="none" stroke-linecap="round" filter="url(#soft)">
-    <path d="M -120 130 C 150 80, 340 210, 520 150 S 820 100, 1020 180 S 1240 240, 1520 165"
+    <path d="M -120 160 C 180 100, 380 220, 580 155 S 900 100, 1120 220 S 1350 245, 1520 175"
           stroke="#040308" stroke-width="10" stroke-opacity="0.92"/>
-    <path d="M 560 155 C 640 175, 645 265, 720 250 S 815 200, 850 190"
-          stroke="#040308" stroke-width="8.5" stroke-opacity="0.85"/>
-    <path d="M -80 215 C 160 195, 400 280, 620 230 S 920 205, 1120 250 S 1360 230, 1520 240"
+    <path d="M 250 175 C 340 195, 355 275, 440 260 S 545 210, 580 200"
+          stroke="#040308" stroke-width="8" stroke-opacity="0.85"/>
+    <path d="M 820 200 C 900 220, 940 300, 1020 285 S 1140 230, 1180 220"
+          stroke="#040308" stroke-width="8" stroke-opacity="0.85"/>
+    <path d="M -80 235 C 160 215, 400 300, 620 250 S 900 225, 1120 270 S 1360 250, 1520 258"
           stroke="#050308" stroke-width="7" stroke-opacity="0.8"/>
-    <path d="M 280 240 C 340 260, 370 300, 460 285 S 560 260, 590 250"
-          stroke="#050308" stroke-width="5.5" stroke-opacity="0.7"/>
-    <path d="M -60 285 Q 200 260, 430 292 T 800 285 T 1520 290"
-          stroke="#060408" stroke-width="5" stroke-opacity="0.7"/>
-    <path d="M 120 335 Q 420 320, 720 335 T 1320 340"
-          stroke="#050308" stroke-width="3.8" stroke-opacity="0.55"/>
-    <path d="M 900 320 C 950 315, 970 345, 1020 342 S 1100 330, 1140 335"
-          stroke="#050308" stroke-width="3.2" stroke-opacity="0.5"/>
+    <path d="M -60 295 Q 240 270, 500 302 T 900 295 T 1520 300"
+          stroke="#060408" stroke-width="5" stroke-opacity="0.72"/>
+    <path d="M 100 340 Q 400 325, 700 340 T 1300 345"
+          stroke="#050308" stroke-width="3.8" stroke-opacity="0.58"/>
   </g>
   <g fill="none" stroke-linecap="round">
-    <path d="M -120 128 C 150 78, 340 208, 520 148 S 820 98, 1020 178 S 1240 238, 1520 163"
+    <path d="M -120 158 C 180 98, 380 218, 580 153 S 900 98, 1120 218 S 1350 243, 1520 173"
           stroke="#c8323e" stroke-width="1.7" stroke-opacity="0.55"/>
-    <path d="M -80 213 C 160 193, 400 278, 620 228 S 920 203, 1120 248 S 1360 228, 1520 238"
+    <path d="M -80 233 C 160 213, 400 298, 620 248 S 900 223, 1120 268 S 1360 248, 1520 256"
           stroke="#b02832" stroke-width="1.2" stroke-opacity="0.45"/>
-    <path d="M -60 283 Q 200 258, 430 290 T 800 283 T 1520 288"
+    <path d="M -60 293 Q 240 268, 500 300 T 900 293 T 1520 298"
           stroke="#902028" stroke-width="0.9" stroke-opacity="0.4"/>
   </g>
 </svg>

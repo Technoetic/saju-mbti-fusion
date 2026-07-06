@@ -55,8 +55,30 @@
 @media (min-width: 768px) {
   .home-hero { min-height: calc(100vh - 72px); min-height: calc(100dvh - 72px); }
 }
-.home-hero::before,
 .home-hero::after { content: none; }
+/* 붉은 앰비언트 glow · 상단 ON AIR + 하단 pool + 좌우 warm 대칭 · 느린 브리딩 애니메이션 */
+.home-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background:
+    radial-gradient(ellipse 40% 12% at 50% 5%, rgba(200, 40, 55, 0.32) 0%, transparent 62%),
+    radial-gradient(ellipse 44% 13% at 50% 94%, rgba(200, 42, 52, 0.38) 0%, transparent 70%),
+    radial-gradient(ellipse 30% 22% at 18% 48%, rgba(150, 34, 42, 0.22) 0%, transparent 62%),
+    radial-gradient(ellipse 30% 22% at 82% 48%, rgba(150, 34, 42, 0.22) 0%, transparent 62%);
+  mix-blend-mode: screen;
+  animation: redAmbientBreathe 11s ease-in-out infinite;
+  will-change: opacity, transform;
+}
+@keyframes redAmbientBreathe {
+  0%, 100% { opacity: 0.82; transform: translateY(-0.4%) scale(1); }
+  50%      { opacity: 1.08; transform: translateY(0.6%)  scale(1.025); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .home-hero::before { animation: none; opacity: 0.95; }
+}
 
 /* ============================================================
    방송실 배경 · 붉게 물든 컨트롤룸 (심야편 참조 이미지 매칭)
@@ -84,8 +106,8 @@
     url('../media/bg/floor_cables.svg') center 92% / 108% auto no-repeat,
     radial-gradient(ellipse 48% 15% at 50% 94%, rgba(190, 38, 48, 0.6) 0%, rgba(110, 18, 26, 0.28) 42%, transparent 72%),
     linear-gradient(0deg, rgba(10, 3, 8, 0.55) 0%, transparent 22%),
-    radial-gradient(ellipse 40% 30% at 22% 45%, rgba(85, 22, 28, 0.24) 0%, transparent 62%),
-    radial-gradient(ellipse 36% 28% at 80% 58%, rgba(80, 20, 26, 0.22) 0%, transparent 62%),
+    radial-gradient(ellipse 38% 30% at 20% 50%, rgba(85, 22, 28, 0.22) 0%, transparent 62%),
+    radial-gradient(ellipse 38% 30% at 80% 50%, rgba(85, 22, 28, 0.22) 0%, transparent 62%),
     radial-gradient(ellipse 42% 45% at 50% 32%, rgba(2, 2, 4, 0.7) 0%, transparent 72%),
     radial-gradient(ellipse 45% 14% at 50% 3%, rgba(180, 32, 44, 0.44) 0%, transparent 62%),
     url('../media/bg/wall_paint.svg') center center / cover no-repeat,
