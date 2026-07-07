@@ -93,7 +93,7 @@ function renderVisualizations(container, payload) {
   const pillars = payload?.saju?.pillars;
   if (pillars) parts.push(renderPillarBadges(pillars, payload?.saju?.day_master));
 
-  // 2. 오행 분포 %바
+  // 2. 오행 분포 %바 (게이지 애니메이션)
   const wuxing = payload?.saju?.wuxing_dist;
   if (wuxing && Object.keys(wuxing).length) {
     parts.push(renderWuxingBars(wuxing, payload?.saju?.day_master));
@@ -112,7 +112,30 @@ function renderVisualizations(container, payload) {
     parts.push(renderMetaChips(gyeokguk, strength));
   }
 
+  // 5. 관상 · 얼굴 오버레이 이미지 + 12궁 %바 + 삼정
+  const face = payload?.face_reading;
+  if (face && (face.visualization || face.palace_scores)) {
+    parts.push(renderFaceBlock(face));
+  }
+
   container.innerHTML = parts.join('');
+
+  // 6. 오행 게이지 애니메이션 · initial 0% → target %
+  //    innerHTML 세팅 직후 next-frame 에 타겟 width 세팅해서 CSS transition 유발
+  requestAnimationFrame(() => {
+    const fills = container.querySelectorAll('.viz-bar-fill[data-target-width]');
+    fills.forEach((el, i) => {
+      const target = el.getAttribute('data-target-width');
+      // stagger (원소별 90ms 간격) — 게이지가 순차적으로 주욱 올라감
+      setTimeout(() => { el.style.width = target; }, 120 + i * 90);
+    });
+    // 12궁 palace 바도 동일 애니메이션
+    const palaceFills = container.querySelectorAll('.viz-palace-fill[data-target-width]');
+    palaceFills.forEach((el, i) => {
+      const target = el.getAttribute('data-target-width');
+      setTimeout(() => { el.style.width = target; }, 300 + i * 60);
+    });
+  });
 }
 
 const ELEMENT_META = {
@@ -178,6 +201,7 @@ function renderWuxingBars(dist, dayMaster) {
   const rows = ELEMENT_ORDER.map(el => {
     const v = +dist[el] || 0;
     const pct = Math.round((v / total) * 1000) / 10; // 0.1 소수
+    const targetW = `${Math.min(100, pct)}%`;
     const meta = ELEMENT_META[el];
     const isDayMaster = meta.dayStems.includes(dayMaster);
     return `
@@ -187,7 +211,7 @@ function renderWuxingBars(dist, dayMaster) {
           <span class="viz-bar-ko">${meta.ko}</span>
         </div>
         <div class="viz-bar-track">
-          <div class="viz-bar-fill" style="width:${Math.min(100, pct)}%; background:${meta.color}"></div>
+          <div class="viz-bar-fill" style="width:0%; background:${meta.color}" data-target-width="${targetW}"></div>
         </div>
         <div class="viz-bar-pct">${pct.toFixed(1)}%</div>
       </div>
@@ -202,6 +226,70 @@ function renderWuxingBars(dist, dayMaster) {
       <div class="viz-bars">${rows}</div>
     </div>
   `;
+}
+
+/* ── 관상 · 얼굴 오버레이 이미지 + 12궁 %바 ──────────────── */
+const PALACE_KO = {
+  myeong: '명궁', jaebaek: '재백궁', gwanrok: '관록궁', bokdeok: '복덕궁',
+  cheocheop: '처첩궁', janyeo: '남녀궁', hyeongje: '형제궁', jeontaek: '전택궁',
+  jilek: '질액궁', cheoni: '천이궁', nobok: '노복궁', bumo: '부모궁',
+};
+const FACE_SHAPE_KO = {
+  long: '긴형 (木)', round: '둥근형 (水)', oval: '달걀형 (火/土)', square: '각형 (金)',
+};
+
+function renderFaceBlock(face) {
+  const parts = [];
+  parts.push(`<div class="viz-block-head">
+    <span class="viz-block-title">관상 · 12궁 결정론</span>
+    <span class="viz-block-hint">(MediaPipe 8메트릭 → 12궁·삼정 점수)</span>
+  </div>`);
+
+  // 얼굴 오버레이 이미지
+  if (face.visualization?.image_base64) {
+    parts.push(`
+      <div class="viz-face-overlay">
+        <img src="${escapeHtml(face.visualization.image_base64)}" alt="관상 12궁 오버레이" loading="lazy"/>
+      </div>
+    `);
+  }
+
+  // 5형·신·기 배지
+  const badges = [];
+  const fs = face.face_shape;
+  const fsKey = (fs && typeof fs === 'object') ? (fs.shape || fs.type) : fs;
+  if (fsKey) badges.push(`<span class="viz-chip viz-chip-shape">5형 · ${escapeHtml(FACE_SHAPE_KO[fsKey] || fsKey)}</span>`);
+  if (face.shen_score != null) badges.push(`<span class="viz-chip">신 (神) ${(+face.shen_score).toFixed(2)}</span>`);
+  if (face.qi_score != null) badges.push(`<span class="viz-chip">기 (氣) ${(+face.qi_score).toFixed(2)}</span>`);
+  if (face.overall_balance != null) badges.push(`<span class="viz-chip">균형 ${(+face.overall_balance).toFixed(2)}</span>`);
+  if (badges.length) parts.push(`<div class="viz-face-badges">${badges.join('')}</div>`);
+
+  // 12궁 %바
+  const ps = face.palace_scores;
+  if (ps && typeof ps === 'object') {
+    const rows = Object.entries(ps).map(([key, meta]) => {
+      if (!meta || typeof meta !== 'object') return '';
+      const label = meta.label_ko || PALACE_KO[key] || key;
+      const short = meta.label_short || '';
+      const score = typeof meta.score === 'number' ? meta.score : (parseFloat(meta.score) || 0);
+      const pct = Math.max(0, Math.min(100, Math.round(score * 100)));
+      const isTop = key === face.top_palace;
+      const isWeak = key === face.weakest_palace;
+      const mark = isTop ? ' ★' : (isWeak ? ' ▼' : '');
+      return `
+        <div class="viz-palace-row ${isTop ? 'viz-palace-top' : ''} ${isWeak ? 'viz-palace-weak' : ''}">
+          <div class="viz-palace-label">${escapeHtml(label)}${mark}</div>
+          <div class="viz-palace-track">
+            <div class="viz-palace-fill" style="width:0%" data-target-width="${pct}%"></div>
+          </div>
+          <div class="viz-palace-pct">${pct}${short ? ' · ' + escapeHtml(short) : ''}</div>
+        </div>
+      `;
+    }).filter(Boolean).join('');
+    if (rows) parts.push(`<div class="viz-palace-bars">${rows}</div>`);
+  }
+
+  return `<div class="viz-block viz-face">${parts.join('')}</div>`;
 }
 
 function renderLuckCycle(cycle, currentAge) {

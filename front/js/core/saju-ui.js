@@ -869,52 +869,131 @@ async function buildManwolPayload(concern) {
     payload.dream_text = dreamEl.value.trim();
   }
 
-  // 관상 · 카메라 캡쳐 사진 (base64) → 백엔드에서 Sonnet Vision 으로 처리
-  try {
-    const facePhoto = typeof window.__getCapturedFacePhoto === 'function'
-      ? window.__getCapturedFacePhoto() : null;
-    if (facePhoto && typeof facePhoto === 'string' && facePhoto.length > 200) {
-      payload.face_photo_base64 = facePhoto;
-    }
-  } catch (e) { console.warn('[manwol] 관상 사진 가져오기 실패:', e); }
+  // 관상·꿈·자미 결정론을 병렬로 fetch — 페이로드 조립 병목 최소화
+  const facePhoto = typeof window.__getCapturedFacePhoto === 'function'
+    ? window.__getCapturedFacePhoto() : null;
+  const hasFacePhoto = facePhoto && typeof facePhoto === 'string' && facePhoto.length > 200;
+  const dreamText = document.getElementById('dreamTextInput')?.value?.trim() || '';
 
-  // 자미두수 · 결정론 명반 (ADR-010) — 백엔드 /api/ziwei/chart
-  try {
-    const ymd = {
-      y: r.year || +document.getElementById('year')?.value,
-      m: r.month || +document.getElementById('month')?.value,
-      d: r.day || +document.getElementById('day')?.value,
-    };
-    const birthHour = (() => {
-      const h = parseInt(document.getElementById('hour')?.value, 10);
-      if (!Number.isNaN(h) && h >= 0 && h <= 23) return h;
-      const opt = document.getElementById('hourBranch')?.selectedOptions?.[0];
-      const dh = opt ? parseInt(opt.getAttribute('data-hour'), 10) : NaN;
-      return (!Number.isNaN(dh)) ? dh : 12;
-    })();
-    if (ymd.y && ymd.m && ymd.d) {
+  const ymd = {
+    y: r.year || +document.getElementById('year')?.value,
+    m: r.month || +document.getElementById('month')?.value,
+    d: r.day || +document.getElementById('day')?.value,
+  };
+  const birthHour = (() => {
+    const h = parseInt(document.getElementById('hour')?.value, 10);
+    if (!Number.isNaN(h) && h >= 0 && h <= 23) return h;
+    const opt = document.getElementById('hourBranch')?.selectedOptions?.[0];
+    const dh = opt ? parseInt(opt.getAttribute('data-hour'), 10) : NaN;
+    return (!Number.isNaN(dh)) ? dh : 12;
+  })();
+
+  const fullName = (r.name?.surname || '') + (r.name?.givenName || '');
+
+  const [faceResult, dreamResult, ziweiResult] = await Promise.allSettled([
+    // ─── 관상 결정론 ─────────────────────────────────────────
+    (async () => {
+      if (!hasFacePhoto) return null;
+      // MediaPipe 클라이언트 메트릭 (있으면 백엔드 12궁 스코어링·오버레이 활성)
+      let metrics = null;
+      if (window.FaceMetrics && window.FaceMetrics.computeMetrics) {
+        try {
+          const img = new Image();
+          img.src = facePhoto;
+          await new Promise((res, rej) => { img.onload = res; img.onerror = rej; });
+          const canvas = document.createElement('canvas');
+          canvas.width = img.naturalWidth || img.width;
+          canvas.height = img.naturalHeight || img.height;
+          canvas.getContext('2d').drawImage(img, 0, 0);
+          metrics = await window.FaceMetrics.computeMetrics(canvas);
+        } catch (e) { console.warn('[manwol] MediaPipe 메트릭 실패:', e); }
+      }
+      const faceRes = await fetch('/api/face/reading', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          image_base64: facePhoto,
+          age,
+          gender: r.gender || 'M',
+          metrics,
+          school: 'korean',
+        }),
+      });
+      if (!faceRes.ok) return null;
+      return faceRes.json();
+    })(),
+    // ─── 꿈 결정론 ───────────────────────────────────────────
+    (async () => {
+      if (!dreamText) return null;
+      const dreamRes = await fetch('/api/dream/interpret', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          dream_text: dreamText,
+          name: fullName || null,
+          gender: r.gender,
+          age,
+        }),
+      });
+      if (!dreamRes.ok) return null;
+      return dreamRes.json();
+    })(),
+    // ─── 자미두수 결정론 ─────────────────────────────────────
+    (async () => {
+      if (!(ymd.y && ymd.m && ymd.d)) return null;
       const iso = `${ymd.y}-${String(ymd.m).padStart(2,'0')}-${String(ymd.d).padStart(2,'0')}`;
       const zwRes = await fetch('/api/ziwei/chart', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ birth: iso, birth_hour: birthHour, gender: r.gender || 'M' }),
       });
-      if (zwRes.ok) {
-        const chart = await zwRes.json();
-        const mingPalace = (chart.palaces || []).find(p => p.key === 'ming');
-        const wealthPalace = (chart.palaces || []).find(p => p.key === 'wealth');
-        const careerPalace = (chart.palaces || []).find(p => p.key === 'career');
-        const bits = [];
-        if (chart.ming_branch_ko) bits.push(`명궁 ${chart.ming_branch_ko}궁`);
-        if (chart.wuxing_ju_ko) bits.push(`${chart.wuxing_ju_ko} 오행국`);
-        if (chart.ziwei_branch_ko) bits.push(`자미성 ${chart.ziwei_branch_ko}궁`);
-        if (mingPalace?.stars_ko?.length) bits.push(`명궁 주성 ${mingPalace.stars_ko.slice(0,3).join('·')}`);
-        if (wealthPalace?.stars_ko?.length) bits.push(`재백궁 주성 ${wealthPalace.stars_ko.slice(0,3).join('·')}`);
-        if (careerPalace?.stars_ko?.length) bits.push(`관록궁 주성 ${careerPalace.stars_ko.slice(0,3).join('·')}`);
-        if (bits.length) payload.ziwei_summary = bits.join(' · ');
-      }
-    }
-  } catch (e) { console.warn('[manwol] 자미두수 명반 실패:', e); }
+      if (!zwRes.ok) return null;
+      return zwRes.json();
+    })(),
+  ]);
+
+  // 관상 결과 조립 — palace_scores + 오버레이 이미지 + 5형 (원문 리딩 X · 도사 톤이라 만월과 안 맞음)
+  if (faceResult.status === 'fulfilled' && faceResult.value) {
+    const fd = faceResult.value;
+    payload.face_reading = {
+      palace_scores: fd.palace_scores || null,
+      samjeong: fd.samjeong || null,
+      ogwan: fd.ogwan || null,
+      face_shape: fd.face_shape || null,
+      shen_score: fd.shen_score ?? null,
+      qi_score: fd.qi_score ?? null,
+      overall_balance: fd.overall_balance ?? null,
+      top_palace: fd.top_palace || null,
+      weakest_palace: fd.weakest_palace || null,
+      visualization: fd.visualization || null,
+    };
+  } else if (hasFacePhoto) {
+    // face_reading 실패해도 사진은 넘겨서 만월아씨 Vision 이 짚게 함 (폴백)
+    payload.face_photo_base64 = facePhoto;
+  }
+
+  // 꿈 결과 조립 — analysis_summary (도메인 매칭 결과 요약)
+  if (dreamText) payload.dream_text = dreamText;
+  if (dreamResult.status === 'fulfilled' && dreamResult.value) {
+    const dd = dreamResult.value;
+    payload.dream_summary = dd.analysis_summary || null;
+  }
+
+  // 자미 결과 조립 — 명반 요약
+  if (ziweiResult.status === 'fulfilled' && ziweiResult.value) {
+    const chart = ziweiResult.value;
+    const mingPalace = (chart.palaces || []).find(p => p.key === 'ming');
+    const wealthPalace = (chart.palaces || []).find(p => p.key === 'wealth');
+    const careerPalace = (chart.palaces || []).find(p => p.key === 'career');
+    const bits = [];
+    if (chart.ming_branch_ko) bits.push(`명궁 ${chart.ming_branch_ko}궁`);
+    if (chart.wuxing_ju_ko) bits.push(`${chart.wuxing_ju_ko} 오행국`);
+    if (chart.ziwei_branch_ko) bits.push(`자미성 ${chart.ziwei_branch_ko}궁`);
+    if (mingPalace?.stars_ko?.length) bits.push(`명궁 주성 ${mingPalace.stars_ko.slice(0,3).join('·')}`);
+    if (wealthPalace?.stars_ko?.length) bits.push(`재백궁 주성 ${wealthPalace.stars_ko.slice(0,3).join('·')}`);
+    if (careerPalace?.stars_ko?.length) bits.push(`관록궁 주성 ${careerPalace.stars_ko.slice(0,3).join('·')}`);
+    if (bits.length) payload.ziwei_summary = bits.join(' · ');
+  }
 
   // 타로 · 3장 랜덤 (메이저 아르카나 22장)
   try {

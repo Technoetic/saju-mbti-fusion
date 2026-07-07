@@ -492,8 +492,10 @@ class ManwolReadingRequest(BaseModel):
     life_context: dict[str, Any] | None = None
     concern: str | None = None
     dream_text: str | None = None
+    dream_summary: dict[str, Any] | None = None  # /api/dream/interpret analysis_summary (도메인 매칭)
     face_metrics: dict[str, Any] | None = None
-    face_photo_base64: str | None = None  # 카메라 캡쳐 base64 (data URL 또는 raw). Vision 첨부.
+    face_reading: dict[str, Any] | None = None  # /api/face/reading 결정론 (palace_scores·visualization·shape)
+    face_photo_base64: str | None = None  # 카메라 캡쳐 base64 (data URL 또는 raw). Vision 폴백.
     ziwei_summary: str | None = None
     tarot_cards: list[dict[str, Any]] | None = None
     gender: str | None = None

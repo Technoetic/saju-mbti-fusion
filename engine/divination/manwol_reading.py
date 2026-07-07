@@ -183,6 +183,192 @@ def _fmt_life_context(life: dict[str, Any] | None) -> str:
     return "\n".join(lines) if len(lines) > 1 else ""
 
 
+_PALACE_KO = {
+    "myeong": "명궁", "jaebaek": "재백궁", "gwanrok": "관록궁", "bokdeok": "복덕궁",
+    "cheocheop": "처첩궁", "janyeo": "남녀궁", "hyeongje": "형제궁", "jeontaek": "전택궁",
+    "jilek": "질액궁", "cheoni": "천이궁", "nobok": "노복궁", "bumo": "부모궁",
+}
+_SAMJEONG_KO = {"sang": "상정 (이마)", "jung": "중정 (눈~코)", "ha": "하정 (인중~턱)"}
+_OGWAN_KO = {
+    "chaecheong": "채청관 (귀)", "bosu": "보수관 (눈썹)",
+    "gamchal": "감찰관 (눈)", "simbyeon": "심변관 (코)", "chullnap": "출납관 (입)",
+}
+_FACE_SHAPE_KO = {
+    "long": "긴형(木)", "round": "둥근형(水)",
+    "oval": "달걀형(火/土)", "square": "각형(金)",
+}
+
+
+def _fmt_face_reading(fr: dict[str, Any]) -> str:
+    """관상 결정론 (palace_scores + 삼정 + 오관 + 5형 + 신기) 프롬프트 블록."""
+    lines: list[str] = [
+        "[관상 결정론 · MediaPipe 8메트릭 → 12궁·삼정·오관·5형·신기 점수 산출 · 이 점수를 "
+        "근거로 반드시 한~두 문단 짚어라. 각 궁 이름을 언급하고 점수의 의미를 말해라. "
+        "높은 궁 하나, 낮은 궁 하나 이상은 반드시 짚어라.]"
+    ]
+    palace_scores = fr.get("palace_scores") or {}
+    top_key = fr.get("top_palace")
+    weak_key = fr.get("weakest_palace")
+    if palace_scores and isinstance(palace_scores, dict):
+        rows = []
+        for key, meta in palace_scores.items():
+            if not isinstance(meta, dict):
+                continue
+            score = meta.get("score")
+            label = meta.get("label_ko") or _PALACE_KO.get(key, key)
+            label_short = meta.get("label_short") or ""
+            if score is None:
+                continue
+            try:
+                s = float(score)
+            except Exception:
+                continue
+            mark = ""
+            if key == top_key:
+                mark = " ★ 가장 두드러짐"
+            elif key == weak_key:
+                mark = " ▼ 가장 옅음"
+            rows.append(
+                f"    - {label}: {s:.2f}"
+                + (f" ({label_short})" if label_short else "")
+                + mark
+            )
+        if rows:
+            lines.append("  · 12궁 점수:")
+            lines.extend(rows)
+
+    samjeong = fr.get("samjeong") or {}
+    if samjeong and isinstance(samjeong, dict):
+        rows = []
+        for key, meta in samjeong.items():
+            if not isinstance(meta, dict):
+                continue
+            score = meta.get("score")
+            label = meta.get("label_ko") or _SAMJEONG_KO.get(key, key)
+            if score is None:
+                continue
+            try:
+                s = float(score)
+            except Exception:
+                continue
+            rows.append(f"    - {label}: {s:.2f}")
+        if rows:
+            lines.append("  · 삼정 균형:")
+            lines.extend(rows)
+
+    ogwan = fr.get("ogwan") or {}
+    if ogwan and isinstance(ogwan, dict):
+        rows = []
+        for key, meta in ogwan.items():
+            if not isinstance(meta, dict):
+                continue
+            score = meta.get("score")
+            label = meta.get("label_ko") or _OGWAN_KO.get(key, key)
+            if score is None:
+                continue
+            try:
+                s = float(score)
+            except Exception:
+                continue
+            rows.append(f"    - {label}: {s:.2f}")
+        if rows:
+            lines.append("  · 오관:")
+            lines.extend(rows)
+
+    fs = fr.get("face_shape")
+    if isinstance(fs, dict):
+        fs_key = fs.get("shape") or fs.get("type") or ""
+    elif isinstance(fs, str):
+        fs_key = fs
+    else:
+        fs_key = ""
+    if fs_key:
+        lines.append(f"  · 5형 분류: {_FACE_SHAPE_KO.get(fs_key, fs_key)}")
+
+    shen = fr.get("shen_score")
+    qi = fr.get("qi_score")
+    balance = fr.get("overall_balance")
+    if shen is not None or qi is not None or balance is not None:
+        pieces = []
+        if shen is not None:
+            try: pieces.append(f"신(神) {float(shen):.2f}")
+            except Exception: pass
+        if qi is not None:
+            try: pieces.append(f"기(氣) {float(qi):.2f}")
+            except Exception: pass
+        if balance is not None:
+            try: pieces.append(f"전체 균형 {float(balance):.2f}")
+            except Exception: pass
+        if pieces:
+            lines.append("  · 신기·균형: " + " · ".join(pieces))
+
+    # 매핑 금지 · 영역 명칭으로만 짚기 (ADR-010)
+    lines.append(
+        "  · 규칙: 궁 이름은 시각 영역 명칭으로만 사용. 운명 매핑 금지. "
+        "\"재백궁이 또렷하니 돈 잘 번다\" 같은 매핑 X. \"재백궁 자리(코) 균형 잡혔다\" 정도로."
+    )
+    return "\n".join(lines) if len(lines) > 1 else ""
+
+
+_DREAM_DOMAIN_KO = {
+    "artemidorus": "아르테미도로스 (고대 그리스)",
+    "wuxing": "오행+사주용신",
+    "korean_folk": "한국 민간 해몽",
+    "jung_archetypes": "융 원형",
+    "freud": "프로이트",
+    "hobson": "홉슨 활성-합성",
+    "revonsuo_tst": "TST (진화 위협)",
+    "domhoff": "돔호프 DMN",
+    "hallvandecastle": "Hall/Van de Castle",
+    "paja": "파자 (한자몽)",
+    "zhougong": "주공해몽",
+    "iching": "주역 64괘",
+    "ibnsirin": "이븐 시린",
+}
+
+
+def _fmt_dream_summary(ds: dict[str, Any]) -> str:
+    """꿈 결정론 (analysis_summary) 프롬프트 블록.
+
+    analysis_summary 는 도메인별 매칭 결과 요약 dict.
+    """
+    lines: list[str] = [
+        "[꿈 결정론 · 10+ 도메인 학파 매칭 결과 · 이 매칭을 근거로 꿈을 짚어라. "
+        "학파 2개 이상 언급 (ADR-095 양면 의무). 상징을 지어내지 마라 — 아래 매칭된 것만.]"
+    ]
+    if not isinstance(ds, dict):
+        return ""
+
+    # 다양한 스키마 지원 (domain_matches, artemidorus, wuxing 등이 top-level 나 nested)
+    def _flatten(obj, prefix=""):
+        out = []
+        if isinstance(obj, dict):
+            for k, v in obj.items():
+                if isinstance(v, (dict, list)) and v:
+                    label = _DREAM_DOMAIN_KO.get(k, k)
+                    try:
+                        preview = str(v)[:180]
+                    except Exception:
+                        preview = ""
+                    if preview:
+                        out.append(f"  · {label}: {preview}")
+        return out
+
+    rows = _flatten(ds)
+    if not rows:
+        # 그냥 문자열 요약으로 폴백
+        try:
+            preview = str(ds)[:600]
+            if preview:
+                lines.append(f"  · 요약: {preview}")
+        except Exception:
+            pass
+    else:
+        lines.extend(rows[:10])  # 도메인 최대 10개
+
+    return "\n".join(lines) if len(lines) > 1 else ""
+
+
 def _fmt_extras(payload: dict[str, Any]) -> str:
     bits: list[str] = []
     dream = payload.get("dream_text") or payload.get("dreamText")
@@ -192,8 +378,23 @@ def _fmt_extras(payload: dict[str, Any]) -> str:
             f"[꿈 · 사연자 원문 · 이 꿈 내용을 반드시 한 문단 짚어라]\n"
             f"  \"{clipped}\""
         )
+    # ─── 관상 결정론 (face_reading) — 12궁·삼정·오관·5형·신기 점수 근거 ───
+    face_reading = payload.get("face_reading") or payload.get("faceReading")
+    if face_reading and isinstance(face_reading, dict):
+        face_bits = _fmt_face_reading(face_reading)
+        if face_bits:
+            bits.append(face_bits)
+    # 폴백: face_reading 실패했지만 사진만 있으면 Vision 으로 짚기 (message 에 image 첨부됨)
+    elif payload.get("face_photo_base64"):
+        bits.append(
+            "[관상 · 사연자가 얼굴 사진을 제출했다 · 결정론 지표 산출 실패 · Vision 폴백]\n"
+            "  이 메시지에 이미지가 첨부되어 있다. 이마·눈·코·입 등을 실제로 관찰해서 "
+            "한 문단(3~5문장) 짚어라. 사주 흐름과 연결하면 좋다. "
+            "구체적 특징 하나 이상 언급 (\"눈매가 서늘해\", \"콧대 선이 단단해\" 등)."
+        )
+    # 레거시 face_metrics 지원 (하위 호환)
     face_metrics = payload.get("face_metrics") or payload.get("faceMetrics")
-    if face_metrics and isinstance(face_metrics, dict):
+    if face_metrics and isinstance(face_metrics, dict) and not face_reading:
         try:
             keys = list(face_metrics.keys())[:8]
             summary = ", ".join(
@@ -201,18 +402,16 @@ def _fmt_extras(payload: dict[str, Any]) -> str:
                 else f"{k}={face_metrics[k]}"
                 for k in keys
             )
-            bits.append(f"[관상 결정론 지표]\n  {summary}")
+            bits.append(f"[관상 결정론 지표 (레거시)]\n  {summary}")
         except Exception:
             pass
-    # face_photo_base64 는 별도 (message 에 image 로 첨부됨).
-    # 여기선 프롬프트에 안내만 (반드시 관상 한 문단 짚으라).
-    if payload.get("face_photo_base64"):
-        bits.append(
-            "[관상 · 사연자가 얼굴 사진을 제출했다]\n"
-            "  이 메시지에 이미지가 첨부되어 있다. 이마·눈·코·입 등을 실제로 관찰해서 "
-            "한 문단(3~5문장) 짚어라. 사주 흐름과 연결하면 더 좋다. "
-            "구체적 특징 하나 이상 언급 (\"눈매가 서늘해\", \"입술 선이 얇아\" 등)."
-        )
+
+    # ─── 꿈 결정론 (dream_summary) — 다도메인 매칭 요약 ───
+    dream_summary = payload.get("dream_summary") or payload.get("dreamSummary")
+    if dream_summary and isinstance(dream_summary, dict):
+        dream_bits = _fmt_dream_summary(dream_summary)
+        if dream_bits:
+            bits.append(dream_bits)
     ziwei_summary = payload.get("ziwei_summary") or payload.get("ziweiSummary")
     if ziwei_summary and isinstance(ziwei_summary, str) and ziwei_summary.strip():
         bits.append(
