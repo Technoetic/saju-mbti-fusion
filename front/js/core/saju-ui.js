@@ -300,9 +300,7 @@ function renderResult(r) {
 
   const html = `
   ${nameHeader}
-  <details class="saju-details">
-  <summary>◇ 자세한 사주 분석표 보기 (전문 용어 포함)</summary>
-  <div style="padding-top:14px">
+  <div class="saju-details-open" style="padding-top:14px">
   <h3>四柱八字 · 사주 8글자</h3>
   ${pillarsHTML}
   ${summaryHTML}
@@ -312,7 +310,6 @@ function renderResult(r) {
   ${renderNameAnalysis(r.nameAnalysis, r.name)}
   ${metaHTML}
   </div>
-  </details>
   <div id="saju-school-toggle-guk" class="saju-school-toggle-slot"></div>
   <div id="saju-school-toggle-sinsal" class="saju-school-toggle-slot"></div>
   <div id="saju-school-toggle-synergy" class="saju-school-toggle-slot"></div>
