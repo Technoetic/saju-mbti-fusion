@@ -938,18 +938,26 @@ document.getElementById('backToInputBtn').addEventListener('click', () => {
 (function setupGoDeeper() {
   const btn = document.getElementById('goDeeperBtn');
   if (!btn) return;
-  btn.addEventListener('click', () => {
+  btn.addEventListener('click', async () => {
     const mbtiAfter = document.getElementById('mbtiAfter');
     const concernAfter = document.getElementById('userConcernAfter');
     const hint = document.getElementById('goDeeperHint');
-    // 숨겨진 원래 입력으로 값 동기화 (백엔드 붙이면 그대로 쓰임)
-    if (mbtiAfter) document.getElementById('mbti').value = mbtiAfter.value || '';
-    if (concernAfter) document.getElementById('userConcern').value = (concernAfter.value || '').trim();
-    // 백엔드 미연결 상태 — 사용자에게 안내만
+    // 숨겨진 원래 입력으로 값 동기화 (mbti 는 lifeContext 에 이미 담기지만
+    // 결과 페이지에서 새로 골랐다면 lastSajuResult.lifeContext 도 반영)
+    const mbtiVal = mbtiAfter?.value || '';
+    const concernVal = (concernAfter?.value || '').trim();
+    if (concernVal) document.getElementById('userConcern').value = concernVal;
+    if (mbtiVal && lastSajuResult) {
+      lastSajuResult.lifeContext = lastSajuResult.lifeContext || {};
+      lastSajuResult.lifeContext.mbti = mbtiVal;
+    }
     if (hint) {
-      hint.textContent = '입력이 저장됐어요. 추가 풀이 기능은 곧 연결됩니다.';
+      hint.textContent = '다시 짚어보는 중.';
       hint.style.color = 'var(--gold-bri)';
     }
+    // 상단으로 스크롤 후 만월아씨 서사 재실행
+    document.getElementById('claudeResult')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    await triggerAICall();
   });
 })();
 
