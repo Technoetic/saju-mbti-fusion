@@ -620,7 +620,7 @@ document.querySelectorAll('.mode-btn').forEach(btn => {
   const cf = document.getElementById('concernFieldset');
   if (cf) {
   const lg = cf.querySelector('legend');
-  if (lg) lg.textContent = showPartner ? '七. 고민 心' : '六. 고민 心';
+  if (lg) lg.textContent = '一. 고민 心'; // 궁합 모드 폐기 · concern 은 항상 최상단
   }
 
   // 안내 문구
@@ -887,7 +887,7 @@ async function buildManwolPayload(concern) {
 
   const fullName = (r.name?.surname || '') + (r.name?.givenName || '');
 
-  const [faceResult, dreamResult, ziweiResult] = await Promise.allSettled([
+  const [faceResult, dreamResult] = await Promise.allSettled([
     // ─── 관상 결정론 ─────────────────────────────────────────
     (async () => {
       if (!hasFacePhoto) return null;
@@ -935,18 +935,6 @@ async function buildManwolPayload(concern) {
       if (!dreamRes.ok) return null;
       return dreamRes.json();
     })(),
-    // ─── 자미두수 결정론 ─────────────────────────────────────
-    (async () => {
-      if (!(ymd.y && ymd.m && ymd.d)) return null;
-      const iso = `${ymd.y}-${String(ymd.m).padStart(2,'0')}-${String(ymd.d).padStart(2,'0')}`;
-      const zwRes = await fetch('/api/ziwei/chart', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ birth: iso, birth_hour: birthHour, gender: r.gender || 'M' }),
-      });
-      if (!zwRes.ok) return null;
-      return zwRes.json();
-    })(),
   ]);
 
   // 관상 결과 조립 — palace_scores + 오버레이 이미지 + 5형 (원문 리딩 X · 도사 톤이라 만월과 안 맞음)
@@ -976,24 +964,7 @@ async function buildManwolPayload(concern) {
     payload.dream_summary = dd.analysis_summary || null;
   }
 
-  // 자미 결과 조립 — 명반 요약
-  if (ziweiResult.status === 'fulfilled' && ziweiResult.value) {
-    const chart = ziweiResult.value;
-    const mingPalace = (chart.palaces || []).find(p => p.key === 'ming');
-    const wealthPalace = (chart.palaces || []).find(p => p.key === 'wealth');
-    const careerPalace = (chart.palaces || []).find(p => p.key === 'career');
-    const bits = [];
-    if (chart.ming_branch_ko) bits.push(`명궁 ${chart.ming_branch_ko}궁`);
-    if (chart.wuxing_ju_ko) bits.push(`${chart.wuxing_ju_ko} 오행국`);
-    if (chart.ziwei_branch_ko) bits.push(`자미성 ${chart.ziwei_branch_ko}궁`);
-    if (mingPalace?.stars_ko?.length) bits.push(`명궁 주성 ${mingPalace.stars_ko.slice(0,3).join('·')}`);
-    if (wealthPalace?.stars_ko?.length) bits.push(`재백궁 주성 ${wealthPalace.stars_ko.slice(0,3).join('·')}`);
-    if (careerPalace?.stars_ko?.length) bits.push(`관록궁 주성 ${careerPalace.stars_ko.slice(0,3).join('·')}`);
-    if (bits.length) payload.ziwei_summary = bits.join(' · ');
-  }
-
-  // 타로 시스템 폐기 · 사용자가 카드 선택하지 않았는데 자동 draw 는 부적절.
-  // 필요시 별도 타로 카드 뽑기 UI 만들고 결과를 payload.tarot_cards 에 실을 것.
+  // 자미두수 · 타로 시스템 폐기 · 사용자 요청.
 
   return payload;
 }
