@@ -1070,32 +1070,7 @@ document.getElementById('backToInputBtn').addEventListener('click', () => {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 });
 
-// [더 깊이 풀어보기] — 결과 화면에서 MBTI·고민을 추가 입력받음 (백엔드 미연결)
-(function setupGoDeeper() {
-  const btn = document.getElementById('goDeeperBtn');
-  if (!btn) return;
-  btn.addEventListener('click', async () => {
-    const mbtiAfter = document.getElementById('mbtiAfter');
-    const concernAfter = document.getElementById('userConcernAfter');
-    const hint = document.getElementById('goDeeperHint');
-    // 숨겨진 원래 입력으로 값 동기화 (mbti 는 lifeContext 에 이미 담기지만
-    // 결과 페이지에서 새로 골랐다면 lastSajuResult.lifeContext 도 반영)
-    const mbtiVal = mbtiAfter?.value || '';
-    const concernVal = (concernAfter?.value || '').trim();
-    if (concernVal) document.getElementById('userConcern').value = concernVal;
-    if (mbtiVal && lastSajuResult) {
-      lastSajuResult.lifeContext = lastSajuResult.lifeContext || {};
-      lastSajuResult.lifeContext.mbti = mbtiVal;
-    }
-    if (hint) {
-      hint.textContent = '다시 짚어보는 중.';
-      hint.style.color = 'var(--gold-bri)';
-    }
-    // 상단으로 스크롤 후 만월아씨 서사 재실행
-    document.getElementById('claudeResult')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    await triggerAICall();
-  });
-})();
+// [더 깊이 풀어보기] · 폐기 — MBTI·고민 이 이제 입력 페이지 三/六 필드셋에 있음.
 
 // 전역 노출 — 콘솔에서 직접 테스트 가능
 window.SAJU = {
