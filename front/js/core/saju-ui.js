@@ -623,7 +623,7 @@ document.querySelectorAll('.mode-btn').forEach(btn => {
   const cf = document.getElementById('concernFieldset');
   if (cf) {
   const lg = cf.querySelector('legend');
-  if (lg) lg.textContent = showPartner ? '六. 고민 心' : '五. 고민 心';
+  if (lg) lg.textContent = showPartner ? '七. 고민 心' : '六. 고민 心';
   }
 
   // 안내 문구
@@ -995,28 +995,8 @@ async function buildManwolPayload(concern) {
     if (bits.length) payload.ziwei_summary = bits.join(' · ');
   }
 
-  // 타로 · 3장 랜덤 (메이저 아르카나 22장)
-  try {
-    const MAJORS = [
-      '바보(The Fool)','마법사(The Magician)','여사제(The High Priestess)',
-      '여황제(The Empress)','황제(The Emperor)','교황(The Hierophant)',
-      '연인(The Lovers)','전차(The Chariot)','힘(Strength)','은둔자(The Hermit)',
-      '운명의 수레바퀴(Wheel of Fortune)','정의(Justice)','매달린 사람(The Hanged Man)',
-      '죽음(Death)','절제(Temperance)','악마(The Devil)','탑(The Tower)',
-      '별(The Star)','달(The Moon)','태양(The Sun)','심판(Judgement)','세계(The World)',
-    ];
-    const pool = [...MAJORS];
-    const drawn = [];
-    while (drawn.length < 3 && pool.length) {
-      const i = Math.floor(Math.random() * pool.length);
-      drawn.push(pool.splice(i, 1)[0]);
-    }
-    payload.tarot_cards = [
-      { position: '과거', name: drawn[0] },
-      { position: '현재', name: drawn[1] },
-      { position: '미래', name: drawn[2] },
-    ];
-  } catch (e) { console.warn('[manwol] 타로 드로우 실패:', e); }
+  // 타로 시스템 폐기 · 사용자가 카드 선택하지 않았는데 자동 draw 는 부적절.
+  // 필요시 별도 타로 카드 뽑기 UI 만들고 결과를 payload.tarot_cards 에 실을 것.
 
   return payload;
 }
