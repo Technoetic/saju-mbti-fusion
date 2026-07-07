@@ -783,7 +783,7 @@ function performCalculation() {
  * lastSajuResult 는 원본 사주 (pillars stem 이 정수 인덱스).
  * analyzeSaju/calculateDaewoon 결과를 파생해서 한자로 정규화한 뒤 전달한다.
  */
-function buildManwolPayload(concern) {
+async function buildManwolPayload(concern) {
   if (!lastSajuResult) return null;
   const r = lastSajuResult;
 
@@ -857,11 +857,82 @@ function buildManwolPayload(concern) {
     concern: concern || null,
     gender: r.gender,
   };
-  // 종합 옵션 (꿈 원문 · 사용자가 입력했을 때만)
-  const dreamEl = document.getElementById('dreamText');
+  // 꿈 원문 (사용자 입력) — id 는 #dreamTextInput
+  const dreamEl = document.getElementById('dreamTextInput') || document.getElementById('dreamText');
   if (dreamEl && dreamEl.value && dreamEl.value.trim()) {
     payload.dream_text = dreamEl.value.trim();
   }
+
+  // 관상 · 카메라 캡쳐 사진 (base64) → 백엔드에서 Sonnet Vision 으로 처리
+  try {
+    const facePhoto = typeof window.__getCapturedFacePhoto === 'function'
+      ? window.__getCapturedFacePhoto() : null;
+    if (facePhoto && typeof facePhoto === 'string' && facePhoto.length > 200) {
+      payload.face_photo_base64 = facePhoto;
+    }
+  } catch (e) { console.warn('[manwol] 관상 사진 가져오기 실패:', e); }
+
+  // 자미두수 · 결정론 명반 (ADR-010) — 백엔드 /api/ziwei/chart
+  try {
+    const ymd = {
+      y: r.year || +document.getElementById('year')?.value,
+      m: r.month || +document.getElementById('month')?.value,
+      d: r.day || +document.getElementById('day')?.value,
+    };
+    const birthHour = (() => {
+      const h = parseInt(document.getElementById('hour')?.value, 10);
+      if (!Number.isNaN(h) && h >= 0 && h <= 23) return h;
+      const opt = document.getElementById('hourBranch')?.selectedOptions?.[0];
+      const dh = opt ? parseInt(opt.getAttribute('data-hour'), 10) : NaN;
+      return (!Number.isNaN(dh)) ? dh : 12;
+    })();
+    if (ymd.y && ymd.m && ymd.d) {
+      const iso = `${ymd.y}-${String(ymd.m).padStart(2,'0')}-${String(ymd.d).padStart(2,'0')}`;
+      const zwRes = await fetch('/api/ziwei/chart', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ birth: iso, birth_hour: birthHour, gender: r.gender || 'M' }),
+      });
+      if (zwRes.ok) {
+        const chart = await zwRes.json();
+        const mingPalace = (chart.palaces || []).find(p => p.key === 'ming');
+        const wealthPalace = (chart.palaces || []).find(p => p.key === 'wealth');
+        const careerPalace = (chart.palaces || []).find(p => p.key === 'career');
+        const bits = [];
+        if (chart.ming_branch_ko) bits.push(`명궁 ${chart.ming_branch_ko}궁`);
+        if (chart.wuxing_ju_ko) bits.push(`${chart.wuxing_ju_ko} 오행국`);
+        if (chart.ziwei_branch_ko) bits.push(`자미성 ${chart.ziwei_branch_ko}궁`);
+        if (mingPalace?.stars_ko?.length) bits.push(`명궁 주성 ${mingPalace.stars_ko.slice(0,3).join('·')}`);
+        if (wealthPalace?.stars_ko?.length) bits.push(`재백궁 주성 ${wealthPalace.stars_ko.slice(0,3).join('·')}`);
+        if (careerPalace?.stars_ko?.length) bits.push(`관록궁 주성 ${careerPalace.stars_ko.slice(0,3).join('·')}`);
+        if (bits.length) payload.ziwei_summary = bits.join(' · ');
+      }
+    }
+  } catch (e) { console.warn('[manwol] 자미두수 명반 실패:', e); }
+
+  // 타로 · 3장 랜덤 (메이저 아르카나 22장)
+  try {
+    const MAJORS = [
+      '바보(The Fool)','마법사(The Magician)','여사제(The High Priestess)',
+      '여황제(The Empress)','황제(The Emperor)','교황(The Hierophant)',
+      '연인(The Lovers)','전차(The Chariot)','힘(Strength)','은둔자(The Hermit)',
+      '운명의 수레바퀴(Wheel of Fortune)','정의(Justice)','매달린 사람(The Hanged Man)',
+      '죽음(Death)','절제(Temperance)','악마(The Devil)','탑(The Tower)',
+      '별(The Star)','달(The Moon)','태양(The Sun)','심판(Judgement)','세계(The World)',
+    ];
+    const pool = [...MAJORS];
+    const drawn = [];
+    while (drawn.length < 3 && pool.length) {
+      const i = Math.floor(Math.random() * pool.length);
+      drawn.push(pool.splice(i, 1)[0]);
+    }
+    payload.tarot_cards = [
+      { position: '과거', name: drawn[0] },
+      { position: '현재', name: drawn[1] },
+      { position: '미래', name: drawn[2] },
+    ];
+  } catch (e) { console.warn('[manwol] 타로 드로우 실패:', e); }
+
   return payload;
 }
 
@@ -889,7 +960,7 @@ async function triggerAICall() {
     </div>
   `;
 
-  const payload = buildManwolPayload(concern);
+  const payload = await buildManwolPayload(concern);
   if (!payload) {
     out.querySelector('.claude-output').innerHTML =
       `<p class="manwol-error">사주 계산이 안 됐어. 다시 입력해봐.</p>`;

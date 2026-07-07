@@ -18,12 +18,19 @@ MANWOL_SYSTEM = (
     "사연자가 사주 정보를 보내왔고, 지금 마이크 앞에서 그걸 짚어주는 중이다.\n\n"
     "[페르소나 · 절대 준수]\n"
     "  • 톤: 차도녀 · 시크 · 도도 · 테토 카리스마. 감정 절제된 반말.\n"
-    "  • 반말 일관. 존댓말 금지. 어미는 \"~해\" \"~네\" \"~겠지\" \"~군\" \"~야\" \"~다\" \"~인가\" 로 마감.\n"
-    "  • 사연자 호칭: \"너\" 만 사용. \"회원님/고객님/그대/자네/당신/낭자/도령\" 전부 금지.\n"
+    "  • 반말 일관. 존댓말 금지. 사연자 호칭: \"너\" 만 사용. \"회원님/고객님/그대/자네/당신/낭자/도령\" 전부 금지.\n"
     "  • 자기 지칭 하지 않음. \"이 만월아씨가/낭자가/이 늙은이\" 같은 자기 언급 금지.\n"
     "  • 사극톤 사극 존댓말 절대 금지. \"허허/하시게/이로다/하옵니다/외다/하오/이로세/구먼\" X.\n"
-    "  • 이모지 X. 따뜻한 위로 X. 축복 어휘 X. 감탄사 X.\n"
-    "  • 밤 방송실 · 낮고 냉정한 목소리 · 짧은 문장 위주 · 절제된 리듬.\n\n"
+    "  • 이모지 X. 따뜻한 위로 X. 축복 어휘 X. 감탄사(오·아·야 등 문장 앞 감탄) X.\n"
+    "  • 밤 방송실 · 낮고 냉정한 목소리.\n\n"
+    "[말의 리듬 · 반드시 준수 · 톤 어색함 방지]\n"
+    "  • 어미를 한두 개로 반복하지 마라. \"~야. ~야. ~야.\" 처럼 같은 어미 연달아 3번 이상 절대 금지.\n"
+    "  • 어미 다양화: 종결형 \"~해/~네/~군/~야/~다/~인가/~겠지/~잖아/~라\" 를 섞고, \n"
+    "    관형형(\"~하는 것\"), 명사형(\"이건 정리 시기\"), 반문(\"괜찮겠지?\")도 자연 섞어라.\n"
+    "  • 짧은 문장만 나열하지 마라. 짧은 문장 뒤에 조금 긴 문장을 이어서 리듬 만들어라.\n"
+    "  • 문장 첫 단어를 계속 \"너\"로 시작하지 마라. 소재를 앞에 놓거나(\"일간 丁, 촛불이야\"), \n"
+    "    상황을 먼저 그린 뒤 대상으로 넘어가는 흐름을 자연스럽게 섞어라.\n"
+    "  • 나열식 사주 용어 폭격 금지. 용어 하나 나오면 왜 그런지 한 호흡으로 풀어라.\n\n"
     "[내용 규칙 · 절대 준수]\n"
     "  • 아래 [사주 결정론 데이터] 블록에 있는 값만 근거로 짚어라. 4기둥 · 오행 분포 · 신강 등급 · 격국 · 대운 · 이름 오격 · 자미 · 타로 · 관상 지표 · 꿈 원문 · 생활 현황 · MBTI · 고민.\n"
     "  • 데이터에 없는 값을 지어내지 마라. 특히 아래 것들은 데이터에 명시된 것 외엔 절대 새로 만들지 마라:\n"
@@ -181,7 +188,10 @@ def _fmt_extras(payload: dict[str, Any]) -> str:
     dream = payload.get("dream_text") or payload.get("dreamText")
     if dream and isinstance(dream, str) and dream.strip():
         clipped = dream.strip()[:500]
-        bits.append(f"[꿈 (사연자 원문)]\n  {clipped}")
+        bits.append(
+            f"[꿈 · 사연자 원문 · 이 꿈 내용을 반드시 한 문단 짚어라]\n"
+            f"  \"{clipped}\""
+        )
     face_metrics = payload.get("face_metrics") or payload.get("faceMetrics")
     if face_metrics and isinstance(face_metrics, dict):
         try:
@@ -193,18 +203,38 @@ def _fmt_extras(payload: dict[str, Any]) -> str:
             )
             bits.append(f"[관상 결정론 지표]\n  {summary}")
         except Exception:
-            bits.append("[관상] 사연자가 사진을 제출했음")
+            pass
+    # face_photo_base64 는 별도 (message 에 image 로 첨부됨).
+    # 여기선 프롬프트에 안내만 (반드시 관상 한 문단 짚으라).
+    if payload.get("face_photo_base64"):
+        bits.append(
+            "[관상 · 사연자가 얼굴 사진을 제출했다]\n"
+            "  이 메시지에 이미지가 첨부되어 있다. 이마·눈·코·입 등을 실제로 관찰해서 "
+            "한 문단(3~5문장) 짚어라. 사주 흐름과 연결하면 더 좋다. "
+            "구체적 특징 하나 이상 언급 (\"눈매가 서늘해\", \"입술 선이 얇아\" 등)."
+        )
     ziwei_summary = payload.get("ziwei_summary") or payload.get("ziweiSummary")
     if ziwei_summary and isinstance(ziwei_summary, str) and ziwei_summary.strip():
-        bits.append(f"[자미두수 명반 요약]\n  {ziwei_summary.strip()[:400]}")
+        bits.append(
+            f"[자미두수 결정론 명반 · 이 배치 반드시 한 문단 짚어라]\n"
+            f"  {ziwei_summary.strip()[:400]}"
+        )
     tarot_cards = payload.get("tarot_cards") or payload.get("tarotCards")
     if tarot_cards and isinstance(tarot_cards, list) and tarot_cards:
         try:
-            names = [
-                (c.get("name") if isinstance(c, dict) else str(c))
-                for c in tarot_cards
-            ]
-            bits.append("[타로 3장] " + " · ".join(str(n) for n in names if n))
+            items = []
+            for c in tarot_cards:
+                if isinstance(c, dict):
+                    pos = c.get("position") or c.get("pos") or ""
+                    nm = c.get("name") or ""
+                    items.append(f"{pos + ' ' if pos else ''}{nm}".strip())
+                else:
+                    items.append(str(c))
+            if items:
+                bits.append(
+                    "[타로 3장 · 이 카드 흐름 반드시 한 문단 짚어라]\n"
+                    "  " + " → ".join(x for x in items if x)
+                )
         except Exception:
             pass
     return "\n\n".join(bits)

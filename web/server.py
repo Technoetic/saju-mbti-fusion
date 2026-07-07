@@ -493,6 +493,7 @@ class ManwolReadingRequest(BaseModel):
     concern: str | None = None
     dream_text: str | None = None
     face_metrics: dict[str, Any] | None = None
+    face_photo_base64: str | None = None  # 카메라 캡쳐 base64 (data URL 또는 raw). Vision 첨부.
     ziwei_summary: str | None = None
     tarot_cards: list[dict[str, Any]] | None = None
     gender: str | None = None
@@ -2137,6 +2138,7 @@ class PersonalityAPIServer:
 
         시스템 프롬프트는 서버 고정 (engine/divination/manwol_reading.MANWOL_SYSTEM).
         결정론 페이로드를 build_manwol_user_prompt 로 자연 문장으로 구조화 후 LLM 스트리밍.
+        face_photo_base64 가 있으면 OpenAI-호환 multimodal content 로 이미지 첨부 → Sonnet Vision.
         """
         from fastapi.responses import StreamingResponse
         from engine.llm_sync import bizrouter_client
@@ -2146,13 +2148,41 @@ class PersonalityAPIServer:
         )
 
         payload = req.model_dump()
+        # 이미지는 별도로 처리. text 프롬프트에 base64 를 넣지 않는다.
+        face_b64 = payload.pop("face_photo_base64", None)
+        # 이미지 준비 (data URL 로 정규화)
+        image_url: str | None = None
+        if face_b64 and isinstance(face_b64, str):
+            b = face_b64.strip()
+            # 이미 data URL 이면 그대로
+            if b.startswith("data:"):
+                image_url = b
+            else:
+                # raw base64 — 기본 jpeg 로 wrap
+                # 길이 검사 (5MB 안팎 · base64 7MB)
+                if len(b) < 7 * 1024 * 1024:
+                    image_url = f"data:image/jpeg;base64,{b}"
+        # face_photo 플래그를 prompt builder 에 남겨두고 (프롬프트에 안내 포함)
+        if image_url:
+            payload["face_photo_base64"] = "PRESENT"
+
         user_prompt = build_manwol_user_prompt(payload)
+
         # 만월아씨 서사는 톤·통합력이 중요 → 이전 사주 웹툰이 사용하던 Sonnet 4.6 고정.
         # 환경변수 override 로 다운그레이드 가능.
         bizrouter_model = os.environ.get(
             "MANWOL_MODEL", "anthropic/claude-sonnet-4.6"
         )
         client = bizrouter_client()
+
+        # 이미지 있으면 multimodal content, 없으면 plain text
+        if image_url:
+            user_content: Any = [
+                {"type": "text", "text": user_prompt},
+                {"type": "image_url", "image_url": {"url": image_url}},
+            ]
+        else:
+            user_content = user_prompt
 
         if not req.stream:
             try:
@@ -2162,7 +2192,7 @@ class PersonalityAPIServer:
                     max_tokens=req.max_tokens,
                     messages=[
                         {"role": "system", "content": MANWOL_SYSTEM},
-                        {"role": "user", "content": user_prompt},
+                        {"role": "user", "content": user_content},
                     ],
                 )
                 content = resp.choices[0].message.content or ""
@@ -2178,7 +2208,7 @@ class PersonalityAPIServer:
                     max_tokens=req.max_tokens,
                     messages=[
                         {"role": "system", "content": MANWOL_SYSTEM},
-                        {"role": "user", "content": user_prompt},
+                        {"role": "user", "content": user_content},
                     ],
                     stream=True,
                 )
