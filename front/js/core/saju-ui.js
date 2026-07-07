@@ -835,6 +835,11 @@ async function buildManwolPayload(concern) {
   const strength = a && a.신강신약 ? { grade: a.신강신약.등급, ratio: a.신강신약.비율 } : null;
   const gyeokguk = a && a.격국 ? { name: a.격국.명 } : null;
 
+  // 나이 계산 (대운 현재 하이라이트용)
+  const now = new Date();
+  const birthYear = r.year || +document.getElementById('year')?.value || null;
+  const age = birthYear ? Math.max(1, now.getFullYear() - birthYear) : null;
+
   const payload = {
     saju: {
       pillars: pillarsNorm,
@@ -856,6 +861,7 @@ async function buildManwolPayload(concern) {
     life_context: r.lifeContext || null,
     concern: concern || null,
     gender: r.gender,
+    age,
   };
   // 꿈 원문 (사용자 입력) — id 는 #dreamTextInput
   const dreamEl = document.getElementById('dreamTextInput') || document.getElementById('dreamText');
