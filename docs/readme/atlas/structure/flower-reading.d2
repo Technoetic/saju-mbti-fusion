@@ -1,0 +1,24 @@
+# Source: front/js/readers/hwapae-reader.js, web/server.py,
+# engine/divination/hwapae/core.py.
+direction: down
+style.fill: "#fff9ef"
+classes: {
+  module: {
+    style: {
+      fill: "#f5e6cd"
+      stroke: "#9a6f49"
+      font-color: "#392b25"
+      border-radius: 12
+      font-size: 20
+    }
+  }
+}
+ui: hwapae-reader.js {class: module}
+api: web/server.py {class: module}
+engine: hwapae/core.py {class: module}
+ui -> api: 뽑은 패와 질문 전송 {
+  style.stroke: "#8a5b56"
+}
+api -> engine: 화패 풀이 호출 {
+  style.stroke: "#8a5b56"
+}

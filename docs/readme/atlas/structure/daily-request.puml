@@ -1,0 +1,25 @@
+@startuml
+' Source: web/server.py, get_saju_daily; engine/saju/pillars.py, compute_pillars.
+hide footbox
+skinparam backgroundColor #FFF9EF
+skinparam defaultFontName Malgun Gothic
+skinparam defaultFontSize 16
+skinparam dpi 160
+skinparam shadowing false
+skinparam sequence {
+  ArrowColor #913D46
+  LifeLineBorderColor #AF9280
+  ParticipantBackgroundColor #F5E5CD
+  ParticipantBorderColor #845938
+  ParticipantFontColor #362320
+  MessageAlign center
+}
+skinparam ArrowFontColor #362320
+participant "브라우저" as B
+participant "일진 API" as A
+participant "만세력" as E
+B -> A : 2000-01-01 조회
+A -> E : 정오 기준 계산
+E --> A : 연·월·일·시주
+A --> B : 일주 ‘무오’ 반환
+@enduml

@@ -1,0 +1,18 @@
+// Source: engine/saju/wuxing.py, STEM_WUXING, BRANCH_HIDDEN and wuxing_dist.
+digraph elements {
+  graph [rankdir=TB, bgcolor="#FFF9EF", pad=0.20, nodesep=0.32, ranksep=0.44, splines=polyline]
+  node [shape=box, style="rounded,filled", fontname="Malgun Gothic", fontsize=17,
+        color="#BAA28D", fontcolor="#342622", fillcolor="#FAECD6", margin="0.23,0.12"]
+  edge [color="#805E52", arrowsize=0.7]
+  day [label="무오 일주", fillcolor="#74343E", fontcolor=white, color="#74343E"]
+  stem [label="천간 · 무"]
+  branch [label="지지 · 오"]
+  earth [label="토  1.3점", fillcolor="#EDD096", color="#B18548"]
+  fire [label="화  0.7점", fillcolor="#F2BFB0", color="#C67B65"]
+  day -> {stem branch}
+  stem -> earth [label=" 1.0 ", fontname="Arial", fontsize=14]
+  branch -> earth [label=" 0.3 ", fontname="Arial", fontsize=14]
+  branch -> fire [label=" 0.7 ", fontname="Arial", fontsize=14]
+  {rank=same; stem; branch}
+  {rank=same; earth; fire}
+}
